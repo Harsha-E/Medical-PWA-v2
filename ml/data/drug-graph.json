@@ -1,0 +1,333 @@
+{
+  "nodes": [
+    { "id": "warfarin", "displayName": "Warfarin", "category": "Anticoagulant" },
+    { "id": "aspirin", "displayName": "Aspirin", "category": "Analgesic / Antiplatelet" },
+    { "id": "ibuprofen", "displayName": "Ibuprofen", "category": "NSAID" },
+    { "id": "methotrexate", "displayName": "Methotrexate", "category": "Antimetabolite / DMARD" },
+    { "id": "lithium", "displayName": "Lithium", "category": "Mood Stabilizer" },
+    { "id": "ciprofloxacin", "displayName": "Ciprofloxacin", "category": "Antibiotic" },
+    { "id": "simvastatin", "displayName": "Simvastatin", "category": "Statin" },
+    { "id": "clarithromycin", "displayName": "Clarithromycin", "category": "Antibiotic" },
+    { "id": "tramadol", "displayName": "Tramadol", "category": "Analgesic" },
+    { "id": "sertraline", "displayName": "Sertraline", "category": "SSRI" },
+    { "id": "metformin", "displayName": "Metformin", "category": "Antidiabetic" },
+    { "id": "digoxin", "displayName": "Digoxin", "category": "Cardiac Glycoside" },
+    { "id": "amiodarone", "displayName": "Amiodarone", "category": "Antiarrhythmic" },
+    { "id": "sildenafil", "displayName": "Sildenafil", "category": "PDE5 Inhibitor" },
+    { "id": "nitrates", "displayName": "Nitrates", "category": "Vasodilator" },
+    { "id": "atorvastatin", "displayName": "Atorvastatin", "category": "Statin" },
+    { "id": "furosemide", "displayName": "Furosemide", "category": "Loop Diuretic" },
+    { "id": "amlodipine", "displayName": "Amlodipine", "category": "Calcium Channel Blocker" },
+    { "id": "potassium_supplements", "displayName": "Potassium Supplements", "category": "Electrolyte" },
+    { "id": "iron_supplements", "displayName": "Iron Supplements", "category": "Mineral" },
+    { "id": "omeprazole", "displayName": "Omeprazole", "category": "Proton Pump Inhibitor" },
+    { "id": "clopidogrel", "displayName": "Clopidogrel", "category": "Antiplatelet" },
+    { "id": "trimethoprim", "displayName": "Trimethoprim", "category": "Antibiotic" },
+    { "id": "alprazolam", "displayName": "Alprazolam", "category": "Benzodiazepine" },
+    { "id": "codeine", "displayName": "Codeine", "category": "Opioid Analgesic" },
+    { "id": "levothyroxine", "displayName": "Levothyroxine", "category": "Thyroid Hormone" },
+    { "id": "calcium_supplements", "displayName": "Calcium Supplements", "category": "Mineral" },
+    { "id": "lisinopril", "displayName": "Lisinopril", "category": "ACE Inhibitor" },
+    { "id": "gentamicin", "displayName": "Gentamicin", "category": "Antibiotic" },
+    { "id": "monoamine_oxidase_inhibitors", "displayName": "Monoamine Oxidase Inhibitors", "category": "Antidepressant" },
+    { "id": "alcohol", "displayName": "Alcohol", "category": "Substance" },
+    { "id": "grapefruit", "displayName": "Grapefruit", "category": "Food" },
+    { "id": "coffee", "displayName": "Coffee", "category": "Food" },
+    { "id": "dairy", "displayName": "Dairy Products", "category": "Food" },
+    { "id": "tyramine_rich_foods", "displayName": "Tyramine-Rich Foods", "category": "Food" },
+    { "id": "tea", "displayName": "Tea", "category": "Food" },
+    { "id": "vitamin_k_foods", "displayName": "Vitamin K-Rich Foods", "category": "Food" }
+  ],
+  "edges": [
+    {
+      "from": "warfarin",
+      "to": "aspirin",
+      "type": "drug-drug",
+      "severity": "severe",
+      "mechanism": "Additive pharmacodynamic effects inhibit platelet activation while simultaneously truncating clotting cascade responses.",
+      "evidence": "strong",
+      "recommendation": "Avoid concurrent administration. Use alternative non-NSAID analgesics unless explicit clinical protocols demand dual antiplatelet/anticoagulant profiles.",
+      "clinicalEffect": "Highly elevated susceptibility to major occult gastrointestinal hemorrhage and intracranial bleeding events."
+    },
+    {
+      "from": "warfarin",
+      "to": "ibuprofen",
+      "type": "drug-drug",
+      "severity": "severe",
+      "mechanism": "NSAID competitively displaces warfarin from albumin binding slots while inducing protective mucosal barrier degradation.",
+      "evidence": "strong",
+      "recommendation": "Contraindicated combination. Swap ibuprofen with regular paracetamol for local inflammation management.",
+      "clinicalEffect": "Acute gastric lining erosion combined with severe localized intestinal hematomas."
+    },
+    {
+      "from": "methotrexate",
+      "to": "ibuprofen",
+      "type": "drug-drug",
+      "severity": "severe",
+      "mechanism": "NSAIDs competitively inhibit the organic anion transporters OAT1 and OAT3 within proximal renal tubules, dropping methotrexate clearance rates.",
+      "evidence": "strong",
+      "recommendation": "Avoid concurrent use. If mandatory, check plasma methotrexate curves and implement leucovorin rescue protocols early.",
+      "clinicalEffect": "Fatal bone marrow suppression, absolute pancytopenia, and severe acute kidney injury."
+    },
+    {
+      "from": "lithium",
+      "to": "ibuprofen",
+      "type": "drug-drug",
+      "severity": "severe",
+      "mechanism": "Inhibition of renal vasodilatory prostaglandins decreases localized blood flow, triggering downstream sodium and lithium retention.",
+      "evidence": "strong",
+      "recommendation": "Avoid combination. Utilize alternative non-interfering muscle relaxants. If unavoidable, reduce baseline lithium dosages by 30%.",
+      "clinicalEffect": "Acute neurotoxicity characterized by gross tremors, ataxia, confusion, and structural nephron damage."
+    },
+    {
+      "from": "ciprofloxacin",
+      "to": "warfarin",
+      "type": "drug-drug",
+      "severity": "severe",
+      "mechanism": "Fluoroquinolone structures downregulate intestinal vitamin K synthesizing microflora while concurrently inhibiting hepatic CYP1A2 oxidation pathways.",
+      "evidence": "strong",
+      "recommendation": "Perform baseline prothrombin time checks. Measure INR within 48 hours of starting and stopping the antimicrobial agent.",
+      "clinicalEffect": "Elevated INR levels leading to massive internal hemorrhagic vulnerability."
+    },
+    {
+      "from": "simvastatin",
+      "to": "clarithromycin",
+      "type": "drug-drug",
+      "severity": "severe",
+      "mechanism": "Potent competitive inhibition of cytochrome P450 3A4 blocks metabolic conversion, spiking active statin serum areas under the curve by over 500%.",
+      "evidence": "strong",
+      "recommendation": "Absolute contraindication. Forcibly suspend simvastatin throughout the antimicrobial timeline.",
+      "clinicalEffect": "Severe skeletal muscle breakdown, myoglobinuria, and fatal rhabdomyolysis."
+    },
+    {
+      "from": "tramadol",
+      "to": "sertraline",
+      "type": "drug-drug",
+      "severity": "severe",
+      "mechanism": "Synergistic elevation of synaptic serotonin density via concurrent SSRI reuptake blocking and opioid-mediated active neurotransmitter release.",
+      "evidence": "strong",
+      "recommendation": "Avoid use. Discontinue or swap medications if hyperreflexia, autonomic instability, or clonus patterns emerge.",
+      "clinicalEffect": "Acute clinical serotonin syndrome requiring critical supportive critical care intervention."
+    },
+    {
+      "from": "metformin",
+      "to": "alcohol",
+      "type": "drug-food",
+      "severity": "severe",
+      "mechanism": "Ethanol restricts normal hepatic gluconeogenesis while shifting lactate-to-pyruvate metabolic ratios, accentuating mitochondrial biguanide side-effects.",
+      "evidence": "strong",
+      "recommendation": "Absolute restriction on acute binge patterns or persistent chronic alcohol consumption during biguanide use.",
+      "clinicalEffect": "Life-threatening metabolic lactic acidosis presenting with high anion gaps."
+    },
+    {
+      "from": "digoxin",
+      "to": "amiodarone",
+      "type": "drug-drug",
+      "severity": "severe",
+      "mechanism": "Amiodarone downregulates P-glycoprotein efflux transport loops, severely truncating normal renal and biliary excretion pathways of glycosides.",
+      "evidence": "strong",
+      "recommendation": "Reduce digoxin daily maintenance dosages by 50% immediately upon introducing amiodarone. Track serum counts weekly.",
+      "clinicalEffect": "Digitalis toxicity marked by severe bradycardia, visual yellow-green halation, and fatal AV blocks."
+    },
+    {
+      "from": "sildenafil",
+      "to": "nitrates",
+      "type": "drug-drug",
+      "severity": "severe",
+      "mechanism": "PDE5 restriction prevents cGMP degradation, creating massive amplification loop cascades with nitrate-mediated nitric oxide smooth muscle relaxants.",
+      "evidence": "strong",
+      "recommendation": "Strict absolute contraindication. Do not administer nitrates within 24 hours of sildenafil or 48 hours of longer-acting analogs.",
+      "clinicalEffect": "Refractory, profound cardiovascular shock and fatal myocardial infarction."
+    },
+    {
+      "from": "atorvastatin",
+      "to": "clarithromycin",
+      "type": "drug-drug",
+      "severity": "moderate",
+      "mechanism": "Hepatic CYP3A4 inhibition elevates systemic exposure profiles of atorvastatin.",
+      "evidence": "strong",
+      "recommendation": "Restrict maximum atorvastatin daily targets to 20mg during co-administration, or choose non-interfering macrolide alternates.",
+      "clinicalEffect": "Increased likelihood of muscle weakness, elevated creatine kinase counts, and generalized myalgia."
+    },
+    {
+      "from": "metformin",
+      "to": "furosemide",
+      "type": "drug-drug",
+      "severity": "moderate",
+      "mechanism": "Loop diuretics alter fluid metrics and renal excretion characteristics, increasing metformin systemic accumulation.",
+      "evidence": "moderate",
+      "recommendation": "Monitor baseline serum creatinine levels and tracking blood glucose targets closely during combined drug introductions.",
+      "clinicalEffect": "Elevated metformin concentration with minor baseline adjustments to cellular lactic synthesis curves."
+    },
+    {
+      "from": "amlodipine",
+      "to": "simvastatin",
+      "type": "drug-drug",
+      "severity": "moderate",
+      "mechanism": "Local CYP3A4 inhibition by the calcium channel blocker structure hampers normal simvastatin extraction channels.",
+      "evidence": "strong",
+      "recommendation": "Do not exceed a maximum cutoff of 20mg simvastatin daily when managing patients concurrently on amlodipine.",
+      "clinicalEffect": "Dose-dependent elevations in statin-related skeletal muscle toxicity markers."
+    },
+    {
+      "from": "lisinopril",
+      "to": "potassium_supplements",
+      "type": "drug-drug",
+      "severity": "moderate",
+      "mechanism": "ACE restriction blocks angiotensin II production, flattening aldosterone synthesis and trapping intracellular potassium ions in renal collection pathways.",
+      "evidence": "strong",
+      "recommendation": "Purge active daily potassium supplements or potassium-sparing diuretic additions from the patient's profiles. Measure serum levels.",
+      "clinicalEffect": "Hyperkalemia capable of inducing cardiotoxic conduction blocks."
+    },
+    {
+      "from": "ciprofloxacin",
+      "to": "iron_supplements",
+      "type": "drug-drug",
+      "severity": "moderate",
+      "mechanism": "Polyvalent heavy metal cations chelate fluoroquinolone structures within the stomach, forming non-absorbable structures.",
+      "evidence": "strong",
+      "recommendation": "Enforce strict scheduling separations. Take ciprofloxacin at least 2 hours before or 6 hours following mineral supplements.",
+      "clinicalEffect": "Substantially lowered gastrointestinal absorption resulting in total antimicrobial treatment failures."
+    },
+    {
+      "from": "sertraline",
+      "to": "tramadol",
+      "type": "drug-drug",
+      "severity": "moderate",
+      "mechanism": "Mild additive accumulation of synaptic serotonin combined with minor reductions in individual threshold levels for cerebral seizures.",
+      "evidence": "moderate",
+      "recommendation": "Track potential emergent symptoms including shivering, autonomic sweating, or cognitive processing confusion.",
+      "clinicalEffect": "Low-grade sub-clinical serotonin responses or elevated muscle rigidity parameters."
+    },
+    {
+      "from": "omeprazole",
+      "to": "clopidogrel",
+      "type": "drug-drug",
+      "severity": "moderate",
+      "mechanism": "Competitive inhibition of CYP2C19 prevents the bioactivation conversion steps of prodrug clopidogrel into its functional antiplatelet shape.",
+      "evidence": "strong",
+      "recommendation": "Switch the proton pump inhibitor selection to pantoprazole or famotidine to preserve antiplatelet safety targets.",
+      "clinicalEffect": "Attenuated antiplatelet protection, causing increased stroke and stent thrombosis risks."
+    },
+    {
+      "from": "methotrexate",
+      "to": "trimethoprim",
+      "type": "drug-drug",
+      "severity": "moderate",
+      "mechanism": " Trimethoprim induces weak dihydrofolate reductase inhibition, applying additive cellular folate depletion stresses.",
+      "evidence": "strong",
+      "recommendation": "Regularly run complete blood counts. Monitor for emergent signs of oral mucositis or leukopenia.",
+      "clinicalEffect": "Exacerbated antifolate effects manifesting as hematological pancytopenia or megaloblastic shifts."
+    },
+    {
+      "from": "alprazolam",
+      "to": "codeine",
+      "type": "drug-drug",
+      "severity": "moderate",
+      "mechanism": "Additive central nervous system depression stemming from concurrent GABA-A agonism and mu-opioid receptor activations.",
+      "evidence": "strong",
+      "recommendation": "Avoid combination. Restrict dosages to the lowest effective volume if co-prescribing is mandatory. Monitor respiration closely.",
+      "clinicalEffect": "Profound somnolence, significant respiratory hypoventilation, bradycardia, or coma."
+    },
+    {
+      "from": "levothyroxine",
+      "to": "calcium_supplements",
+      "type": "drug-drug",
+      "severity": "moderate",
+      "mechanism": "Calcium carbonate surfaces adsorb thyroxine molecules directly within acidic environments, impeding physiological uptake.",
+      "evidence": "strong",
+      "recommendation": "Separate administrative intake times by a rigid barrier of at least 4 hours.",
+      "clinicalEffect": "Reduced systemic absorption, precipitating sudden hypothyroid status regressions."
+    },
+    {
+      "from": "lisinopril",
+      "to": "ibuprofen",
+      "type": "drug-drug",
+      "severity": "moderate",
+      "mechanism": "Prostaglandin synthesis block limits afferent arteriolar vasodilation, clashing with ACE-mediated efferent vasodilation.",
+      "evidence": "strong",
+      "recommendation": "Monitor blood pressure parameters and track renal metrics weekly. Maintain aggressive hydration.",
+      "clinicalEffect": "Loss of blood pressure regulation and direct precipitation of acute kidney injury."
+    },
+    {
+      "from": "furosemide",
+      "to": "gentamicin",
+      "type": "drug-drug",
+      "severity": "moderate",
+      "mechanism": "Loop-diuretic mediated transient volume changes increase localized accumulation metrics across auditory hair cells and proximal renal structures.",
+      "evidence": "strong",
+      "recommendation": "Limit dual use. Check audiometric tracking and track tracking serum creatinine variables regularly.",
+      "clinicalEffect": "Irreversible vestibular ototoxicity and elevated acute tubular necrosis risks."
+    },
+    {
+      "from": "warfarin",
+      "to": "grapefruit",
+      "type": "drug-food",
+      "severity": "moderate",
+      "mechanism": "Furanocoumarin blocks intestinal CYP3A4, marginally altering R-warfarin clearance vectors.",
+      "evidence": "moderate",
+      "recommendation": "Enforce dietary stability. Do not modify baseline volumes of grapefruit consumption once a stable medication timeline is established.",
+      "clinicalEffect": "Fluctuations in INR values presenting as unexpected transient petechiae."
+    },
+    {
+      "from": "simvastatin",
+      "to": "grapefruit",
+      "type": "drug-food",
+      "severity": "moderate",
+      "mechanism": "Intestinal CYP3A4 extraction channels are completely blocked, allowing massive, unmodified systemic entry of statin arrays into the bloodstream.",
+      "evidence": "strong",
+      "recommendation": "Absolute dietary restriction. Eliminate grapefruit juices completely from the patient's environment.",
+      "clinicalEffect": "Significant elevation of plasma statin values with elevated risk of structural muscle damage."
+    },
+    {
+      "from": "levothyroxine",
+      "to": "coffee",
+      "type": "drug-food",
+      "severity": "moderate",
+      "mechanism": "Organic compounds inside roasted coffee bean matrices sequester thyroxine structures within the intestinal passage.",
+      "evidence": "moderate",
+      "recommendation": "Administer levothyroxine with plain water on an empty stomach at least 30 to 60 minutes before consuming morning coffee.",
+      "clinicalEffect": "Erratic therapeutic results and persistent destabilization of thyroid stimulating hormone metrics."
+    },
+    {
+      "from": "ciprofloxacin",
+      "to": "dairy",
+      "type": "drug-food",
+      "severity": "moderate",
+      "mechanism": "Free ionized calcium fractions present in standard dairy matrices bind fluoroquinolone chemical rings directly via chelation.",
+      "evidence": "strong",
+      "recommendation": "Do not take ciprofloxacin concurrently with milk, yogurt, or foods augmented with calcium additives.",
+      "clinicalEffect": "Substantially truncated therapeutic serum concentrations during active antimicrobial tracking cycles."
+    },
+    {
+      "from": "monoamine_oxidase_inhibitors",
+      "to": "tyramine_rich_foods",
+      "type": "drug-food",
+      "severity": "severe",
+      "mechanism": "Unchecked accumulation of dietary tyramine escapes systemic degradation, driving massive displacement actions of stored norepinephrine from synaptic vesicles.",
+      "evidence": "strong",
+      "recommendation": "Strict adherence to a low-tyramine menu framework. Exclude aged cheeses, cured meats, and fermented items completely.",
+      "clinicalEffect": "Severe vasoconstriction event sequences causing an acute hypertensive emergency."
+    },
+    {
+      "from": "iron_supplements",
+      "to": "tea",
+      "type": "drug-food",
+      "severity": "moderate",
+      "mechanism": "Tannins and polyphenolic ring structures present in tea leaves bind non-heme iron molecules, generating insoluble complexes.",
+      "evidence": "moderate",
+      "recommendation": "Do not drink tea within 2 hours of administering oral iron therapeutic supplements.",
+      "clinicalEffect": "Significantly hampered remediation speeds when treating microcytic iron-deficiency anemias."
+    },
+    {
+      "from": "warfarin",
+      "to": "vitamin_k_foods",
+      "type": "drug-food",
+      "severity": "moderate",
+      "mechanism": "Exogenous vitamin K floods hepatic cells, directly outcompeting the structural enzyme blockage profile applied by coumarin agents.",
+      "evidence": "strong",
+      "recommendation": "Enforce absolute weekly dietary consistency regarding green leafy vegetables (spinach, kale, broccoli). Do not execute erratic changes.",
+      "clinicalEffect": "Sudden drops in therapeutic anticoagulation, risking thromboembolic events."
+    }
+  ]
+}
