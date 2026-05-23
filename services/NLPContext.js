@@ -1,28 +1,24 @@
 /**
- * @fileoverview Natural Language Processing and Fuzzy String Correction Context Service.
+ * @fileoverview Natural Language Processing and Fuzzy String Context Service.
  * Architecture: ES6 Module, Client-Side Matrix Computation.
  * Paradigm: Edge-computed post-OCR character alignment and token vector ranking.
- * Requires: TensorFlow.js (global `tf`) library loaded via CDN link.
+ * Requires: TensorFlow.js (global `tf`) loaded via CDN in index.html.
  */
 
 /**
  * @typedef {Object} OCRCorrectionResult
- * @property {string} candidate - The cleaned and normalized token extracted from raw text.
- * @property {string|null} matched - The closest dictionary matched drug name string, or null if threshold unmet.
- * @property {number} confidence - The Jaccard similarity coefficient score (0.0 to 1.0).
+ * @property {string} candidate - The cleaned token extracted from raw text.
+ * @property {string|null} matched - The closest dictionary matched drug name string, or null.
+ * @property {number} confidence - The similarity coefficient score (0.0 to 1.0).
  */
 
 /**
  * @typedef {Object} FuzzyMatchResult
- * @property {string|null} matched - The absolute top match exceeding configuration thresholds.
+ * @property {string|null} matched - The absolute top match exceeding thresholds.
  * @property {number} score - The structural matching score evaluated for the top candidate.
- * @property {string[]} candidates - Array of top 5 dictionary matched candidates sorted descending.
+ * @property {string[]} candidates - Array of top 5 dictionary matched candidates.
  */
 
-/**
- * Natural Language Processing Engine for Contextualizing Messy Scan Output.
- * Combines character-level N-gram parsing indices with mathematical tensor transformations.
- */
 class NLPContext {
     constructor() {
         /**
@@ -145,10 +141,10 @@ class NLPContext {
             current.length > longest.length ? current : longest, ''
         );
 
-        // Step 3 — Structural Character Normalization
+        // Step 3 — Structural Character Normalization (Fix common OCR mistakes)
         candidateToken = candidateToken.toLowerCase()
             .replace(/0/g, 'o')
-            .replace(/1/g, 'i')
+            .replace(/1/g, 'l') // Assume 1 is l in drug names mostly
             .replace(/5/g, 's')
             .replace(/8/g, 'b')
             .replace(/\|/g, 'i')
@@ -156,7 +152,7 @@ class NLPContext {
 
         const upperCandidate = candidateToken.toUpperCase();
 
-        // Step 4 — Contextual String Matrix Lookup
+        // Step 4 — Contextual String Matrix Lookup (Jaccard + Bigrams)
         const validationOutput = this.matchDrugName(upperCandidate);
 
         return {
@@ -224,7 +220,7 @@ class NLPContext {
     }
 
     /**
-     * Re-orders candidates lists evaluating multidimensional character vector distances.
+     * Re-orders candidates lists evaluating multidimensional character vector distances via TF.
      * @param {string} query - Reference text payload.
      * @param {string[]} candidates - Array consisting of subset string elements to filter.
      * @returns {Promise<string[]>} Sorted copy containing candidates mapped by vector distance metrics.
@@ -250,7 +246,7 @@ class NLPContext {
                         return { text: candidate, similarity: 0 };
                     }
 
-                    // Dot product identity operation mapping vector trends
+                    // Dot product identity operation mapping vector trends (Cosine Similarity)
                     const dotProductTensor = tf.sum(tf.mul(queryVector, candidateVector));
                     const scoreIdentity = tf.div(dotProductTensor, tf.mul(queryNorm, candidateNorm));
                     

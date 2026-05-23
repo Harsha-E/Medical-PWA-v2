@@ -1,272 +1,213 @@
 /**
- * @fileoverview Directed Interaction Graph for MedCare PWA.
- * Architecture: Vanilla JS ES6 Module, Adjacency List Graph.
- * Paradigm: Offline mathematical calculation of Drug-Drug Interactions (DDI) via Breadth-First Search.
+ * @fileoverview Clinical Interaction Graph Service.
+ * Architecture: ES6 Module, Client-Side Graph Traversal.
+ * Paradigm: Offline-first adjacency list for drug-drug and drug-food interactions.
  */
 
-/**
- * @typedef {Object} InteractionDetails
- * @property {'severe'|'moderate'|'mild'} severity - The clinical severity of the interaction.
- * @property {string} mechanism - The pharmacokinetic or pharmacodynamic mechanism.
- * @property {string} evidence - Supporting clinical evidence or literature reference.
- */
-
-/**
- * @typedef {Object} ClashPair
- * @property {string} drugA - First interacting drug.
- * @property {string} drugB - Second interacting drug.
- * @property {'severe'|'moderate'|'mild'} severity - Interaction severity.
- * @property {string} mechanism - Interaction mechanism.
- * @property {string} evidence - Interaction evidence.
- */
-
-/**
- * @typedef {Object} InteractionSummary
- * @property {ClashPair[]} severe - List of severe interactions.
- * @property {ClashPair[]} moderate - List of moderate interactions.
- * @property {ClashPair[]} mild - List of mild interactions.
- * @property {string[]} safe - List of drugs with no known interactions in the current matrix.
- */
-
-/**
- * Core mathematical engine for calculating drug interactions locally.
- * Utilizes a directed adjacency list to represent metabolic pathways and clashes.
- */
 class InteractionGraph {
-    constructor() {
-        /** * The primary graph structure. Map of Maps.
-         * Structure: Map<DrugA_Name, Map<DrugB_Name, InteractionDetails>>
-         * @private 
-         * @type {Map<string, Map<string, InteractionDetails>>} 
-         */
-        this._adjacencyList = new Map();
+  constructor() {
+    /** @type {Map<string, Map<string, Object>>} Adjacency list of interactions */
+    this._graph = new Map();
+    /** @type {Map<string, Object>} Fast lookup index for drug metadata */
+    this._drugIndex = new Map();
+    /** @type {boolean} Tracks if the graph has been hydrated */
+    this._isReady = false;
+  }
+
+  /**
+   * Hydrates the graph from local JSON data files.
+   * Fails gracefully if offline and not cached.
+   * @returns {Promise<boolean>} True if initialized successfully.
+   */
+  async initialize() {
+    if (this._isReady) return true;
+
+    try {
+      const [graphResponse, indexResponse] = await Promise.all([
+        fetch('./data/drug-graph.json').catch(() => null),
+        fetch('./data/drug-index.json').catch(() => null)
+      ]);
+
+      if (graphResponse && graphResponse.ok) {
+        const graphData = await graphResponse.json();
         
-        this._initFallbackData();
-    }
+        // Populate nodes
+        if (Array.isArray(graphData.nodes)) {
+          graphData.nodes.forEach((node) => {
+            const key = this._normalize(node.displayName || node.id);
+            this._drugIndex.set(key, node);
+            this._addDrug(key);
+          });
+        }
 
-    /**
-     * Injects a hardcoded payload of critical drug interactions.
-     * Guarantees baseline safety checks even if the network fails to fetch the full JSON graph.
-     * @private
-     */
-    _initFallbackData() {
-        const baselineInteractions = [
-            {
-                drugA: 'METFORMIN', drugB: 'LISINOPRIL',
-                severity: 'moderate',
-                mechanism: 'Increased risk of hypoglycemia and lactic acidosis due to renal profile changes.',
-                evidence: 'Clinical consensus; monitor renal function and blood glucose.'
-            },
-            {
-                drugA: 'ATORVASTATIN', drugB: 'CLARITHROMYCIN',
-                severity: 'severe',
-                mechanism: 'Clarithromycin strongly inhibits CYP3A4, drastically increasing atorvastatin exposure and risk of rhabdomyolysis.',
-                evidence: 'FDA Warning; Concurrent use contraindicated.'
-            },
-            {
-                drugA: 'ASPIRIN', drugB: 'IBUPROFEN',
-                severity: 'moderate',
-                mechanism: 'Ibuprofen competitively binds to COX-1, negating the cardioprotective antiplatelet effect of low-dose aspirin.',
-                evidence: 'AHA guidelines; take aspirin 2 hours before ibuprofen.'
-            },
-            {
-                drugA: 'WARFARIN', drugB: 'AMIODARONE',
-                severity: 'severe',
-                mechanism: 'Amiodarone inhibits multiple CYP enzymes (2C9, 1A2, 3A4), significantly amplifying warfarin effects and bleeding risk.',
-                evidence: 'Standard prescribing guidelines; Requires immediate INR monitoring and dose reduction.'
-            },
-            {
-                drugA: 'SILDENAFIL', drugB: 'NITROGLYCERIN',
-                severity: 'severe',
-                mechanism: 'Synergistic vasodilation via the nitric oxide/cGMP pathway leading to profound, potentially fatal hypotension.',
-                evidence: 'Strict absolute contraindication.'
-            },
-            {
-                drugA: 'OMEPRAZOLE', drugB: 'CLOPIDOGREL',
-                severity: 'moderate',
-                mechanism: 'Omeprazole inhibits CYP2C19, preventing the conversion of clopidogrel into its active antiplatelet metabolite.',
-                evidence: 'FDA Boxed Warning; Consider alternative PPI like pantoprazole.'
-            },
-            {
-                drugA: 'LISINOPRIL', drugB: 'SPIRONOLACTONE',
-                severity: 'severe',
-                mechanism: 'Dual blockade/interference with the renin-angiotensin-aldosterone system (RAAS) greatly increases fatal hyperkalemia risk.',
-                evidence: 'Standard monitoring required; avoid potassium supplements.'
-            },
-            {
-                drugA: 'CIPROFLOXACIN', drugB: 'TIZANIDINE',
-                severity: 'severe',
-                mechanism: 'Ciprofloxacin is a potent CYP1A2 inhibitor, causing massive spikes in tizanidine plasma concentrations (hypotension/sedation).',
-                evidence: 'Contraindicated; use alternative antibiotic or muscle relaxant.'
+        // Populate edges (interactions)
+        if (Array.isArray(graphData.edges)) {
+          graphData.edges.forEach((edge) => {
+            this._addInteraction(
+              edge.from,
+              edge.to,
+              edge.severity,
+              edge.recommendation || edge.mechanism || edge.description || 'Potential interaction detected.',
+              edge
+            );
+          });
+        }
+      }
+
+      // Populate flat index if available
+      if (indexResponse && indexResponse.ok) {
+        const indexData = await indexResponse.json();
+        if (Array.isArray(indexData)) {
+          indexData.forEach((entry) => {
+            if (typeof entry === 'string') {
+              const key = this._normalize(entry);
+              if (!this._drugIndex.has(key)) {
+                this._drugIndex.set(key, { displayName: entry, id: entry });
+              }
             }
-        ];
+          });
+        }
+      }
 
-        this.loadGraph(baselineInteractions);
-        console.log('[InteractionGraph] Baseline fallback matrix initialized.');
+      this._isReady = true;
+      console.log(`[InteractionGraph] Hydrated with ${this._graph.size} active nodes.`);
+      return true;
+
+    } catch (error) {
+      console.error('[InteractionGraph] Failed to initialize clinical data:', error);
+      return false; // Fail gracefully, allow app to run without safety checks
     }
+  }
 
-    /**
-     * Parses and loads a JSON dataset into the adjacency list.
-     * @param {Array<Object>} jsonData - Array of interaction objects.
-     */
-    loadGraph(jsonData) {
-        if (!Array.isArray(jsonData)) {
-            console.error('[InteractionGraph] loadGraph expects an array of interaction objects.');
-            return;
-        }
+  /**
+   * Normalizes strings for consistent Map key lookups.
+   * @private
+   */
+  _normalize(drugName) {
+    return String(drugName || '').trim().toLowerCase().replace(/_/g, ' ');
+  }
 
-        let addedEdges = 0;
-
-        for (const entry of jsonData) {
-            try {
-                if (!entry.drugA || !entry.drugB || !entry.severity) continue;
-
-                const interactionDetails = {
-                    severity: entry.severity.toLowerCase(),
-                    mechanism: entry.mechanism || 'Mechanism unspecified.',
-                    evidence: entry.evidence || 'Evidence unspecified.'
-                };
-
-                // Drug interactions are inherently bi-directional clinically.
-                // We add directed edges in both directions to ensure graph traversal catches it regardless of entry point.
-                this.addEdge(entry.drugA, entry.drugB, interactionDetails);
-                this.addEdge(entry.drugB, entry.drugA, interactionDetails);
-                
-                addedEdges += 2;
-            } catch (parseError) {
-                console.warn('[InteractionGraph] Failed to parse graph edge:', parseError);
-            }
-        }
-
-        console.log(`[InteractionGraph] Successfully loaded ${addedEdges} directed edges into memory.`);
+  /**
+   * Adds a drug vertex to the graph.
+   * @private
+   */
+  _addDrug(drugName) {
+    const key = this._normalize(drugName);
+    if (!key) return;
+    if (!this._graph.has(key)) {
+      this._graph.set(key, new Map());
     }
+  }
 
-    /**
-     * Appends a directed edge between two nodes in the graph.
-     * @param {string} sourceDrug - The origin node.
-     * @param {string} targetDrug - The destination node.
-     * @param {InteractionDetails} interaction - The mathematical weight/data of the edge.
-     */
-    addEdge(sourceDrug, targetDrug, interaction) {
-        if (!sourceDrug || !targetDrug) return;
+  /**
+   * Adds a bidirectional interaction edge to the graph.
+   * @private
+   */
+  _addInteraction(drug1, drug2, severity, description, metadata = {}) {
+    const from = this._normalize(drug1);
+    const to = this._normalize(drug2);
+    if (!from || !to) return;
 
-        const normalizedSource = sourceDrug.toUpperCase().trim();
-        const normalizedTarget = targetDrug.toUpperCase().trim();
+    this._addDrug(from);
+    this._addDrug(to);
 
-        if (!this._adjacencyList.has(normalizedSource)) {
-            this._adjacencyList.set(normalizedSource, new Map());
-        }
+    const payload = {
+      exists: true,
+      drug1: metadata.displayName1 || drug1,
+      drug2: metadata.displayName2 || drug2,
+      severity: (severity || 'moderate').toLowerCase(),
+      description: description,
+      recommendation: metadata.recommendation || 'Consult your doctor before combining these medicines.',
+      evidence: metadata.evidence || 'theoretical',
+      details: metadata
+    };
 
-        this._adjacencyList.get(normalizedSource).set(normalizedTarget, interaction);
-    }
+    // Store bi-directionally
+    this._graph.get(from).set(to, payload);
+    this._graph.get(to).set(from, { ...payload, drug1: drug2, drug2: drug1 });
+  }
 
-    /**
-     * Executes a Breadth-First Search (BFS) to identify all clashes within a specific list of medications.
-     * Constrains the search bounds strictly to the provided list to optimize mobile CPU time.
-     * @param {string[]} patientDrugList - Array of drug names currently taken by the patient.
-     * @returns {ClashPair[]} An array of identified interaction pairs.
-     */
-    findInteractions(patientDrugList) {
-        if (!Array.isArray(patientDrugList) || patientDrugList.length < 2) {
-            return [];
-        }
+  /**
+   * Checks for a specific interaction between two drugs.
+   * @param {string} drug1 
+   * @param {string} drug2 
+   * @returns {Object|null} Interaction details or null if safe.
+   */
+  checkInteraction(drug1, drug2) {
+    if (!this._isReady) return null;
+    const from = this._normalize(drug1);
+    const to = this._normalize(drug2);
+    return this._graph.get(from)?.get(to) || null;
+  }
 
-        const normalizedList = patientDrugList.map(drugName => drugName.toUpperCase().trim());
-        const discoveredClashes = [];
-        const processedEdges = new Set();
+  /**
+   * Evaluates an entire list of medications for any cross-interactions.
+   * @param {string[]|Object[]} drugList - Array of drug names or medication objects.
+   * @returns {Object[]} Array of found interactions.
+   */
+  findInteractions(drugList = []) {
+    if (!this._isReady || drugList.length < 2) return [];
 
-        for (const originNode of normalizedList) {
-            if (!this._adjacencyList.has(originNode)) continue;
+    const normalized = drugList.map((drug) =>
+      typeof drug === 'string'
+        ? { key: this._normalize(drug), label: drug }
+        : { key: this._normalize(drug.genericName || drug.name), label: drug.name || drug.genericName }
+    );
+    
+    const seen = new Set();
+    const interactions = [];
 
-            // BFS Initialization
-            const traversalQueue = [originNode];
-            const visitedNodes = new Set([originNode]);
-
-            while (traversalQueue.length > 0) {
-                const currentNode = traversalQueue.shift();
-                const neighborEdges = this._adjacencyList.get(currentNode);
-
-                if (!neighborEdges) continue;
-
-                for (const [neighborNode, interactionData] of neighborEdges.entries()) {
-                    // We only care if the neighboring clash is actually a drug the patient is taking
-                    if (normalizedList.includes(neighborNode)) {
-                        
-                        // Create a bidirectional hash to prevent logging A->B and B->A as two separate clashes
-                        const edgeHash = [currentNode, neighborNode].sort().join('::');
-                        
-                        if (!processedEdges.has(edgeHash)) {
-                            processedEdges.add(edgeHash);
-                            discoveredClashes.push({
-                                drugA: currentNode,
-                                drugB: neighborNode,
-                                severity: interactionData.severity,
-                                mechanism: interactionData.mechanism,
-                                evidence: interactionData.evidence
-                            });
-                        }
-                    }
-
-                    // Continue BFS traversal down the metabolic pathway ONLY if the neighbor is in the patient's list
-                    // This prevents the algorithm from endlessly crawling the entire 200,000 node FDA database
-                    if (normalizedList.includes(neighborNode) && !visitedNodes.has(neighborNode)) {
-                        visitedNodes.add(neighborNode);
-                        traversalQueue.push(neighborNode);
-                    }
-                }
-            }
-        }
-
-        return discoveredClashes;
-    }
-
-    /**
-     * Transforms the raw BFS clash data into a categorized, UI-ready summary object.
-     * @param {string[]} patientDrugList - Array of drug names.
-     * @returns {InteractionSummary}
-     */
-    getInteractionSummary(patientDrugList) {
-        const rawClashes = this.findInteractions(patientDrugList);
+    // O(N^2) comparison for small arrays (typically < 10 medications)
+    for (let i = 0; i < normalized.length; i++) {
+      for (let j = i + 1; j < normalized.length; j++) {
+        const interaction = this.checkInteraction(normalized[i].key, normalized[j].key);
+        if (!interaction) continue;
         
-        const summaryBucket = {
-            severe: [],
-            moderate: [],
-            mild: [],
-            safe: []
-        };
-
-        const interactingDrugsSet = new Set();
-
-        // Bucket the clashes
-        for (const clash of rawClashes) {
-            if (summaryBucket[clash.severity]) {
-                summaryBucket[clash.severity].push(clash);
-            } else {
-                // Fallback for malformed data
-                summaryBucket.moderate.push(clash); 
-            }
-            
-            interactingDrugsSet.add(clash.drugA);
-            interactingDrugsSet.add(clash.drugB);
-        }
-
-        // Identify completely safe drugs (no edges found within the current graph subset)
-        for (const drugName of patientDrugList) {
-            const normalizedName = drugName.toUpperCase().trim();
-            if (!interactingDrugsSet.has(normalizedName)) {
-                summaryBucket.safe.push(normalizedName);
-            }
-        }
-
-        // Sort sub-arrays alphabetically by Drug A for predictable UI rendering
-        summaryBucket.severe.sort((a, b) => a.drugA.localeCompare(b.drugA));
-        summaryBucket.moderate.sort((a, b) => a.drugA.localeCompare(b.drugA));
-        summaryBucket.mild.sort((a, b) => a.drugA.localeCompare(b.drugA));
-        summaryBucket.safe.sort((a, b) => a.localeCompare(b));
-
-        return summaryBucket;
+        // Prevent duplicate bi-directional pushes
+        const pairKey = [normalized[i].key, normalized[j].key].sort().join('::');
+        if (seen.has(pairKey)) continue;
+        
+        seen.add(pairKey);
+        interactions.push({
+          drug1: normalized[i].label,
+          drug2: normalized[j].label,
+          severity: interaction.severity,
+          description: interaction.description,
+          recommendation: interaction.recommendation,
+          evidence: interaction.evidence
+        });
+      }
     }
+
+    return interactions;
+  }
+
+  /**
+   * Returns a categorized summary of a patient's regimen safety.
+   * @param {string[]|Object[]} drugList 
+   * @returns {Object} { severe: [], moderate: [], mild: [], safe: [] }
+   */
+  getInteractionSummary(drugList = []) {
+    const interactions = this.findInteractions(drugList);
+    
+    const summary = {
+      severe: interactions.filter((item) => item.severity === 'severe'),
+      moderate: interactions.filter((item) => item.severity === 'moderate'),
+      mild: interactions.filter((item) => item.severity === 'mild'),
+      safe: []
+    };
+
+    // Determine which drugs have NO interactions
+    summary.safe = drugList
+      .map((drug) => (typeof drug === 'string' ? drug : drug.name || drug.genericName))
+      .filter((drugName) => !interactions.some((item) => 
+        item.drug1.toLowerCase() === drugName.toLowerCase() || 
+        item.drug2.toLowerCase() === drugName.toLowerCase()
+      ));
+
+    return summary;
+  }
 }
 
-// Export singleton instance to preserve memory across the application lifecycle
+// Export as a singleton
 export const interactionGraph = new InteractionGraph();

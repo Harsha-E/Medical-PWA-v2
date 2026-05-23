@@ -1,0 +1,69 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile with medical identity",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "bloodType": { "type": "string" },
+        "emergencyContact": { "type": "string" },
+        "birthYear": { "type": "string" },
+        "conditions": { "type": "string" },
+        "allergies": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "admin"] }
+      },
+      "required": ["userId", "name", "email"]
+    },
+    "Medication": {
+      "title": "Medication",
+      "description": "A single medication record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "dosage": { "type": "string" },
+        "dosageUnit": { "type": "string" },
+        "category": { "type": "string" },
+        "frequency": { "type": "string" },
+        "times": { "type": "array" },
+        "notes": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "name"]
+    },
+    "Appointment": {
+      "title": "Appointment",
+      "description": "Medical appointment intervention",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "doctor": { "type": "string" },
+        "location": { "type": "string" },
+        "time": { "type": "string" },
+        "date": { "type": "string" },
+        "critical": { "type": "boolean" }
+      },
+      "required": ["id", "userId", "title", "date", "time"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "medications/{medicationId}": {
+      "schema": "Medication",
+      "description": "Global medication ledger"
+    },
+    "appointments/{appointmentId}": {
+      "schema": "Appointment",
+      "description": "Intervention schedule"
+    }
+  }
+}

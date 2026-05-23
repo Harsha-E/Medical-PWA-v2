@@ -1,0 +1,17 @@
+{
+  "name": "medcare-pwa",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "dexie": "^4.0.8",
+    "firebase": "^10.12.0",
+    "jspdf": "^2.5.1",
+    "tesseract.js": "^5.0.4",
+    "three": "^0.164.0"
+  }
+}

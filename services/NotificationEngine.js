@@ -1,396 +1,245 @@
 /**
- * @fileoverview Client-Side Notification Engine for MedCare PWA.
- * Architecture: Vanilla JS ES6 Module.
- * Paradigm: Offline-First Local Scheduling & Throttling Resilience.
- * * Manages dose reminder notifications using the native browser Notification API.
- * Employs a hybrid approach of exact setTimeouts and a polling fallback loop
- * to guarantee delivery even if the browser throttles background tab timers.
+ * @fileoverview Local Client-Side Notification Engine.
+ * Architecture: ES6 Module, Zero-Dependency.
+ * Paradigm: Offline-first push notifications using native browser APIs and polling.
  */
-
-// ============================================================================
-// CONSTANTS
-// ============================================================================
-
-const SCHEDULER_POLL_INTERVAL_MS = 60000; // 60 seconds
-const DRIFT_TOLERANCE_WINDOW_MS = 120000; // 120 seconds maximum accepted timer drift
-const ONE_DAY_MS = 24 * 60 * 60 * 1000;
-const NOTIFICATION_ICON_PATH = './assets/icons/icon-192x192.png';
-const NOTIFICATION_BADGE_PATH = './assets/icons/icon-192x192.png'; // Fallback to icon if badge missing
-
-/**
- * @typedef {Object} MedicationSchedule
- * @property {string|number} id
- * @property {string} name
- * @property {string} dosage
- * @property {string[]} scheduledTimes - Array of "HH:MM" 24h formatted strings.
- * @property {string[]} [activeDays] - Array of day strings like 'mon', 'tue'.
- */
-
-// ============================================================================
-// ENGINE IMPLEMENTATION
-// ============================================================================
 
 class NotificationEngine {
-    constructor() {
-        /**
-         * The current system permission state for the Notification API.
-         * @private
-         * @type {NotificationPermission|'unsupported'}
-         */
-        this._permission = this._checkSupport() ? Notification.permission : 'unsupported';
+  constructor() {
+    /** @type {'granted'|'denied'|'default'} Current notification permission state */
+    this._permission = 'default';
+    
+    /** @type {Map<string, number>} Active setTimeout handles mapped by jobId */
+    this._scheduledJobs = new Map();
+    
+    /** @type {Set<string>} Tracks doses fired today to prevent double-firing from polling */
+    this._firedDoses = new Set();
+    
+    /** @type {number|null} setInterval handle for background sync loop */
+    this._pollInterval = null;
 
-        /**
-         * Tracks active precise timeout handles.
-         * Key: `${medicationId}_${timeStr}`
-         * Value: Timeout ID
-         * @private
-         * @type {Map<string, number>}
-         */
-        this._scheduledJobs = new Map();
+    // Check existing permissions on boot without prompting
+    if ('Notification' in window) {
+      this._permission = Notification.permission;
+    }
+  }
 
-        /**
-         * Tracks specific dose alerts that have already fired today to prevent double-firing 
-         * between the timeout queue and the polling fallback loop.
-         * @private
-         * @type {Set<string>}
-         */
-        this._firedToday = new Set();
-
-        /**
-         * Handle for the background drift-correction polling loop.
-         * @private
-         * @type {number|null}
-         */
-        this._pollInterval = null;
-
-        /**
-         * Handle for the midnight reset cron task.
-         * @private
-         * @type {number|null}
-         */
-        this._midnightResetJob = null;
+  /**
+   * Requests system-level notification permissions from the user.
+   * Gracefully handles unsupported browsers without throwing.
+   * @returns {Promise<boolean>} True if permission was granted.
+   */
+  async requestPermission() {
+    if (!('Notification' in window)) {
+      console.warn('[NotificationEngine] Browser does not support Notifications API.');
+      return false;
     }
 
-    /**
-     * Safely verifies if the native Notification API is supported by the client environment.
-     * @private
-     * @returns {boolean}
-     */
-    _checkSupport() {
-        return typeof window !== 'undefined' && 'Notification' in window;
+    try {
+      const permission = await Notification.requestPermission();
+      this._permission = permission;
+      return permission === 'granted';
+    } catch (error) {
+      console.warn('[NotificationEngine] Error requesting permission:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Purges existing schedules and computes the timeout sequence for all active medications.
+   * @param {Object[]} medications - Array of active medication objects.
+   * @returns {Promise<void>}
+   */
+  async scheduleAllDoses(medications = []) {
+    if (!medications || medications.length === 0) return;
+
+    this._clearAll();
+    
+    let scheduledCount = 0;
+    
+    for (const medication of medications) {
+      const count = this._scheduleMedication(medication);
+      scheduledCount += count;
     }
 
-    /**
-     * Requests explicit permission from the user to display system-level alerts.
-     * Fails gracefully without throwing if the API is restricted or unsupported.
-     * @returns {Promise<boolean>} True if permission is granted.
-     */
-    async requestPermission() {
-        if (!this._checkSupport()) {
-            console.warn('[NotificationEngine] Notification API is not supported on this device/browser.');
-            return false;
-        }
+    // Schedule midnight reset job to calculate tomorrow's doses
+    this._scheduleMidnightReset(medications);
 
-        try {
-            // Browsers may automatically reject if not triggered by a direct user gesture
-            const permissionResult = await Notification.requestPermission();
-            this._permission = permissionResult;
-            
-            if (permissionResult === 'granted') {
-                console.log('[NotificationEngine] System notification access granted.');
-                return true;
-            } else {
-                console.warn(`[NotificationEngine] System notification access ${permissionResult}. Core functionality will continue silently.`);
-                return false;
-            }
-        } catch (error) {
-            console.error('[NotificationEngine:requestPermission] Permission request failed:', error);
-            return false;
-        }
+    console.log(`[NotificationEngine] Scheduled ${scheduledCount} doses for today.`);
+  }
+
+  /**
+   * Internal routine to calculate millisecond offsets for a single medication's times.
+   * @private
+   * @param {Object} medication 
+   * @returns {number} The amount of scheduled doses.
+   */
+  _scheduleMedication(medication) {
+    if (!Array.isArray(medication.times) && !Array.isArray(medication.scheduledTimes)) return 0;
+    
+    const times = medication.times || medication.scheduledTimes;
+    let scheduledCount = 0;
+
+    const now = new Date();
+
+    for (const timeStr of times) {
+      const [hours, minutes] = timeStr.split(':').map(Number);
+      
+      const targetTime = new Date();
+      targetTime.setHours(hours, minutes, 0, 0);
+
+      const msUntilDose = targetTime.getTime() - now.getTime();
+      const jobId = `${medication.id}_${timeStr}`;
+
+      // Only schedule if time is in the future
+      if (msUntilDose > 0) {
+        const timeoutId = setTimeout(() => {
+          this._fireDoseReminder(medication, timeStr);
+        }, msUntilDose);
+
+        this._scheduledJobs.set(jobId, timeoutId);
+        scheduledCount++;
+      }
     }
 
-    /**
-     * Clears previous schedules and calculates explicit timeouts for all active medications.
-     * @param {MedicationSchedule[]} medications - Array of active medication profiles.
-     * @returns {Promise<void>}
-     */
-    async scheduleAllDoses(medications) {
-        try {
-            this._clearAll();
-            
-            // Clear the daily fired tracking Set to allow new alarms
-            this._firedToday.clear();
+    return scheduledCount;
+  }
 
-            if (!Array.isArray(medications) || medications.length === 0) {
-                console.log('[NotificationEngine] No medications provided for scheduling. Engine idle.');
-                return;
-            }
+  /**
+   * Schedules a background task 1 minute before midnight to queue the next day's alarms.
+   * @private
+   */
+  _scheduleMidnightReset(medications) {
+    const now = new Date();
+    const midnight = new Date();
+    midnight.setHours(23, 59, 0, 0);
 
-            for (const medication of medications) {
-                this._scheduleMedication(medication);
-            }
-
-            this._scheduleMidnightReset(medications);
-            
-            console.log(`[NotificationEngine] Synchronized. ${this.getScheduledCount()} exact dose alerts scheduled for today.`);
-
-        } catch (error) {
-            console.error('[NotificationEngine:scheduleAllDoses] Critical failure scheduling matrix:', error);
-        }
+    const msUntilMidnight = midnight.getTime() - now.getTime();
+    
+    if (msUntilMidnight > 0) {
+      const timeoutId = setTimeout(() => {
+        this._firedDoses.clear(); // Clear today's cache
+        this.scheduleAllDoses(medications);
+      }, msUntilMidnight);
+      
+      this._scheduledJobs.set('midnight_reset', timeoutId);
     }
+  }
 
-    /**
-     * Parses a specific medication's timing arrays and sets up JavaScript timeouts.
-     * @private
-     * @param {MedicationSchedule} medication 
-     */
-    _scheduleMedication(medication) {
-        if (!medication || !Array.isArray(medication.scheduledTimes)) return;
+  /**
+   * Triggers the native OS notification banner.
+   * @private
+   */
+  _fireDoseReminder(medication, timeStr) {
+    const jobId = `${medication.id}_${timeStr}`;
+    
+    // Mark as fired to prevent polling loop from triggering it again
+    this._firedDoses.add(jobId);
+    this._scheduledJobs.delete(jobId);
 
-        const currentSystemTime = new Date();
-        const currentDayIndex = currentSystemTime.getDay();
-        const activeDaysMap = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-        const currentDayString = activeDaysMap[currentDayIndex];
+    if (this._permission !== 'granted') return;
 
-        // Ensure medication is scheduled for today if day-constraints exist
-        if (medication.activeDays && Array.isArray(medication.activeDays)) {
-            if (!medication.activeDays.includes(currentDayString)) {
-                return; // Medication is not active on this day of the week
-            }
-        }
+    try {
+      const notification = new Notification(`💊 Time for ${medication.name || medication.genericName}`, {
+        body: `Scheduled dose: ${medication.dosage || 'Prescribed dose'}.\nTap to log it.`,
+        icon: './assets/icons/icon-192.png',
+        badge: './assets/icons/badge-72.png',
+        tag: `dose_${medication.id}`,
+        requireInteraction: true, // Keep on screen until acknowledged
+        data: { medicationId: medication.id, scheduledAt: new Date().toISOString() }
+      });
 
-        for (const timeString of medication.scheduledTimes) {
-            try {
-                const [hoursTarget, minutesTarget] = timeString.split(':').map(Number);
-                
-                const targetDate = new Date();
-                targetDate.setHours(hoursTarget, minutesTarget, 0, 0);
+      notification.onclick = () => {
+        window.focus();
+        window.location.hash = '#/dashboard';
+        notification.close();
+      };
 
-                const millisecondsUntilDose = targetDate.getTime() - currentSystemTime.getTime();
-
-                // Only schedule if the time has not already passed today
-                if (millisecondsUntilDose > 0) {
-                    const jobIdentifier = `${medication.id}_${timeString}`;
-                    
-                    const timeoutHandle = setTimeout(() => {
-                        this._fireDoseReminder(medication, timeString);
-                    }, millisecondsUntilDose);
-
-                    this._scheduledJobs.set(jobIdentifier, timeoutHandle);
-                }
-            } catch (parseError) {
-                console.warn(`[NotificationEngine] Failed to parse schedule string "${timeString}" for medication ${medication.id}`, parseError);
-            }
-        }
+      console.log(`[NotificationEngine] Fired alarm for ${medication.name}.`);
+    } catch (error) {
+      console.error('[NotificationEngine] Failed to fire notification:', error);
     }
+  }
 
-    /**
-     * Schedules a background task to rebuild the notification queue 1 minute before midnight.
-     * Ensures continuous rolling schedules across day boundaries.
-     * @private
-     * @param {MedicationSchedule[]} activeMedications 
-     */
-    _scheduleMidnightReset(activeMedications) {
-        if (this._midnightResetJob) {
-            clearTimeout(this._midnightResetJob);
-        }
+  /**
+   * A redundancy loop. Browsers often throttle `setTimeout` for background tabs.
+   * This loop runs every 60 seconds to catch any missed doses and fire them.
+   * @param {Object[]} medications 
+   */
+  startPollingScheduler(medications = []) {
+    if (this._pollInterval) this.stopPollingScheduler();
 
-        const now = new Date();
-        const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+    this._pollInterval = setInterval(() => {
+      const now = new Date();
+      const currentTime = now.getTime();
+
+      for (const medication of medications) {
+        const times = medication.times || medication.scheduledTimes || [];
         
-        // Execute reset sequence 60 seconds prior to midnight
-        const msUntilReset = (midnight.getTime() - now.getTime()) - SCHEDULER_POLL_INTERVAL_MS;
+        for (const timeStr of times) {
+          const [hours, minutes] = timeStr.split(':').map(Number);
+          
+          const targetTime = new Date();
+          targetTime.setHours(hours, minutes, 0, 0);
+          
+          const targetMs = targetTime.getTime();
+          const jobId = `${medication.id}_${timeStr}`;
 
-        if (msUntilReset > 0) {
-            this._midnightResetJob = setTimeout(() => {
-                console.log('[NotificationEngine] Executing midnight cron reset sequence.');
-                this.scheduleAllDoses(activeMedications);
-            }, msUntilReset);
-        }
-    }
-
-    /**
-     * Assembles and triggers the physical system notification payload.
-     * @private
-     * @param {MedicationSchedule} medication - The active drug payload.
-     * @param {string} timeString - The specific execution time string (HH:MM) to log tracking keys.
-     */
-    _fireDoseReminder(medication, timeString) {
-        const fireSignature = `${medication.id}_${timeString}`;
-        
-        if (this._firedToday.has(fireSignature)) {
-            return; // Prevent duplicate firing from overlapping polling triggers
-        }
-
-        if (this._permission !== 'granted' || !this._checkSupport()) {
-            // Silently mark as fired to prevent further polling attempts today
-            this._firedToday.add(fireSignature);
-            return; 
-        }
-
-        try {
-            const notificationTitle = `💊 Time for ${medication.name}`;
-            const notificationOptions = {
-                body: `Scheduled dose: ${medication.dosage}. Tap to log it.`,
-                icon: NOTIFICATION_ICON_PATH,
-                badge: NOTIFICATION_BADGE_PATH,
-                tag: `dose_${medication.id}`, // Groups identical alerts, overwriting stale ones
-                requireInteraction: false, // Standard alert, avoids blocking the OS indefinitely
-                data: {
-                    medicationId: medication.id,
-                    scheduledAt: new Date().toISOString()
-                }
-            };
-
-            const systemAlert = new Notification(notificationTitle, notificationOptions);
-
-            systemAlert.onclick = (event) => {
-                event.preventDefault();
-                
-                // Focus the parent Window/PWA context if minimized
-                if (typeof window !== 'undefined') {
-                    window.focus();
-                    window.location.hash = '#/dashboard';
-                }
-                
-                systemAlert.close();
-            };
-
-            this._firedToday.add(fireSignature);
-            console.log(`[NotificationEngine] Alert deployed for: ${medication.name}`);
-
-        } catch (alertError) {
-            console.error('[NotificationEngine:_fireDoseReminder] Failed to deploy system alert:', alertError);
-        }
-    }
-
-    /**
-     * Initializes a defensive 60-second polling loop.
-     * If iOS/Android pauses background `setTimeout` threads, this loop catches missed alarms
-     * immediately when the app regains priority focus.
-     * @param {MedicationSchedule[]} medications 
-     */
-    startPollingScheduler(medications) {
-        this.stopPollingScheduler();
-
-        if (!Array.isArray(medications) || medications.length === 0) return;
-
-        this._pollInterval = setInterval(() => {
-            try {
-                const currentSystemTime = new Date();
-                const currentTimestamp = currentSystemTime.getTime();
-                
-                const currentDayIndex = currentSystemTime.getDay();
-                const activeDaysMap = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-                const currentDayString = activeDaysMap[currentDayIndex];
-
-                for (const medication of medications) {
-                    if (medication.activeDays && Array.isArray(medication.activeDays)) {
-                        if (!medication.activeDays.includes(currentDayString)) continue;
-                    }
-
-                    for (const timeString of (medication.scheduledTimes || [])) {
-                        const [hoursTarget, minutesTarget] = timeString.split(':').map(Number);
-                        
-                        const targetDate = new Date();
-                        targetDate.setHours(hoursTarget, minutesTarget, 0, 0);
-                        const targetTimestamp = targetDate.getTime();
-
-                        const timeDifference = currentTimestamp - targetTimestamp;
-
-                        // Identify alarms that are past due, but still within the acceptable 2-minute drift window
-                        if (timeDifference >= 0 && timeDifference <= DRIFT_TOLERANCE_WINDOW_MS) {
-                            const fireSignature = `${medication.id}_${timeString}`;
-                            
-                            // If the precise setTimeout failed to fire due to throttling, fire it now
-                            if (!this._firedToday.has(fireSignature)) {
-                                console.warn(`[NotificationEngine] Thread drift detected for ${medication.name}. Firing via fallback polling.`);
-                                this._fireDoseReminder(medication, timeString);
-                            }
-                        }
-                    }
-                }
-            } catch (pollError) {
-                console.error('[NotificationEngine:startPollingScheduler] Integrity loop encountered an error:', pollError);
+          // If the dose was due in the last 120 seconds AND hasn't been fired yet
+          if (currentTime >= targetMs && (currentTime - targetMs) <= 120000) {
+            if (!this._firedDoses.has(jobId)) {
+              console.warn(`[NotificationEngine] Caught drifted alarm via polling for ${jobId}`);
+              this._fireDoseReminder(medication, timeStr);
             }
-        }, SCHEDULER_POLL_INTERVAL_MS);
+          }
+        }
+      }
+    }, 60000); // 60 seconds
+  }
 
-        console.log('[NotificationEngine] Defensive background polling matrix active.');
+  /**
+   * Halts the background polling loop.
+   */
+  stopPollingScheduler() {
+    if (this._pollInterval) {
+      clearInterval(this._pollInterval);
+      this._pollInterval = null;
     }
+  }
 
-    /**
-     * Halts the defensive background polling loop to conserve battery.
-     */
-    stopPollingScheduler() {
-        if (this._pollInterval !== null) {
-            clearInterval(this._pollInterval);
-            this._pollInterval = null;
-            console.log('[NotificationEngine] Defensive background polling matrix halted.');
-        }
+  /**
+   * Wipes all pending timers. Used when medications are deleted/updated.
+   * @private
+   */
+  _clearAll() {
+    for (const timeoutId of this._scheduledJobs.values()) {
+      clearTimeout(timeoutId);
     }
+    this._scheduledJobs.clear();
+  }
 
-    /**
-     * Cancels all pending timeouts and clears the active job map.
-     * @private
-     */
-    _clearAll() {
-        for (const timeoutHandle of this._scheduledJobs.values()) {
-            clearTimeout(timeoutHandle);
-        }
-        this._scheduledJobs.clear();
-        
-        if (this._midnightResetJob) {
-            clearTimeout(this._midnightResetJob);
-            this._midnightResetJob = null;
-        }
+  /**
+   * Gets the count of currently pending alarms.
+   * @returns {number}
+   */
+  getScheduledCount() {
+    return this._scheduledJobs.size;
+  }
+
+  /**
+   * Developer method to verify OS-level notification permissions are working.
+   */
+  sendTestNotification() {
+    if (this._permission !== 'granted') {
+      console.warn('[NotificationEngine] Cannot test: Permission not granted.');
+      return;
     }
-
-    /**
-     * Retrieves the total number of explicitly scheduled JavaScript timeouts currently pending.
-     * @returns {number}
-     */
-    getScheduledCount() {
-        return this._scheduledJobs.size;
-    }
-
-    /**
-     * Deploys an immediate system alert to verify API permissions and structural functionality.
-     * Primarily utilized by the Admin Simulation view.
-     * @returns {Promise<void>}
-     */
-    async sendTestNotification() {
-        if (!this._checkSupport()) {
-            console.warn('[NotificationEngine] Testing blocked: API unsupported.');
-            return;
-        }
-
-        if (this._permission !== 'granted') {
-            console.warn('[NotificationEngine] Testing blocked: Lacking system permissions. Requesting...');
-            const granted = await this.requestPermission();
-            if (!granted) return;
-        }
-
-        try {
-            const testAlert = new Notification('✅ System Diagnostics', {
-                body: 'MedCare notification routing is fully operational.',
-                icon: NOTIFICATION_ICON_PATH,
-                badge: NOTIFICATION_BADGE_PATH,
-                tag: 'system_test',
-                requireInteraction: false
-            });
-
-            testAlert.onclick = () => {
-                if (typeof window !== 'undefined') window.focus();
-                testAlert.close();
-            };
-
-            console.log('[NotificationEngine] Diagnostic payload deployed successfully.');
-
-        } catch (testError) {
-            console.error('[NotificationEngine:sendTestNotification] Diagnostic deployment failed:', testError);
-        }
-    }
+    
+    new Notification('MedCare is working!', {
+      body: 'Notifications are correctly configured on this device.',
+      icon: './assets/icons/icon-192.png'
+    });
+  }
 }
 
-// Export singleton instance of Notification Engine
 export const notificationEngine = new NotificationEngine();
