@@ -14,10 +14,47 @@ export default class GlassNavbar {
   }
 
   setVisibility(isVisible) {
+    this.isVisible = isVisible;
     const nav = document.getElementById('glass-nav');
     if (nav) {
       nav.style.opacity = isVisible ? '1' : '0';
       nav.style.pointerEvents = isVisible ? 'auto' : 'none';
+    }
+    
+    if (!isVisible) {
+      const styleEl = document.getElementById('nav-padding-style');
+      if (styleEl) styleEl.innerHTML = ``;
+    } else {
+      this.updatePadding();
+    }
+  }
+
+  updatePadding() {
+    const isAuth = !!state.user;
+    const hash = window.location.hash || '#/';
+    const isLanding = (hash === '#/' || hash === '#/landing');
+    const isAuthLayout = isAuth && !isLanding;
+
+    let styleEl = document.getElementById('nav-padding-style');
+    if (!styleEl) {
+      styleEl = document.createElement('style');
+      styleEl.id = 'nav-padding-style';
+      document.head.appendChild(styleEl);
+    }
+
+    if (isAuthLayout) {
+      styleEl.innerHTML = `
+        @media (min-width: 768px) {
+          #app-viewport { padding-top: 96px; }
+          .sticky.top-0 { top: 96px !important; }
+          .view-header { top: 96px !important; }
+        }
+        @media (max-width: 767px) {
+          #app-viewport { padding-bottom: 90px; padding-top: 0; }
+        }
+      `;
+    } else {
+      styleEl.innerHTML = ``;
     }
   }
 
@@ -54,6 +91,10 @@ export default class GlassNavbar {
       `;
     }
     this.attachListeners();
+    
+    if (this.isVisible !== false) {
+      this.updatePadding();
+    }
   }
 
   getPublicMenu() {
@@ -79,6 +120,14 @@ export default class GlassNavbar {
       { href: '#/appointments', label: 'Records', icon: '<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>' },
       { href: '#/settings', label: 'System', icon: '<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>' }
     ];
+
+    if (state.isAdmin || state.userProfile?.role === 'admin') {
+      navItems.push({
+        href: '#/admin',
+        label: 'Admin',
+        icon: '<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'
+      });
+    }
 
     return navItems.map(item => {
       const isActive = hash.startsWith(item.href);

@@ -5,6 +5,7 @@
 
 import db from '../core/db.js';
 import state from '../core/state.js';
+import { collection, addDoc, doc, setDoc, getFirestore } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 export default class AddMedicationView {
   constructor() {
@@ -197,21 +198,36 @@ export default class AddMedicationView {
       times: Array.from(this.container.querySelectorAll('#time-slots-container input[type="time"]')).map(el => el.value),
       notes: this.container.querySelector('#m-notes').value,
       active: true,
+      
+      // FIX: Append strict temporal boundaries so the calendar knows when this started
+      startDate: new Date().toISOString().split('T')[0],
+      createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
 
     try {
+      // 1. Write to local database (Fast/Offline)
       if (this.isEdit && this.medId) {
         await db.medications.update(this.medId, data);
       } else {
         await db.medications.add(data);
       }
+
+      // 2. DUAL-WRITE: Write to Firestore (Cloud Sync)
+      const firestoreDb = getFirestore();
+      if (this.isEdit && this.medId) {
+        await setDoc(doc(firestoreDb, 'medications', this.medId.toString()), data, { merge: true });
+      } else {
+        await addDoc(collection(firestoreDb, 'medications'), data);
+      }
+
       window.location.hash = '#/medications';
     } catch (e) {
-      errorEl.textContent = 'Save failed: ' + e.message;
+      console.error('[AddMedication] Save error:', e);
+      errorEl.textContent = 'Saved locally, but cloud sync failed.';
       errorEl.classList.remove('hidden');
       saveBtn.disabled = false;
-      saveBtn.textContent = this.isEdit ? 'Save Changes' : 'Add Medication';
+      saveBtn.textContent = 'Retry Cloud Sync';
     }
   }
 

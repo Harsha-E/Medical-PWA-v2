@@ -1,5 +1,5 @@
 import { auth } from '../core/firebase.js';
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
 export default class LoginView {
   async render() {
@@ -63,11 +63,16 @@ export default class LoginView {
       btn.disabled = true;
       
       try {
+        await signOut(auth); // Clear any Google-linked session before password entry
         await signInWithEmailAndPassword(auth, form.email.value, form.password.value);
       } catch (error) {
         btn.textContent = 'AUTHENTICATE';
         btn.disabled = false;
-        err.textContent = error.message.replace('Firebase: ', '');
+        if (error.code === 'auth/invalid-credential') {
+          err.textContent = "Incorrect password, or this account is linked to Google. Try 'Sign in with Google' instead, or use the 'Reset Password' link.";
+        } else {
+          err.textContent = error.message.replace('Firebase: ', '');
+        }
         err.classList.remove('hidden');
       }
     });

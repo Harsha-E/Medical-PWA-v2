@@ -36,6 +36,7 @@ import FamilyProfilesView   from './views/family-profiles.js';
 import EmergencyView        from './views/emergency.js';
 import AppointmentsView     from './views/appointments.js';
 import AdminView            from './views/admin.js';
+import CalendarView         from './views/calendar.js';
 
 // ─── Route map ────────────────────────────────────────────────────────────────
 // Defined before the App class so it is in scope for the constructor.
@@ -61,6 +62,7 @@ const ROUTES = {
   '#/family':       FamilyProfilesView,
   '#/emergency':    EmergencyView,
   '#/appointments': AppointmentsView,
+  '#/calendar':     CalendarView,
 };
 
 /** Routes that don't require a logged-in user. */

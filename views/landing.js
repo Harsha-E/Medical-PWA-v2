@@ -10,7 +10,7 @@ export default class LandingView {
     this.container.className = 'min-h-[100dvh] w-full flex flex-col relative z-10 text-gray-100 font-sans pointer-events-none';
 
     this.container.innerHTML = `
-      <main class="flex-1 flex flex-col items-center justify-center text-center px-6 relative overflow-hidden pointer-events-auto mt-16 md:mt-0">
+      <main class="flex-1 flex flex-col items-center justify-center text-center px-6 relative overflow-hidden pointer-events-auto pt-24 md:pt-32">
         <div class="relative z-10 w-full max-w-4xl mx-auto flex flex-col items-center justify-center">
           
           <div class="mb-6 relative z-20">

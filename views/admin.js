@@ -14,9 +14,9 @@ export default class AdminView {
       return this.container;
     }
 
-    const userDoc = await getDoc(doc(db, 'users', user.uid));
-    const role = userDoc.exists() ? userDoc.data().role : 'user';
-    if (role !== 'admin') {
+    // Explicitly check the 'admins' collection for a document matching the user's UID
+    const adminDoc = await getDoc(doc(db, 'admins', user.uid));
+    if (!adminDoc.exists()) {
       this.container.innerHTML = `
         <div class="h-screen flex flex-col items-center justify-center px-8 text-center">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-danger)" stroke-width="1.5" class="mb-6"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
