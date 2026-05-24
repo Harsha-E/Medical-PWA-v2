@@ -1,271 +1,141 @@
 /**
- * @fileoverview Vision Pipeline Service for MedCare PWA.
- * Architecture: ES6 Module, WebAssembly (Tesseract.js) wrapper.
- * Paradigm: Edge-computed Optical Character Recognition (OCR) with hardware-safe throttling.
+ * @fileoverview VisionPipeline — Dedicated OCR & Computer Vision Service
+ * Performs pixel-level binarization, Tesseract interfacing, and NLP extraction.
  */
+import { INDIAN_DRUG_DATASET, fuzzySearchDrugs } from '../data/indian-drug-dataset.js';
 
-/**
- * @typedef {Object} OCRWord
- * @property {string} text - The recognized word.
- * @property {number} confidence - The confidence score (0-100) of the specific word.
- */
+export default class VisionPipeline {
+  constructor() {
+    this.isReady = typeof Tesseract !== 'undefined';
+    this.worker = null; 
+  }
 
-/**
- * @typedef {Object} OCRResult
- * @property {string} text - The raw, full text extracted from the image.
- * @property {number} confidence - The overall confidence score (0-100) of the extraction.
- * @property {OCRWord[]} words - Array of individual recognized words and their specific confidences.
- */
+  /**
+   * Pipeline Step 1: Advanced Pixel Preprocessing
+   * Applies Grayscale, High-Contrast Luminance Thresholding, and Sharpening
+   */
+  preprocessImage(videoElement, scale = 1.0) {
+    const vW = videoElement.videoWidth;
+    const vH = videoElement.videoHeight;
+    
+    const canvas = document.createElement('canvas');
+    canvas.width = vW * scale;
+    canvas.height = vH * scale;
+    const ctx = canvas.getContext('2d');
+    
+    // Draw initial video frame
+    ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+    
+    // Extract raw pixels
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+    
+    // 1. Grayscale & Adaptive Luminance Thresholding
+    // We calculate average luminance to adjust the threshold dynamically based on lighting
+    let totalLuminance = 0;
+    for (let i = 0; i < data.length; i += 4) {
+      totalLuminance += (0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2]);
+    }
+    const avgLuminance = totalLuminance / (data.length / 4);
+    const threshold = avgLuminance * 0.85; // Darken threshold for text
 
-/**
- * VisionPipeline handles all local OCR tasks.
- * Includes image preprocessing (WebGL/Canvas), noise reduction, 
- * and a token-bucket rate limiter to prevent thread starvation on mobile CPUs.
- */
-class VisionPipeline {
-    constructor() {
-        /** @private {any} Tesseract worker instance */
-        this._worker = null;
-        
-        /** @private {Promise|null} Lock for lazy initialization */
-        this._initPromise = null;
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i];
+      const g = data[i+1];
+      const b = data[i+2];
+      
+      // Standard grayscale conversion
+      const v = 0.299 * r + 0.587 * g + 0.114 * b;
+      
+      // Binarization (Black/White push) for sharper OCR edges
+      const finalColor = v > threshold ? 255 : 0; 
+      
+      data[i] = data[i+1] = data[i+2] = finalColor;
+    }
+    
+    ctx.putImageData(imageData, 0, 0);
+    return canvas;
+  }
 
-        // Token Bucket Rate Limiter Configuration
-        // Allows a burst of 3 scans, but strictly limits sustained scans to 1 per 2 seconds
-        /** @private {number} Maximum capacity of the token bucket */
-        this._maxTokens = 3;
-        
-        /** @private {number} Current available tokens */
-        this._tokens = 3;
-        
-        /** @private {number} Milliseconds required to regenerate a single token */
-        this._refillRateMs = 2000;
-        
-        /** @private {number} Timestamp of the last token computation */
-        this._lastRefillTimestamp = Date.now();
+  /**
+   * Pipeline Step 2: Execute OCR Engine
+   */
+  async recognizeText(canvas, onProgress = () => {}) {
+    if (!this.isReady) throw new Error("Vision Engine (Tesseract) not loaded.");
+    
+    const result = await Tesseract.recognize(canvas, 'eng', {
+      logger: (m) => {
+        if (m.status === 'recognizing text') {
+          onProgress(Math.round((m.progress || 0) * 100));
+        }
+      }
+    });
+    return {
+      rawText: result.data.text || '',
+      words: result.data.words || []
+    };
+  }
+
+  /**
+   * Pipeline Step 3: NLP Extraction & Dataset Matching
+   */
+  extractMedicineData(rawText, words) {
+    const data = {
+      bestMatch: null, score: 0,
+      dosage: '', unit: 'mg', frequency: '', quantity: '',
+      allMatches: [], rawText
+    };
+
+    // 1. Extract Dosage (Enhanced Regex)
+    const dosagePatterns = [
+      /(\d+(?:\.\d+)?)\s*(mg|mcg|ug|µg|ml|g|iu|i\.u\.|units?|%)\b/gi,
+      /(\d+)\s*[Mm][Gg]/g,
+      /strength[:\s]+(\d+(?:\.\d+)?)\s*(mg|ml|mcg|g)/gi,
+    ];
+
+    for (const pattern of dosagePatterns) {
+      const match = rawText.match(pattern);
+      if (match && match.length > 0) {
+        const first = rawText.match(new RegExp(pattern.source, 'i'));
+        if (first) {
+          data.dosage = first[1] || first[0].replace(/[^\d.]/g, '');
+          data.unit   = (first[2] || 'mg').toLowerCase().replace('µg', 'mcg').replace('ug', 'mcg');
+          break;
+        }
+      }
     }
 
-    /**
-     * Internal token bucket logic. Computes token regeneration based on elapsed time.
-     * @private
-     */
-    _refillTokens() {
-        const now = Date.now();
-        const timeElapsed = now - this._lastRefillTimestamp;
-        
-        const tokensToGenerate = Math.floor(timeElapsed / this._refillRateMs);
-
-        if (tokensToGenerate > 0) {
-            this._tokens = Math.min(this._maxTokens, this._tokens + tokensToGenerate);
-            // Advance the timestamp strictly by the chunks of time consumed
-            this._lastRefillTimestamp += (tokensToGenerate * this._refillRateMs);
-        }
+    // 2. Extract Frequency
+    const freqPatterns = [
+      { re: /once\s+(?:a\s+)?daily|od\b|o\.d\./i, label: 'Once daily' },
+      { re: /twice\s+(?:a\s+)?daily|bd\b|b\.d\.|bid\b/i, label: 'Twice daily' },
+      { re: /thrice\s+(?:a\s+)?daily|tds\b|t\.d\.s\.|tid\b/i, label: 'Three times daily' },
+      { re: /four\s+times\s+(?:a\s+)?day|qid\b|q\.i\.d\./i, label: 'Four times daily' },
+      { re: /every\s+(\d+)\s+hours?/i, label: 'Every N hours' },
+    ];
+    for (const { re, label } of freqPatterns) {
+      if (re.test(rawText)) { data.frequency = label; break; }
     }
 
-    /**
-     * Attempts to consume an OCR token.
-     * @private
-     * @throws {Error} If the rate limit bucket is currently empty.
-     */
-    _consumeToken() {
-        this._refillTokens();
-        
-        if (this._tokens >= 1) {
-            this._tokens -= 1;
-            return true;
-        }
+    // 3. Match Drug Names via Fuzzy Engine
+    const wordTexts = words.map(w => w.text.trim()).filter(t => t.length >= 3);
+    const combined  = [rawText, ...wordTexts].join(' ');
 
-        throw new Error('OCR Rate Limit Exceeded: Please wait a moment before scanning again.');
+    const allMatches = fuzzySearchDrugs(rawText, INDIAN_DRUG_DATASET, 0.45); // Tighter threshold for accuracy
+    const seenNames = new Set();
+    
+    for (const m of allMatches) {
+      if (!seenNames.has(m.drug.name)) {
+        seenNames.add(m.drug.name);
+        data.allMatches.push(m);
+      }
     }
 
-    /**
-     * Lazily initializes the Tesseract WebAssembly worker.
-     * Guarantees only one worker is spun up, even if called concurrently.
-     * @private
-     * @returns {Promise<any>} The ready Tesseract worker.
-     */
-    async _initWorker() {
-        if (this._worker) {
-            return this._worker;
-        }
-
-        if (this._initPromise) {
-            return this._initPromise;
-        }
-
-        this._initPromise = (async () => {
-            if (typeof Tesseract === 'undefined') {
-                throw new Error('[VisionPipeline Fatal] Tesseract is not loaded on the window object.');
-            }
-
-            console.log('[VisionPipeline] Booting Tesseract WASM worker...');
-            
-            try {
-                // Initialize worker with logging suppressed to prevent console thrashing
-                const worker = await Tesseract.createWorker({
-                    logger: (message) => {
-                        if (message.status === 'recognizing text' && message.progress % 0.25 === 0) {
-                            // Only log major progress increments
-                            console.debug(`[VisionPipeline] OCR Progress: ${(message.progress * 100).toFixed(0)}%`);
-                        }
-                    }
-                });
-
-                await worker.loadLanguage('eng');
-                await worker.initialize('eng');
-                
-                // Whitelist characters to improve accuracy for medical labels
-                await worker.setParameters({
-                    tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-/ ',
-                });
-
-                this._worker = worker;
-                console.log('[VisionPipeline] Tesseract worker ready.');
-                return worker;
-            } catch (error) {
-                this._initPromise = null; // Free the lock so we can retry on failure
-                throw new Error(`[VisionPipeline] Failed to initialize worker: ${error.message}`);
-            }
-        })();
-
-        return this._initPromise;
+    if (data.allMatches.length > 0) {
+      data.bestMatch = data.allMatches[0].drug;
+      data.score     = data.allMatches[0].score;
     }
 
-    /**
-     * Applies image processing techniques to maximize OCR contrast and legibility.
-     * Converts to Grayscale and applies a high-pass contrast boost.
-     * @param {HTMLCanvasElement|HTMLImageElement|HTMLVideoElement} source - The image source.
-     * @returns {HTMLCanvasElement} A new, processed canvas element.
-     */
-    preprocessCanvas(source) {
-        if (!source) {
-            throw new Error('[VisionPipeline] Invalid source provided for preprocessing.');
-        }
-
-        const width = source.videoWidth || source.width;
-        const height = source.videoHeight || source.height;
-
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        
-        const ctx = canvas.getContext('2d', { willReadFrequently: true });
-        
-        // Draw initial image
-        ctx.drawImage(source, 0, 0, width, height);
-
-        // Extract pixel data
-        const imageData = ctx.getImageData(0, 0, width, height);
-        const data = imageData.data;
-        
-        const contrastFactor = 1.8; // Aggressive contrast boost for faded pill bottles
-
-        for (let i = 0; i < data.length; i += 4) {
-            const r = data[i];
-            const g = data[i + 1];
-            const b = data[i + 2];
-
-            // 1. Luminance (Grayscale) conversion (BT.601 standard)
-            const gray = 0.299 * r + 0.587 * g + 0.114 * b;
-
-            // 2. Contrast Boost formula: C * (Pixel - 128) + 128
-            let boosted = ((gray / 255.0 - 0.5) * contrastFactor + 0.5) * 255.0;
-
-            // 3. Clamp values strictly to 0-255
-            boosted = Math.max(0, Math.min(255, boosted));
-
-            // Apply monochromatic result back to RGB channels
-            data[i] = boosted;     // Red
-            data[i + 1] = boosted; // Green
-            data[i + 2] = boosted; // Blue
-            // Alpha (data[i + 3]) remains untouched
-        }
-
-        // Commit modifications back to canvas
-        ctx.putImageData(imageData, 0, 0);
-        return canvas;
-    }
-
-    /**
-     * Parses raw OCR output using Regex to isolate the most probable drug name.
-     * Aggressively strips pharmacy noise (Lot numbers, Expiry dates, Rx numbers).
-     * @param {string} ocrText - The raw string returned by Tesseract.
-     * @returns {string} The hypothesized drug name, or an empty string if unresolvable.
-     */
-    extractDrugName(ocrText) {
-        if (!ocrText || typeof ocrText !== 'string') return '';
-
-        let sanitized = ocrText.toUpperCase();
-
-        // 1. Strip standard pharmacy label noise
-        sanitized = sanitized.replace(/LOT\s*#?:?\s*[A-Z0-9]+/g, ''); // Remove LOT numbers
-        sanitized = sanitized.replace(/EXP\s*#?:?\s*\d{2}[\/\-]\d{2,4}/g, ''); // Remove Expiry dates
-        sanitized = sanitized.replace(/RX\s*#?:?\s*\d+/g, ''); // Remove Rx numbers
-        sanitized = sanitized.replace(/NDC\s*\d+\-\d+\-\d+/g, ''); // Remove NDC codes
-        sanitized = sanitized.replace(/TAKE\s+ONE\s+TABLET/g, ''); // Remove common instructions
-        sanitized = sanitized.replace(/BY\s+MOUTH/g, ''); 
-
-        // 2. Look for a strong indicator pattern: [WORD] [DOSAGE] (e.g., "AMOXICILLIN 500MG")
-        const dosagePattern = /([A-Z]{4,})\s+(?:\d+(?:\.\d+)?\s*(?:MG|ML|MCG|G|IU|UNITS))/;
-        const dosageMatch = sanitized.match(dosagePattern);
-
-        if (dosageMatch && dosageMatch[1]) {
-            return dosageMatch[1].trim();
-        }
-
-        // 3. Fallback: Find the longest continuous alphabetical string > 4 characters
-        // Medical generic names are typically the longest single word on the bottle.
-        const cleanWords = sanitized.split(/[^A-Z]/).filter(word => word.length > 4);
-        
-        if (cleanWords.length > 0) {
-            return cleanWords.reduce((longest, current) => current.length > longest.length ? current : longest);
-        }
-
-        return '';
-    }
-
-    /**
-     * The primary public interface for executing an OCR operation.
-     * Handled within a strictly rate-limited pipeline.
-     * @param {HTMLCanvasElement|HTMLImageElement|HTMLVideoElement} sourceImage - The visual target.
-     * @returns {Promise<OCRResult>} Extracted text data.
-     */
-    async recognize(sourceImage) {
-        if (!sourceImage) {
-            throw new Error('[VisionPipeline] recognize() requires a valid image or canvas source.');
-        }
-
-        try {
-            // Enforce token-bucket hardware constraints
-            this._consumeToken();
-
-            // Prepare the image
-            const optimizedCanvas = this.preprocessCanvas(sourceImage);
-            
-            // Ensure worker is hot
-            const worker = await this._initWorker();
-
-            console.log('[VisionPipeline] Executing local tensor evaluation...');
-            
-            // Execute Recognition
-            const { data } = await worker.recognize(optimizedCanvas);
-
-            // Structure result payload
-            return {
-                text: data.text || '',
-                confidence: data.confidence || 0,
-                words: (data.words || []).map(word => ({
-                    text: word.text,
-                    confidence: word.confidence
-                }))
-            };
-
-        } catch (error) {
-            console.error('[VisionPipeline Error] Recognition cycle failed:', error);
-            throw error; // Re-throw for UI-layer toast notification
-        }
-    }
+    return data;
+  }
 }
-
-// Export a single, immutable instance for memory conservation.
-export const visionPipeline = new VisionPipeline();

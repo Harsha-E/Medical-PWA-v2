@@ -364,7 +364,7 @@ export default class DashboardView {
       }
 
       if (e.target.closest('#add-med-btn') || e.target.closest('#schedule-empty-add-btn')) {
-        window.location.hash = '#/add';
+        window.location.hash = '#/medications'; // Now links directly to the Medications page
       }
     });
   }
