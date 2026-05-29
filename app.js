@@ -14,8 +14,7 @@ import { auth }           from './core/firebase.js';
 import { interactionGraph } from './services/InteractionGraph.js';
 import { nlpContext }       from './services/NLPContext.js';
 import { hapticEngine }   from './services/HapticEngine.js';
-import { pwaManager }     from './services/PwaManager.js';
-import GhostFluid         from './core/GhostFluid.js';
+import PwaInstallManager  from './services/PwaInstallManager.js';
 import GlassNavbar        from './components/navbar.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
@@ -85,6 +84,7 @@ class App {
     this.viewport = document.getElementById('app-viewport');
     this.router   = new Router(ROUTES, this.viewport);
     this.glassNav = new GlassNavbar();
+    this.pwaManager = new PwaInstallManager();
     this.ghostFluid = null; // Track WebGL instance
 
     /** Tracks whether the first auth-state event has resolved. */
@@ -97,7 +97,6 @@ class App {
 
     // ─── PWA NATIVE STANDARDS ───────────────────────────────────────────
     hapticEngine.init();
-    pwaManager.init();
     
     // 1. Initialize Clinical Engines in the background
     try {
@@ -176,14 +175,7 @@ class App {
     const isAdmin = state.isAdmin;
     const isComplete = !!profile?.onboardingComplete;
 
-    // ── Manage WebGL Background Lifecycle ──
-    const shouldHaveLiquid = LIQUID_ROUTES.has(hash);
-    if (shouldHaveLiquid && !this.ghostFluid) {
-      this.ghostFluid = new GhostFluid();
-    } else if (!shouldHaveLiquid && this.ghostFluid) {
-      this.ghostFluid.destroy();
-      this.ghostFluid = null;
-    }
+    // ── Managed by individual views (GhostFluid instantiation removed) ──
 
     // ── Navbar visibility ──
     this.glassNav.setVisibility?.(!HIDE_NAV_ROUTES.has(hash));
@@ -197,7 +189,8 @@ class App {
 
     // ── Auth guard ──
     // If app is not running as a standalone PWA, force the install view
-    if (!pwaManager.isStandalone) {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    if (!isStandalone) {
       if (hash !== '#/install') {
         window.location.hash = '#/install';
         return;

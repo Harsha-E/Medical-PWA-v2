@@ -4,7 +4,7 @@ import state from '../core/state.js';
 export default class DashboardView {
   async render() {
     this.container = document.createElement('div');
-    this.container.className = 'container !pt-0 !mt-0 h-full'; // Ensure no layout bleeding
+    this.container.className = 'container native-scroll !pt-0 !mt-0 h-full'; // Ensure no layout bleeding
 
     const now = new Date();
     const today = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });

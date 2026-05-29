@@ -1,207 +1,119 @@
 /**
- * PwaInstallManager
- * Vanilla ES6 class to implement a native WebAPK installation flow.
- * - Intercepts `beforeinstallprompt` and stores `deferredPrompt`.
- * - Exposes `attachToButton()` to wire a custom UI button to `deferredPrompt.prompt()`.
- * - Awaits `deferredPrompt.userChoice` and nullifies the prompt after use.
- * - Listens to `appinstalled` for post-install routing.
- * - Provides an iOS fallback state instructing users to use: Share → Add to Homescreen.
- *
- * Usage example:
- * const installer = new PwaInstallManager({ onInstalled: () => location.hash = '#/dashboard' });
- * installer.attachToButton('#install-action');
+ * @fileoverview PwaInstallManager — Autonomous Global Bottom Banner
+ * Injects a floating native-style install banner without HTML wiring.
  */
+import { hapticEngine } from './HapticEngine.js';
 
 export default class PwaInstallManager {
-  constructor(options = {}) {
+  constructor() {
+    // Singleton pattern: Ensure only one banner exists even if called multiple times
+    if (window.__pwaManagerInstance) return window.__pwaManagerInstance;
+    window.__pwaManagerInstance = this;
+
     this.deferredPrompt = null;
-    this.installButton = null;
-    this._beforeInstallPromptFired = false;
-    this._boundOnBeforeInstall = this._onBeforeInstall.bind(this);
-    this._boundOnAppInstalled = this._onAppInstalled.bind(this);
-    this._boundOnResize = this._noop.bind(this);
-
-    // Options
-    this.fallbackTimeout = typeof options.fallbackTimeout === 'number' ? options.fallbackTimeout : 2500;
-    this.onInstalled = typeof options.onInstalled === 'function' ? options.onInstalled : () => {};
-    this.onChange = typeof options.onChange === 'function' ? options.onChange : () => {};
-
-    // Start listening
+    this.bannerEl = null;
     this._init();
   }
 
-  // Public: attach a DOM element or selector for install interaction
-  attachToButton(buttonOrSelector) {
-    if (!buttonOrSelector) return;
-    let el = typeof buttonOrSelector === 'string' ? document.querySelector(buttonOrSelector) : buttonOrSelector;
-    if (!el) return;
-    this.installButton = el;
-    this.installButton.setAttribute('aria-haspopup', 'dialog');
-    this._updateButtonState();
-    this._bindButton();
-  }
-
-  // Public: programmatically show the install prompt if available
-  async showInstallPrompt() {
-    if (!this.deferredPrompt) return { outcome: 'unavailable' };
-    try {
-      this.deferredPrompt.prompt();
-      const choice = await this.deferredPrompt.userChoice;
-      // Normalize outcome
-      const outcome = choice && choice.outcome ? choice.outcome : 'dismissed';
-      if (outcome === 'accepted') this.onChange('accepted');
-      else this.onChange('dismissed');
-      this.deferredPrompt = null;
-      this._updateButtonState();
-      return choice;
-    } catch (err) {
-      this.deferredPrompt = null;
-      this._updateButtonState();
-      throw err;
-    }
-  }
-
-  // Stop listeners and teardown
-  destroy() {
-    window.removeEventListener('beforeinstallprompt', this._boundOnBeforeInstall);
-    window.removeEventListener('appinstalled', this._boundOnAppInstalled);
-    window.removeEventListener('resize', this._boundOnResize);
-    if (this.installButton) this.installButton.removeEventListener('click', this._boundOnInstallClick);
-  }
-
-  // --- Internal ---
   _init() {
-    // Intercept the event and prevent default mini-infobar
-    window.addEventListener('beforeinstallprompt', this._boundOnBeforeInstall);
-    window.addEventListener('appinstalled', this._boundOnAppInstalled);
+    // If the app is already installed/standalone, do absolutely nothing.
+    if (this._isStandalone()) return;
 
-    // If `beforeinstallprompt` never fires, switch to fallback after a short timeout
-    // (iOS Safari blocks the API; other browsers may delay it until heuristics are satisfied)
+    this._createBanner();
+
+    // Intercept Chrome/Android native prompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      this.deferredPrompt = e;
+      this._showBanner('Tap to Install');
+    });
+
+    // Detect successful installation
+    window.addEventListener('appinstalled', () => {
+      this._hideBanner();
+      setTimeout(() => { window.location.hash = '#/dashboard'; }, 600);
+    });
+
+    // iOS Safari & Desktop Fallback (Shows up after 2 seconds if OS blocks the prompt)
     setTimeout(() => {
-      if (!this._beforeInstallPromptFired) {
-        // If iOS, immediately switch to fallback state
-        if (this._isIos()) this.onChange('ios-fallback');
-        else this.onChange('manual-fallback');
-        this._updateButtonState();
+      if (!this.deferredPrompt && !this._isStandalone()) {
+        if (this._isIos()) {
+          this._showBanner('Share → Add to Homescreen');
+        } else {
+          this._showBanner('Use Browser Menu to Install');
+        }
       }
-    }, this.fallbackTimeout);
+    }, 2000);
   }
 
-  _onBeforeInstall(e) {
-    e.preventDefault(); // Stop Chrome from showing the mini-infobar
-    this._beforeInstallPromptFired = true;
-    this.deferredPrompt = e;
-    this.onChange('ready');
-    this._updateButtonState();
-  }
-
-  _onAppInstalled() {
-    this.deferredPrompt = null;
-    this.onChange('installed');
-    this._updateButtonState();
-    try { this.onInstalled(); } catch (e) { /* swallow */ }
-  }
-
-  _bindButton() {
-    if (!this.installButton) return;
-    this._boundOnInstallClick = this._onInstallClick.bind(this);
-    this.installButton.addEventListener('click', this._boundOnInstallClick);
-  }
-
-  async _onInstallClick(e) {
-    e && e.preventDefault && e.preventDefault();
-    // Vibrate where supported to provide immediate feedback
-    if (navigator.vibrate) navigator.vibrate(20);
-
-    if (this.deferredPrompt) {
-      this.installButton.disabled = true;
-      this.installButton.classList.add('pwa-install--pending');
-      this._updateButtonState('prompting');
-
-      try {
-        this.deferredPrompt.prompt();
-        const choice = await this.deferredPrompt.userChoice;
-        const outcome = choice && choice.outcome ? choice.outcome : 'dismissed';
-        if (outcome === 'accepted') this.onChange('accepted');
-        else this.onChange('dismissed');
-      } catch (err) {
-        this.onChange('error');
-      } finally {
-        this.deferredPrompt = null;
-        this.installButton.disabled = false;
-        this.installButton.classList.remove('pwa-install--pending');
-        this._updateButtonState();
-      }
-    } else if (this._isIos()) {
-      // iOS fallback: change the button text to a clear instruction
-      this._showIosFallbackInstructions();
-      this.onChange('ios-fallback');
-    } else {
-      // Generic fallback: instruct user to use browser's "Add to Home screen"
-      this._showManualFallback();
-      this.onChange('manual-fallback');
-    }
-  }
-
-  _updateButtonState(tempState) {
-    if (!this.installButton) return;
-    const el = this.installButton;
-    const state = tempState || (this.deferredPrompt ? 'ready' : (this._isIos() ? 'ios-fallback' : 'idle'));
-    // Update accessible label and visible text conservatively
-    switch (state) {
-      case 'ready':
-        el.textContent = 'Install App';
-        el.dataset.pwaState = 'ready';
-        el.title = 'Install this app to your device';
-        break;
-      case 'prompting':
-        el.textContent = 'Installing…';
-        el.dataset.pwaState = 'prompting';
-        el.title = 'Waiting for OS install confirmation';
-        break;
-      case 'ios-fallback':
-        el.textContent = 'Tap Share → Add to Homescreen';
-        el.dataset.pwaState = 'ios-fallback';
-        el.title = 'iOS: use Share → Add to Homescreen';
-        break;
-      case 'manual-fallback':
-        el.textContent = 'Use browser menu → Add to Homescreen';
-        el.dataset.pwaState = 'manual-fallback';
-        el.title = 'Use your browser menu to add to homescreen';
-        break;
-      default:
-        el.textContent = 'Install App';
-        el.dataset.pwaState = 'idle';
-        el.title = 'Install this app';
-    }
-  }
-
-  _showIosFallbackInstructions() {
-    if (!this.installButton) return;
-    // For iOS we provide clear short text; apps may also show a tooltip or modal.
-    this.installButton.textContent = 'Tap Share → Add to Homescreen';
-    this.installButton.dataset.pwaState = 'ios-fallback';
-    this.installButton.title = 'Open the Share sheet and choose Add to Homescreen';
-  }
-
-  _showManualFallback() {
-    if (!this.installButton) return;
-    this.installButton.textContent = 'Use browser menu → Add to Homescreen';
-    this.installButton.dataset.pwaState = 'manual-fallback';
+  _isStandalone() {
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
   }
 
   _isIos() {
     const ua = navigator.userAgent || navigator.vendor || window.opera;
-    const isIOSUA = /iphone|ipad|ipod/i.test(ua);
-    // iPadOS 13+ reports MacIntel, but supports touch — detect that too
-    const isTouchMac = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
-    return isIOSUA || isTouchMac;
+    return /iphone|ipad|ipod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   }
 
-  _noop() {}
-}
+  _createBanner() {
+    this.bannerEl = document.createElement('div');
+    // Start completely hidden off the bottom of the screen
+    this.bannerEl.className = 'fixed left-1/2 -translate-x-1/2 w-[90%] max-w-sm z-[9999] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] pointer-events-none opacity-0';
+    this.bannerEl.style.bottom = '-100px';
 
-// Usage snippet when included as a module in page scripts:
-// import PwaInstallManager from './services/PwaInstallManager.js';
-// const pwaInstaller = new PwaInstallManager({ onInstalled: () => { location.hash = '#/dashboard'; } });
-// pwaInstaller.attachToButton('#install-action');
+    this.bannerEl.innerHTML = `
+      <div class="flex items-center justify-between p-4 bg-[#0a040f]/90 backdrop-blur-xl border border-[#ffb88c]/30 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.8),inset_0_0_20px_rgba(255,184,140,0.05)] pointer-events-auto cursor-pointer group">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#7f2f5d] to-[#3d1228] border border-[#ffb88c]/20 flex items-center justify-center shadow-inner">
+            <svg viewBox="0 0 24 24" fill="none" class="w-5 h-5" stroke="rgba(255,217,181,0.9)" stroke-width="2"><path d="M12 4v16m8-8H4"/></svg>
+          </div>
+          <div class="flex flex-col">
+            <span class="text-white text-sm font-bold tracking-wide">MedCare App</span>
+            <span id="pwa-banner-text" class="text-[#ffb88c] text-[10px] uppercase tracking-widest font-mono">Install Now</span>
+          </div>
+        </div>
+        <div class="bg-[#ffb88c]/10 text-[#ffb88c] px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide group-hover:bg-[#ffb88c]/20 transition-colors border border-[#ffb88c]/20">
+          Get
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(this.bannerEl);
+
+    // Global click listener for the banner
+    this.bannerEl.addEventListener('click', async () => {
+      if (hapticEngine) hapticEngine.triggerHaptic(30);
+      
+      if (this.deferredPrompt) {
+        try {
+          this.deferredPrompt.prompt();
+          const { outcome } = await this.deferredPrompt.userChoice;
+          if (outcome === 'accepted') {
+            this._hideBanner();
+          }
+        } catch (err) {
+          console.error('[PWA] Prompt blocked', err);
+        } finally {
+          this.deferredPrompt = null;
+        }
+      }
+    });
+  }
+
+  _showBanner(subText) {
+    if (!this.bannerEl) return;
+    const textNode = this.bannerEl.querySelector('#pwa-banner-text');
+    if (textNode) textNode.textContent = subText;
+    
+    // Slide up seamlessly into view
+    this.bannerEl.style.opacity = '1';
+    this.bannerEl.style.bottom = '24px';
+  }
+
+  _hideBanner() {
+    if (!this.bannerEl) return;
+    // Slide back down
+    this.bannerEl.style.opacity = '0';
+    this.bannerEl.style.bottom = '-100px';
+  }
+}

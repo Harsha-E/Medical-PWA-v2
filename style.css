@@ -398,6 +398,26 @@ h1, h2, h3, h4, h5, h6, .font-display {
 .font-mono { font-family: var(--font-mono); }
 .font-caveat { font-family: var(--font-caveat); }
 
+/* 1. Lock the App Shell */
+html, body, #app-viewport {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden !important;
+  overscroll-behavior: none;
+}
+
+/* 2. Enable Hardware-Accelerated Momentum Scrolling */
+.native-scroll {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch !important; /* iOS Momentum scroll */
+  padding-bottom: env(safe-area-inset-bottom); /* Fixes notch/home-bar overlap */
+}
+
 /* Typography Refinement */
 .font-display { font-family: var(--font-display); font-weight: 800; }
 .text-xs { font-size: 11px; letter-spacing: 0.06em; }
