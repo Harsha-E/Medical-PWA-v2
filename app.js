@@ -13,6 +13,8 @@ import state              from './core/state.js';
 import { auth }           from './core/firebase.js';
 import { interactionGraph } from './services/InteractionGraph.js';
 import { nlpContext }       from './services/NLPContext.js';
+import { hapticEngine }   from './services/HapticEngine.js';
+import { pwaManager }     from './services/PwaManager.js';
 import GhostFluid         from './core/GhostFluid.js';
 import GlassNavbar        from './components/navbar.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
@@ -22,6 +24,7 @@ import SplashView           from './views/splash.js';
 import LandingView          from './views/landing.js';
 import LoginView            from './views/login.js';
 import RegisterView         from './views/register.js';
+import InstallView          from './views/install.js';
 import OnboardingView       from './views/onboarding.js';
 import DashboardView        from './views/dashboard.js';
 import MedicationsView      from './views/medications.js';
@@ -42,6 +45,7 @@ import CalendarView         from './views/calendar.js';
 // Defined before the App class so it is in scope for the constructor.
 
 const ROUTES = {
+  '#/install':      InstallView,
   '#/':             LandingView,
   '#/landing':      LandingView,
   '#/splash':       SplashView,
@@ -66,10 +70,10 @@ const ROUTES = {
 };
 
 /** Routes that don't require a logged-in user. */
-const PUBLIC_ROUTES = new Set(['#/', '#/landing', '#/splash', '#/login', '#/register']);
+const PUBLIC_ROUTES = new Set(['#/', '#/landing', '#/splash', '#/login', '#/register', '#/install']);
 
 /** Routes where the navbar should be hidden. */
-const HIDE_NAV_ROUTES = new Set(['#/onboarding', '#/splash']);
+const HIDE_NAV_ROUTES = new Set(['#/onboarding', '#/splash', '#/install']);
 
 /** Routes where the WebGL liquid background is active. */
 const LIQUID_ROUTES = new Set(['#/', '#/landing', '#/login', '#/register']);
@@ -90,6 +94,10 @@ class App {
   async init() {
     console.log('%c MedCare | Offline-First System Active ', 'background: #7f2f5d; color: #ffd9b5; font-weight: bold; padding: 4px 8px; border-radius: 4px;');
     console.log('%c MedCare | Core Initializing... ', 'background: #7f2f5d; color: #ffd9b5;');
+
+    // ─── PWA NATIVE STANDARDS ───────────────────────────────────────────
+    hapticEngine.init();
+    pwaManager.init();
     
     // 1. Initialize Clinical Engines in the background
     try {
@@ -188,6 +196,14 @@ class App {
     }
 
     // ── Auth guard ──
+    // If app is not running as a standalone PWA, force the install view
+    if (!pwaManager.isStandalone) {
+      if (hash !== '#/install') {
+        window.location.hash = '#/install';
+        return;
+      }
+    }
+
     if (!user) {
       if (!PUBLIC_ROUTES.has(hash)) {
         window.location.hash = '#/landing';
