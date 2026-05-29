@@ -1,5 +1,5 @@
 /**
- * MedCheck | Landing View (Ultra-Lightweight)
+ * MedCare | Landing View (Ultra-Lightweight)
  * WebGL Particle Engine transplanted to StoryEngine.js
  */
 import StoryEngine from '../core/StoryEngine.js';

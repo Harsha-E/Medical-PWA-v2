@@ -134,7 +134,7 @@ export default class InstallView {
                 <span class="mc-chip">Offline</span>
               </div>
             </div>
-<br>
+
             <div class="mb-8 h-6 flex items-center justify-center relative">
               <p class="text-gray-300 text-sm md:text-base leading-relaxed font-mono tracking-wide max-w-lg mx-auto">
                 <span class="typewriter-text" data-text="Install MedCare as a native app for faster startup, offline access and secure OS-level integration."></span><span class="typewriter-cursor text-[#ffb88c] animate-pulse">|</span>

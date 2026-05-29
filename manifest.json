@@ -1,6 +1,6 @@
 {
-  "name": "MedCheck",
-  "short_name": "MedCheck",
+  "name": "MedCare",
+  "short_name": "MedCare",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#fdf6f0",

@@ -1,5 +1,5 @@
 /**
- * MedCheck | Health Reports View
+ * MedCare | Health Reports View
  */
 import { jsPDF } from "https://esm.sh/jspdf@2.5.1";
 import db from '../core/db.js';

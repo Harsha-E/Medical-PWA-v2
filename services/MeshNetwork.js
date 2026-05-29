@@ -1,5 +1,5 @@
 /**
- * @fileoverview Mesh Network Service for MedCheck PWA.
+ * @fileoverview Mesh Network Service for MedCare PWA.
  * Architecture: ES6 Module, WebRTC (PeerJS).
  * Paradigm: Offline-First Peer-to-Peer Synchronization via CRDT (Conflict-Free Replicated Data Type).
  * Requires: PeerJS library available on the global `window` object via CDN.
@@ -134,8 +134,8 @@ class MeshNetwork {
             conn.on('open', () => {
                 clearTimeout(timeoutTimer);
                 
-                conn._medcheckConnectedAt = Date.now();
-                conn._medcheckDeviceName = 'Unknown Device';
+                conn._medcareConnectedAt = Date.now();
+                conn._medcareDeviceName = 'Unknown Device';
                 
                 this._connections.set(peerId, conn);
 
@@ -164,8 +164,8 @@ class MeshNetwork {
         console.log(`[Mesh] Incoming connection request from: ${conn.peer}`);
 
         conn.on('open', () => {
-            conn._medcheckConnectedAt = Date.now();
-            conn._medcheckDeviceName = 'Unknown Device';
+            conn._medcareConnectedAt = Date.now();
+            conn._medcareDeviceName = 'Unknown Device';
             
             this._connections.set(conn.peer, conn);
 
@@ -195,7 +195,7 @@ class MeshNetwork {
             case 'HANDSHAKE':
                 const conn = this._connections.get(fromPeerId);
                 if (conn && data.deviceName) {
-                    conn._medcheckDeviceName = data.deviceName;
+                    conn._medcareDeviceName = data.deviceName;
                 }
                 window.dispatchEvent(new CustomEvent('peer_connected', { detail: { peerId: fromPeerId, deviceName: data.deviceName } }));
                 break;
@@ -289,8 +289,8 @@ class MeshNetwork {
         for (const [peerId, conn] of this._connections.entries()) {
             peerStatusList.push({
                 peerId,
-                deviceName: conn._medcheckDeviceName || 'Unknown Node',
-                connectedAt: conn._medcheckConnectedAt || Date.now()
+                deviceName: conn._medcareDeviceName || 'Unknown Node',
+                connectedAt: conn._medcareConnectedAt || Date.now()
             });
         }
         return peerStatusList;
