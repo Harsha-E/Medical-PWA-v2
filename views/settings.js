@@ -73,7 +73,7 @@ export default class SettingsView {
         </section>
 
         <div class="app-info text-center py-10 opacity-40">
-          <p class="text-[8px] text-uppercase font-bold tracking-[0.4em]">MedCare Precision Environment &bull; v0.9.1</p>
+          <p class="text-[8px] text-uppercase font-bold tracking-[0.4em]">MedCheck Precision Environment &bull; v0.9.1</p>
         </div>
       </main>
 
@@ -104,7 +104,7 @@ export default class SettingsView {
   }
 
   applyTheme() {
-    const theme = localStorage.getItem('medcare-theme') || 'light';
+    const theme = localStorage.getItem('medcheck-theme') || 'light';
     document.body.classList.toggle('dark-theme', theme === 'dark');
     this.updateThemeButtons(theme);
   }
@@ -150,7 +150,7 @@ export default class SettingsView {
     this.container.querySelectorAll('.theme-option').forEach(el => {
       el.addEventListener('click', () => {
         const theme = el.id === 'theme-dark' ? 'dark' : 'light';
-        localStorage.setItem('medcare-theme', theme);
+        localStorage.setItem('medcheck-theme', theme);
         this.applyTheme();
       });
     });

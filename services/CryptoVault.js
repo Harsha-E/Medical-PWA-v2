@@ -41,7 +41,7 @@ class CryptoVault {
       this._isUnlocked = true;
 
       // 3. Store Salt (Safe to store in plaintext localStorage)
-      localStorage.setItem('medcare_crypto_salt', base64Salt);
+      localStorage.setItem('medcheck_crypto_salt', base64Salt);
 
       // 4. Store encrypted Canary to verify PINs in the future
       await this._storeCanary();
@@ -63,8 +63,8 @@ class CryptoVault {
    */
   async unlock(pin) {
     try {
-      const base64Salt = localStorage.getItem('medcare_crypto_salt');
-      const encryptedCanary = localStorage.getItem('medcare_crypto_canary');
+      const base64Salt = localStorage.getItem('medcheck_crypto_salt');
+      const encryptedCanary = localStorage.getItem('medcheck_crypto_canary');
 
       if (!base64Salt || !encryptedCanary) {
         console.warn('[CryptoVault] No vault setup found.');
@@ -80,7 +80,7 @@ class CryptoVault {
       // Test the key against the canary
       const decryptedCanary = await this.decrypt(encryptedCanary);
 
-      if (decryptedCanary === 'medcare_ok') {
+      if (decryptedCanary === 'medcheck_ok') {
         console.log('[CryptoVault] Vault unlocked successfully.');
         return true;
       } else {
@@ -100,8 +100,8 @@ class CryptoVault {
    * @private
    */
   async _storeCanary() {
-    const encrypted = await this.encrypt('medcare_ok');
-    localStorage.setItem('medcare_crypto_canary', encrypted);
+    const encrypted = await this.encrypt('medcheck_ok');
+    localStorage.setItem('medcheck_crypto_canary', encrypted);
   }
 
   /**

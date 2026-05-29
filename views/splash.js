@@ -10,7 +10,7 @@ export default class SplashView {
             <path d="M11 2a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2H2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h5a2 2 0 0 1 2 2v5a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-5a2 2 0 0 1 2-2h5a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-5a2 2 0 0 1-2-2V4a2 2 0 0 0-2-2h-4Z"/>
           </svg>
         </div>
-        <h1 class="font-display text-4xl mt-4">MedCare</h1>
+        <h1 class="font-display text-4xl mt-4">MedCheck</h1>
         <p class="text-[10px] font-bold text-muted mt-2 tracking-[0.2em] uppercase">Clinical Precision &bull; Offline First</p>
         <div class="loading-track mt-16">
           <div class="loading-bar"></div>
