@@ -1,7 +1,7 @@
     /**
      * @fileoverview VisionPipeline — Optimized for Temporal Memory & High-Accuracy Extraction
      */
-    import { INDIAN_DRUG_DATASET, fuzzySearchDrugs } from '../data/indian-drug-dataset.js';
+
 
     const PREPROCESS_WORKER_CODE = `
     function bradleyRoth(data, width, height) {
