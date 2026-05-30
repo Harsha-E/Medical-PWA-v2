@@ -21,8 +21,17 @@
   <link rel="stylesheet" href="./style.css" />
 
   <!-- ── PWA manifest ──────────────────────────────────────────────────── -->
-  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/jpeg" href="/assets/logo.jpeg" />
+  <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#1a0a12" />
+  <script>
+    // Catch beforeinstallprompt early to avoid race conditions with module loading
+    window.deferredInstallPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      window.deferredInstallPrompt = e;
+    });
+  </script>
 
   <!--
     ── Firebase config ────────────────────────────────────────────────────

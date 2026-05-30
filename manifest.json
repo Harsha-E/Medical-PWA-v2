@@ -1,26 +1,26 @@
 {
+  "id": "/",
   "name": "MedCheck",
   "short_name": "MedCheck",
-  "start_url": "./",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#fdf6f0",
   "theme_color": "#ff6b35",
-  "description": "Your offline-first clinical medication companion.",
   "icons": [
     {
-      "src": "./assets/icon-192.png",
+      "src": "/assets/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
+      "type": "image/png"
     },
     {
-      "src": "./assets/icon-512.png",
+      "src": "/assets/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     },
     {
-      "src": "./assets/icon-maskable.png",
-      "sizes": "192x192",
+      "src": "/assets/icon-maskable.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     }

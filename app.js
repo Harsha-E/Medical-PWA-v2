@@ -84,7 +84,6 @@ class App {
     this.viewport = document.getElementById('app-viewport');
     this.router   = new Router(ROUTES, this.viewport);
     this.glassNav = new GlassNavbar();
-    this.pwaManager = new PwaInstallManager();
     this.ghostFluid = null; // Track WebGL instance
 
     /** Tracks whether the first auth-state event has resolved. */
@@ -97,6 +96,36 @@ class App {
 
     // ─── PWA NATIVE STANDARDS ───────────────────────────────────────────
     hapticEngine.init();
+    
+    // Register Service Worker and Boot PWA Install Manager
+    if ('serviceWorker' in navigator) {
+      try {
+        const reg = await navigator.serviceWorker.register('/sw.js');
+        console.log('[Service Worker] Registered successfully with scope:', reg.scope);
+        
+        await navigator.serviceWorker.ready;
+        console.log('[SW] Service worker is ready.');
+
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          console.log('[SW] Controller acquired');
+        });
+
+        if (!navigator.serviceWorker.controller) {
+          if (!sessionStorage.getItem('sw_reloaded')) {
+            console.warn('[SW] No controller. Reloading.');
+            sessionStorage.setItem('sw_reloaded', 'true');
+            window.location.reload();
+            return;
+          }
+        }
+        
+        this.pwaManager = new PwaInstallManager();
+      } catch (err) {
+        console.error('[Service Worker] Registration failed:', err);
+      }
+    } else {
+      this.pwaManager = new PwaInstallManager();
+    }
     
     // 1. Initialize Clinical Engines in the background
     try {

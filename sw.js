@@ -2,7 +2,7 @@
  * MedCare | Service Worker — Offline-First Cache
  */
 
-const CACHE_NAME = 'medcare-v3';
+const CACHE_NAME = 'medcare-v5';
 
 const ASSETS = [
   '/',
@@ -51,7 +51,7 @@ self.addEventListener('activate', (event) => {
       Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
     )
   );
-  self.clients.claim();
+  event.waitUntil(self.clients.claim());
 });
 
 self.addEventListener('fetch', (event) => {

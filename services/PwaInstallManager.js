@@ -19,18 +19,30 @@ export default class PwaInstallManager {
    * Initialize PWA setup listeners and verify environment
    * @private
    */
-  _init() {
+  async _init() {
+    this._runDiagnostics();
+
     // If the app is already launched as a standalone PWA, do nothing
-    if (this._isStandalone()) return;
+    if (this._isStandalone()) {
+      console.log('[PWA] Running in standalone mode. Install banner will not be shown.');
+      return;
+    }
 
     this._createBanner();
 
-    // Intercept Chrome/Android native engine install prompt
-    window.addEventListener('beforeinstallprompt', (e) => {
+    // Connect to early-captured prompt or listen for new ones
+    const handlePrompt = (e) => {
       e.preventDefault();
       this.deferredPrompt = e;
+      console.log('[PWA] beforeinstallprompt captured.');
       this._showBanner('Tap to Install');
-    });
+      this.onChange?.('ready');
+    };
+
+    if (window.deferredInstallPrompt) {
+      handlePrompt(window.deferredInstallPrompt);
+    }
+    window.addEventListener('beforeinstallprompt', handlePrompt);
 
     // Handle post-installation platform routing cleanly
     window.addEventListener('appinstalled', () => {
@@ -38,16 +50,75 @@ export default class PwaInstallManager {
       setTimeout(() => { window.location.hash = '#/dashboard'; }, 600);
     });
 
-    // iOS Safari and Desktop browser fallbacks
-    setTimeout(() => {
-      if (!this.deferredPrompt && !this._isStandalone()) {
-        if (this._isIos()) {
-          this._showBanner('Share → Add to Homescreen');
-        } else {
-          this._showBanner('Use Browser Menu to Install');
+    await this._validateInstallability();
+  }
+
+  _runDiagnostics() {
+    console.log('[PWA] --- Startup Diagnostics ---');
+    console.log(`[PWA] navigator.serviceWorker.controller:`, navigator.serviceWorker ? navigator.serviceWorker.controller : 'N/A');
+    console.log(`[PWA] window.matchMedia('(display-mode: standalone)'):`, window.matchMedia('(display-mode: standalone)').matches);
+    console.log('[PWA] ---------------------------');
+  }
+
+  async _validateInstallability() {
+    console.log('[PWA] Validating installability criteria...');
+    const errors = [];
+
+    // Check SW
+    if (!navigator.serviceWorker) {
+      errors.push('Service Worker API not supported by browser.');
+    } else {
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (!reg?.active) {
+        errors.push('No active service worker.');
+      } else {
+        console.log('[PWA] Service worker active');
+        if (navigator.serviceWorker.controller) {
+          console.log('[PWA] Service worker controlling page');
         }
       }
-    }, 2000);
+    }
+
+    // Check Manifest
+    try {
+      const manifestLink = document.querySelector('link[rel="manifest"]');
+      if (!manifestLink) {
+        errors.push('Manifest link tag missing from document.');
+      } else {
+        const res = await fetch(manifestLink.href);
+        if (!res.ok) {
+          errors.push(`Manifest fetch failed with status ${res.status}`);
+        } else {
+          console.log('[PWA] Manifest loaded');
+          const manifest = await res.json();
+          if (!manifest.display || manifest.display !== 'standalone') errors.push('Manifest display is not "standalone".');
+          if (!manifest.start_url) errors.push('Manifest start_url is missing or invalid.');
+          
+          if (!manifest.icons || !Array.isArray(manifest.icons)) {
+            errors.push('Manifest icons array missing.');
+          } else {
+            const has192 = manifest.icons.some(i => i.sizes && i.sizes.includes('192x192'));
+            const has512 = manifest.icons.some(i => i.sizes && i.sizes.includes('512x512'));
+            if (!has192) errors.push('Manifest icon 192x192 missing.');
+            if (!has512) errors.push('Manifest icon 512x512 missing.');
+            if (has192 && has512) console.log('[PWA] Manifest icons valid');
+          }
+        }
+      }
+    } catch (e) {
+      errors.push(`Manifest validation error: ${e.message}`);
+    }
+
+    if (errors.length > 0) {
+      console.error('[PWA] Installability requirements not satisfied:');
+      errors.forEach(err => console.error(` - ${err}`));
+      console.log('[PWA] native install unavailable');
+    } else {
+      if (this.deferredPrompt || window.deferredInstallPrompt) {
+        console.log('[PWA] beforeinstallprompt captured');
+      }
+      console.log('[PWA] Native install available');
+    }
   }
 
   /**
@@ -57,18 +128,6 @@ export default class PwaInstallManager {
    */
   _isStandalone() {
     return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-  }
-
-  /**
-   * Hardware detection for apple target environments
-   * @private
-   * @returns {boolean}
-   */
-  _isIos() {
-    const ua = navigator.userAgent || navigator.vendor || window.opera;
-    const isIOSUA = /iphone|ipad|ipod/i.test(ua);
-    const isTouchMac = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
-    return isIOSUA || isTouchMac;
   }
 
   /**
@@ -84,18 +143,14 @@ export default class PwaInstallManager {
     this.bannerEl.innerHTML = `
       <div id="pwa-inner-card" class="flex items-center justify-between p-4 bg-[#0a040f]/90 backdrop-blur-xl border border-[#ffb88c]/30 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.8),inset_0_0_20px_rgba(255,184,140,0.05)] pointer-events-auto cursor-pointer group">
         <div class="flex items-center gap-3 pointer-events-none">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#7f2f5d] to-[#3d1228] border border-[#ffb88c]/20 flex items-center justify-center shadow-inner">
-            <svg viewBox="0 0 24 24" fill="none" class="w-5 h-5" stroke="rgba(255,217,181,0.9)" stroke-width="2">
-              <path d="M12 4v16m8-8H4"/>
-            </svg>
-          </div>
+          <img src="./assets/logo.jpeg" class="w-10 h-10 rounded-xl border border-[#ffb88c]/20 object-cover shadow-inner" alt="MedCare Logo" />
           <div class="flex flex-col">
             <span class="text-white text-sm font-bold tracking-wide">MedCare App</span>
             <span id="pwa-banner-text" class="text-[#ffb88c] text-[10px] uppercase tracking-widest font-mono">Install Now</span>
           </div>
         </div>
-        <button id="pwa-action-btn" class="bg-[#ffb88c]/10 text-[#ffb88c] px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide group-hover:bg-[#ffb88c]/20 transition-colors border border-[#ffb88c]/20 focus:outline-none">
-          Get
+        <button id="pwa-action-btn" class="bg-[#ffb88c]/10 text-[#ffb88c] px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide group-hover:bg-[#ffb88c]/20 transition-colors border border-[#ffb88c]/20 focus:outline-none whitespace-nowrap">
+          Install App
         </button>
       </div>
     `;
@@ -104,31 +159,38 @@ export default class PwaInstallManager {
 
     // Click logic explicit update: Listen directly on the actionable card wrapper
     const card = this.bannerEl.querySelector('#pwa-inner-card');
-    card.addEventListener('click', async (e) => {
+    card.addEventListener('click', (e) => {
       e.stopPropagation();
       
       if (hapticEngine) hapticEngine.triggerHaptic(30);
       
-      if (this.deferredPrompt) {
-        try {
-          // Explicit prompt activation sequence
-          this.deferredPrompt.prompt();
-          const choiceResult = await this.deferredPrompt.userChoice;
-          
-          if (choiceResult.outcome === 'accepted') {
-            console.log('[PWA Manager] User accepted native installation payload.');
-            this._hideBanner();
-            this.deferredPrompt = null; // Clear out only after interaction resolves
-          } else {
-            console.log('[PWA Manager] User dismissed native installation popup.');
-          }
-        } catch (err) {
-          console.error('[PWA Manager] Prompt exception caught:', err);
-        }
-      } else {
-        console.log('[PWA Manager] Trigger hit but native deferredPrompt is absent.');
-      }
+      this.install();
     });
+  }
+
+  async install() {
+    if (!this.deferredPrompt) {
+      console.error('[PWA] Native install prompt unavailable');
+      console.error('[PWA] Installability requirements not satisfied');
+      return;
+    }
+
+    try {
+      await this.deferredPrompt.prompt();
+      const choice = await this.deferredPrompt.userChoice;
+
+      if (choice.outcome === 'accepted') {
+        this.onChange?.('accepted');
+      }
+
+      if (choice.outcome === 'dismissed') {
+        this.onChange?.('dismissed');
+      }
+    } catch (err) {
+      console.error('[PWA Manager] Prompt exception caught:', err);
+    }
+
+    this.deferredPrompt = null;
   }
 
   /**
