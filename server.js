@@ -1,9 +1,3 @@
-/**
- * MedCare | Local Development Server
- * Run: node server.js
- * Opens at: http://localhost:3000
- */
-
 import http from 'http';
 import fs from 'fs';
 import path from 'path';
@@ -11,7 +5,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const PORT = process.env.PORT || 8008;
+const PORT = process.env.PORT || 8009;
 
 const MIME_TYPES = {
   '.html': 'text/html',

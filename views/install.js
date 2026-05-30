@@ -10,17 +10,91 @@ export default class InstallView {
 
     this.container.innerHTML = `
       <style>
-        .mc-hero { display: flex; flex-direction: column; align-items: center; z-index: 10; pointer-events: none; margin-bottom: 2rem; }
-        .mc-mark { width: 68px; height: 68px; border-radius: 20px; background: linear-gradient(145deg, #7f2f5d 0%, #3d1228 100%); border: 1px solid rgba(255,184,140,0.25); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 1px rgba(255,184,140,0.08), 0 0 40px rgba(127,47,93,0.45), 0 12px 40px rgba(0,0,0,0.6); animation: mcMarkFloat 7s ease-in-out infinite; }
-        @keyframes mcMarkFloat { 0%, 100% { transform: translateY(0px);  box-shadow: 0 0 0 1px rgba(255,184,140,0.08), 0 0 40px rgba(127,47,93,0.45), 0 12px 40px rgba(0,0,0,0.6); } 50% { transform: translateY(-7px); box-shadow: 0 0 0 1px rgba(255,184,140,0.18), 0 0 65px rgba(127,47,93,0.65), 0 20px 55px rgba(0,0,0,0.7); } }
-        .mc-ping { position: absolute; inset: -6px; border-radius: 26px; border: 1px solid rgba(255,184,140,0.22); animation: mcPing 3s ease-out infinite; pointer-events: none; }
-        .mc-ping:nth-child(2) { inset: -14px; border-radius: 34px; border-color: rgba(127,47,93,0.25); animation-delay: 1.4s; }
-        @keyframes mcPing { 0% { opacity: 1; transform: scale(1); } 75%, 100%{ opacity: 0; transform: scale(1.7); } }
-        .mc-brand { margin-top: 18px; font-family: 'Cormorant Garamond', 'Georgia', serif; font-weight: 600; font-size: 38px; letter-spacing: -0.5px; line-height: 1; color: #ffd9b5; opacity: 0; transform: translateY(12px); animation: mcFadeUp 0.9s 0.2s cubic-bezier(0.16,1,0.3,1) forwards; }
+        .mc-hero { 
+          display: flex; 
+          flex-direction: column; 
+          align-items: center; 
+          z-index: 10; 
+          pointer-events: none; 
+          margin-bottom: 2rem; 
+        }
+        .mc-mark { 
+          width: 68px; 
+          height: 68px; 
+          border-radius: 20px; 
+          background: linear-gradient(145deg, #7f2f5d 0%, #3d1228 100%); 
+          border: 1px solid rgba(255,184,140,0.25); 
+          display: flex; 
+          align-items: center; 
+          justify-content: center; 
+          box-shadow: 0 0 0 1px rgba(255,184,140,0.08), 0 0 40px rgba(127,47,93,0.45), 0 12px 40px rgba(0,0,0,0.6); 
+          animation: mcMarkFloat 7s ease-in-out infinite; 
+        }
+        @keyframes mcMarkFloat { 
+          0%, 100% { transform: translateY(0px); box-shadow: 0 0 0 1px rgba(255,184,140,0.08), 0 0 40px rgba(127,47,93,0.45), 0 12px 40px rgba(0,0,0,0.6); } 
+          50% { transform: translateY(-7px); box-shadow: 0 0 0 1px rgba(255,184,140,0.18), 0 0 65px rgba(127,47,93,0.65), 0 20px 55px rgba(0,0,0,0.7); } 
+        }
+        .mc-ping { 
+          position: absolute; 
+          inset: -6px; 
+          border-radius: 26px; 
+          border: 1px solid rgba(255,184,140,0.22); 
+          animation: mcPing 3s ease-out infinite; 
+          pointer-events: none; 
+        }
+        .mc-ping:nth-child(2) { 
+          inset: -14px; 
+          border-radius: 34px; 
+          border-color: rgba(127,47,93,0.25); 
+          animation-delay: 1.4s; 
+        }
+        @keyframes mcPing { 
+          0% { opacity: 1; transform: scale(1); } 
+          75%, 100%{ opacity: 0; transform: scale(1.7); } 
+        }
+        .mc-brand { 
+          margin-top: 18px; 
+          font-family: 'Cormorant Garamond', 'Georgia', serif; 
+          font-weight: 600; 
+          font-size: 38px; 
+          letter-spacing: -0.5px; 
+          line-height: 1; 
+          color: #ffd9b5; 
+          opacity: 0; 
+          transform: translateY(12px); 
+          animation: mcFadeUp 0.9s 0.2s cubic-bezier(0.16,1,0.3,1) forwards; 
+        }
         .mc-brand em { font-style: normal; color: #ffb88c; }
-        .mc-tagline { margin-top: 6px; font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 3.5px; text-transform: uppercase; color: rgba(255,217,181,0.45); opacity: 0; animation: mcFadeUp 0.9s 0.45s cubic-bezier(0.16,1,0.3,1) forwards; }
-        .mc-trust { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 14px; opacity: 0; animation: mcFadeUp 0.9s 0.65s cubic-bezier(0.16,1,0.3,1) forwards; }
-        .mc-chip { padding: 3px 10px; border-radius: 20px; background: rgba(127,47,93,0.2); border: 1px solid rgba(255,184,140,0.2); font-family: 'Courier New', monospace; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: #ffb88c; }
+        .mc-tagline { 
+          margin-top: 6px; 
+          font-family: 'Courier New', monospace; 
+          font-size: 10px; 
+          letter-spacing: 3.5px; 
+          text-transform: uppercase; 
+          color: rgba(255,217,181,0.45); 
+          opacity: 0; 
+          animation: mcFadeUp 0.9s 0.45s cubic-bezier(0.16,1,0.3,1) forwards; 
+        }
+        .mc-trust { 
+          display: flex; 
+          align-items: center; 
+          justify-content: center; 
+          gap: 10px; 
+          margin-top: 14px; 
+          opacity: 0; 
+          animation: mcFadeUp 0.9s 0.65s cubic-bezier(0.16,1,0.3,1) forwards; 
+        }
+        .mc-chip { 
+          padding: 3px 10px; 
+          border-radius: 20px; 
+          background: rgba(127,47,93,0.2); 
+          border: 1px solid rgba(255,184,140,0.2); 
+          font-family: 'Courier New', monospace; 
+          font-size: 9px; 
+          letter-spacing: 1.5px; 
+          text-transform: uppercase; 
+          color: #ffb88c; 
+        }
         @keyframes mcFadeUp { to { opacity: 1; transform: translateY(0); } }
         @keyframes breathe { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-4px); } }
         .panel-breathe { animation: breathe 6s ease-in-out infinite; }
@@ -57,7 +131,7 @@ export default class InstallView {
               </p>
             </div>
 
-            </div>
+          </div>
         </main>
       </div>
     `;
@@ -87,9 +161,6 @@ export default class InstallView {
     this._typeLoop = setTimeout(type, 600);
   }
 
-  // ==========================================
-  // PREMIUM ETHEREAL AURA ENGINE
-  // ==========================================
   _initVisuals() {
     if (!this.canvas || !this.ctx) return;
     
@@ -142,7 +213,7 @@ export default class InstallView {
       const x = (orb.x * w) + Math.sin(this._t * orb.speed + orb.offset) * (w * 0.15) + (dx * (i + 1));
       const y = (orb.y * h) + Math.cos(this._t * orb.speed + orb.offset) * (h * 0.15) + (dy * (i + 1));
       const r = orb.radius * Math.max(w, h);
-      
+
       const gradient = this.ctx.createRadialGradient(x, y, 0, x, y, r);
       gradient.addColorStop(0, orb.color);
       gradient.addColorStop(1, 'rgba(0,0,0,0)');
