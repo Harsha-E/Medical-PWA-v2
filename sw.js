@@ -41,19 +41,7 @@ const ASSETS = [
   '/services/PeerMesh.js',
   '/services/SyncBridge.js',
   '/services/DocLedger.js',
-  '/workers/vision.worker.js',
-  '/vendor/peerjs.min.js',
-  '/vendor/yjs.mjs',
-  '/vendor/fuse.min.js',
-  '/vendor/qrcode.min.js',
-  '/vendor/mediapipe/vision_bundle.mjs',
-  '/vendor/mediapipe/wasm/vision_wasm_internal.js',
-  '/vendor/mediapipe/wasm/vision_wasm_internal.wasm',
-  '/vendor/mediapipe/efficientdet_lite0.tflite',
-  '/vendor/tesseract/tesseract.min.js',
-  '/vendor/tesseract/worker.min.js',
-  '/vendor/tesseract/tesseract-core.wasm.js',
-  '/vendor/tesseract/eng.traineddata'
+  '/workers/vision.worker.js'
 ].map(path => BASE_PATH + path);
 
 self.addEventListener('install', (event) => {

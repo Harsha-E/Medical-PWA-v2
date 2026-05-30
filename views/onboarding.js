@@ -44,9 +44,15 @@ export default class OnboardingView {
             <input type="date" id="dob" autocomplete="bday" required class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#ffb88c]/50 focus:outline-none [color-scheme:dark]">
           </div>
 
-          <div>
-            <label for="emergencyPhone" class="block text-xs font-mono text-gray-500 uppercase mb-2 ml-1">Emergency Contact (Phone)</label>
-            <input type="tel" id="emergencyPhone" autocomplete="tel" required class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#ffb88c]/50 focus:outline-none">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label for="emergencyName" class="block text-xs font-mono text-gray-500 uppercase mb-2 ml-1">Primary Responder</label>
+              <input type="text" id="emergencyName" placeholder="Name" required class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#ffb88c]/50 focus:outline-none">
+            </div>
+            <div>
+              <label for="emergencyPhone" class="block text-xs font-mono text-gray-500 uppercase mb-2 ml-1">Emergency Phone</label>
+              <input type="tel" id="emergencyPhone" autocomplete="tel" required class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#ffb88c]/50 focus:outline-none">
+            </div>
           </div>
           
           <button type="submit" class="w-full py-4 rounded-xl bg-linear-to-r from-[#00ff7f]/20 to-[#00ff7f]/5 border border-[#00ff7f]/30 text-[#00ff7f] font-mono text-xs uppercase tracking-widest hover:bg-[#00ff7f]/20 active:scale-95 transition-all mt-8">
@@ -102,6 +108,7 @@ export default class OnboardingView {
         const profileData = {
           bloodType: form.bloodType.value,
           dob: form.dob.value,
+          emergencyName: form.emergencyName.value,
           emergencyPhone: form.emergencyPhone.value
         };
 

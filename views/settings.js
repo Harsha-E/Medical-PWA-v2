@@ -39,20 +39,6 @@ export default class SettingsView {
 
 
         <section class="mb-10">
-          <h3 class="text-xs text-uppercase font-bold text-[#ffb88c]/70 mb-4 tracking-[0.2em] px-1 uppercase">Visual Architecture</h3>
-          <div class="glass-panel p-4 flex gap-4 border-[#7f2f5d]/30">
-              <div id="theme-light" class="theme-option flex-1 p-4 rounded-xl border border-[#7f2f5d]/20 bg-white/5 flex flex-col items-center cursor-pointer">
-                  <div class="w-10 h-10 rounded-full bg-white/10 mb-3 border border-[#7f2f5d]/30"></div>
-                  <p class="text-xs font-bold uppercase tracking-widest text-white/40">Clinical Light</p>
-              </div>
-              <div id="theme-dark" class="theme-option flex-1 p-4 rounded-xl border-2 border-[#ffb88c] bg-[#4a1532]/40 flex flex-col items-center cursor-pointer">
-                  <div class="w-10 h-10 rounded-full bg-[#1a0a12] mb-3 border border-[#ffb88c]/40"></div>
-                  <p class="text-xs font-bold uppercase tracking-widest text-[#ffb88c]">Midnight Node</p>
-              </div>
-          </div>
-        </section>
-
-        <section class="mb-10">
           <h3 class="text-xs text-uppercase font-bold text-[#ffb88c]/70 mb-4 tracking-[0.2em] px-1">Alerting Protocols</h3>
           <div class="glass-panel overflow-hidden border-[#7f2f5d]/30">
             <div class="settings-row text-white">
@@ -97,7 +83,7 @@ export default class SettingsView {
       </style>
     `;
     
-    this.applyTheme();
+
     this.applyToggleStates();
     this.attachListeners();
     return this.container;
@@ -111,29 +97,6 @@ export default class SettingsView {
     setTimeout(() => t.remove(), 3500);
   }
 
-  applyTheme() {
-    const theme = localStorage.getItem('medcare-theme') || 'light';
-    document.body.classList.toggle('dark-theme', theme === 'dark');
-    this.updateThemeButtons(theme);
-  }
-
-  updateThemeButtons(theme) {
-    const lightOption = this.container.querySelector('#theme-light');
-    const darkOption = this.container.querySelector('#theme-dark');
-    if (!lightOption || !darkOption) return;
-
-    if (theme === 'dark') {
-        lightOption.classList.add('opacity-40');
-        lightOption.classList.remove('border-primary', 'bg-white');
-        darkOption.classList.remove('opacity-40');
-        darkOption.classList.add('border-primary');
-    } else {
-        darkOption.classList.add('opacity-40');
-        darkOption.classList.remove('border-primary');
-        lightOption.classList.remove('opacity-40');
-        lightOption.classList.add('border-primary', 'bg-white');
-    }
-  }
 
   applyToggleStates() {
     this.container.querySelectorAll('.toggle').forEach(t => {
@@ -203,13 +166,6 @@ export default class SettingsView {
         };
     });
 
-    this.container.querySelectorAll('.theme-option').forEach(el => {
-      el.addEventListener('click', () => {
-        const theme = el.id === 'theme-dark' ? 'dark' : 'light';
-        localStorage.setItem('medcare-theme', theme);
-        this.applyTheme();
-      });
-    });
 
     this.container.querySelector('#logout-btn')?.addEventListener('click', async () => {
       if (confirm('Terminate secure session?')) {
