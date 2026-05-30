@@ -215,15 +215,10 @@ export default class DashboardView {
                 </div>
               </div>
             `}).join('') : `
-              ${!dataset ? `
-                <div class="w-full h-16 bg-[#1a0a12]/50 rounded-xl animate-pulse"></div>
-                <div class="w-full h-16 bg-[#1a0a12]/50 rounded-xl animate-pulse"></div>
-              ` : `
-                <div class="py-8 text-center bg-[#1a0a12]/50 border border-[#7f2f5d]/30 rounded-3xl">
-                  <p class="text-xs text-gray-500 font-mono uppercase tracking-widest">No scheduled doses.</p>
-                  <button id="schedule-empty-add-btn" class="text-[#ffb88c] text-xs font-bold mt-2 uppercase">Add medication</button>
-                </div>
-              `}
+              <div class="py-8 text-center bg-[#1a0a12]/50 border border-[#7f2f5d]/30 rounded-3xl">
+                <p class="text-xs text-gray-500 font-mono uppercase tracking-widest">No scheduled doses.</p>
+                <button id="schedule-empty-add-btn" class="text-[#ffb88c] text-xs font-bold mt-2 uppercase">Add medication</button>
+              </div>
             `}
           </div>
         </section>
