@@ -24,7 +24,6 @@ export default class PwaInstallManager {
 
     // If the app is already launched as a standalone PWA, do nothing
     if (this._isStandalone()) {
-      console.log('[PWA] Running in standalone mode. Install banner will not be shown.');
       return;
     }
 
@@ -34,7 +33,6 @@ export default class PwaInstallManager {
     const handlePrompt = (e) => {
       e.preventDefault();
       this.deferredPrompt = e;
-      console.log('[PWA] beforeinstallprompt captured.');
       this._showBanner('Tap to Install');
       this.onChange?.('ready');
     };
@@ -54,14 +52,9 @@ export default class PwaInstallManager {
   }
 
   _runDiagnostics() {
-    console.log('[PWA] --- Startup Diagnostics ---');
-    console.log(`[PWA] navigator.serviceWorker.controller:`, navigator.serviceWorker ? navigator.serviceWorker.controller : 'N/A');
-    console.log(`[PWA] window.matchMedia('(display-mode: standalone)'):`, window.matchMedia('(display-mode: standalone)').matches);
-    console.log('[PWA] ---------------------------');
   }
 
   async _validateInstallability() {
-    console.log('[PWA] Validating installability criteria...');
     const errors = [];
 
     // Check SW
@@ -72,9 +65,7 @@ export default class PwaInstallManager {
       if (!reg?.active) {
         errors.push('No active service worker.');
       } else {
-        console.log('[PWA] Service worker active');
         if (navigator.serviceWorker.controller) {
-          console.log('[PWA] Service worker controlling page');
         }
       }
     }
@@ -89,7 +80,6 @@ export default class PwaInstallManager {
         if (!res.ok) {
           errors.push(`Manifest fetch failed with status ${res.status}`);
         } else {
-          console.log('[PWA] Manifest loaded');
           const manifest = await res.json();
           if (!manifest.display || manifest.display !== 'standalone') errors.push('Manifest display is not "standalone".');
           if (!manifest.start_url) errors.push('Manifest start_url is missing or invalid.');
@@ -101,7 +91,7 @@ export default class PwaInstallManager {
             const has512 = manifest.icons.some(i => i.sizes && i.sizes.includes('512x512'));
             if (!has192) errors.push('Manifest icon 192x192 missing.');
             if (!has512) errors.push('Manifest icon 512x512 missing.');
-            if (has192 && has512) console.log('[PWA] Manifest icons valid');
+            // if (has192 && has512) console.log('[PWA] Manifest icons valid');
           }
         }
       }
@@ -112,12 +102,9 @@ export default class PwaInstallManager {
     if (errors.length > 0) {
       console.error('[PWA] Installability requirements not satisfied:');
       errors.forEach(err => console.error(` - ${err}`));
-      console.log('[PWA] native install unavailable');
     } else {
       if (this.deferredPrompt || window.deferredInstallPrompt) {
-        console.log('[PWA] beforeinstallprompt captured');
       }
-      console.log('[PWA] Native install available');
     }
   }
 

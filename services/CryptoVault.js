@@ -46,7 +46,6 @@ class CryptoVault {
       // 4. Store encrypted Canary to verify PINs in the future
       await this._storeCanary();
 
-      console.log('[CryptoVault] Vault secured and locked to new PIN.');
       return true;
 
     } catch (error) {
@@ -81,7 +80,6 @@ class CryptoVault {
       const decryptedCanary = await this.decrypt(encryptedCanary);
 
       if (decryptedCanary === 'medcare_ok') {
-        console.log('[CryptoVault] Vault unlocked successfully.');
         return true;
       } else {
         this.lock();
@@ -184,7 +182,6 @@ class CryptoVault {
   lock() {
     this._cryptoKey = null;
     this._isUnlocked = false;
-    console.log('[CryptoVault] Vault locked. Key destroyed.');
   }
 
   /**

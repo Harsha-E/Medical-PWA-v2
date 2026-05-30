@@ -61,6 +61,17 @@ export default class AddMedicationView {
       }
     }
 
+    // 4. Hydrate from sessionStorage draft if it exists and matches context
+    const draftJson = sessionStorage.getItem('medcare_draft_form');
+    if (draftJson) {
+      try {
+        const draft = JSON.parse(draftJson);
+        if (draft.isEdit === this.isEdit && draft.medId === this.medId) {
+          Object.assign(this.medData, draft);
+        }
+      } catch (e) {}
+    }
+
     this.container.innerHTML = `
       <div class="sticky top-0 left-0 w-full z-50 flex items-center justify-between px-4 py-4 bg-[#0a0407]/90 backdrop-blur-md border-b border-[#7f2f5d]/30 mb-6">
         <button onclick="window.history.back()" class="flex items-center gap-2 text-[#ffb88c] hover:brightness-125 transition-all cursor-pointer">
@@ -88,6 +99,16 @@ export default class AddMedicationView {
               <select id="m-unit" autocomplete="off" class="form-select">
                 ${['mg','ml','mcg','units'].map(u => `<option value="${u}" ${this.medData.dosageUnit===u?'selected':''}>${u}</option>`).join('')}
               </select>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="form-group">
+              <label for="m-total" class="form-label">Total Quantity</label>
+              <input type="number" id="m-total" autocomplete="off" class="form-input" value="${this.medData.totalQuantity || ''}" placeholder="e.g. 30">
+            </div>
+            <div class="form-group">
+              <label for="m-threshold" class="form-label">Refill Alert At</label>
+              <input type="number" id="m-threshold" autocomplete="off" class="form-input" value="${this.medData.refillThreshold || '5'}" placeholder="e.g. 5">
             </div>
           </div>
           <div class="form-group">
@@ -129,6 +150,10 @@ export default class AddMedicationView {
 
   attachListeners() {
     this.container.querySelector('#save-btn').addEventListener('click', () => this.save());
+    
+    // Auto-save form draft to sessionStorage on input or change
+    this.container.addEventListener('input', () => this.saveDraftState());
+    this.container.addEventListener('change', () => this.saveDraftState());
 
     const freqSelect = this.container.querySelector('#m-freq');
     const timeContainer = this.container.querySelector('#time-slots-container');
@@ -168,9 +193,29 @@ export default class AddMedicationView {
     };
 
     if (freqSelect && timeContainer) {
-      freqSelect.addEventListener('change', () => renderTimeSlots(false));
+      freqSelect.addEventListener('change', () => {
+        renderTimeSlots(false);
+        this.saveDraftState();
+      });
       renderTimeSlots(true);
     }
+  }
+
+  saveDraftState() {
+    const data = {
+      isEdit: this.isEdit,
+      medId: this.medId,
+      name: this.container.querySelector('#m-name')?.value || '',
+      dosage: this.container.querySelector('#m-dosage')?.value || '',
+      dosageUnit: this.container.querySelector('#m-unit')?.value || 'mg',
+      totalQuantity: this.container.querySelector('#m-total')?.value || '',
+      refillThreshold: this.container.querySelector('#m-threshold')?.value || '5',
+      category: this.container.querySelector('#m-category')?.value || 'Tablet',
+      frequency: this.container.querySelector('#m-freq')?.value || 'Once daily',
+      times: Array.from(this.container.querySelectorAll('#time-slots-container input[type="time"]')).map(el => el.value),
+      notes: this.container.querySelector('#m-notes')?.value || ''
+    };
+    sessionStorage.setItem('medcare_draft_form', JSON.stringify(data));
   }
 
   async save() {
@@ -193,6 +238,8 @@ export default class AddMedicationView {
       name,
       dosage: this.container.querySelector('#m-dosage').value.trim(),
       dosageUnit: this.container.querySelector('#m-unit').value,
+      totalQuantity: parseInt(this.container.querySelector('#m-total').value, 10) || 0,
+      refillThreshold: parseInt(this.container.querySelector('#m-threshold').value, 10) || 5,
       category: this.container.querySelector('#m-category').value,
       frequency: this.container.querySelector('#m-freq').value,
       times: Array.from(this.container.querySelectorAll('#time-slots-container input[type="time"]')).map(el => el.value),
@@ -201,9 +248,45 @@ export default class AddMedicationView {
       
       // FIX: Append strict temporal boundaries so the calendar knows when this started
       startDate: new Date().toISOString().split('T')[0],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
     };
+
+    const parsedDosage = parseFloat(data.dosage) || 0;
+    if (data.dosageUnit === 'mg' && parsedDosage > 0) {
+      const dailyTotal = parsedDosage * data.times.length;
+      if (dailyTotal > 4000) {
+        const confirmOverride = await new Promise((resolve) => {
+          const div = document.createElement('div');
+          div.className = 'fixed inset-0 z-[9999] bg-red-900/90 backdrop-blur-sm flex items-center justify-center p-4';
+          div.setAttribute('role', 'alertdialog');
+          div.setAttribute('aria-modal', 'true');
+          div.innerHTML = `
+            <div class="bg-[#1a0a12] border border-red-500/50 rounded-[2rem] p-6 w-full max-w-sm shadow-2xl">
+              <h2 class="text-xl font-display text-white mb-2 flex items-center gap-2">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                Clinical Limit Exceeded
+              </h2>
+              <p class="text-sm text-gray-300 mb-6 font-mono">The total daily dosage (${dailyTotal}mg) exceeds typical clinical limits (4000mg/day). Do you want to override?</p>
+              <div class="flex gap-3">
+                <button id="limit-cancel" class="flex-1 py-3 rounded-xl border border-white/10 text-white font-bold tracking-wider">Cancel</button>
+                <button id="limit-override" class="flex-1 py-3 rounded-xl bg-red-500/20 text-red-400 font-bold tracking-wider border border-red-500/50">Override</button>
+              </div>
+            </div>
+          `;
+          document.body.appendChild(div);
+          window.medcareAlertLock = true;
+          div.querySelector('#limit-cancel').onclick = () => { window.medcareAlertLock = false; div.remove(); resolve(false); };
+          div.querySelector('#limit-override').onclick = () => { window.medcareAlertLock = false; div.remove(); resolve(true); };
+        });
+        if (!confirmOverride) {
+          saveBtn.disabled = false;
+          saveBtn.textContent = this.isEdit ? 'Save Changes' : 'Add Medication';
+          return;
+        }
+      }
+    }
+
+    data.createdAt = new Date().toISOString();
+    data.updatedAt = new Date().toISOString();
 
     try {
       // 1. Write to local database (Fast/Offline)
@@ -221,6 +304,7 @@ export default class AddMedicationView {
         await addDoc(collection(firestoreDb, 'medications'), data);
       }
 
+      sessionStorage.removeItem('medcare_draft_form');
       window.location.hash = '#/medications';
     } catch (e) {
       console.error('[AddMedication] Save error:', e);

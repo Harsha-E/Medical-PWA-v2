@@ -16,6 +16,7 @@ import { nlpContext }       from './services/NLPContext.js';
 import { hapticEngine }   from './services/HapticEngine.js';
 import PwaInstallManager  from './services/PwaInstallManager.js';
 import GlassNavbar        from './components/navbar.js';
+import ContextSwitcher    from './components/context-switcher.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
 // ─── View imports ─────────────────────────────────────────────────────────────
@@ -36,36 +37,39 @@ import SettingsView         from './views/settings.js';
 import MedicalHistoryView   from './views/medical-history.js';
 import FamilyProfilesView   from './views/family-profiles.js';
 import EmergencyView        from './views/emergency.js';
+import PeerDashboardView    from './views/peer-dashboard.js';
 import AppointmentsView     from './views/appointments.js';
 import AdminView            from './views/admin.js';
 import CalendarView         from './views/calendar.js';
+import OrchestratorView     from './views/orchestrator.js';
 
 // ─── Route map ────────────────────────────────────────────────────────────────
 // Defined before the App class so it is in scope for the constructor.
 
 const ROUTES = {
-  '#/install':      InstallView,
-  '#/':             LandingView,
-  '#/landing':      LandingView,
-  '#/splash':       SplashView,
-  '#/login':        LoginView,
-  '#/register':     RegisterView,
-  '#/admin':        AdminView,
-  '#/onboarding':   OnboardingView,
-  '#/dashboard':    DashboardView,
-  '#/medications':  MedicationsView,
-  '#/medication':   MedicationDetailView,
-  '#/add':          AddMedicationView,
-  '#/edit':         AddMedicationView,
-  '#/interactions': InteractionCheckerView,
-  '#/scan':         ScanView,
-  '#/reports':      ReportsView,
-  '#/settings':     SettingsView,
-  '#/history':      MedicalHistoryView,
-  '#/family':       FamilyProfilesView,
-  '#/emergency':    EmergencyView,
-  '#/appointments': AppointmentsView,
-  '#/calendar':     CalendarView,
+  '/': SplashView,
+  '/landing': LandingView,
+  '/login': LoginView,
+  '/register': RegisterView,
+  '/install': InstallView,
+  '/onboarding': OnboardingView,
+  '/dashboard': DashboardView,
+  '/medications': MedicationsView,
+  '/add-medication': AddMedicationView,
+  '/interaction-checker': InteractionCheckerView,
+  '/scan': ScanView,
+  '/reports': ReportsView,
+  '/settings': SettingsView,
+  '/medical-history': MedicalHistoryView,
+  '/family-profiles': FamilyProfilesView,
+  '/peer-hub': EmergencyView,
+  '/emergency': EmergencyView,
+  '/peer-dashboard': PeerDashboardView,
+  '/appointments': AppointmentsView,
+  '/admin': AdminView,
+  '/calendar': CalendarView,
+  '/orchestrator': OrchestratorView,
+  '/medication-detail': MedicationDetailView
 };
 
 /** Routes that don't require a logged-in user. */
@@ -84,6 +88,7 @@ class App {
     this.viewport = document.getElementById('app-viewport');
     this.router   = new Router(ROUTES, this.viewport);
     this.glassNav = new GlassNavbar();
+    this.contextSwitcher = new ContextSwitcher();
     this.ghostFluid = null; // Track WebGL instance
 
     /** Tracks whether the first auth-state event has resolved. */
@@ -91,8 +96,6 @@ class App {
   }
 
   async init() {
-    console.log('%c MedCare | Offline-First System Active ', 'background: #7f2f5d; color: #ffd9b5; font-weight: bold; padding: 4px 8px; border-radius: 4px;');
-    console.log('%c MedCare | Core Initializing... ', 'background: #7f2f5d; color: #ffd9b5;');
 
     // ─── PWA NATIVE STANDARDS ───────────────────────────────────────────
     hapticEngine.init();
@@ -102,13 +105,10 @@ class App {
       try {
         const BASE_PATH = window.location.hostname === 'harsha-e.github.io' ? '/Medical-PWA-v2' : '';
         const reg = await navigator.serviceWorker.register(`${BASE_PATH}/sw.js`);
-        console.log('[Service Worker] Registered successfully with scope:', reg.scope);
         
         await navigator.serviceWorker.ready;
-        console.log('[SW] Service worker is ready.');
 
         navigator.serviceWorker.addEventListener('controllerchange', () => {
-          console.log('[SW] Controller acquired');
         });
 
         if (!navigator.serviceWorker.controller) {
@@ -135,7 +135,6 @@ class App {
       const indexRes = await fetch('./data/drug-index.json');
       const drugIndex = await indexRes.json();
       await nlpContext.hydrate(drugIndex);
-      console.log('%c MedCare | Clinical Engines Online ', 'color: #10b981;');
     } catch (err) {
       console.error('Failed to boot clinical engines:', err);
     }
@@ -144,14 +143,55 @@ class App {
     this.viewport.classList.add('theme-rose-gold');
 
     // 3. Attach Listeners
-    window.addEventListener('hashchange', () => {
+    let currentHash = window.location.hash || '#/';
+    window.addEventListener('hashchange', (e) => {
+      if (window.medcareAlertLock) {
+        window.location.hash = currentHash;
+        return;
+      }
+      currentHash = window.location.hash;
       if (this._authReady) this.runGuard();
     });
+    
     state.subscribe(() => {
       if (this._authReady) this.runGuard();
     });
+    
+    // Listen to Firebase Auth state
+    onAuthStateChanged(auth, this.onAuthStateChanged.bind(this));
+    
+    // Listen for network connectivity changes
+    this.initNetworkStatusIndicator();
+  }
 
-    onAuthStateChanged(auth, async (user) => {
+  initNetworkStatusIndicator() {
+    const indicator = document.createElement('div');
+    indicator.id = 'network-status-indicator';
+    indicator.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 z-[9999] px-4 py-2 rounded-full font-mono text-xs uppercase tracking-widest font-bold shadow-lg transition-all duration-500 opacity-0 pointer-events-none translate-y-[-20px]';
+    document.body.appendChild(indicator);
+
+    const updateStatus = () => {
+      if (navigator.onLine) {
+        indicator.textContent = 'Network Restored';
+        indicator.classList.remove('bg-red-900/90', 'text-red-200', 'border-red-500/50');
+        indicator.classList.add('bg-green-900/90', 'text-green-200', 'border', 'border-green-500/50', 'opacity-100', 'translate-y-0');
+        
+        setTimeout(() => {
+          indicator.classList.remove('opacity-100', 'translate-y-0');
+          indicator.classList.add('opacity-0', 'translate-y-[-20px]');
+        }, 3000);
+      } else {
+        indicator.textContent = 'Operating Offline';
+        indicator.classList.remove('bg-green-900/90', 'text-green-200', 'border-green-500/50');
+        indicator.classList.add('bg-red-900/90', 'text-red-200', 'border', 'border-red-500/50', 'opacity-100', 'translate-y-0');
+      }
+    };
+
+    window.addEventListener('online', updateStatus);
+    window.addEventListener('offline', updateStatus);
+  }
+
+  async onAuthStateChanged(user) {
       try {
         if (user) {
           await state.hydrate(user);
@@ -175,8 +215,7 @@ class App {
             this.viewport.style.opacity = '1';
             this.viewport.style.display = 'block';
         }
-      }
-    });
+    }
   }
 
   // ─── Navigation guard ───────────────────────────────────────────────────────
@@ -208,7 +247,8 @@ class App {
     // ── Managed by individual views (GhostFluid instantiation removed) ──
 
     // ── Navbar visibility ──
-    this.glassNav.setVisibility?.(!HIDE_NAV_ROUTES.has(hash));
+    const showNav = !HIDE_NAV_ROUTES.has(hash);
+    this.glassNav.setVisibility?.(showNav);
 
     // ── Manage Pill Docking and Layout ──
     if (user && isComplete) {
@@ -216,16 +256,25 @@ class App {
     } else {
       document.body.classList.remove('auth-layout-active');
     }
+    
+    // Manage dynamic layout spacing
+    if (showNav && user && isComplete) {
+      document.body.classList.add('has-navbar');
+    } else {
+      document.body.classList.remove('has-navbar');
+    }
 
     // ── Auth guard ──
-    // If app is not running as a standalone PWA, force the install view
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-    if (!isStandalone) {
-      if (hash !== '#/install') {
-        window.location.hash = '#/install';
-        return;
-      }
-    }
+    // App installation requirement removed.
+    // const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    // const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    // if (!isStandalone && isMobile) {
+    //   if (hash !== '#/install') {
+    //     window.location.hash = '#/install';
+    //     return;
+    //   }
+    // }
 
     if (!user) {
       if (!PUBLIC_ROUTES.has(hash)) {
@@ -252,9 +301,7 @@ class App {
     }
 
     // Guard passed — render the current hash
-    console.log(`[App | Guard] Execution passed. Triggering router.handleRoute() for hash: "${hash}"`);
     this.router.handleRoute();
-    console.log(`[App | Guard] router.handleRoute() completed successfully.`);
   }
 }
 

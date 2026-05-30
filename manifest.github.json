@@ -22,7 +22,7 @@
       "src": "/Medical-PWA-v2/assets/icon-maskable.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ]
 }

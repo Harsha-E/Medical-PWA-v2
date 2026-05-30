@@ -1,10 +1,39 @@
-﻿/**
+/**
  * Install View — Native PWA Installation
  * Architecture: Ethereal Aura background. Relies on the global PwaInstallManager banner.
  */
 
+/**
+ * @type {Event|null}
+ * Holds the deferred native install prompt event.
+ */
+let _deferredPrompt = null;
+
+/**
+ * @type {boolean}
+ * Flag indicating if the application is currently installable.
+ */
+let _installable = false;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    _deferredPrompt = e;
+    _installable = true;
+});
+
+window.addEventListener('appinstalled', () => {
+    _deferredPrompt = null;
+    _installable = false;
+    window.location.hash = '#/dashboard';
+});
+
 export default class InstallView {
   async render() {
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+        window.location.hash = '#/dashboard';
+        return;
+    }
+
     this.container = document.createElement('div');
     this.container.className = 'min-h-[100dvh] w-full flex flex-col relative z-10 text-gray-100 font-sans pointer-events-none transition-opacity duration-500';
 
@@ -141,6 +170,30 @@ export default class InstallView {
 
     this._initVisuals();
     this._typingTimer = setTimeout(() => this.initTypingEffect(), 100);
+
+    const cardContainer = this.container.querySelector('.panel-breathe');
+    if (cardContainer) {
+        const triggerBtn = document.createElement('button');
+        triggerBtn.className = 'absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50';
+        triggerBtn.setAttribute('aria-label', 'Install MedCare');
+        
+        triggerBtn.addEventListener('click', async () => {
+            if (!_deferredPrompt) {
+                console.warn('[Install View] No deferred prompt available.');
+                return;
+            }
+            try {
+                _deferredPrompt.prompt();
+                const { outcome } = await _deferredPrompt.userChoice;
+                _deferredPrompt = null;
+                _installable = false;
+            } catch (err) {
+                console.error('[Install View] Install prompt failed', err);
+            }
+        });
+        
+        cardContainer.appendChild(triggerBtn);
+    }
 
     return this.container;
   }

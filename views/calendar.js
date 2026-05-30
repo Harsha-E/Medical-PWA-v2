@@ -79,7 +79,7 @@ export default class CalendarView {
     const todayStr = new Date().toISOString().split('T')[0];
 
     let gridHTML = `<div class="grid grid-cols-7 gap-2 mb-2 text-center">
-      ${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => `<div class="text-[10px] font-bold text-gray-500 uppercase tracking-widest pb-2">${d}</div>`).join('')}
+      ${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => `<div class="text-xs font-bold text-gray-500 uppercase tracking-widest pb-2">${d}</div>`).join('')}
     </div><div class="grid grid-cols-7 gap-2 lg:gap-3">`;
 
     for (let i = 0; i < firstDayOfMonth; i++) {
@@ -190,7 +190,7 @@ export default class CalendarView {
           <span class="text-sm font-bold uppercase tracking-widest">Back</span>
         </button>
         <div class="flex flex-col items-center cursor-pointer group" id="toggle-view-btn">
-          <span class="text-[10px] text-gray-400 uppercase tracking-widest leading-none group-hover:text-[#ffb88c] transition-colors">Compliance</span>
+          <span class="text-xs text-gray-400 uppercase tracking-widest leading-none group-hover:text-[#ffb88c] transition-colors">Compliance</span>
           <h2 class="text-lg font-bold text-white tracking-tight mt-1 group-hover:text-[#ffb88c] transition-colors flex items-center gap-2">
             ${title}
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="${this.viewMode === 'year' ? 'rotate-180' : ''} transition-transform"><path d="M6 9l6 6 6-6"/></svg>
@@ -216,9 +216,9 @@ export default class CalendarView {
 
         ${this.viewMode === 'month' ? `
           <div class="mt-8 flex justify-center gap-5 px-2">
-            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-full bg-green-500/20 border border-green-500 flex items-center justify-center"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg></div><span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Optimal</span></div>
-            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-full border border-amber-500 shadow-[0_0_5px_rgba(245,158,11,0.5)]"></div><span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Partial</span></div>
-            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-full border border-red-500 shadow-[0_0_5px_rgba(239,68,68,0.5)]"></div><span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Missed</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-full bg-green-500/20 border border-green-500 flex items-center justify-center"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg></div><span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Optimal</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-full border border-amber-500 shadow-[0_0_5px_rgba(245,158,11,0.5)]"></div><span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Partial</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-full border border-red-500 shadow-[0_0_5px_rgba(239,68,68,0.5)]"></div><span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Missed</span></div>
           </div>
         ` : ''}
       </main>
@@ -368,7 +368,7 @@ export default class CalendarView {
     const list = this.container.querySelector('#day-modal-list');
 
     const dateObj = new Date(dateStr + 'T12:00:00');
-    title.innerHTML = `${dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })} <span class="ml-2 px-2 py-1 bg-[#7f2f5d]/20 text-[#ffb88c] text-[9px] rounded-lg border border-[#7f2f5d]/40 uppercase tracking-widest align-middle">Editor</span>`;
+    title.innerHTML = `${dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })} <span class="ml-2 px-2 py-1 bg-[#7f2f5d]/20 text-[#ffb88c] text-xs rounded-lg border border-[#7f2f5d]/40 uppercase tracking-widest align-middle">Editor</span>`;
 
     const dayDoses = this.allDoses.filter(d => d.takenAt && d.takenAt.startsWith(dateStr));
     const takenSlots = new Set(dayDoses.filter(d => d.status === 'taken').map(d => `${d.medicationId}-${d.scheduledTime}`));
@@ -393,8 +393,8 @@ export default class CalendarView {
       list.innerHTML = schedule.map(dose => `
         <div class="flex justify-between items-center bg-[#0a0407]/80 border ${dose.taken ? 'border-green-500/30' : 'border-[#7f2f5d]/30'} rounded-2xl p-4 transition-all duration-300">
           <div>
-            <span class="text-[10px] font-bold ${dose.taken ? 'text-green-400' : 'text-gray-500'} uppercase tracking-widest transition-colors duration-300">${dose.time}</span>
-            <h4 class="text-sm font-bold ${dose.taken ? 'text-white' : 'text-gray-400'} mt-0.5 transition-colors duration-300">${dose.name} <span class="text-[10px] text-gray-600 font-normal ml-1 tracking-widest">${dose.dosage}</span></h4>
+            <span class="text-xs font-bold ${dose.taken ? 'text-green-400' : 'text-gray-500'} uppercase tracking-widest transition-colors duration-300">${dose.time}</span>
+            <h4 class="text-sm font-bold ${dose.taken ? 'text-white' : 'text-gray-400'} mt-0.5 transition-colors duration-300">${dose.name} <span class="text-xs text-gray-600 font-normal ml-1 tracking-widest">${dose.dosage}</span></h4>
           </div>
           
           <div class="relative inline-flex items-center cursor-pointer toggle-historical-dose group" data-id="${dose.id}" data-time="${dose.time}" data-date="${dateStr}" data-action="${dose.taken ? 'unmark' : 'mark'}">

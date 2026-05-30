@@ -1,5 +1,6 @@
 import db from '../core/db.js';
 import state from '../core/state.js';
+import { getFirestore, doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 export default class DashboardView {
   async render() {
@@ -42,7 +43,7 @@ export default class DashboardView {
       console.error('[Diagnostics] Local ledger failure:', dbError);
     }
 
-    const todayStr = now.toISOString().split('T')[0];
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const todayDoses = allDoses.filter(d => d.takenAt && d.takenAt.startsWith(todayStr));
     
     // FIX 1: Create a Composite Set of "ID-Time" to track specific slots
@@ -81,21 +82,26 @@ export default class DashboardView {
     this.container.innerHTML = `
       <header class="sticky top-0 left-0 w-full z-50 flex items-center justify-between px-6 py-4 bg-[#0a0407]/90 backdrop-blur-md border-b border-[#7f2f5d]/30 mb-6">
         <div class="flex flex-col">
-          <span class="text-[10px] text-[#ffb88c] uppercase tracking-widest leading-none">Diagnostic Deck</span>
+          <span class="text-xs text-[#ffb88c] uppercase tracking-widest leading-none">Dashboard</span>
           <h1 class="text-xl font-bold text-white mt-1 leading-none">Good ${greeting}, ${displayName}</h1>
         </div>
+        <a href="#/settings" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-gray-400 hover:text-[#ffb88c] hover:bg-white/5 transition-all">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </a>
       </header>
 
       <main class="scroll-area px-6 pb-28 relative overflow-hidden" id="dashboard-main">
         ${databaseTimedOut ? `
           <div class="glass-panel p-4 mb-6 border-amber-500/30 bg-amber-500/10 text-amber-200 text-xs rounded-xl flex items-center gap-3">
             <svg class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01"/></svg>
-            <p>Database is syncing background indices.</p>
+            <p>Loading your data securely...</p>
           </div>
         ` : ''}
 
+
+
         <section class="mb-10">
-          <h2 class="text-[10px] text-gray-400 font-bold mb-6 tracking-[0.2em] px-1 uppercase">Active Pharmacopoeia</h2>
+          <h2 class="text-xs text-gray-400 font-bold mb-6 tracking-[0.2em] px-1 uppercase">Current Medications</h2>
           <div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar -mx-6 px-6">
             ${meds.length > 0 ? meds.map(m => `
               <div class="bg-[#1a0a12]/80 backdrop-blur-md border border-[#7f2f5d]/40 rounded-3xl p-5 min-w-[150px] flex flex-col justify-between shrink-0 shadow-lg cursor-pointer hover:border-[#ffb88c]/50 transition-all" data-action="edit-med" data-id="${m.id}">
@@ -104,20 +110,25 @@ export default class DashboardView {
                 </div>
                 <div>
                   <p class="text-sm font-bold text-white leading-tight">${m.name}</p>
-                  <p class="text-[10px] text-gray-400 mt-1 uppercase font-bold tracking-widest">${m.dosage} ${m.dosageUnit || 'mg'}</p>
+                  <p class="text-xs text-gray-400 mt-1 uppercase font-bold tracking-widest">${m.dosage} ${m.dosageUnit || 'mg'}</p>
                 </div>
               </div>
             `).join('') : `
-              <div class="bg-[#1a0a12]/50 border border-[#7f2f5d]/30 rounded-3xl p-8 w-full text-center">
-                <p class="text-[10px] text-gray-500 uppercase font-bold tracking-widest">No active medications.</p>
-              </div>
+              ${!dataset ? `
+                <div class="bg-[#1a0a12]/50 border border-[#7f2f5d]/30 rounded-3xl p-5 min-w-[150px] h-[140px] animate-pulse"></div>
+                <div class="bg-[#1a0a12]/50 border border-[#7f2f5d]/30 rounded-3xl p-5 min-w-[150px] h-[140px] animate-pulse"></div>
+              ` : `
+                <div class="bg-[#1a0a12]/50 border border-[#7f2f5d]/30 rounded-3xl p-8 w-full text-center">
+                  <p class="text-xs text-gray-500 uppercase font-bold tracking-widest">No active medications.</p>
+                </div>
+              `}
             `}
-            <div id="add-med-btn" class="bg-[#0a0407] border-dashed border-2 border-[#7f2f5d]/50 rounded-3xl p-4 min-w-[110px] flex flex-col items-center justify-center shrink-0 cursor-pointer hover:bg-[#7f2f5d]/10 transition-colors">
+            <a href="#/add-medication" id="add-med-btn" class="bg-[#0a0407] border-dashed border-2 border-[#7f2f5d]/50 rounded-3xl p-4 min-w-[110px] flex flex-col items-center justify-center shrink-0 cursor-pointer hover:bg-[#7f2f5d]/10 transition-colors">
               <div class="w-10 h-10 rounded-full border border-[#ffb88c]/40 flex items-center justify-center mb-3 text-[#ffb88c]">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               </div>
-              <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest text-center">New Agent</p>
-            </div>
+              <p class="text-xs text-gray-400 uppercase font-bold tracking-widest text-center">Add Med</p>
+            </a>
           </div>
         </section>
 
@@ -129,7 +140,7 @@ export default class DashboardView {
             <div>
               <div class="flex items-center gap-2 mb-2">
                 <div id="compliance-dot" class="w-1.5 h-1.5 rounded-full ${adherence >= 80 ? 'bg-green-500' : 'bg-amber-500'} animate-pulse"></div>
-                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Compliance & Planner</span>
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Compliance</span>
               </div>
               <div class="flex items-baseline gap-2">
                 <p id="compliance-percentage" class="text-4xl font-bold text-white tracking-tight">${adherence}%</p>
@@ -147,6 +158,10 @@ export default class DashboardView {
                <div class="absolute inset-0 bg-white/20 w-full animate-[shimmer_2s_infinite]"></div>
             </div>
           </div>
+          <!-- NAV-02: View Full Report -->
+          <div class="mt-5 text-right relative z-10">
+            <a href="#/reports" class="text-xs font-bold text-[#ffb88c] hover:text-white uppercase tracking-widest border-b border-[#ffb88c]/30 pb-1 transition-colors">View Full Report &rarr;</a>
+          </div>
         </div>
 
         <section class="mb-12">
@@ -154,7 +169,7 @@ export default class DashboardView {
           <div>
             <div class="flex items-center gap-2 mb-1.5">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ffb88c" stroke-width="3"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              <h2 class="text-[10px] text-[#ffb88c] font-bold tracking-[0.2em] uppercase">Today's Protocol</h2>
+              <h2 class="text-xs text-[#ffb88c] font-bold tracking-[0.2em] uppercase">Daily Schedule</h2>
             </div>
             <p class="text-lg font-bold text-white tracking-tight">${today}</p>
           </div>
@@ -166,9 +181,9 @@ export default class DashboardView {
             
             <div id="timeline-filter-menu" class="absolute right-0 top-10 w-48 bg-[#1a0a12]/95 backdrop-blur-xl border border-[#7f2f5d]/50 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.5)] overflow-hidden opacity-0 pointer-events-none transform -translate-y-2 transition-all duration-200">
               <div class="p-2 flex flex-col gap-1">
-                <button class="filter-option text-left px-4 py-2.5 text-[10px] font-bold text-[#ffb88c] bg-[#7f2f5d]/20 rounded-xl transition-colors uppercase tracking-widest" data-filter="all">Show All</button>
-                <button class="filter-option text-left px-4 py-2.5 text-[10px] font-bold text-gray-400 hover:text-white hover:bg-[#7f2f5d]/20 rounded-xl transition-colors uppercase tracking-widest" data-filter="upcoming">Upcoming</button>
-                <button class="filter-option text-left px-4 py-2.5 text-[10px] font-bold text-gray-400 hover:text-white hover:bg-[#7f2f5d]/20 rounded-xl transition-colors uppercase tracking-widest" data-filter="missed">Missed</button>
+                <button class="filter-option text-left px-4 py-2.5 text-xs font-bold text-[#ffb88c] bg-[#7f2f5d]/20 rounded-xl transition-colors uppercase tracking-widest" data-filter="all">Show All</button>
+                <button class="filter-option text-left px-4 py-2.5 text-xs font-bold text-gray-400 hover:text-white hover:bg-[#7f2f5d]/20 rounded-xl transition-colors uppercase tracking-widest" data-filter="upcoming">Upcoming</button>
+                <button class="filter-option text-left px-4 py-2.5 text-xs font-bold text-gray-400 hover:text-white hover:bg-[#7f2f5d]/20 rounded-xl transition-colors uppercase tracking-widest" data-filter="missed">Missed</button>
               </div>
             </div>
           </div>
@@ -187,26 +202,53 @@ export default class DashboardView {
                 <div class="${dose.taken ? 'opacity-50' : ''}">
                   <div class="flex justify-between items-start mb-2">
                     <div>
-                      <span class="text-[10px] font-bold text-[#ffb88c] uppercase tracking-widest leading-none">${dose.time}</span>
+                      <span class="text-xs font-bold text-[#ffb88c] uppercase tracking-widest leading-none">${dose.time}</span>
                       <h3 class="text-base font-bold text-white mt-1">${dose.name}</h3>
                     </div>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${dose.dosage}</span>
+                    <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">${dose.dosage}</span>
                   </div>
                   ${dose.taken
-                    ? `<div class="flex items-center gap-1.5 mt-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg><span class="text-[9px] font-bold text-green-400 uppercase tracking-widest">Taken</span></div>`
-                    // FIX 3: Inject the specific 'data-time' into the button
-                    : `<button class="confirm-dose-btn w-full mt-3 py-3 bg-[#1a0a12] border border-[#7f2f5d]/50 rounded-xl text-[10px] font-bold text-[#ffb88c] uppercase tracking-[0.2em] hover:bg-[#7f2f5d]/30 transition-all active:scale-[0.98]" data-med-id="${dose.id}" data-time="${dose.time}">Mark as Taken</button>`
+                    ? `<div class="flex items-center gap-2 mt-2">
+                         <div class="flex items-center gap-1.5 px-2 py-1 bg-green-500/10 border border-green-500/30 rounded-lg">
+                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                           <span class="text-xs font-bold text-green-400 uppercase tracking-widest">Taken</span>
+                         </div>
+                         <button class="undo-dose-btn px-3 py-1 bg-[#1a0a12] border border-[#7f2f5d]/50 rounded-lg text-xs font-bold text-gray-400 hover:text-white uppercase tracking-widest transition-colors" data-med-id="${dose.id}" data-time="${dose.time}">Undo</button>
+                       </div>`
+                    : `<button class="confirm-dose-btn w-full mt-3 py-3 bg-[#1a0a12] border border-[#7f2f5d]/50 rounded-xl text-xs font-bold text-[#ffb88c] uppercase tracking-[0.2em] hover:bg-[#7f2f5d]/30 transition-all active:scale-[0.98]" data-med-id="${dose.id}" data-time="${dose.time}">Mark as Taken</button>`
                   }
                 </div>
               </div>
             `}).join('') : `
-              <div class="py-8 text-center bg-[#1a0a12]/50 border border-[#7f2f5d]/30 rounded-3xl">
-                <p class="text-xs text-gray-500 font-mono uppercase tracking-widest">No scheduled doses.</p>
-                <button id="schedule-empty-add-btn" class="text-[#ffb88c] text-xs font-bold mt-2 uppercase">Add medication</button>
-              </div>
+              ${!dataset ? `
+                <div class="w-full h-16 bg-[#1a0a12]/50 rounded-xl animate-pulse"></div>
+                <div class="w-full h-16 bg-[#1a0a12]/50 rounded-xl animate-pulse"></div>
+              ` : `
+                <div class="py-8 text-center bg-[#1a0a12]/50 border border-[#7f2f5d]/30 rounded-3xl">
+                  <p class="text-xs text-gray-500 font-mono uppercase tracking-widest">No scheduled doses.</p>
+                  <button id="schedule-empty-add-btn" class="text-[#ffb88c] text-xs font-bold mt-2 uppercase">Add medication</button>
+                </div>
+              `}
             `}
           </div>
         </section>
+
+        <!-- NAV-03: Health Assistant Card (Moved below Daily Schedule) -->
+        <a href="#/orchestrator" class="block mb-8">
+          <div class="glass-panel p-5 bg-gradient-to-r from-[#7f2f5d]/20 to-[#ca5229]/20 border border-[#ffb88c]/30 rounded-3xl flex items-center justify-between shadow-lg hover:border-[#ffb88c]/60 transition-all">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 bg-black/40 rounded-full flex items-center justify-center border border-white/10 text-[#ffb88c]">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+              </div>
+              <div>
+                <p class="text-sm font-bold text-white">Health Assistant</p>
+                <p class="text-xs text-[#ffb88c]/70 font-mono tracking-widest uppercase mt-1">Chat with your AI</p>
+              </div>
+            </div>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffb88c" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </div>
+        </a>
+
       </main>
     `;
 
@@ -286,13 +328,42 @@ export default class DashboardView {
             userId: state.user.uid 
           };
           await db.doses.add(doseData);
+
+          // 2.5 Handle Quantity Decrement and Refill Alerts
+          const medRecord = await db.medications.get(id);
+          if (medRecord && medRecord.totalQuantity !== undefined && medRecord.totalQuantity > 0) {
+            medRecord.totalQuantity -= 1;
+            await db.medications.update(id, { totalQuantity: medRecord.totalQuantity });
+            
+            try {
+              const firestoreDb = getFirestore();
+              await setDoc(doc(firestoreDb, 'medications', id.toString()), { totalQuantity: medRecord.totalQuantity }, { merge: true });
+            } catch (fsErr) {
+              // Ignore cloud sync error for this background task
+            }
+
+            if (medRecord.refillThreshold !== undefined && medRecord.totalQuantity <= medRecord.refillThreshold) {
+              // Show an inline toast/alert
+              const alertHTML = document.createElement('div');
+              alertHTML.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-amber-500/90 text-white px-6 py-3 rounded-2xl shadow-xl z-[9999] text-xs font-bold tracking-widest uppercase animate-[slideUpFade_0.3s_ease-out] flex items-center gap-3 backdrop-blur-md';
+              alertHTML.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01"/></svg> Refill Alert: ${medRecord.name} is running low (${medRecord.totalQuantity} left).`;
+              document.body.appendChild(alertHTML);
+              setTimeout(() => {
+                alertHTML.style.opacity = '0';
+                setTimeout(() => alertHTML.remove(), 300);
+              }, 5000);
+            }
+          }
           
-          // 3. SURGICAL DOM UPDATE: Replace ONLY the button with the "Taken" checkmark
+          // 3. SURGICAL DOM UPDATE: Replace ONLY the button with the "Taken" checkmark and Undo button
           const parentContainer = btn.parentElement;
           const successHTML = `
-            <div class="flex items-center gap-1.5 mt-2 animate-[fadeIn_0.3s_ease-out]">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-              <span class="text-[9px] font-bold text-green-400 uppercase tracking-widest">Taken</span>
+            <div class="flex items-center gap-2 mt-2 animate-[fadeIn_0.3s_ease-out]">
+              <div class="flex items-center gap-1.5 px-2 py-1 bg-green-500/10 border border-green-500/30 rounded-lg">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                <span class="text-xs font-bold text-green-400 uppercase tracking-widest">Taken</span>
+              </div>
+              <button class="undo-dose-btn px-3 py-1 bg-[#1a0a12] border border-[#7f2f5d]/50 rounded-lg text-xs font-bold text-gray-400 hover:text-white uppercase tracking-widest transition-colors" data-med-id="${id}" data-time="${timeSlot}">Undo</button>
             </div>
           `;
           btn.outerHTML = successHTML;
@@ -305,7 +376,8 @@ export default class DashboardView {
           // 2. Recalculate Compliance Math instantly
           const meds = await db.medications.toArray();
           const allDoses = await db.doses.toArray();
-          const todayStr = new Date().toISOString().split('T')[0];
+          const nowCalc = new Date();
+          const todayStr = `${nowCalc.getFullYear()}-${String(nowCalc.getMonth() + 1).padStart(2, '0')}-${String(nowCalc.getDate()).padStart(2, '0')}`;
           
           const takenSlots = new Set(
             allDoses.filter(d => d.takenAt && d.takenAt.startsWith(todayStr) && d.status === 'taken')
@@ -363,8 +435,47 @@ export default class DashboardView {
         if (action === 'nav-calendar') window.location.hash = '#/calendar';
       }
 
-      if (e.target.closest('#add-med-btn') || e.target.closest('#schedule-empty-add-btn')) {
-        window.location.hash = '#/medications'; // Now links directly to the Medications page
+      const undoBtn = e.target.closest('.undo-dose-btn');
+      if (undoBtn) {
+        e.preventDefault();
+        undoBtn.disabled = true;
+        undoBtn.textContent = '...';
+
+        const id = parseInt(undoBtn.dataset.medId);
+        const timeSlot = undoBtn.dataset.time;
+        const nowUndo = new Date();
+        const todayStr = `${nowUndo.getFullYear()}-${String(nowUndo.getMonth() + 1).padStart(2, '0')}-${String(nowUndo.getDate()).padStart(2, '0')}`;
+        
+        try {
+          // Find and delete the dose record for today
+          const allDoses = await db.doses.toArray();
+          const doseToDelete = allDoses.find(d => 
+            d.medicationId === id && 
+            d.scheduledTime === timeSlot && 
+            d.takenAt && d.takenAt.startsWith(todayStr)
+          );
+          
+          if (doseToDelete && doseToDelete.id) {
+            await db.doses.delete(doseToDelete.id);
+            // Optionally restore inventory here if we want to be highly accurate
+          }
+
+          // Trigger a full re-render to cleanly restore the original state and math
+          this.render().then(newDOM => {
+            this.container.innerHTML = newDOM.innerHTML;
+            this.attachListeners();
+          });
+          
+        } catch (err) {
+          console.error('[Dashboard] Error undoing dose:', err);
+          undoBtn.disabled = false;
+          undoBtn.textContent = 'Undo';
+        }
+        return;
+      }
+
+      if (e.target.closest('#schedule-empty-add-btn')) {
+        window.location.hash = '#/add-medication';
       }
     });
   }

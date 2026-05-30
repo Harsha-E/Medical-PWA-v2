@@ -13,7 +13,7 @@ export default class FamilyProfilesView {
     this.container.innerHTML = `
       <header class="view-header px-6">
         <div class="flex flex-col">
-          <span class="text-[10px] text-uppercase text-muted uppercase tracking-widest leading-none">Social Graph</span>
+          <span class="text-xs text-uppercase text-muted uppercase tracking-widest leading-none">Social Graph</span>
           <h1 class="text-xl font-display mt-1 leading-none">Network Nodes</h1>
         </div>
         <button id="add-family-btn" class="bg-primary text-white w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl shadow-orange-200 active:scale-90 transition-transform">
@@ -29,11 +29,11 @@ export default class FamilyProfilesView {
                     ${member.name ? member.name[0].toUpperCase() : '?'}
                   </div>
                   <h3 class="font-bold text-xl leading-none">${member.name}</h3>
-                  <p class="text-[10px] text-uppercase font-bold text-primary tracking-widest mt-2 uppercase">${member.relation || 'Unknown'} &bull; DOB: ${member.dob || 'Unknown'}</p>
-                  ${member.conditions ? `<p class="text-[10px] text-muted mt-3 max-w-[90%] mx-auto">Conditions: ${member.conditions}</p>` : ''}
+                  <p class="text-xs text-uppercase font-bold text-primary tracking-widest mt-2 uppercase">${member.relation || 'Unknown'} &bull; DOB: ${member.dob || 'Unknown'}</p>
+                  ${member.conditions ? `<p class="text-xs text-muted mt-3 max-w-[90%] mx-auto">Conditions: ${member.conditions}</p>` : ''}
                   <div class="flex gap-3 mt-8 w-full">
-                      <button class="flex-1 py-3 bg-white border border-border rounded-xl text-[9px] uppercase font-bold tracking-widest active:scale-95 transition-all">Records</button>
-                      <button class="flex-1 py-3 bg-white border border-border rounded-xl text-[9px] uppercase font-bold tracking-widest active:scale-95 transition-all">Prescriptions</button>
+                      <a href="#/medical-history?familyId=${member.id}" class="flex-1 py-3 bg-white/5 text-white border border-[#7f2f5d]/30 rounded-xl text-xs uppercase font-bold tracking-widest active:scale-95 transition-all text-center">Records</a>
+                      <a href="#/medications?familyId=${member.id}" class="flex-1 py-3 bg-white/5 text-white border border-[#7f2f5d]/30 rounded-xl text-xs uppercase font-bold tracking-widest active:scale-95 transition-all text-center">Prescriptions</a>
                   </div>
               </div>
             `).join('')}
@@ -43,7 +43,7 @@ export default class FamilyProfilesView {
                  <div class="w-14 h-14 bg-border/20 rounded-2xl flex items-center justify-center mb-4 text-primary">
                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                  </div>
-                 <p class="text-[10px] uppercase font-bold text-muted tracking-widest leading-relaxed">Add a dependent or family member to manage their proxy records.</p>
+                 <p class="text-xs uppercase font-bold text-muted tracking-widest leading-relaxed">Add a dependent or family member to manage their proxy records.</p>
               </div>
             ` : ''}
 
@@ -51,7 +51,7 @@ export default class FamilyProfilesView {
                  <div class="w-14 h-14 bg-border/20 rounded-2xl flex items-center justify-center mb-4">
                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
                  </div>
-                 <p class="text-[10px] uppercase font-bold text-muted tracking-widest">Connect New Node</p>
+                 <p class="text-xs uppercase font-bold text-muted tracking-widest">Connect New Node</p>
             </div>
         </div>
       </main>
@@ -86,11 +86,11 @@ export default class FamilyProfilesView {
         <h3 class="text-lg font-display text-white mb-6">Add Dependent</h3>
         <form id="add-family-form" class="space-y-4">
           <div>
-            <label class="block text-[10px] text-gray-400 uppercase tracking-widest mb-1 ml-1">Name</label>
+            <label class="block text-xs text-gray-400 uppercase tracking-widest mb-1 ml-1">Name</label>
             <input type="text" id="f-name" required class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#ffb88c]/50 focus:outline-none">
           </div>
           <div>
-            <label class="block text-[10px] text-gray-400 uppercase tracking-widest mb-1 ml-1">Relation</label>
+            <label class="block text-xs text-gray-400 uppercase tracking-widest mb-1 ml-1">Relation</label>
             <select id="f-relation" required class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#ffb88c]/50 focus:outline-none appearance-none">
               <option value="Child" class="bg-[#0a0407]">Child</option>
               <option value="Parent" class="bg-[#0a0407]">Parent</option>
@@ -99,16 +99,16 @@ export default class FamilyProfilesView {
             </select>
           </div>
           <div>
-            <label class="block text-[10px] text-gray-400 uppercase tracking-widest mb-1 ml-1">Date of Birth</label>
+            <label class="block text-xs text-gray-400 uppercase tracking-widest mb-1 ml-1">Date of Birth</label>
             <input type="date" id="f-dob" required class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#ffb88c]/50 focus:outline-none [color-scheme:dark]">
           </div>
           <div>
-            <label class="block text-[10px] text-gray-400 uppercase tracking-widest mb-1 ml-1">Known Allergies/Conditions</label>
+            <label class="block text-xs text-gray-400 uppercase tracking-widest mb-1 ml-1">Known Allergies/Conditions</label>
             <textarea id="f-conditions" rows="2" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#ffb88c]/50 focus:outline-none placeholder:text-gray-600" placeholder="Optional"></textarea>
           </div>
           <div class="flex gap-3 mt-8">
-            <button type="button" id="cancel-family" class="flex-1 py-3 rounded-xl border border-[#7f2f5d]/50 text-white text-[10px] uppercase font-bold tracking-widest hover:bg-white/5 transition-colors">Cancel</button>
-            <button type="submit" class="flex-1 py-3 rounded-xl bg-linear-to-r from-[#7f2f5d] to-[#4a1532] border border-[#ffb88c]/30 text-[#ffd9b5] text-[10px] uppercase font-bold tracking-widest hover:brightness-125 transition-all">Save Node</button>
+            <button type="button" id="cancel-family" class="flex-1 py-3 rounded-xl border border-[#7f2f5d]/50 text-white text-xs uppercase font-bold tracking-widest hover:bg-white/5 transition-colors">Cancel</button>
+            <button type="submit" class="flex-1 py-3 rounded-xl bg-linear-to-r from-[#7f2f5d] to-[#4a1532] border border-[#ffb88c]/30 text-[#ffd9b5] text-xs uppercase font-bold tracking-widest hover:brightness-125 transition-all">Save Node</button>
           </div>
         </form>
       </div>

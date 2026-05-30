@@ -35,7 +35,6 @@ export class Router {
       baseRoute = `#/${segments[1]}`;
     }
     
-    console.log('[Router] Mounting:', baseRoute);
 
     // Identify matching template class configuration against mapped routes
     const ViewClass = this.routes[baseRoute] ?? this.routes['#/landing'];

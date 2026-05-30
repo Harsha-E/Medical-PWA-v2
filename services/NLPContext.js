@@ -5,6 +5,9 @@
  * Requires: TensorFlow.js (global `tf`) loaded via CDN in index.html.
  */
 
+import db from '../core/db.js';
+import state from '../core/state.js';
+
 /**
  * @typedef {Object} OCRCorrectionResult
  * @property {string} candidate - The cleaned token extracted from raw text.
@@ -84,7 +87,6 @@ class NLPContext {
             if (typeof tf !== 'undefined') {
                 await tf.ready();
                 this._modelReady = true;
-                console.log('[NLP Engine] TensorFlow backend runtime layers configured successfully.');
             } else {
                 console.warn('[NLP Engine] WebGPU/WebGL Tensor acceleration layers unavailable. Falling back to CPU vector matching.');
             }
@@ -93,7 +95,6 @@ class NLPContext {
             this._modelReady = false;
         }
 
-        console.log(`[NLP] Hydrated with ${this._drugIndex.length} drugs, matching across ${uniqueBigramCount} bigrams.`);
     }
 
     /**
@@ -321,6 +322,94 @@ class NLPContext {
         }
 
         return vectorProfile;
+    }
+
+    /**
+     * Process conversational natural language queries over clinical data
+     * @param {string} query
+     * @returns {Promise<string>}
+     */
+    async processQuery(query) {
+        if (!query) return '';
+        
+        const userId = state.user?.uid || 'anonymous';
+        const lowerQuery = query.toLowerCase();
+        
+        // Intent: Medication Adherence / Check
+        if (lowerQuery.includes('did i take') || lowerQuery.includes('have i taken') || lowerQuery.includes('did i miss')) {
+            const drugMatch = await this._extractDrugName(lowerQuery);
+            const today = new Date().toISOString().split('T')[0];
+            
+            if (drugMatch) {
+                const doses = await db.doses.filter(d => d.medicationId === drugMatch.id && (d.userId === userId || !d.userId)).toArray();
+                const todayDose = doses.find(d => typeof d.takenAt === 'string' && d.takenAt.startsWith(today));
+                
+                if (todayDose) {
+                    if (todayDose.skipped) {
+                        return `You marked ${drugMatch.name} as SKIPPED today.`;
+                    }
+                    const timeStr = new Date(todayDose.takenAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    return `Yes, you recorded taking ${drugMatch.name} today at ${timeStr}.`;
+                } else {
+                    return `I couldn't find any record of you taking ${drugMatch.name} today.`;
+                }
+            } else {
+                const allDoses = await db.doses.filter(d => (d.userId === userId || !d.userId) && typeof d.takenAt === 'string' && d.takenAt.startsWith(today)).toArray();
+                if (allDoses.length > 0) {
+                    return `You have recorded ${allDoses.length} dose(s) today. Check your dashboard timeline for details.`;
+                }
+                return "I couldn't find any recorded doses for today. Could you specify the exact medication name?";
+            }
+        }
+
+        // Intent: Fetch Document / Discharge Summary
+        if (lowerQuery.includes('discharge') || lowerQuery.includes('report') || lowerQuery.includes('summary')) {
+            const docs = await db.history.filter(h => h.userId === userId).toArray();
+            const match = docs.find(d => d.title.toLowerCase().includes('discharge') || d.type.toLowerCase().includes('document') || d.notes?.toLowerCase().includes('discharge'));
+            
+            if (match) {
+                return `I found a matching clinical record: "${match.title}" dated ${match.date}. You can find it in your Medical Records.`;
+            }
+            return "I searched your secure vault but couldn't find any discharge summaries or related reports.";
+        }
+
+        // Intent: General Medications List
+        if (lowerQuery.includes('what meds') || lowerQuery.includes('what medications') || lowerQuery.includes('my active meds')) {
+            const activeMeds = await db.medications.toArray();
+            const myMeds = activeMeds.filter(m => (m.userId === userId || !m.userId) && m.active !== false);
+            
+            if (myMeds.length > 0) {
+                const names = myMeds.map(m => m.name).join(', ');
+                return `You currently have ${myMeds.length} active medications: ${names}.`;
+            }
+            return "You don't have any active medications recorded in your profile.";
+        }
+
+        // Intent: Allergies
+        if (lowerQuery.includes('allergies') || lowerQuery.includes('allergic to')) {
+            const profileAllergies = state.userProfile?.profile?.allergies || [];
+            const historyDocs = await db.history.filter(h => h.userId === userId).toArray();
+            const addedAllergies = historyDocs.filter(h => h.type === 'Allergy').map(a => a.title);
+            const allAllergies = [...profileAllergies, ...addedAllergies];
+
+            if (allAllergies.length > 0) {
+                return `Your recorded allergies are: ${allAllergies.join(', ')}.`;
+            }
+            return "You have no allergies recorded in your profile.";
+        }
+
+        // Fallback
+        return "I'm your clinical orchestrator. I can check your medication adherence, summarize your allergies, or pull up documents from your vault. How can I assist you?";
+    }
+
+    async _extractDrugName(query) {
+        const activeMeds = await db.medications.toArray();
+        for (const med of activeMeds) {
+            if (query.includes(med.name.toLowerCase())) {
+                return med;
+            }
+        }
+        return null;
     }
 }
 

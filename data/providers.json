@@ -1,0 +1,4656 @@
+[
+  {
+    "id": "hosp-1",
+    "name": "AIIMS New Delhi",
+    "type": "Government Hospital",
+    "city": "New Delhi",
+    "state": "Delhi",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-2",
+    "name": "Apollo Hospitals New Delhi",
+    "type": "Corporate Hospital",
+    "city": "New Delhi",
+    "state": "Delhi",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-3",
+    "name": "Fortis Healthcare New Delhi",
+    "type": "Corporate Hospital",
+    "city": "New Delhi",
+    "state": "Delhi",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-4",
+    "name": "Max Super Speciality New Delhi",
+    "type": "Corporate Hospital",
+    "city": "New Delhi",
+    "state": "Delhi",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-5",
+    "name": "Narayana Health New Delhi",
+    "type": "Corporate Hospital",
+    "city": "New Delhi",
+    "state": "Delhi",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-6",
+    "name": "Manipal Hospitals New Delhi",
+    "type": "Corporate Hospital",
+    "city": "New Delhi",
+    "state": "Delhi",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-7",
+    "name": "Medanta New Delhi",
+    "type": "Corporate Hospital",
+    "city": "New Delhi",
+    "state": "Delhi",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-8",
+    "name": "KIMS New Delhi",
+    "type": "Corporate Hospital",
+    "city": "New Delhi",
+    "state": "Delhi",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-9",
+    "name": "Care Hospitals New Delhi",
+    "type": "Corporate Hospital",
+    "city": "New Delhi",
+    "state": "Delhi",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-10",
+    "name": "Aster CMI New Delhi",
+    "type": "Corporate Hospital",
+    "city": "New Delhi",
+    "state": "Delhi",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-11",
+    "name": "AIIMS Mumbai",
+    "type": "Government Hospital",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-12",
+    "name": "Apollo Hospitals Mumbai",
+    "type": "Corporate Hospital",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-13",
+    "name": "Fortis Healthcare Mumbai",
+    "type": "Corporate Hospital",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-14",
+    "name": "Max Super Speciality Mumbai",
+    "type": "Corporate Hospital",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-15",
+    "name": "Narayana Health Mumbai",
+    "type": "Corporate Hospital",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-16",
+    "name": "Manipal Hospitals Mumbai",
+    "type": "Corporate Hospital",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-17",
+    "name": "Medanta Mumbai",
+    "type": "Corporate Hospital",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-18",
+    "name": "KIMS Mumbai",
+    "type": "Corporate Hospital",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-19",
+    "name": "Care Hospitals Mumbai",
+    "type": "Corporate Hospital",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-20",
+    "name": "Aster CMI Mumbai",
+    "type": "Corporate Hospital",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-21",
+    "name": "AIIMS Bengaluru",
+    "type": "Government Hospital",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-22",
+    "name": "Apollo Hospitals Bengaluru",
+    "type": "Corporate Hospital",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-23",
+    "name": "Fortis Healthcare Bengaluru",
+    "type": "Corporate Hospital",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-24",
+    "name": "Max Super Speciality Bengaluru",
+    "type": "Corporate Hospital",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-25",
+    "name": "Narayana Health Bengaluru",
+    "type": "Corporate Hospital",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-26",
+    "name": "Manipal Hospitals Bengaluru",
+    "type": "Corporate Hospital",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-27",
+    "name": "Medanta Bengaluru",
+    "type": "Corporate Hospital",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-28",
+    "name": "KIMS Bengaluru",
+    "type": "Corporate Hospital",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-29",
+    "name": "Care Hospitals Bengaluru",
+    "type": "Corporate Hospital",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-30",
+    "name": "Aster CMI Bengaluru",
+    "type": "Corporate Hospital",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-31",
+    "name": "AIIMS City X",
+    "type": "Government Hospital",
+    "city": "City X",
+    "state": "Tamil Nadu",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-32",
+    "name": "Apollo Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Tamil Nadu",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-33",
+    "name": "Fortis Healthcare City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Tamil Nadu",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-34",
+    "name": "Max Super Speciality City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Tamil Nadu",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-35",
+    "name": "Narayana Health City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Tamil Nadu",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-36",
+    "name": "Manipal Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Tamil Nadu",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-37",
+    "name": "Medanta City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Tamil Nadu",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-38",
+    "name": "KIMS City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Tamil Nadu",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-39",
+    "name": "Care Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Tamil Nadu",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-40",
+    "name": "Aster CMI City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Tamil Nadu",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-41",
+    "name": "AIIMS City X",
+    "type": "Government Hospital",
+    "city": "City X",
+    "state": "Telangana",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-42",
+    "name": "Apollo Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Telangana",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-43",
+    "name": "Fortis Healthcare City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Telangana",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-44",
+    "name": "Max Super Speciality City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Telangana",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-45",
+    "name": "Narayana Health City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Telangana",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-46",
+    "name": "Manipal Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Telangana",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-47",
+    "name": "Medanta City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Telangana",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-48",
+    "name": "KIMS City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Telangana",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-49",
+    "name": "Care Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Telangana",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-50",
+    "name": "Aster CMI City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Telangana",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-51",
+    "name": "AIIMS City X",
+    "type": "Government Hospital",
+    "city": "City X",
+    "state": "Gujarat",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-52",
+    "name": "Apollo Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Gujarat",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-53",
+    "name": "Fortis Healthcare City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Gujarat",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-54",
+    "name": "Max Super Speciality City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Gujarat",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-55",
+    "name": "Narayana Health City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Gujarat",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-56",
+    "name": "Manipal Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Gujarat",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-57",
+    "name": "Medanta City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Gujarat",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-58",
+    "name": "KIMS City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Gujarat",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-59",
+    "name": "Care Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Gujarat",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-60",
+    "name": "Aster CMI City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Gujarat",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-61",
+    "name": "AIIMS City X",
+    "type": "Government Hospital",
+    "city": "City X",
+    "state": "West Bengal",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-62",
+    "name": "Apollo Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "West Bengal",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-63",
+    "name": "Fortis Healthcare City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "West Bengal",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-64",
+    "name": "Max Super Speciality City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "West Bengal",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-65",
+    "name": "Narayana Health City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "West Bengal",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-66",
+    "name": "Manipal Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "West Bengal",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-67",
+    "name": "Medanta City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "West Bengal",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-68",
+    "name": "KIMS City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "West Bengal",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-69",
+    "name": "Care Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "West Bengal",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-70",
+    "name": "Aster CMI City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "West Bengal",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-71",
+    "name": "AIIMS City X",
+    "type": "Government Hospital",
+    "city": "City X",
+    "state": "Uttar Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-72",
+    "name": "Apollo Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Uttar Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-73",
+    "name": "Fortis Healthcare City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Uttar Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-74",
+    "name": "Max Super Speciality City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Uttar Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-75",
+    "name": "Narayana Health City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Uttar Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-76",
+    "name": "Manipal Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Uttar Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-77",
+    "name": "Medanta City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Uttar Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-78",
+    "name": "KIMS City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Uttar Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-79",
+    "name": "Care Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Uttar Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-80",
+    "name": "Aster CMI City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Uttar Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-81",
+    "name": "AIIMS City X",
+    "type": "Government Hospital",
+    "city": "City X",
+    "state": "Kerala",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-82",
+    "name": "Apollo Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Kerala",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-83",
+    "name": "Fortis Healthcare City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Kerala",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-84",
+    "name": "Max Super Speciality City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Kerala",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-85",
+    "name": "Narayana Health City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Kerala",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-86",
+    "name": "Manipal Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Kerala",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-87",
+    "name": "Medanta City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Kerala",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-88",
+    "name": "KIMS City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Kerala",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-89",
+    "name": "Care Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Kerala",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-90",
+    "name": "Aster CMI City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Kerala",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-91",
+    "name": "AIIMS City X",
+    "type": "Government Hospital",
+    "city": "City X",
+    "state": "Punjab",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-92",
+    "name": "Apollo Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Punjab",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-93",
+    "name": "Fortis Healthcare City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Punjab",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-94",
+    "name": "Max Super Speciality City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Punjab",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-95",
+    "name": "Narayana Health City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Punjab",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-96",
+    "name": "Manipal Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Punjab",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-97",
+    "name": "Medanta City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Punjab",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-98",
+    "name": "KIMS City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Punjab",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-99",
+    "name": "Care Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Punjab",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-100",
+    "name": "Aster CMI City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Punjab",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-101",
+    "name": "AIIMS City X",
+    "type": "Government Hospital",
+    "city": "City X",
+    "state": "Rajasthan",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-102",
+    "name": "Apollo Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Rajasthan",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-103",
+    "name": "Fortis Healthcare City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Rajasthan",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-104",
+    "name": "Max Super Speciality City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Rajasthan",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-105",
+    "name": "Narayana Health City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Rajasthan",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-106",
+    "name": "Manipal Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Rajasthan",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-107",
+    "name": "Medanta City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Rajasthan",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-108",
+    "name": "KIMS City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Rajasthan",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-109",
+    "name": "Care Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Rajasthan",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-110",
+    "name": "Aster CMI City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Rajasthan",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-111",
+    "name": "AIIMS City X",
+    "type": "Government Hospital",
+    "city": "City X",
+    "state": "Madhya Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-112",
+    "name": "Apollo Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Madhya Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-113",
+    "name": "Fortis Healthcare City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Madhya Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-114",
+    "name": "Max Super Speciality City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Madhya Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-115",
+    "name": "Narayana Health City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Madhya Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-116",
+    "name": "Manipal Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Madhya Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-117",
+    "name": "Medanta City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Madhya Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-118",
+    "name": "KIMS City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Madhya Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-119",
+    "name": "Care Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Madhya Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-120",
+    "name": "Aster CMI City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Madhya Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-121",
+    "name": "AIIMS City X",
+    "type": "Government Hospital",
+    "city": "City X",
+    "state": "Bihar",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-122",
+    "name": "Apollo Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Bihar",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-123",
+    "name": "Fortis Healthcare City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Bihar",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-124",
+    "name": "Max Super Speciality City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Bihar",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-125",
+    "name": "Narayana Health City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Bihar",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-126",
+    "name": "Manipal Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Bihar",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-127",
+    "name": "Medanta City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Bihar",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-128",
+    "name": "KIMS City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Bihar",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-129",
+    "name": "Care Hospitals City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Bihar",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-130",
+    "name": "Aster CMI City X",
+    "type": "Corporate Hospital",
+    "city": "City X",
+    "state": "Bihar",
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Oncology",
+      "Orthopedics",
+      "Gastroenterology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-131",
+    "name": "Dr. Lal PathLabs New Delhi",
+    "type": "Diagnostic Laboratory",
+    "city": "New Delhi",
+    "state": "Delhi",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-132",
+    "name": "SRL Diagnostics New Delhi",
+    "type": "Diagnostic Laboratory",
+    "city": "New Delhi",
+    "state": "Delhi",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-133",
+    "name": "Metropolis Healthcare New Delhi",
+    "type": "Diagnostic Laboratory",
+    "city": "New Delhi",
+    "state": "Delhi",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-134",
+    "name": "Thyrocare New Delhi",
+    "type": "Diagnostic Laboratory",
+    "city": "New Delhi",
+    "state": "Delhi",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-135",
+    "name": "Lucid Medical Diagnostics New Delhi",
+    "type": "Diagnostic Laboratory",
+    "city": "New Delhi",
+    "state": "Delhi",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-136",
+    "name": "Vijaya Diagnostic Centre New Delhi",
+    "type": "Diagnostic Laboratory",
+    "city": "New Delhi",
+    "state": "Delhi",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-137",
+    "name": "Dr. Lal PathLabs Mumbai",
+    "type": "Diagnostic Laboratory",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-138",
+    "name": "SRL Diagnostics Mumbai",
+    "type": "Diagnostic Laboratory",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-139",
+    "name": "Metropolis Healthcare Mumbai",
+    "type": "Diagnostic Laboratory",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-140",
+    "name": "Thyrocare Mumbai",
+    "type": "Diagnostic Laboratory",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-141",
+    "name": "Lucid Medical Diagnostics Mumbai",
+    "type": "Diagnostic Laboratory",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-142",
+    "name": "Vijaya Diagnostic Centre Mumbai",
+    "type": "Diagnostic Laboratory",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-143",
+    "name": "Dr. Lal PathLabs Bengaluru",
+    "type": "Diagnostic Laboratory",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-144",
+    "name": "SRL Diagnostics Bengaluru",
+    "type": "Diagnostic Laboratory",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-145",
+    "name": "Metropolis Healthcare Bengaluru",
+    "type": "Diagnostic Laboratory",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-146",
+    "name": "Thyrocare Bengaluru",
+    "type": "Diagnostic Laboratory",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-147",
+    "name": "Lucid Medical Diagnostics Bengaluru",
+    "type": "Diagnostic Laboratory",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-148",
+    "name": "Vijaya Diagnostic Centre Bengaluru",
+    "type": "Diagnostic Laboratory",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-149",
+    "name": "Dr. Lal PathLabs City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Tamil Nadu",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-150",
+    "name": "SRL Diagnostics City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Tamil Nadu",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-151",
+    "name": "Metropolis Healthcare City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Tamil Nadu",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-152",
+    "name": "Thyrocare City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Tamil Nadu",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-153",
+    "name": "Lucid Medical Diagnostics City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Tamil Nadu",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-154",
+    "name": "Vijaya Diagnostic Centre City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Tamil Nadu",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-155",
+    "name": "Dr. Lal PathLabs City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Telangana",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-156",
+    "name": "SRL Diagnostics City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Telangana",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-157",
+    "name": "Metropolis Healthcare City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Telangana",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-158",
+    "name": "Thyrocare City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Telangana",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-159",
+    "name": "Lucid Medical Diagnostics City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Telangana",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-160",
+    "name": "Vijaya Diagnostic Centre City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Telangana",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-161",
+    "name": "Dr. Lal PathLabs City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Gujarat",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-162",
+    "name": "SRL Diagnostics City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Gujarat",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-163",
+    "name": "Metropolis Healthcare City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Gujarat",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-164",
+    "name": "Thyrocare City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Gujarat",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-165",
+    "name": "Lucid Medical Diagnostics City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Gujarat",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-166",
+    "name": "Vijaya Diagnostic Centre City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Gujarat",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-167",
+    "name": "Dr. Lal PathLabs City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "West Bengal",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-168",
+    "name": "SRL Diagnostics City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "West Bengal",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-169",
+    "name": "Metropolis Healthcare City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "West Bengal",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-170",
+    "name": "Thyrocare City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "West Bengal",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-171",
+    "name": "Lucid Medical Diagnostics City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "West Bengal",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-172",
+    "name": "Vijaya Diagnostic Centre City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "West Bengal",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-173",
+    "name": "Dr. Lal PathLabs City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Uttar Pradesh",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-174",
+    "name": "SRL Diagnostics City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Uttar Pradesh",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-175",
+    "name": "Metropolis Healthcare City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Uttar Pradesh",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-176",
+    "name": "Thyrocare City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Uttar Pradesh",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-177",
+    "name": "Lucid Medical Diagnostics City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Uttar Pradesh",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-178",
+    "name": "Vijaya Diagnostic Centre City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Uttar Pradesh",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-179",
+    "name": "Dr. Lal PathLabs City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Kerala",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-180",
+    "name": "SRL Diagnostics City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Kerala",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-181",
+    "name": "Metropolis Healthcare City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Kerala",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-182",
+    "name": "Thyrocare City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Kerala",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-183",
+    "name": "Lucid Medical Diagnostics City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Kerala",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-184",
+    "name": "Vijaya Diagnostic Centre City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Kerala",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-185",
+    "name": "Dr. Lal PathLabs City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Punjab",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-186",
+    "name": "SRL Diagnostics City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Punjab",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-187",
+    "name": "Metropolis Healthcare City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Punjab",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-188",
+    "name": "Thyrocare City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Punjab",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-189",
+    "name": "Lucid Medical Diagnostics City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Punjab",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-190",
+    "name": "Vijaya Diagnostic Centre City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Punjab",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-191",
+    "name": "Dr. Lal PathLabs City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Rajasthan",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-192",
+    "name": "SRL Diagnostics City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Rajasthan",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-193",
+    "name": "Metropolis Healthcare City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Rajasthan",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-194",
+    "name": "Thyrocare City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Rajasthan",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-195",
+    "name": "Lucid Medical Diagnostics City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Rajasthan",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-196",
+    "name": "Vijaya Diagnostic Centre City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Rajasthan",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-197",
+    "name": "Dr. Lal PathLabs City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Madhya Pradesh",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-198",
+    "name": "SRL Diagnostics City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Madhya Pradesh",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-199",
+    "name": "Metropolis Healthcare City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Madhya Pradesh",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-200",
+    "name": "Thyrocare City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Madhya Pradesh",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-201",
+    "name": "Lucid Medical Diagnostics City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Madhya Pradesh",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-202",
+    "name": "Vijaya Diagnostic Centre City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Madhya Pradesh",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-203",
+    "name": "Dr. Lal PathLabs City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Bihar",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-204",
+    "name": "SRL Diagnostics City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Bihar",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-205",
+    "name": "Metropolis Healthcare City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Bihar",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-206",
+    "name": "Thyrocare City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Bihar",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "lab-207",
+    "name": "Lucid Medical Diagnostics City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Bihar",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "lab-208",
+    "name": "Vijaya Diagnostic Centre City X",
+    "type": "Diagnostic Laboratory",
+    "city": "City X",
+    "state": "Bihar",
+    "specialties": [
+      "Pathology",
+      "Radiology",
+      "Microbiology"
+    ],
+    "pmjayEmpanelled": false
+  },
+  {
+    "id": "hosp-209",
+    "name": "AIIMS City Y",
+    "type": "Government Hospital",
+    "city": "City Y",
+    "state": "Delhi",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-210",
+    "name": "Apollo Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Delhi",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-211",
+    "name": "Fortis Healthcare City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Delhi",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-212",
+    "name": "Max Super Speciality City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Delhi",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-213",
+    "name": "Narayana Health City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Delhi",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-214",
+    "name": "Manipal Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Delhi",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-215",
+    "name": "Medanta City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Delhi",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-216",
+    "name": "KIMS City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Delhi",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-217",
+    "name": "Care Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Delhi",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-218",
+    "name": "Aster CMI City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Delhi",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-219",
+    "name": "AIIMS Pune",
+    "type": "Government Hospital",
+    "city": "Pune",
+    "state": "Maharashtra",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-220",
+    "name": "Apollo Hospitals Pune",
+    "type": "Corporate Hospital",
+    "city": "Pune",
+    "state": "Maharashtra",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-221",
+    "name": "Fortis Healthcare Pune",
+    "type": "Corporate Hospital",
+    "city": "Pune",
+    "state": "Maharashtra",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-222",
+    "name": "Max Super Speciality Pune",
+    "type": "Corporate Hospital",
+    "city": "Pune",
+    "state": "Maharashtra",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-223",
+    "name": "Narayana Health Pune",
+    "type": "Corporate Hospital",
+    "city": "Pune",
+    "state": "Maharashtra",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-224",
+    "name": "Manipal Hospitals Pune",
+    "type": "Corporate Hospital",
+    "city": "Pune",
+    "state": "Maharashtra",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-225",
+    "name": "Medanta Pune",
+    "type": "Corporate Hospital",
+    "city": "Pune",
+    "state": "Maharashtra",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-226",
+    "name": "KIMS Pune",
+    "type": "Corporate Hospital",
+    "city": "Pune",
+    "state": "Maharashtra",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-227",
+    "name": "Care Hospitals Pune",
+    "type": "Corporate Hospital",
+    "city": "Pune",
+    "state": "Maharashtra",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-228",
+    "name": "Aster CMI Pune",
+    "type": "Corporate Hospital",
+    "city": "Pune",
+    "state": "Maharashtra",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-229",
+    "name": "AIIMS Mysuru",
+    "type": "Government Hospital",
+    "city": "Mysuru",
+    "state": "Karnataka",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-230",
+    "name": "Apollo Hospitals Mysuru",
+    "type": "Corporate Hospital",
+    "city": "Mysuru",
+    "state": "Karnataka",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-231",
+    "name": "Fortis Healthcare Mysuru",
+    "type": "Corporate Hospital",
+    "city": "Mysuru",
+    "state": "Karnataka",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-232",
+    "name": "Max Super Speciality Mysuru",
+    "type": "Corporate Hospital",
+    "city": "Mysuru",
+    "state": "Karnataka",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-233",
+    "name": "Narayana Health Mysuru",
+    "type": "Corporate Hospital",
+    "city": "Mysuru",
+    "state": "Karnataka",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-234",
+    "name": "Manipal Hospitals Mysuru",
+    "type": "Corporate Hospital",
+    "city": "Mysuru",
+    "state": "Karnataka",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-235",
+    "name": "Medanta Mysuru",
+    "type": "Corporate Hospital",
+    "city": "Mysuru",
+    "state": "Karnataka",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-236",
+    "name": "KIMS Mysuru",
+    "type": "Corporate Hospital",
+    "city": "Mysuru",
+    "state": "Karnataka",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-237",
+    "name": "Care Hospitals Mysuru",
+    "type": "Corporate Hospital",
+    "city": "Mysuru",
+    "state": "Karnataka",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-238",
+    "name": "Aster CMI Mysuru",
+    "type": "Corporate Hospital",
+    "city": "Mysuru",
+    "state": "Karnataka",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-239",
+    "name": "AIIMS City Y",
+    "type": "Government Hospital",
+    "city": "City Y",
+    "state": "Tamil Nadu",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-240",
+    "name": "Apollo Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Tamil Nadu",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-241",
+    "name": "Fortis Healthcare City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Tamil Nadu",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-242",
+    "name": "Max Super Speciality City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Tamil Nadu",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-243",
+    "name": "Narayana Health City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Tamil Nadu",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-244",
+    "name": "Manipal Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Tamil Nadu",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-245",
+    "name": "Medanta City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Tamil Nadu",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-246",
+    "name": "KIMS City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Tamil Nadu",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-247",
+    "name": "Care Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Tamil Nadu",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-248",
+    "name": "Aster CMI City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Tamil Nadu",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-249",
+    "name": "AIIMS City Y",
+    "type": "Government Hospital",
+    "city": "City Y",
+    "state": "Telangana",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-250",
+    "name": "Apollo Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Telangana",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-251",
+    "name": "Fortis Healthcare City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Telangana",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-252",
+    "name": "Max Super Speciality City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Telangana",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-253",
+    "name": "Narayana Health City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Telangana",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-254",
+    "name": "Manipal Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Telangana",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-255",
+    "name": "Medanta City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Telangana",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-256",
+    "name": "KIMS City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Telangana",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-257",
+    "name": "Care Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Telangana",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-258",
+    "name": "Aster CMI City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Telangana",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-259",
+    "name": "AIIMS City Y",
+    "type": "Government Hospital",
+    "city": "City Y",
+    "state": "Gujarat",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-260",
+    "name": "Apollo Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Gujarat",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-261",
+    "name": "Fortis Healthcare City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Gujarat",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-262",
+    "name": "Max Super Speciality City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Gujarat",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-263",
+    "name": "Narayana Health City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Gujarat",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-264",
+    "name": "Manipal Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Gujarat",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-265",
+    "name": "Medanta City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Gujarat",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-266",
+    "name": "KIMS City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Gujarat",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-267",
+    "name": "Care Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Gujarat",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-268",
+    "name": "Aster CMI City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Gujarat",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-269",
+    "name": "AIIMS City Y",
+    "type": "Government Hospital",
+    "city": "City Y",
+    "state": "West Bengal",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-270",
+    "name": "Apollo Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "West Bengal",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-271",
+    "name": "Fortis Healthcare City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "West Bengal",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-272",
+    "name": "Max Super Speciality City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "West Bengal",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-273",
+    "name": "Narayana Health City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "West Bengal",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-274",
+    "name": "Manipal Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "West Bengal",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-275",
+    "name": "Medanta City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "West Bengal",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-276",
+    "name": "KIMS City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "West Bengal",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-277",
+    "name": "Care Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "West Bengal",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-278",
+    "name": "Aster CMI City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "West Bengal",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-279",
+    "name": "AIIMS City Y",
+    "type": "Government Hospital",
+    "city": "City Y",
+    "state": "Uttar Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-280",
+    "name": "Apollo Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Uttar Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-281",
+    "name": "Fortis Healthcare City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Uttar Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-282",
+    "name": "Max Super Speciality City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Uttar Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-283",
+    "name": "Narayana Health City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Uttar Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-284",
+    "name": "Manipal Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Uttar Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-285",
+    "name": "Medanta City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Uttar Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-286",
+    "name": "KIMS City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Uttar Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-287",
+    "name": "Care Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Uttar Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-288",
+    "name": "Aster CMI City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Uttar Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-289",
+    "name": "AIIMS City Y",
+    "type": "Government Hospital",
+    "city": "City Y",
+    "state": "Kerala",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-290",
+    "name": "Apollo Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Kerala",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-291",
+    "name": "Fortis Healthcare City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Kerala",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-292",
+    "name": "Max Super Speciality City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Kerala",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-293",
+    "name": "Narayana Health City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Kerala",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-294",
+    "name": "Manipal Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Kerala",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-295",
+    "name": "Medanta City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Kerala",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-296",
+    "name": "KIMS City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Kerala",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-297",
+    "name": "Care Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Kerala",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-298",
+    "name": "Aster CMI City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Kerala",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-299",
+    "name": "AIIMS City Y",
+    "type": "Government Hospital",
+    "city": "City Y",
+    "state": "Punjab",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-300",
+    "name": "Apollo Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Punjab",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-301",
+    "name": "Fortis Healthcare City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Punjab",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-302",
+    "name": "Max Super Speciality City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Punjab",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-303",
+    "name": "Narayana Health City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Punjab",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-304",
+    "name": "Manipal Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Punjab",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-305",
+    "name": "Medanta City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Punjab",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-306",
+    "name": "KIMS City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Punjab",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-307",
+    "name": "Care Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Punjab",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-308",
+    "name": "Aster CMI City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Punjab",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-309",
+    "name": "AIIMS City Y",
+    "type": "Government Hospital",
+    "city": "City Y",
+    "state": "Rajasthan",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-310",
+    "name": "Apollo Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Rajasthan",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-311",
+    "name": "Fortis Healthcare City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Rajasthan",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-312",
+    "name": "Max Super Speciality City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Rajasthan",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-313",
+    "name": "Narayana Health City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Rajasthan",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-314",
+    "name": "Manipal Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Rajasthan",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-315",
+    "name": "Medanta City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Rajasthan",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-316",
+    "name": "KIMS City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Rajasthan",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-317",
+    "name": "Care Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Rajasthan",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-318",
+    "name": "Aster CMI City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Rajasthan",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-319",
+    "name": "AIIMS City Y",
+    "type": "Government Hospital",
+    "city": "City Y",
+    "state": "Madhya Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-320",
+    "name": "Apollo Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Madhya Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-321",
+    "name": "Fortis Healthcare City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Madhya Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-322",
+    "name": "Max Super Speciality City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Madhya Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-323",
+    "name": "Narayana Health City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Madhya Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-324",
+    "name": "Manipal Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Madhya Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-325",
+    "name": "Medanta City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Madhya Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-326",
+    "name": "KIMS City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Madhya Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-327",
+    "name": "Care Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Madhya Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-328",
+    "name": "Aster CMI City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Madhya Pradesh",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-329",
+    "name": "AIIMS City Y",
+    "type": "Government Hospital",
+    "city": "City Y",
+    "state": "Bihar",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-330",
+    "name": "Apollo Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Bihar",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-331",
+    "name": "Fortis Healthcare City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Bihar",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-332",
+    "name": "Max Super Speciality City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Bihar",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-333",
+    "name": "Narayana Health City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Bihar",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-334",
+    "name": "Manipal Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Bihar",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-335",
+    "name": "Medanta City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Bihar",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-336",
+    "name": "KIMS City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Bihar",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-337",
+    "name": "Care Hospitals City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Bihar",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  },
+  {
+    "id": "hosp-338",
+    "name": "Aster CMI City Y",
+    "type": "Corporate Hospital",
+    "city": "City Y",
+    "state": "Bihar",
+    "specialties": [
+      "Cardiology",
+      "Nephrology",
+      "Endocrinology"
+    ],
+    "pmjayEmpanelled": true
+  }
+]

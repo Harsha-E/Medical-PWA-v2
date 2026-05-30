@@ -32,7 +32,7 @@ export default class RegisterView {
 
         <div class="relative flex items-center py-6">
           <div class="flex-grow border-t border-white/5"></div>
-          <span class="flex-shrink-0 mx-4 text-gray-600 text-[10px] font-mono uppercase tracking-widest">Or</span>
+          <span class="flex-shrink-0 mx-4 text-gray-600 text-xs font-mono uppercase tracking-widest">Or</span>
           <div class="flex-grow border-t border-white/5"></div>
         </div>
 

@@ -11,7 +11,7 @@ export default class SplashView {
           </svg>
         </div>
         <h1 class="font-display text-4xl mt-4">MedCare</h1>
-        <p class="text-[10px] font-bold text-muted mt-2 tracking-[0.2em] uppercase">Clinical Precision &bull; Offline First</p>
+        <p class="text-xs font-bold text-muted mt-2 tracking-[0.2em] uppercase">Clinical Precision &bull; Offline First</p>
         <div class="loading-track mt-16">
           <div class="loading-bar"></div>
         </div>

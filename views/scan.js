@@ -2,10 +2,12 @@
  * @fileoverview CarePoint Vision Scanner — Auto-Tracking Architecture + Hardware Controls & Gallery Fallback
  */
 import { INDIAN_DRUG_DATASET, fuzzySearchDrugs, SCHEDULE_INFO } from '../data/indian-drug-dataset.js';
+import db from '../core/db.js';
 import state from '../core/state.js';
 import { db as firebaseDb } from '../core/firebase.js';
 import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import VisionPipeline from '../services/VisionPipeline.js';
+import { interactionGraph } from '../services/InteractionGraph.js';
 
 export default class ScanView {
   constructor() {
@@ -59,6 +61,10 @@ export default class ScanView {
           this._statusText.textContent = 'LOCKED';
           this._statusText.style.color = '#10b981';
           this._triggerAutoLock();
+          if (this.currentResults) {
+            const cacheObj = { ...this.currentResults, croppedBlob: null };
+            sessionStorage.setItem('medcare_scan_cache', JSON.stringify(cacheObj));
+          }
           break;
       }
     }
@@ -69,6 +75,20 @@ export default class ScanView {
     this._cacheElements();
     this._attachListeners();
     await this._startCamera();
+
+    const cached = sessionStorage.getItem('medcare_scan_cache');
+    if (cached) {
+      try {
+        this.currentResults = JSON.parse(cached);
+        sessionStorage.removeItem('medcare_scan_cache');
+        this.confidenceTracker = 100;
+        this._setState('RESULT');
+        this._updateConfidenceUI();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
     return this.container;
   }
 
@@ -201,7 +221,39 @@ export default class ScanView {
   }
 
   _attachListeners() {
-    this._resultAdd.addEventListener('click', () => this._navigateToAdd());
+    this._resultAdd.addEventListener('click', async () => {
+      const ocrResult = {
+        rawText: this.currentResults?.rawText || '',
+        matchedDrugs: this.currentResults?.bestMatch ? [this.currentResults.bestMatch.name] : [],
+        capturedImageBlob: this.currentResults?.croppedBlob ?? null
+      };
+
+      const conf = this.currentResults?.confidence || 100;
+      let finalDrugs = ocrResult.matchedDrugs;
+
+      if (conf < 75) {
+         const userConfirmed = await this._showConfidenceValidationModal(finalDrugs, conf);
+         if (!userConfirmed) return;
+         finalDrugs = userConfirmed;
+      }
+      ocrResult.matchedDrugs = finalDrugs;
+
+      if (finalDrugs.length > 0) {
+         const activeMeds = await db.medications.filter(m => m.active && m.userId === state.user?.uid).toArray();
+         const drugList = [...activeMeds.map(m => m.name), ...finalDrugs];
+         
+         await interactionGraph.initialize();
+         const interactions = interactionGraph.findInteractions(drugList);
+         const critical = interactions.find(i => i.severity === 'severe');
+         
+         if (critical) {
+             const override = await this._showDDIModal(critical);
+             if (!override) return;
+         }
+      }
+
+      this._navigateToAdd(ocrResult);
+    });
     this._resultRetry.addEventListener('click', () => {
       this._resultSheet.style.transform = 'translateY(100%)';
       this.pipeline.clearMemory();
@@ -234,6 +286,25 @@ export default class ScanView {
           this._runContinuousScan();
        }
     });
+
+    window.addEventListener('scan:pipeline-stage', (e) => {
+      this._appendLog(e.detail);
+      if (this.state === 'VERIFYING' || this.state === 'HUNTING' || this.state === 'LOCKING') {
+        this._statusText.textContent = e.detail.toUpperCase();
+      }
+    });
+
+    // Handle OS suspension/backgrounding
+    this._visibilityHandler = () => {
+      if (document.hidden) {
+        if (this.animFrameId) cancelAnimationFrame(this.animFrameId);
+        if (this.stream) this.stream.getTracks().forEach(t => { t.enabled = false; });
+      } else {
+        if (this.stream) this.stream.getTracks().forEach(t => { t.enabled = true; });
+        if (this.state !== 'RESULT') this._startRenderLoop();
+      }
+    };
+    document.addEventListener('visibilitychange', this._visibilityHandler);
   }
 
   // --- APPENDED: Hardware Methods ---
@@ -393,6 +464,15 @@ export default class ScanView {
 
     const data = await this.pipeline.processFrame(this._video, 0.5);
     if (!data) return;
+
+    if (data.state === 'ERROR' && data.error === 'NO_TEXT') {
+        this.confidenceTracker = Math.max(0, this.confidenceTracker - 10);
+        this._updateConfidenceUI();
+        this._statusText.textContent = 'NO TEXT DETECTED';
+        this._statusText.style.color = '#ef4444';
+        if (!this.galleryPromptShown) this._showGalleryPrompt();
+        return;
+    }
 
     if (data.state === 'HUNTING') {
         this._setState('HUNTING');
@@ -557,20 +637,140 @@ export default class ScanView {
     if (data.dosage) {
       this._resultDosRow.innerHTML += `<div style="padding: 6px 12px; border-radius: 20px; background: rgba(255,184,140,0.12); color: #ffb88c; font-size: 12px; font-family: monospace;">💊 ${data.dosage}${data.unit}</div>`;
     }
+    if (data.quantity) {
+      this._resultDosRow.innerHTML += `<div style="padding: 6px 12px; border-radius: 20px; background: rgba(16,185,129,0.12); color: #10b981; font-size: 12px; font-family: monospace;">📦 QTY: ${data.quantity}</div>`;
+    }
     
     this._resultSheet.style.transform = 'translateY(0)';
   }
 
-  _navigateToAdd() {
-    if (!this.currentResults?.bestMatch) return;
-    const drug = this.currentResults.bestMatch;
-    const params = new URLSearchParams({ name: drug.name, dosage: this.currentResults.dosage || '', unit: this.currentResults.unit || 'mg' });
+  /**
+   * Persists the OCR results to the database and navigates to the medications list.
+   * @param {Object} ocrResult - The payload from the vision pipeline.
+   * @param {string} ocrResult.rawText - The raw string text from Tesseract.
+   * @param {string[]} ocrResult.matchedDrugs - Array of drug names identified.
+   * @param {Blob|null} ocrResult.capturedImageBlob - The cropped image blob.
+   * @returns {Promise<void>}
+   */
+  async _navigateToAdd(ocrResult) {
+    try {
+      const userId = state.get('user').uid;
+      if (!userId) throw new Error('User not authenticated.');
+
+      const record = {
+        userId: userId,
+        rawText: ocrResult.rawText || '',
+        imageBlob: ocrResult.capturedImageBlob ?? null,
+        date: new Date().toISOString().split('T')[0],
+        doctorName: null
+      };
+
+      const prescriptionId = await db.prescriptions.add(record);
+
+      for (const drugName of ocrResult.matchedDrugs) {
+        const exists = await db.medications.where('name').equalsIgnoreCase(drugName).first();
+        if (!exists) {
+          await db.medications.add({
+            userId: userId,
+            name: drugName,
+            dosage: null,
+            frequency: null,
+            startDate: new Date().toISOString().split('T')[0],
+            endDate: null,
+            notes: 'Auto-detected via OCR scan',
+            active: true
+          });
+        }
+      }
+    } catch (err) {
+      console.error('[Scan] Failed to save prescription:', err);
+    }
+    
     this.destroy();
-    window.location.hash = `#/add?${params.toString()}`;
+    window.location.hash = '#/medications';
+  }
+
+  _showConfidenceValidationModal(drugs, confidence) {
+      return new Promise((resolve) => {
+          const div = document.createElement('div');
+          const drugStr = drugs.join(', ');
+          div.className = 'fixed inset-0 z-[9999] bg-[#0a0407]/80 backdrop-blur-sm flex items-center justify-center p-4';
+          div.innerHTML = `
+            <div class="bg-[#1a0a12] border border-[#ffb88c]/50 rounded-[2rem] p-6 w-full max-w-sm shadow-2xl">
+              <h2 class="text-xl font-display text-white mb-2">Low Confidence Scan</h2>
+              <p class="text-xs text-[#ffb88c] mb-6 font-mono uppercase tracking-widest">Confidence Score: ${Math.floor(confidence)}%</p>
+              <div class="space-y-4">
+                <div>
+                  <label class="text-xs text-gray-400 uppercase tracking-widest font-bold ml-2 mb-1 block">Detected Text</label>
+                  <input type="text" id="conf-val" value="${drugStr}" class="w-full bg-white/5 border border-[#7f2f5d]/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#ffb88c]/50">
+                </div>
+              </div>
+              <div class="flex gap-3 mt-8">
+                <button id="conf-cancel" class="flex-1 py-3.5 rounded-xl border border-[#7f2f5d]/50 text-gray-400 font-bold uppercase text-xs tracking-widest hover:bg-white/5 transition-colors">Discard</button>
+                <button id="conf-save" class="flex-1 py-3.5 rounded-xl bg-gradient-to-r from-[#7f2f5d] to-[#ca5229] text-white font-bold uppercase text-xs tracking-widest shadow-lg shadow-[#ca5229]/20 active:scale-95 transition-transform">Accept</button>
+              </div>
+            </div>
+          `;
+          document.body.appendChild(div);
+
+          div.querySelector('#conf-cancel').onclick = () => {
+              div.remove();
+              resolve(null);
+          };
+          div.querySelector('#conf-save').onclick = () => {
+              const val = div.querySelector('#conf-val').value.trim();
+              div.remove();
+              resolve(val ? val.split(',').map(s => s.trim()) : []);
+          };
+      });
+  }
+
+  _showDDIModal(interaction) {
+      return new Promise((resolve) => {
+          window.medcareAlertLock = true;
+          const div = document.createElement('div');
+          div.className = 'fixed inset-0 z-[9999] bg-red-900/90 backdrop-blur-sm flex items-center justify-center p-4';
+          div.setAttribute('role', 'alertdialog');
+          div.setAttribute('aria-modal', 'true');
+          div.innerHTML = `
+            <div class="bg-[#1a0a12] border border-red-500/50 rounded-[2rem] p-6 w-full max-w-sm shadow-2xl">
+              <h2 class="text-xl font-display text-white mb-2 flex items-center gap-2">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                DANGEROUS INTERACTION
+              </h2>
+              <p class="text-xs text-red-400 mb-6 font-mono uppercase tracking-widest">Severe Contraindication</p>
+              
+              <div class="bg-red-500/10 p-4 rounded-xl border border-red-500/20 mb-6">
+                <p class="text-sm font-bold text-white mb-2">${interaction.drug1} + ${interaction.drug2}</p>
+                <p class="text-xs text-red-200">${interaction.description}</p>
+                <p class="text-xs text-red-400 mt-2 font-bold">${interaction.recommendation}</p>
+              </div>
+
+              <div class="flex flex-col gap-3">
+                <button id="ddi-cancel" class="w-full py-3.5 rounded-xl bg-red-600 text-white font-bold uppercase text-xs tracking-widest shadow-lg shadow-red-900/20 active:scale-95 transition-transform">Cancel Addition</button>
+                <button id="ddi-override" class="w-full py-3.5 rounded-xl border border-red-500/30 text-red-400 font-bold uppercase text-xs tracking-widest hover:bg-red-500/10 transition-colors">Override & Add Anyway</button>
+              </div>
+            </div>
+          `;
+          document.body.appendChild(div);
+
+          div.querySelector('#ddi-cancel').onclick = () => {
+              window.medcareAlertLock = false;
+              div.remove();
+              resolve(false);
+          };
+          div.querySelector('#ddi-override').onclick = () => {
+              window.medcareAlertLock = false;
+              div.remove();
+              resolve(true);
+          };
+      });
   }
 
   destroy() {
     if (this.animFrameId) cancelAnimationFrame(this.animFrameId);
     if (this.stream) this.stream.getTracks().forEach(t => t.stop());
+    if (this._visibilityHandler) document.removeEventListener('visibilitychange', this._visibilityHandler);
+    if (this.pipeline) this.pipeline.clearMemory();
   }
 }

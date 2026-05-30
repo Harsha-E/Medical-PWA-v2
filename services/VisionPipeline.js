@@ -55,166 +55,68 @@
     `;
 
     export default class VisionPipeline {
-    constructor() {
-        this.isReady = false;
-        this.isProcessing = false;
-        this.temporalBuffer = [];
-        this.worker = null;
-        this.tessWorker = null;
-        this.canvas = null;
-        this.ctx = null;
+        constructor() {
+            this.isReady = true;
+            this.isProcessing = false;
+            this._worker = new Worker(new URL('../workers/vision.worker.js', import.meta.url), { type: 'module' });
+        }
 
-        this._initWorker();
-        this._initTesseract();
-    }
+        async processFrame(sourceElement, scale = 0.5, isSingleFrame = false) {
+            if (this.isProcessing || !this.isReady) return null;
+            this.isProcessing = true;
 
-    async _initWorker() {
-        const blob = new Blob([PREPROCESS_WORKER_CODE], { type: 'application/javascript' });
-        this.worker = new Worker(URL.createObjectURL(blob));
-    }
+            try {
+                const bitmap = await createImageBitmap(sourceElement);
+                this._worker.postMessage({ type: 'PROCESS_FRAME', bitmap }, [bitmap]);
+                
+                const workerResult = await new Promise((resolve) => {
+                    const handler = (e) => {
+                        if (e.data.type === 'PIPELINE_COMPLETE') {
+                            this._worker.removeEventListener('message', handler);
+                            resolve(e.data.result);
+                        } else if (e.data.type === 'PIPELINE_ERROR') {
+                            this._worker.removeEventListener('message', handler);
+                            resolve({ error: e.data.error });
+                        } else if (e.data.type === 'PIPELINE_STAGE') {
+                            window.dispatchEvent(new CustomEvent('scan:pipeline-stage', { detail: e.data.stage }));
+                        }
+                    };
+                    this._worker.addEventListener('message', handler);
+                });
 
-    async _initTesseract() {
-        if (typeof Tesseract === 'undefined') return;
-        this.tessWorker = await Tesseract.createWorker('eng');
-        this.isReady = true;
-    }
+                this.isProcessing = false;
+                if (!workerResult) return null;
 
-    _preprocessInWorker(imageData, width, height) {
-        return new Promise((resolve) => {
-            this.worker.onmessage = (e) => resolve(e.data.imageData);
-            this.worker.postMessage({ imageData, width, height }, [imageData.data.buffer]);
-        });
-    }
+                if (workerResult.error) {
+                    return { state: 'ERROR', error: workerResult.error };
+                }
 
-    async processFrame(sourceElement, scale = 0.5, isSingleFrame = false) {
-        if (this.isProcessing || !this.isReady) return null;
-        this.isProcessing = true;
-
-        try {
-            const width = Math.floor((sourceElement.videoWidth || sourceElement.width) * scale);
-            const height = Math.floor((sourceElement.videoHeight || sourceElement.height) * scale);
-
-            if (!width || !height) {
+                if (workerResult.confirmedDrugs && workerResult.confirmedDrugs.length > 0) {
+                    return {
+                        state: 'VERIFYING',
+                        bestMatch: workerResult.confirmedDrugs[0],
+                        rawText: workerResult.rawText,
+                        confidence: workerResult.confidence,
+                        unresolvedCandidates: workerResult.unresolvedCandidates,
+                        dosage: workerResult.dosages && workerResult.dosages[0] ? workerResult.dosages[0].value : null,
+                        unit: workerResult.dosages && workerResult.dosages[0] ? workerResult.dosages[0].unit : null,
+                        quantity: workerResult.quantities && workerResult.quantities[0] ? workerResult.quantities[0].value : null,
+                        croppedBlob: workerResult.croppedBlob,
+                        bbox: null
+                    };
+                } else {
+                    return { state: 'HUNTING', bestMatch: null, confidence: workerResult.confidence, unresolvedCandidates: workerResult.unresolvedCandidates };
+                }
+            } catch (e) {
+                console.error(e);
                 this.isProcessing = false;
                 return null;
             }
-
-            if (!this.canvas || this.canvas.width !== width || this.canvas.height !== height) {
-                if (typeof OffscreenCanvas !== 'undefined') {
-                    this.canvas = new OffscreenCanvas(width, height);
-                } else {
-                    this.canvas = document.createElement('canvas');
-                    this.canvas.width = width;
-                    this.canvas.height = height;
-                }
-                this.ctx = this.canvas.getContext('2d', { willReadFrequently: true });
-            }
-
-            this.ctx.drawImage(sourceElement, 0, 0, width, height);
-            const imgData = this.ctx.getImageData(0, 0, width, height);
-
-            const processedImageData = await this._preprocessInWorker(imgData, width, height);
-            this.ctx.putImageData(processedImageData, 0, 0);
-
-            const result = await this.tessWorker.recognize(this.canvas);
-            
-            const extraction = this.extractMedicineDataTemporal(result.data.words, isSingleFrame);
-            
-            if (extraction && extraction.bbox) {
-                extraction.bbox = {
-                    x0: extraction.bbox.x0 / scale,
-                    y0: extraction.bbox.y0 / scale,
-                    x1: extraction.bbox.x1 / scale,
-                    y1: extraction.bbox.y1 / scale
-                };
-            }
-
-            this.isProcessing = false;
-            return extraction;
-        } catch (e) {
-            console.error(e);
-            this.isProcessing = false;
-            return null;
-        }
-    }
-
-    extractMedicineDataTemporal(newWords, isSingleFrame = false) {
-        const now = Date.now();
-        const validWords = newWords.filter(w => w.confidence > 70 && w.text.trim().length >= 3);
-        
-        if (isSingleFrame) {
-            const corpus = validWords.map(w=>w.text).join(' ');
-            const matches = fuzzySearchDrugs(corpus, INDIAN_DRUG_DATASET, 0.70);
-            if (matches.length > 0) {
-                return {
-                    state: 'VERIFYING',
-                    bestMatch: matches[0].drug,
-                    score: matches[0].score,
-                    bbox: validWords.length > 0 ? validWords[0].bbox : null
-                };
-            }
-            return { state: 'HUNTING', bestMatch: null };
         }
 
-        this.temporalBuffer.push({ time: now, words: validWords });
-        this.temporalBuffer = this.temporalBuffer.filter(f => now - f.time <= 2000);
-        
-        if (this.temporalBuffer.length === 0) return { state: 'HUNTING', bestMatch: null };
-
-        const latestMatches = fuzzySearchDrugs(this.temporalBuffer[this.temporalBuffer.length-1].words.map(w=>w.text).join(' '), INDIAN_DRUG_DATASET, 0.70);
-        
-        if (latestMatches.length > 0) {
-            const candidate = latestMatches[0];
-            
-            let consecutiveCount = 0;
-            let avgScore = 0;
-            for (let i = this.temporalBuffer.length - 1; i >= 0; i--) {
-                const frameCorpus = this.temporalBuffer[i].words.map(w=>w.text).join(' ');
-                const m = fuzzySearchDrugs(frameCorpus, INDIAN_DRUG_DATASET, 0.70);
-                const found = m.find(x => x.drug.name === candidate.drug.name);
-                if (found) {
-                    consecutiveCount++;
-                    avgScore += found.score;
-                } else {
-                    break;
-                }
-            }
-
-            if (consecutiveCount >= 5) {
-                const candidateParts = candidate.drug.name.toLowerCase().split(' ');
-                let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-                let foundBox = false;
-
-                this.temporalBuffer[this.temporalBuffer.length-1].words.forEach(w => {
-                    const wText = w.text.toLowerCase();
-                    if (candidateParts.some(part => wText.includes(part) || part.includes(wText))) {
-                        minX = Math.min(minX, w.bbox.x0);
-                        minY = Math.min(minY, w.bbox.y0);
-                        maxX = Math.max(maxX, w.bbox.x1);
-                        maxY = Math.max(maxY, w.bbox.y1);
-                        foundBox = true;
-                    }
-                });
-
-                return { 
-                    state: 'VERIFYING',
-                    bestMatch: candidate.drug, 
-                    score: avgScore / consecutiveCount,
-                    bbox: foundBox ? { x0: minX, y0: minY, x1: maxX, y1: maxY } : null
-                };
-            } else {
-                return {
-                    state: 'LOCKING',
-                    partialMatch: candidate.drug,
-                    consecutiveFrames: consecutiveCount
-                };
+        clearMemory() {
+            if (this._worker) {
+                this._worker.postMessage({ type: 'CLEAR_MEMORY' });
             }
         }
-
-        return { state: 'HUNTING', bestMatch: null };
-    }
-
-    clearMemory() {
-        this.temporalBuffer = [];
-    }
     }

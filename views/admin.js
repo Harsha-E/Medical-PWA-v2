@@ -33,7 +33,7 @@ export default class AdminView {
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         </button>
         <div class="flex flex-col items-center">
-          <span class="text-[10px] text-muted uppercase tracking-widest leading-none">Super-User Console</span>
+          <span class="text-xs text-muted uppercase tracking-widest leading-none">Super-User Console</span>
           <h1 class="text-lg font-display mt-1 leading-none">Admin Portal</h1>
         </div>
         <div style="width:44px"></div>
@@ -42,17 +42,17 @@ export default class AdminView {
       <main class="scroll-area px-6 pt-28 pb-12">
         <div class="grid grid-cols-2 gap-4 mb-10">
           <div class="glass-panel p-5">
-            <span class="text-[10px] font-bold text-muted uppercase tracking-widest block mb-2">Total Users</span>
+            <span class="text-xs font-bold text-muted uppercase tracking-widest block mb-2">Total Users</span>
             <p class="text-3xl font-display text-primary" id="user-count">...</p>
           </div>
           <div class="glass-panel p-5">
-            <span class="text-[10px] font-bold text-muted uppercase tracking-widest block mb-2">Medications</span>
+            <span class="text-xs font-bold text-muted uppercase tracking-widest block mb-2">Medications</span>
             <p class="text-3xl font-display text-blue-500" id="med-count">...</p>
           </div>
         </div>
 
         <section>
-          <h2 class="text-[10px] text-muted font-bold mb-6 tracking-[0.2em] px-1 uppercase">User Registry</h2>
+          <h2 class="text-xs text-muted font-bold mb-6 tracking-[0.2em] px-1 uppercase">User Registry</h2>
           <div id="user-list" class="space-y-4">
             <p class="text-xs text-muted italic">Loading...</p>
           </div>
@@ -85,9 +85,9 @@ export default class AdminView {
           <div class="glass-panel p-4 flex justify-between items-center bg-white">
             <div>
               <p class="font-bold text-sm leading-none">${u.name || 'Unknown'}</p>
-              <p class="text-[10px] text-muted mt-1 uppercase tracking-tighter">${u.email || ''}</p>
+              <p class="text-xs text-muted mt-1 uppercase tracking-tighter">${u.email || ''}</p>
             </div>
-            <span class="text-[9px] font-bold px-2 py-1 bg-primary/10 text-primary rounded-lg uppercase tracking-widest">${u.role || 'user'}</span>
+            <span class="text-xs font-bold px-2 py-1 bg-primary/10 text-primary rounded-lg uppercase tracking-widest">${u.role || 'user'}</span>
           </div>`;
       }).join('');
     } catch (e) {

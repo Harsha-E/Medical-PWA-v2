@@ -50,7 +50,7 @@ export default class InteractionCheckerView {
           </header>
 
           <section class="bg-[#1a0a12]/80 backdrop-blur-md border border-[#7f2f5d]/40 rounded-3xl p-5 mb-8 shadow-xl">
-            <span class="text-[9px] font-mono tracking-widest uppercase text-[#ffb88c] block mb-1">Pre-purchase Screener</span>
+            <span class="text-xs font-mono tracking-widest uppercase text-[#ffb88c] block mb-1">Pre-purchase Screener</span>
             <h3 class="text-sm font-bold text-white mb-3">Test an Over-the-Counter Drug</h3>
             <p class="text-xs text-gray-400 mb-4 leading-relaxed">Type any drug name to check for severe compliance issues with your ongoing treatment path before administering it.</p>
             
@@ -87,7 +87,7 @@ export default class InteractionCheckerView {
             ` : ''}
 
             <section class="mt-8 pt-6 border-t border-[#7f2f5d]/20">
-              <h4 class="text-[10px] font-mono tracking-widest text-gray-500 uppercase mb-3">Evaluated Pharmacy Track</h4>
+              <h4 class="text-xs font-mono tracking-widest text-gray-500 uppercase mb-3">Evaluated Pharmacy Track</h4>
               <div class="flex flex-wrap gap-2">
                 ${evaluationList.map(drug => `
                   <span class="px-3 py-1.5 rounded-xl bg-[#1a0a12] border border-[#7f2f5d]/20 font-mono text-xs text-gray-400">
@@ -121,24 +121,50 @@ export default class InteractionCheckerView {
 
     return `
       <section>
-        <h2 class="text-[10px] font-mono tracking-[0.2em] uppercase text-gray-400 mb-3 px-1">${title}</h2>
+        <h2 class="text-xs font-mono tracking-[0.2em] uppercase text-gray-400 mb-3 px-1">${title}</h2>
         <div class="space-y-3">
-          ${matches.map(item => `
-            <div class="border rounded-2xl p-4 shadow-md transition-all ${styleClasses}">
-              <div class="flex justify-between items-center mb-2">
-                <span class="text-[9px] font-mono uppercase tracking-widest font-bold px-2 py-0.5 rounded bg-black/40 border border-white/5">
+          ${matches.map(item => {
+            const mechText = (item.details?.mechanism || '').toLowerCase();
+            const isPK = /cyp|metabolism|clearance|absorption|transport|excretion|efflux|accumulation/i.test(mechText);
+            const isPD = /synergistic|additive|receptor|agonist|antagonist|inhibition of/i.test(mechText);
+            const mechType = isPK ? 'PK (Pharmacokinetic)' : isPD ? 'PD (Pharmacodynamic)' : 'Clinical';
+            
+            const isSevere = item.severity === 'severe';
+
+            return `
+            <div class="border rounded-2xl p-4 shadow-md transition-all relative overflow-hidden ${styleClasses}">
+              ${isSevere ? `
+              <!-- 3D Molecule Overlap Warning Visual -->
+              <div class="absolute right-0 top-0 opacity-20 pointer-events-none" style="transform: perspective(400px) rotateY(-20deg) rotateX(10deg) scale(1.2);">
+                <svg width="120" height="120" viewBox="0 0 100 100">
+                  <circle cx="30" cy="50" r="15" fill="none" stroke="currentColor" stroke-width="2" class="animate-pulse" />
+                  <circle cx="70" cy="50" r="15" fill="none" stroke="currentColor" stroke-width="2" style="animation: pulse 2s infinite 0.5s;" />
+                  <path d="M 45 50 L 55 50" stroke="currentColor" stroke-width="4" stroke-dasharray="2,2" class="animate-ping" />
+                  <circle cx="50" cy="50" r="5" fill="currentColor" />
+                </svg>
+              </div>
+              ` : ''}
+              
+              <div class="flex justify-between items-center mb-2 relative z-10">
+                <span class="text-xs font-mono uppercase tracking-widest font-bold px-2 py-0.5 rounded bg-black/40 border border-white/5">
                   ${label}
                 </span>
-                <span class="text-[10px] font-mono text-gray-400">Conflict Point</span>
+                <span class="text-xs font-mono text-[#ffb88c] border border-[#ffb88c]/30 px-2 py-0.5 rounded uppercase tracking-widest bg-[#ca5229]/10">
+                  ${mechType}
+                </span>
               </div>
-              <h4 class="text-sm font-bold text-white mb-1">${item.drug1} <span class="text-xs text-gray-400 font-normal">cross-linked with</span> ${item.drug2}</h4>
-              <p class="text-xs opacity-90 leading-relaxed mb-3">${item.description}</p>
-              <div class="pt-3 border-t border-white/5 flex gap-2 items-start">
-                <span class="text-[10px] font-mono text-[#ffb88c] uppercase tracking-widest shrink-0 mt-0.5">Protocol:</span>
-                <p class="text-xs text-gray-300 italic leading-relaxed">${item.recommendation}</p>
+              
+              <div class="relative z-10">
+                <h4 class="text-sm font-bold text-white mb-1">${item.drug1} <span class="text-xs text-gray-400 font-normal">cross-linked with</span> ${item.drug2}</h4>
+                <p class="text-xs opacity-90 leading-relaxed mb-3">${item.details?.mechanism || item.description}</p>
+                <div class="pt-3 border-t border-white/5 flex gap-2 items-start">
+                  <span class="text-xs font-mono text-inherit opacity-70 uppercase tracking-widest shrink-0 mt-0.5">Protocol:</span>
+                  <p class="text-xs text-gray-300 italic leading-relaxed">${item.recommendation}</p>
+                </div>
               </div>
             </div>
-          `).join('')}
+            `;
+          }).join('')}
         </div>
       </section>
     `;

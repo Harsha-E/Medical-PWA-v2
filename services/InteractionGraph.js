@@ -70,7 +70,6 @@ class InteractionGraph {
       }
 
       this._isReady = true;
-      console.log(`[InteractionGraph] Hydrated with ${this._graph.size} active nodes.`);
       return true;
 
     } catch (error) {
@@ -150,12 +149,13 @@ class InteractionGraph {
 
     const normalized = drugList.map((drug) =>
       typeof drug === 'string'
-        ? { key: this._normalize(drug), label: drug }
-        : { key: this._normalize(drug.genericName || drug.name), label: drug.name || drug.genericName }
+        ? { key: this._normalize(drug), label: drug, date: null }
+        : { key: this._normalize(drug.genericName || drug.name || drug.title), label: drug.name || drug.genericName || drug.title, date: drug.date || null }
     );
     
     const seen = new Set();
     const interactions = [];
+    const now = Date.now();
 
     // O(N^2) comparison for small arrays (typically < 10 medications)
     for (let i = 0; i < normalized.length; i++) {
@@ -168,10 +168,29 @@ class InteractionGraph {
         if (seen.has(pairKey)) continue;
         
         seen.add(pairKey);
+
+        // TEMPORAL DECAY LOGIC
+        let finalSeverity = interaction.severity;
+        const d1 = normalized[i].date ? new Date(normalized[i].date).getTime() : now;
+        const d2 = normalized[j].date ? new Date(normalized[j].date).getTime() : now;
+        const oldestDate = Math.min(d1, d2);
+        
+        if (oldestDate < now) {
+            const daysOld = Math.floor((now - oldestDate) / (1000 * 3600 * 24));
+            if (daysOld > 14) {
+                if (finalSeverity === 'severe') finalSeverity = 'moderate';
+                else if (finalSeverity === 'moderate') finalSeverity = 'mild';
+                else finalSeverity = 'safe';
+            }
+        }
+        
+        if (finalSeverity === 'safe') continue;
+
         interactions.push({
           drug1: normalized[i].label,
           drug2: normalized[j].label,
-          severity: interaction.severity,
+          severity: finalSeverity,
+          originalSeverity: interaction.severity,
           description: interaction.description,
           recommendation: interaction.recommendation,
           evidence: interaction.evidence

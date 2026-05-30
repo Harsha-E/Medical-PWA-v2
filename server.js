@@ -46,7 +46,10 @@ const server = http.createServer((req, res) => {
             res.end('Server Error');
             return;
           }
-          res.writeHead(200, { 'Content-Type': 'text/html' });
+          res.writeHead(200, { 
+            'Content-Type': 'text/html',
+            'Cross-Origin-Opener-Policy': 'same-origin-allow-popups'
+          });
           res.end(html);
         });
       } else {
@@ -62,10 +65,8 @@ const server = http.createServer((req, res) => {
       // Allow service worker to work at root scope
       'Service-Worker-Allowed': '/',
       
-      // We have REMOVED:
-      // - Cross-Origin-Opener-Policy
-      // - Cross-Origin-Embedder-Policy
-      // - Cross-Origin-Resource-Policy
+      // Explicitly allow Firebase Auth Popups
+      'Cross-Origin-Opener-Policy': 'same-origin-allow-popups'
     });
     res.end(data);
   });

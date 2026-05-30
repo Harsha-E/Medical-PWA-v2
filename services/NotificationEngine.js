@@ -65,7 +65,6 @@ class NotificationEngine {
     // Schedule midnight reset job to calculate tomorrow's doses
     this._scheduleMidnightReset(medications);
 
-    console.log(`[NotificationEngine] Scheduled ${scheduledCount} doses for today.`);
   }
 
   /**
@@ -155,7 +154,6 @@ class NotificationEngine {
         notification.close();
       };
 
-      console.log(`[NotificationEngine] Fired alarm for ${medication.name}.`);
     } catch (error) {
       console.error('[NotificationEngine] Failed to fire notification:', error);
     }

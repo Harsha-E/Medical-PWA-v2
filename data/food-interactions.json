@@ -1,277 +1,1307 @@
-{
-  "version": "1.0",
-  "lastUpdated": "2026-05-17",
-  "interactions": [
-    {
-      "drug": "warfarin",
-      "food": "grapefruit",
-      "foodCategory": "citrus",
-      "severity": "severe",
-      "mechanism": "Grapefruit compounds inhibit intestinal CYP3A4 metabolism, decreasing clearance of R-warfarin configurations.",
-      "clinicalEffect": "Elevated blood levels of the medicine, increasing the risk of major internal or external bleeding.",
-      "advice": "Do not eat grapefruit or drink grapefruit juice while you are taking this medication.",
-      "timing": "chronic"
-    },
-    {
-      "drug": "warfarin",
-      "food": "spinach",
-      "foodCategory": "leafy-greens",
-      "severity": "moderate",
-      "mechanism": "High exogenous vitamin K intake directly overrides the competitive enzymatic block of vitamin K epoxide reductase.",
-      "clinicalEffect": "Decreased effectiveness of the medicine, making your blood more likely to clot.",
-      "advice": "Keep the amount of green leafy vegetables you eat consistent from week to week. Do not make sudden changes to your diet.",
-      "timing": "chronic"
-    },
-    {
-      "drug": "warfarin",
-      "food": "alcohol",
-      "foodCategory": "alcohol",
-      "severity": "severe",
-      "mechanism": "Acute alcohol ingestion inhibits warfarin metabolism via enzyme suppression; chronic ingestion can induce metabolism.",
-      "clinicalEffect": "Unpredictable fluctuations in blood clotting times, severely raising your risk of serious bleeding.",
-      "advice": "Avoid or strictly limit alcohol use. Binge drinking while taking this medicine is highly dangerous.",
-      "timing": "chronic"
-    },
-    {
-      "drug": "warfarin",
-      "food": "cranberry juice",
-      "foodCategory": "fruit-juice",
-      "severity": "moderate",
-      "mechanism": "Cranberry compounds alter CYP2C9 metabolic profiles, altering normal S-warfarin clearance rates.",
-      "clinicalEffect": "Increased thinning of the blood, leading to easier bruising and unexpected bleeding.",
-      "advice": "Avoid drinking large quantities of cranberry juice or taking cranberry supplements while on this medicine.",
-      "timing": "chronic"
-    },
-    {
-      "drug": "simvastatin",
-      "food": "grapefruit",
-      "foodCategory": "citrus",
-      "severity": "severe",
-      "mechanism": "Potent inhibition of intestinal CYP3A4 prevents statin extraction, multiplying systemic concentrations.",
-      "clinicalEffect": "Dangerously high medicine levels in your body, which can cause severe muscle breakdown and kidney damage.",
-      "advice": "Do not consume grapefruit or grapefruit juice at any time while you are using this medication.",
-      "timing": "chronic"
-    },
-    {
-      "drug": "atorvastatin",
-      "food": "grapefruit",
-      "foodCategory": "citrus",
-      "severity": "moderate",
-      "mechanism": "Moderate inhibition of CYP3A4 increases systemic exposure vectors of the active parent drug profile.",
-      "clinicalEffect": "Increased risk of statin side effects, such as persistent muscle weakness, aches, or liver irritation.",
-      "advice": "Avoid drinking large amounts of grapefruit juice (more than one quart a day) while taking this medicine.",
-      "timing": "chronic"
-    },
-    {
-      "drug": "simvastatin",
-      "food": "spirits",
-      "foodCategory": "alcohol",
-      "severity": "moderate",
-      "mechanism": "Concurrent hepatotoxic pathways accelerate liver stress and lower the threshold for skeletal muscle cell damage.",
-      "clinicalEffect": "Increased risk of liver irritation, abnormal liver enzyme tests, or serious muscle pain.",
-      "advice": "Avoid heavy or regular drinking while taking this statin. Discuss your alcohol intake with your doctor.",
-      "timing": "chronic"
-    },
-    {
-      "drug": "atorvastatin",
-      "food": "wine",
-      "foodCategory": "alcohol",
-      "severity": "moderate",
-      "mechanism": "Additive hepatic metabolic stress triggers structural adjustments to lipid extraction processing cells.",
-      "clinicalEffect": "Elevated baseline liver strain and potential for developing drug-related muscle aches.",
-      "advice": "Do not drink large amounts of alcohol while taking this medicine. Limit daily intake to standard, moderate amounts.",
-      "timing": "chronic"
-    },
-    {
-      "drug": "levothyroxine",
-      "food": "coffee",
-      "foodCategory": "caffeine",
-      "severity": "moderate",
-      "mechanism": "Coffee compounds adsorb thyroxine molecules directly within the intestinal tract, preventing systemic transport.",
-      "clinicalEffect": "Reduced absorption of the thyroid hormone, causing your thyroid levels to drop too low.",
-      "advice": "Take your thyroid pill on an empty stomach with a full glass of plain water. Wait at least 30 to 60 minutes before drinking coffee or tea.",
-      "timing": "fasting"
-    },
-    {
-      "drug": "levothyroxine",
-      "food": "milk",
-      "foodCategory": "dairy",
-      "severity": "moderate",
-      "mechanism": "Free calcium ions form non-absorbable chemical complexes with thyroxine molecules in non-acidic conditions.",
-      "clinicalEffect": "Lowered thyroid hormone uptake, leading to symptoms of an underactive thyroid like fatigue or cold sensitivity.",
-      "advice": "Do not consume dairy products, calcium supplements, or antacids within 4 hours of taking your thyroid medication.",
-      "timing": "separation"
-    },
-    {
-      "drug": "levothyroxine",
-      "food": "high-fiber foods",
-      "foodCategory": "fiber",
-      "severity": "moderate",
-      "mechanism": "Dietary fiber non-specifically binds thyroxine molecules inside the digestive loop, evacuating them prematurely.",
-      "clinicalEffect": "Inconsistent absorption of your medication, leading to unstable thyroid test results.",
-      "advice": "Maintain a consistent amount of fiber in your daily diet, and try to separate high-fiber meals from your medicine time by a few hours.",
-      "timing": "chronic"
-    },
-    {
-      "drug": "ciprofloxacin",
-      "food": "yogurt",
-      "foodCategory": "dairy",
-      "severity": "moderate",
-      "mechanism": "Polyvalent calcium cations chelate the fluoroquinolone structure, completely halting gut membrane transport.",
-      "clinicalEffect": "The antibiotic will not be absorbed properly, which can cause your infection treatment to fail.",
-      "advice": "Do not take this medicine at the same time as dairy products like milk, cheese, or yogurt. Take it 2 hours before or 6 hours after dairy meals.",
-      "timing": "separation"
-    },
-    {
-      "drug": "ciprofloxacin",
-      "food": "energy drinks",
-      "foodCategory": "caffeine",
-      "severity": "moderate",
-      "mechanism": "Inhibition of hepatic CYP1A2 blocks normal caffeine clearance loops, extending its central nervous system half-life.",
-      "clinicalEffect": "Exaggerated caffeine effects, leading to severe jitters, extreme anxiety, sleep problems, and a racing heart.",
-      "advice": "Limit your consumption of coffee, tea, cola, and energy drinks while you are taking this antibiotic.",
-      "timing": "chronic"
-    },
-    {
-      "drug": "metformin",
-      "food": "beer",
-      "foodCategory": "alcohol",
-      "severity": "severe",
-      "mechanism": "Alcohol intensifies metformin's restriction of hepatic gluconeogenesis and oxidation, promoting lactate buildup.",
-      "clinicalEffect": "Increased risk of lactic acidosis, a rare but highly dangerous buildup of acid in your bloodstream.",
-      "advice": "Avoid drinking a lot of alcohol while on this medicine. Do not engage in heavy or binge drinking sessions.",
-      "timing": "chronic"
-    },
-    {
-      "drug": "monoamine oxidase inhibitors",
-      "food": "aged cheese",
-      "foodCategory": "tyramine-rich",
-      "severity": "severe",
-      "mechanism": "Inhibition of gastrointestinal monoamine oxidase allows dietary tyramine to bypass degradation and displace structural norepinephrine.",
-      "clinicalEffect": "A sudden, dangerous spike in blood pressure that can lead to severe headaches, chest pain, or a stroke.",
-      "advice": "Strictly avoid aged cheeses, cured meats, soy sauce, fava beans, and tap beers. Eat only fresh, non-fermented foods.",
-      "timing": "chronic"
-    },
-    {
-      "drug": "iron supplements",
-      "food": "tea",
-      "foodCategory": "caffeine",
-      "severity": "moderate",
-      "mechanism": "Tannins and polyphenolic structures in tea leaves bind to iron molecules, generating non-soluble matrix blocks.",
-      "clinicalEffect": "Your body cannot absorb the iron, making the supplement ineffective at treating anemia.",
-      "advice": "Do not drink tea within 2 hours before or after taking your iron supplement.",
-      "timing": "separation"
-    },
-    {
-      "drug": "iron supplements",
-      "food": "coffee",
-      "foodCategory": "caffeine",
-      "severity": "moderate",
-      "mechanism": "Chlorogenic acids and volatile components inside coffee restrict proper non-heme iron structural processing.",
-      "clinicalEffect": "Significantly lowered iron absorption, delaying your recovery from iron deficiency.",
-      "advice": "Avoid drinking coffee for at least 2 hours before or after taking your iron pill.",
-      "timing": "separation"
-    },
-    {
-      "drug": "iron supplements",
-      "food": "cheese",
-      "foodCategory": "dairy",
-      "severity": "moderate",
-      "mechanism": "Calcium ions compete directly with iron for divalent metal transporters along the upper intestinal border.",
-      "clinicalEffect": "Reduced iron supplement absorption because the calcium blocks its entry pathway.",
-      "advice": "Do not take your iron pill at the same time you consume dairy products or calcium-fortified foods.",
-      "timing": "separation"
-    },
-    {
-      "drug": "alendronate",
-      "food": "milk",
-      "foodCategory": "dairy",
-      "severity": "severe",
-      "mechanism": "Virtually any mineral ions, food solids, or caloric beverages completely negate bisphosphonate transit dynamics.",
-      "clinicalEffect": "The drug will not enter your system at all, providing zero protection for your bone density.",
-      "advice": "Take this pill first thing in the morning with a full glass of plain water on a completely empty stomach. Do not eat or drink anything else for at least 30 minutes.",
-      "timing": "fasting"
-    },
-    {
-      "drug": "digoxin",
-      "food": "high-fiber foods",
-      "foodCategory": "fiber",
-      "severity": "moderate",
-      "mechanism": "Insoluble dietary fiber non-specifically traps digitalis glycoside crystals, dragging them into elimination paths.",
-      "clinicalEffect": "Lower amounts of the medicine reach your heart, reducing its ability to control abnormal rhythms or heart failure.",
-      "advice": "Avoid eating high-fiber meals or fiber supplements at the exact same time as your digoxin dose.",
-      "timing": "separation"
-    },
-    {
-      "drug": "digoxin",
-      "food": "aged cheese",
-      "foodCategory": "tyramine-rich",
-      "severity": "severe",
-      "mechanism": "Glycyrrhizin configurations alter renal potassium clearing axes, exacerbating digitalis myocardial cell binding thresholds.",
-      "clinicalEffect": "Dangerous drops in your potassium levels, which can trigger severe and potentially fatal irregular heartbeats.",
-      "advice": "Avoid real black licorice, licorice candy, or licorice root extracts while you are taking digoxin.",
-      "timing": "chronic"
-    },
-    {
-      "drug": "lisinopril",
-      "food": "cured meats",
-      "foodCategory": "tyramine-rich",
-      "severity": "moderate",
-      "mechanism": "ACE restriction blocks aldosterone release, trapping potassium. Adding potassium chloride creates severe blood saturation.",
-      "clinicalEffect": "A dangerous buildup of potassium in your blood, which can disrupt your heart rhythm.",
-      "advice": "Do not use salt substitutes that contain potassium chloride while taking this blood pressure medication.",
-      "timing": "chronic"
-    },
-    {
-      "drug": "sertraline",
-      "food": "wine",
-      "foodCategory": "alcohol",
-      "severity": "moderate",
-      "mechanism": "Additive central nervous depression cascades within cerebral structures from combining SSRIs with ethanol molecules.",
-      "clinicalEffect": "Enhanced drowsiness, severe dizziness, lack of coordination, and slowed mental processing.",
-      "advice": "Avoid or limit alcohol consumption while using this antidepressant medication.",
-      "timing": "chronic"
-    },
-    {
-      "drug": "fluoxetine",
-      "food": "spirits",
-      "foodCategory": "alcohol",
-      "severity": "moderate",
-      "mechanism": "Potentiation of sedative properties via overlapping neurotransmitter damping profiles.",
-      "clinicalEffect": "Extreme sleepiness, delayed reaction times, and an increased risk of accidents or falls.",
-      "advice": "Drinking alcohol is not recommended while taking this medicine due to increased sedation risks.",
-      "timing": "chronic"
-    },
-    {
-      "drug": "alprazolam",
-      "food": "beer",
-      "foodCategory": "alcohol",
-      "severity": "severe",
-      "mechanism": "Synergistic, non-linear amplification of GABA-A receptor hyperpolarization, crippling motor and autonomic brain nodes.",
-      "clinicalEffect": "Severe sedation, dangerously slowed or shallow breathing, unconsciousness, and potentially fatal overdose.",
-      "advice": "Do not drink alcohol at all while taking this medication. The combination is highly dangerous and can be life-threatening.",
-      "timing": "chronic"
-    },
-    {
-      "drug": "doxycycline",
-      "food": "milk",
-      "foodCategory": "dairy",
-      "severity": "moderate",
-      "mechanism": "Calcium molecules bind directly to the tetracycline core structure, rendering it completely insoluble in gastric fluids.",
-      "clinicalEffect": "Reduced absorption of the antibiotic, leaving your body unable to effectively fight off the infection.",
-      "advice": "Do not take this antibiotic with milk, cheese, or yogurt. Take it 1 hour before or 2 hours after consuming dairy items.",
-      "timing": "separation"
-    }
-  ],
-  "foodCategories": {
-    "citrus": ["grapefruit", "pomelo", "seville orange"],
-    "dairy": ["milk", "cheese", "yogurt", "calcium-fortified foods"],
-    "leafy-greens": ["spinach", "kale", "broccoli", "brussels sprouts"],
-    "alcohol": ["beer", "wine", "spirits"],
-    "caffeine": ["coffee", "tea", "cola", "energy drinks"],
-    "tyramine-rich": ["aged cheese", "cured meats", "soy sauce", "red wine", "beer"],
-    "fruit-juice": ["cranberry juice", "pomegranate juice"],
-    "fiber": ["whole grains", "bran oats", "high-fiber cereals"],
-    "fiber": ["high-fiber meals", "oat bran", "psyllium supplements"]
+[
+  {
+    "drugId": "atorvastatin",
+    "food": "Grapefruit",
+    "mechanism": "CYP3A4 inhibition",
+    "severity": "MAJOR",
+    "effect": "Myopathy and rhabdomyolysis",
+    "management": "Avoid grapefruit",
+    "indianContext": false
+  },
+  {
+    "drugId": "rosuvastatin",
+    "food": "Grapefruit",
+    "mechanism": "CYP3A4 inhibition",
+    "severity": "MAJOR",
+    "effect": "Myopathy and rhabdomyolysis",
+    "management": "Avoid grapefruit",
+    "indianContext": false
+  },
+  {
+    "drugId": "simvastatin",
+    "food": "Grapefruit",
+    "mechanism": "CYP3A4 inhibition",
+    "severity": "MAJOR",
+    "effect": "Myopathy and rhabdomyolysis",
+    "management": "Avoid grapefruit",
+    "indianContext": false
+  },
+  {
+    "drugId": "pravastatin",
+    "food": "Grapefruit",
+    "mechanism": "CYP3A4 inhibition",
+    "severity": "MAJOR",
+    "effect": "Myopathy and rhabdomyolysis",
+    "management": "Avoid grapefruit",
+    "indianContext": false
+  },
+  {
+    "drugId": "amlodipine",
+    "food": "Grapefruit",
+    "mechanism": "CYP3A4 inhibition",
+    "severity": "MODERATE",
+    "effect": "Hypotension",
+    "management": "Limit grapefruit",
+    "indianContext": false
+  },
+  {
+    "drugId": "nifedipine",
+    "food": "Grapefruit",
+    "mechanism": "CYP3A4 inhibition",
+    "severity": "MODERATE",
+    "effect": "Hypotension",
+    "management": "Limit grapefruit",
+    "indianContext": false
+  },
+  {
+    "drugId": "cilnidipine",
+    "food": "Grapefruit",
+    "mechanism": "CYP3A4 inhibition",
+    "severity": "MODERATE",
+    "effect": "Hypotension",
+    "management": "Limit grapefruit",
+    "indianContext": false
+  },
+  {
+    "drugId": "lercanidipine",
+    "food": "Grapefruit",
+    "mechanism": "CYP3A4 inhibition",
+    "severity": "MODERATE",
+    "effect": "Hypotension",
+    "management": "Limit grapefruit",
+    "indianContext": false
+  },
+  {
+    "drugId": "diltiazem",
+    "food": "Grapefruit",
+    "mechanism": "CYP3A4 inhibition",
+    "severity": "MODERATE",
+    "effect": "Hypotension",
+    "management": "Limit grapefruit",
+    "indianContext": false
+  },
+  {
+    "drugId": "verapamil",
+    "food": "Grapefruit",
+    "mechanism": "CYP3A4 inhibition",
+    "severity": "MODERATE",
+    "effect": "Hypotension",
+    "management": "Limit grapefruit",
+    "indianContext": false
+  },
+  {
+    "drugId": "doxycycline",
+    "food": "Dairy Products",
+    "mechanism": "Chelation by calcium",
+    "severity": "MAJOR",
+    "effect": "Reduced absorption",
+    "management": "Separate by 2 hours",
+    "indianContext": false
+  },
+  {
+    "drugId": "minocycline",
+    "food": "Dairy Products",
+    "mechanism": "Chelation by calcium",
+    "severity": "MAJOR",
+    "effect": "Reduced absorption",
+    "management": "Separate by 2 hours",
+    "indianContext": false
+  },
+  {
+    "drugId": "ciprofloxacin",
+    "food": "Dairy Products",
+    "mechanism": "Chelation by calcium",
+    "severity": "MAJOR",
+    "effect": "Reduced absorption",
+    "management": "Separate by 2 hours",
+    "indianContext": false
+  },
+  {
+    "drugId": "levofloxacin",
+    "food": "Dairy Products",
+    "mechanism": "Chelation by calcium",
+    "severity": "MAJOR",
+    "effect": "Reduced absorption",
+    "management": "Separate by 2 hours",
+    "indianContext": false
+  },
+  {
+    "drugId": "ofloxacin",
+    "food": "Dairy Products",
+    "mechanism": "Chelation by calcium",
+    "severity": "MAJOR",
+    "effect": "Reduced absorption",
+    "management": "Separate by 2 hours",
+    "indianContext": false
+  },
+  {
+    "drugId": "norfloxacin",
+    "food": "Dairy Products",
+    "mechanism": "Chelation by calcium",
+    "severity": "MAJOR",
+    "effect": "Reduced absorption",
+    "management": "Separate by 2 hours",
+    "indianContext": false
+  },
+  {
+    "drugId": "clonazepam",
+    "food": "Alcohol",
+    "mechanism": "Additive CNS depression",
+    "severity": "MAJOR",
+    "effect": "Severe sedation, coma",
+    "management": "Do not drink alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "alprazolam",
+    "food": "Alcohol",
+    "mechanism": "Additive CNS depression",
+    "severity": "MAJOR",
+    "effect": "Severe sedation, coma",
+    "management": "Do not drink alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "lorazepam",
+    "food": "Alcohol",
+    "mechanism": "Additive CNS depression",
+    "severity": "MAJOR",
+    "effect": "Severe sedation, coma",
+    "management": "Do not drink alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "diazepam",
+    "food": "Alcohol",
+    "mechanism": "Additive CNS depression",
+    "severity": "MAJOR",
+    "effect": "Severe sedation, coma",
+    "management": "Do not drink alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "metformin",
+    "food": "Alcohol",
+    "mechanism": "Lactic acidosis risk",
+    "severity": "MAJOR",
+    "effect": "Lactic acidosis",
+    "management": "Avoid binge drinking",
+    "indianContext": false
+  },
+  {
+    "drugId": "warfarin",
+    "food": "Leafy Greens (Spinach)",
+    "mechanism": "Vitamin K antagonism",
+    "severity": "MODERATE",
+    "effect": "Reduced efficacy",
+    "management": "Maintain consistent intake",
+    "indianContext": false
+  },
+  {
+    "drugId": "rivaroxaban",
+    "food": "Leafy Greens (Spinach)",
+    "mechanism": "Vitamin K antagonism",
+    "severity": "MODERATE",
+    "effect": "Reduced efficacy",
+    "management": "Maintain consistent intake",
+    "indianContext": false
+  },
+  {
+    "drugId": "apixaban",
+    "food": "Leafy Greens (Spinach)",
+    "mechanism": "Vitamin K antagonism",
+    "severity": "MODERATE",
+    "effect": "Reduced efficacy",
+    "management": "Maintain consistent intake",
+    "indianContext": false
+  },
+  {
+    "drugId": "dabigatran",
+    "food": "Leafy Greens (Spinach)",
+    "mechanism": "Vitamin K antagonism",
+    "severity": "MODERATE",
+    "effect": "Reduced efficacy",
+    "management": "Maintain consistent intake",
+    "indianContext": false
+  },
+  {
+    "drugId": "heparin",
+    "food": "Leafy Greens (Spinach)",
+    "mechanism": "Vitamin K antagonism",
+    "severity": "MODERATE",
+    "effect": "Reduced efficacy",
+    "management": "Maintain consistent intake",
+    "indianContext": false
+  },
+  {
+    "drugId": "enoxaparin",
+    "food": "Leafy Greens (Spinach)",
+    "mechanism": "Vitamin K antagonism",
+    "severity": "MODERATE",
+    "effect": "Reduced efficacy",
+    "management": "Maintain consistent intake",
+    "indianContext": false
+  },
+  {
+    "drugId": "atorvastatin",
+    "food": "Turmeric (Haldi)",
+    "mechanism": "CYP3A4 / P-gp inhibition by curcumin",
+    "severity": "MODERATE",
+    "effect": "Increased statin levels in blood",
+    "management": "Avoid high-dose curcumin supplements. Dietary amounts are safe.",
+    "indianContext": true
+  },
+  {
+    "drugId": "rosuvastatin",
+    "food": "Turmeric (Haldi)",
+    "mechanism": "CYP3A4 / P-gp inhibition by curcumin",
+    "severity": "MODERATE",
+    "effect": "Increased statin levels in blood",
+    "management": "Avoid high-dose curcumin supplements. Dietary amounts are safe.",
+    "indianContext": true
+  },
+  {
+    "drugId": "simvastatin",
+    "food": "Turmeric (Haldi)",
+    "mechanism": "CYP3A4 / P-gp inhibition by curcumin",
+    "severity": "MODERATE",
+    "effect": "Increased statin levels in blood",
+    "management": "Avoid high-dose curcumin supplements. Dietary amounts are safe.",
+    "indianContext": true
+  },
+  {
+    "drugId": "pravastatin",
+    "food": "Turmeric (Haldi)",
+    "mechanism": "CYP3A4 / P-gp inhibition by curcumin",
+    "severity": "MODERATE",
+    "effect": "Increased statin levels in blood",
+    "management": "Avoid high-dose curcumin supplements. Dietary amounts are safe.",
+    "indianContext": true
+  },
+  {
+    "drugId": "amlodipine",
+    "food": "Turmeric (Haldi)",
+    "mechanism": "CYP3A4 inhibition",
+    "severity": "MODERATE",
+    "effect": "Risk of enhanced hypotension",
+    "management": "Monitor BP if taking curcumin supplements.",
+    "indianContext": true
+  },
+  {
+    "drugId": "nifedipine",
+    "food": "Turmeric (Haldi)",
+    "mechanism": "CYP3A4 inhibition",
+    "severity": "MODERATE",
+    "effect": "Risk of enhanced hypotension",
+    "management": "Monitor BP if taking curcumin supplements.",
+    "indianContext": true
+  },
+  {
+    "drugId": "cilnidipine",
+    "food": "Turmeric (Haldi)",
+    "mechanism": "CYP3A4 inhibition",
+    "severity": "MODERATE",
+    "effect": "Risk of enhanced hypotension",
+    "management": "Monitor BP if taking curcumin supplements.",
+    "indianContext": true
+  },
+  {
+    "drugId": "lercanidipine",
+    "food": "Turmeric (Haldi)",
+    "mechanism": "CYP3A4 inhibition",
+    "severity": "MODERATE",
+    "effect": "Risk of enhanced hypotension",
+    "management": "Monitor BP if taking curcumin supplements.",
+    "indianContext": true
+  },
+  {
+    "drugId": "diltiazem",
+    "food": "Turmeric (Haldi)",
+    "mechanism": "CYP3A4 inhibition",
+    "severity": "MODERATE",
+    "effect": "Risk of enhanced hypotension",
+    "management": "Monitor BP if taking curcumin supplements.",
+    "indianContext": true
+  },
+  {
+    "drugId": "verapamil",
+    "food": "Turmeric (Haldi)",
+    "mechanism": "CYP3A4 inhibition",
+    "severity": "MODERATE",
+    "effect": "Risk of enhanced hypotension",
+    "management": "Monitor BP if taking curcumin supplements.",
+    "indianContext": true
+  },
+  {
+    "drugId": "glimepiride",
+    "food": "Fenugreek (Methi)",
+    "mechanism": "Additive hypoglycemic effect",
+    "severity": "MODERATE",
+    "effect": "Hypoglycemia",
+    "management": "Monitor blood glucose frequently. Adjust drug dose if needed.",
+    "indianContext": true
+  },
+  {
+    "drugId": "gliclazide",
+    "food": "Fenugreek (Methi)",
+    "mechanism": "Additive hypoglycemic effect",
+    "severity": "MODERATE",
+    "effect": "Hypoglycemia",
+    "management": "Monitor blood glucose frequently. Adjust drug dose if needed.",
+    "indianContext": true
+  },
+  {
+    "drugId": "glipizide",
+    "food": "Fenugreek (Methi)",
+    "mechanism": "Additive hypoglycemic effect",
+    "severity": "MODERATE",
+    "effect": "Hypoglycemia",
+    "management": "Monitor blood glucose frequently. Adjust drug dose if needed.",
+    "indianContext": true
+  },
+  {
+    "drugId": "glibenclamide",
+    "food": "Fenugreek (Methi)",
+    "mechanism": "Additive hypoglycemic effect",
+    "severity": "MODERATE",
+    "effect": "Hypoglycemia",
+    "management": "Monitor blood glucose frequently. Adjust drug dose if needed.",
+    "indianContext": true
+  },
+  {
+    "drugId": "metformin",
+    "food": "Fenugreek (Methi)",
+    "mechanism": "Additive hypoglycemic effect",
+    "severity": "MODERATE",
+    "effect": "Hypoglycemia",
+    "management": "Monitor blood glucose frequently.",
+    "indianContext": true
+  },
+  {
+    "drugId": "insulin-glargine",
+    "food": "Fenugreek (Methi)",
+    "mechanism": "Additive hypoglycemic effect",
+    "severity": "MODERATE",
+    "effect": "Hypoglycemia",
+    "management": "Monitor blood glucose frequently.",
+    "indianContext": true
+  },
+  {
+    "drugId": "insulin-aspart",
+    "food": "Fenugreek (Methi)",
+    "mechanism": "Additive hypoglycemic effect",
+    "severity": "MODERATE",
+    "effect": "Hypoglycemia",
+    "management": "Monitor blood glucose frequently.",
+    "indianContext": true
+  },
+  {
+    "drugId": "insulin-lispro",
+    "food": "Fenugreek (Methi)",
+    "mechanism": "Additive hypoglycemic effect",
+    "severity": "MODERATE",
+    "effect": "Hypoglycemia",
+    "management": "Monitor blood glucose frequently.",
+    "indianContext": true
+  },
+  {
+    "drugId": "human-mixtard",
+    "food": "Fenugreek (Methi)",
+    "mechanism": "Additive hypoglycemic effect",
+    "severity": "MODERATE",
+    "effect": "Hypoglycemia",
+    "management": "Monitor blood glucose frequently.",
+    "indianContext": true
+  },
+  {
+    "drugId": "clonazepam",
+    "food": "Ashwagandha",
+    "mechanism": "Synergistic GABAergic activity",
+    "severity": "MODERATE",
+    "effect": "Increased sedation and drowsiness",
+    "management": "Avoid concurrent use to prevent excessive sedation.",
+    "indianContext": true
+  },
+  {
+    "drugId": "alprazolam",
+    "food": "Ashwagandha",
+    "mechanism": "Synergistic GABAergic activity",
+    "severity": "MODERATE",
+    "effect": "Increased sedation and drowsiness",
+    "management": "Avoid concurrent use to prevent excessive sedation.",
+    "indianContext": true
+  },
+  {
+    "drugId": "lorazepam",
+    "food": "Ashwagandha",
+    "mechanism": "Synergistic GABAergic activity",
+    "severity": "MODERATE",
+    "effect": "Increased sedation and drowsiness",
+    "management": "Avoid concurrent use to prevent excessive sedation.",
+    "indianContext": true
+  },
+  {
+    "drugId": "diazepam",
+    "food": "Ashwagandha",
+    "mechanism": "Synergistic GABAergic activity",
+    "severity": "MODERATE",
+    "effect": "Increased sedation and drowsiness",
+    "management": "Avoid concurrent use to prevent excessive sedation.",
+    "indianContext": true
+  },
+  {
+    "drugId": "escitalopram",
+    "food": "Ashwagandha",
+    "mechanism": "Serotonergic potentiation",
+    "severity": "MODERATE",
+    "effect": "Risk of mild serotonin syndrome",
+    "management": "Monitor for tremor, fever, or agitation.",
+    "indianContext": true
+  },
+  {
+    "drugId": "sertraline",
+    "food": "Ashwagandha",
+    "mechanism": "Serotonergic potentiation",
+    "severity": "MODERATE",
+    "effect": "Risk of mild serotonin syndrome",
+    "management": "Monitor for tremor, fever, or agitation.",
+    "indianContext": true
+  },
+  {
+    "drugId": "fluoxetine",
+    "food": "Ashwagandha",
+    "mechanism": "Serotonergic potentiation",
+    "severity": "MODERATE",
+    "effect": "Risk of mild serotonin syndrome",
+    "management": "Monitor for tremor, fever, or agitation.",
+    "indianContext": true
+  },
+  {
+    "drugId": "paroxetine",
+    "food": "Ashwagandha",
+    "mechanism": "Serotonergic potentiation",
+    "severity": "MODERATE",
+    "effect": "Risk of mild serotonin syndrome",
+    "management": "Monitor for tremor, fever, or agitation.",
+    "indianContext": true
+  },
+  {
+    "drugId": "fluvoxamine",
+    "food": "Ashwagandha",
+    "mechanism": "Serotonergic potentiation",
+    "severity": "MODERATE",
+    "effect": "Risk of mild serotonin syndrome",
+    "management": "Monitor for tremor, fever, or agitation.",
+    "indianContext": true
+  },
+  {
+    "drugId": "metformin--glimepiride",
+    "food": "Karela (Bitter Gourd)",
+    "mechanism": "Additive hypoglycemic properties",
+    "severity": "MODERATE",
+    "effect": "Risk of profound hypoglycemia",
+    "management": "Monitor sugar levels if drinking Karela juice daily.",
+    "indianContext": true
+  },
+  {
+    "drugId": "metformin--gliclazide",
+    "food": "Karela (Bitter Gourd)",
+    "mechanism": "Additive hypoglycemic properties",
+    "severity": "MODERATE",
+    "effect": "Risk of profound hypoglycemia",
+    "management": "Monitor sugar levels if drinking Karela juice daily.",
+    "indianContext": true
+  },
+  {
+    "drugId": "metformin--glipizide",
+    "food": "Karela (Bitter Gourd)",
+    "mechanism": "Additive hypoglycemic properties",
+    "severity": "MODERATE",
+    "effect": "Risk of profound hypoglycemia",
+    "management": "Monitor sugar levels if drinking Karela juice daily.",
+    "indianContext": true
+  },
+  {
+    "drugId": "metformin--glibenclamide",
+    "food": "Karela (Bitter Gourd)",
+    "mechanism": "Additive hypoglycemic properties",
+    "severity": "MODERATE",
+    "effect": "Risk of profound hypoglycemia",
+    "management": "Monitor sugar levels if drinking Karela juice daily.",
+    "indianContext": true
+  },
+  {
+    "drugId": "metformin--sitagliptin",
+    "food": "Karela (Bitter Gourd)",
+    "mechanism": "Additive hypoglycemic properties",
+    "severity": "MODERATE",
+    "effect": "Risk of profound hypoglycemia",
+    "management": "Monitor sugar levels if drinking Karela juice daily.",
+    "indianContext": true
+  },
+  {
+    "drugId": "metformin--vildagliptin",
+    "food": "Karela (Bitter Gourd)",
+    "mechanism": "Additive hypoglycemic properties",
+    "severity": "MODERATE",
+    "effect": "Risk of profound hypoglycemia",
+    "management": "Monitor sugar levels if drinking Karela juice daily.",
+    "indianContext": true
+  },
+  {
+    "drugId": "metformin--teneligliptin",
+    "food": "Karela (Bitter Gourd)",
+    "mechanism": "Additive hypoglycemic properties",
+    "severity": "MODERATE",
+    "effect": "Risk of profound hypoglycemia",
+    "management": "Monitor sugar levels if drinking Karela juice daily.",
+    "indianContext": true
+  },
+  {
+    "drugId": "metformin--linagliptin",
+    "food": "Karela (Bitter Gourd)",
+    "mechanism": "Additive hypoglycemic properties",
+    "severity": "MODERATE",
+    "effect": "Risk of profound hypoglycemia",
+    "management": "Monitor sugar levels if drinking Karela juice daily.",
+    "indianContext": true
+  },
+  {
+    "drugId": "metformin--dapagliflozin",
+    "food": "Karela (Bitter Gourd)",
+    "mechanism": "Additive hypoglycemic properties",
+    "severity": "MODERATE",
+    "effect": "Risk of profound hypoglycemia",
+    "management": "Monitor sugar levels if drinking Karela juice daily.",
+    "indianContext": true
+  },
+  {
+    "drugId": "metformin--empagliflozin",
+    "food": "Karela (Bitter Gourd)",
+    "mechanism": "Additive hypoglycemic properties",
+    "severity": "MODERATE",
+    "effect": "Risk of profound hypoglycemia",
+    "management": "Monitor sugar levels if drinking Karela juice daily.",
+    "indianContext": true
+  },
+  {
+    "drugId": "metformin--canagliflozin",
+    "food": "Karela (Bitter Gourd)",
+    "mechanism": "Additive hypoglycemic properties",
+    "severity": "MODERATE",
+    "effect": "Risk of profound hypoglycemia",
+    "management": "Monitor sugar levels if drinking Karela juice daily.",
+    "indianContext": true
+  },
+  {
+    "drugId": "sitagliptin--dapagliflozin",
+    "food": "Karela (Bitter Gourd)",
+    "mechanism": "Additive hypoglycemic properties",
+    "severity": "MODERATE",
+    "effect": "Risk of profound hypoglycemia",
+    "management": "Monitor sugar levels if drinking Karela juice daily.",
+    "indianContext": true
+  },
+  {
+    "drugId": "sitagliptin--empagliflozin",
+    "food": "Karela (Bitter Gourd)",
+    "mechanism": "Additive hypoglycemic properties",
+    "severity": "MODERATE",
+    "effect": "Risk of profound hypoglycemia",
+    "management": "Monitor sugar levels if drinking Karela juice daily.",
+    "indianContext": true
+  },
+  {
+    "drugId": "sitagliptin--canagliflozin",
+    "food": "Karela (Bitter Gourd)",
+    "mechanism": "Additive hypoglycemic properties",
+    "severity": "MODERATE",
+    "effect": "Risk of profound hypoglycemia",
+    "management": "Monitor sugar levels if drinking Karela juice daily.",
+    "indianContext": true
+  },
+  {
+    "drugId": "vildagliptin--dapagliflozin",
+    "food": "Karela (Bitter Gourd)",
+    "mechanism": "Additive hypoglycemic properties",
+    "severity": "MODERATE",
+    "effect": "Risk of profound hypoglycemia",
+    "management": "Monitor sugar levels if drinking Karela juice daily.",
+    "indianContext": true
+  },
+  {
+    "drugId": "vildagliptin--empagliflozin",
+    "food": "Karela (Bitter Gourd)",
+    "mechanism": "Additive hypoglycemic properties",
+    "severity": "MODERATE",
+    "effect": "Risk of profound hypoglycemia",
+    "management": "Monitor sugar levels if drinking Karela juice daily.",
+    "indianContext": true
+  },
+  {
+    "drugId": "vildagliptin--canagliflozin",
+    "food": "Karela (Bitter Gourd)",
+    "mechanism": "Additive hypoglycemic properties",
+    "severity": "MODERATE",
+    "effect": "Risk of profound hypoglycemia",
+    "management": "Monitor sugar levels if drinking Karela juice daily.",
+    "indianContext": true
+  },
+  {
+    "drugId": "teneligliptin--dapagliflozin",
+    "food": "Karela (Bitter Gourd)",
+    "mechanism": "Additive hypoglycemic properties",
+    "severity": "MODERATE",
+    "effect": "Risk of profound hypoglycemia",
+    "management": "Monitor sugar levels if drinking Karela juice daily.",
+    "indianContext": true
+  },
+  {
+    "drugId": "teneligliptin--empagliflozin",
+    "food": "Karela (Bitter Gourd)",
+    "mechanism": "Additive hypoglycemic properties",
+    "severity": "MODERATE",
+    "effect": "Risk of profound hypoglycemia",
+    "management": "Monitor sugar levels if drinking Karela juice daily.",
+    "indianContext": true
+  },
+  {
+    "drugId": "teneligliptin--canagliflozin",
+    "food": "Karela (Bitter Gourd)",
+    "mechanism": "Additive hypoglycemic properties",
+    "severity": "MODERATE",
+    "effect": "Risk of profound hypoglycemia",
+    "management": "Monitor sugar levels if drinking Karela juice daily.",
+    "indianContext": true
+  },
+  {
+    "drugId": "linagliptin--dapagliflozin",
+    "food": "Karela (Bitter Gourd)",
+    "mechanism": "Additive hypoglycemic properties",
+    "severity": "MODERATE",
+    "effect": "Risk of profound hypoglycemia",
+    "management": "Monitor sugar levels if drinking Karela juice daily.",
+    "indianContext": true
+  },
+  {
+    "drugId": "linagliptin--empagliflozin",
+    "food": "Karela (Bitter Gourd)",
+    "mechanism": "Additive hypoglycemic properties",
+    "severity": "MODERATE",
+    "effect": "Risk of profound hypoglycemia",
+    "management": "Monitor sugar levels if drinking Karela juice daily.",
+    "indianContext": true
+  },
+  {
+    "drugId": "linagliptin--canagliflozin",
+    "food": "Karela (Bitter Gourd)",
+    "mechanism": "Additive hypoglycemic properties",
+    "severity": "MODERATE",
+    "effect": "Risk of profound hypoglycemia",
+    "management": "Monitor sugar levels if drinking Karela juice daily.",
+    "indianContext": true
+  },
+  {
+    "drugId": "warfarin",
+    "food": "Garlic (Lasun) Supplements",
+    "mechanism": "Antiplatelet properties of allicin",
+    "severity": "MODERATE",
+    "effect": "Increased bleeding risk",
+    "management": "Avoid garlic supplements. Dietary garlic is generally safe.",
+    "indianContext": true
+  },
+  {
+    "drugId": "rivaroxaban",
+    "food": "Garlic (Lasun) Supplements",
+    "mechanism": "Antiplatelet properties of allicin",
+    "severity": "MODERATE",
+    "effect": "Increased bleeding risk",
+    "management": "Avoid garlic supplements. Dietary garlic is generally safe.",
+    "indianContext": true
+  },
+  {
+    "drugId": "apixaban",
+    "food": "Garlic (Lasun) Supplements",
+    "mechanism": "Antiplatelet properties of allicin",
+    "severity": "MODERATE",
+    "effect": "Increased bleeding risk",
+    "management": "Avoid garlic supplements. Dietary garlic is generally safe.",
+    "indianContext": true
+  },
+  {
+    "drugId": "dabigatran",
+    "food": "Garlic (Lasun) Supplements",
+    "mechanism": "Antiplatelet properties of allicin",
+    "severity": "MODERATE",
+    "effect": "Increased bleeding risk",
+    "management": "Avoid garlic supplements. Dietary garlic is generally safe.",
+    "indianContext": true
+  },
+  {
+    "drugId": "heparin",
+    "food": "Garlic (Lasun) Supplements",
+    "mechanism": "Antiplatelet properties of allicin",
+    "severity": "MODERATE",
+    "effect": "Increased bleeding risk",
+    "management": "Avoid garlic supplements. Dietary garlic is generally safe.",
+    "indianContext": true
+  },
+  {
+    "drugId": "enoxaparin",
+    "food": "Garlic (Lasun) Supplements",
+    "mechanism": "Antiplatelet properties of allicin",
+    "severity": "MODERATE",
+    "effect": "Increased bleeding risk",
+    "management": "Avoid garlic supplements. Dietary garlic is generally safe.",
+    "indianContext": true
+  },
+  {
+    "drugId": "ibuprofen",
+    "food": "Alcohol",
+    "mechanism": "Gastric mucosal irritation",
+    "severity": "MODERATE",
+    "effect": "GI bleeding",
+    "management": "Avoid alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "diclofenac",
+    "food": "Alcohol",
+    "mechanism": "Gastric mucosal irritation",
+    "severity": "MODERATE",
+    "effect": "GI bleeding",
+    "management": "Avoid alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "aceclofenac",
+    "food": "Alcohol",
+    "mechanism": "Gastric mucosal irritation",
+    "severity": "MODERATE",
+    "effect": "GI bleeding",
+    "management": "Avoid alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "nimesulide",
+    "food": "Alcohol",
+    "mechanism": "Gastric mucosal irritation",
+    "severity": "MODERATE",
+    "effect": "GI bleeding",
+    "management": "Avoid alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "naproxen",
+    "food": "Alcohol",
+    "mechanism": "Gastric mucosal irritation",
+    "severity": "MODERATE",
+    "effect": "GI bleeding",
+    "management": "Avoid alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "ketorolac",
+    "food": "Alcohol",
+    "mechanism": "Gastric mucosal irritation",
+    "severity": "MODERATE",
+    "effect": "GI bleeding",
+    "management": "Avoid alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "celecoxib",
+    "food": "Alcohol",
+    "mechanism": "Gastric mucosal irritation",
+    "severity": "MODERATE",
+    "effect": "GI bleeding",
+    "management": "Avoid alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "etoricoxib",
+    "food": "Alcohol",
+    "mechanism": "Gastric mucosal irritation",
+    "severity": "MODERATE",
+    "effect": "GI bleeding",
+    "management": "Avoid alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "ibuprofen--paracetamol",
+    "food": "Alcohol",
+    "mechanism": "Gastric mucosal irritation",
+    "severity": "MODERATE",
+    "effect": "GI bleeding",
+    "management": "Avoid alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "diclofenac--paracetamol",
+    "food": "Alcohol",
+    "mechanism": "Gastric mucosal irritation",
+    "severity": "MODERATE",
+    "effect": "GI bleeding",
+    "management": "Avoid alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "aceclofenac--paracetamol",
+    "food": "Alcohol",
+    "mechanism": "Gastric mucosal irritation",
+    "severity": "MODERATE",
+    "effect": "GI bleeding",
+    "management": "Avoid alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "nimesulide--paracetamol",
+    "food": "Alcohol",
+    "mechanism": "Gastric mucosal irritation",
+    "severity": "MODERATE",
+    "effect": "GI bleeding",
+    "management": "Avoid alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "naproxen--paracetamol",
+    "food": "Alcohol",
+    "mechanism": "Gastric mucosal irritation",
+    "severity": "MODERATE",
+    "effect": "GI bleeding",
+    "management": "Avoid alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "ketorolac--paracetamol",
+    "food": "Alcohol",
+    "mechanism": "Gastric mucosal irritation",
+    "severity": "MODERATE",
+    "effect": "GI bleeding",
+    "management": "Avoid alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "celecoxib--paracetamol",
+    "food": "Alcohol",
+    "mechanism": "Gastric mucosal irritation",
+    "severity": "MODERATE",
+    "effect": "GI bleeding",
+    "management": "Avoid alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "etoricoxib--paracetamol",
+    "food": "Alcohol",
+    "mechanism": "Gastric mucosal irritation",
+    "severity": "MODERATE",
+    "effect": "GI bleeding",
+    "management": "Avoid alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "aspirin",
+    "food": "Alcohol",
+    "mechanism": "Platelet inhibition",
+    "severity": "MODERATE",
+    "effect": "Increased bleeding",
+    "management": "Limit alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "clopidogrel",
+    "food": "Alcohol",
+    "mechanism": "Platelet inhibition",
+    "severity": "MODERATE",
+    "effect": "Increased bleeding",
+    "management": "Limit alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "ticagrelor",
+    "food": "Alcohol",
+    "mechanism": "Platelet inhibition",
+    "severity": "MODERATE",
+    "effect": "Increased bleeding",
+    "management": "Limit alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "prasugrel",
+    "food": "Alcohol",
+    "mechanism": "Platelet inhibition",
+    "severity": "MODERATE",
+    "effect": "Increased bleeding",
+    "management": "Limit alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "aspirin--aspirin",
+    "food": "Alcohol",
+    "mechanism": "Platelet inhibition",
+    "severity": "MODERATE",
+    "effect": "Increased bleeding",
+    "management": "Limit alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "aspirin--clopidogrel",
+    "food": "Alcohol",
+    "mechanism": "Platelet inhibition",
+    "severity": "MODERATE",
+    "effect": "Increased bleeding",
+    "management": "Limit alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "aspirin--ticagrelor",
+    "food": "Alcohol",
+    "mechanism": "Platelet inhibition",
+    "severity": "MODERATE",
+    "effect": "Increased bleeding",
+    "management": "Limit alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "aspirin--prasugrel",
+    "food": "Alcohol",
+    "mechanism": "Platelet inhibition",
+    "severity": "MODERATE",
+    "effect": "Increased bleeding",
+    "management": "Limit alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "clopidogrel--aspirin",
+    "food": "Alcohol",
+    "mechanism": "Platelet inhibition",
+    "severity": "MODERATE",
+    "effect": "Increased bleeding",
+    "management": "Limit alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "clopidogrel--clopidogrel",
+    "food": "Alcohol",
+    "mechanism": "Platelet inhibition",
+    "severity": "MODERATE",
+    "effect": "Increased bleeding",
+    "management": "Limit alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "clopidogrel--ticagrelor",
+    "food": "Alcohol",
+    "mechanism": "Platelet inhibition",
+    "severity": "MODERATE",
+    "effect": "Increased bleeding",
+    "management": "Limit alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "clopidogrel--prasugrel",
+    "food": "Alcohol",
+    "mechanism": "Platelet inhibition",
+    "severity": "MODERATE",
+    "effect": "Increased bleeding",
+    "management": "Limit alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "ticagrelor--aspirin",
+    "food": "Alcohol",
+    "mechanism": "Platelet inhibition",
+    "severity": "MODERATE",
+    "effect": "Increased bleeding",
+    "management": "Limit alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "ticagrelor--clopidogrel",
+    "food": "Alcohol",
+    "mechanism": "Platelet inhibition",
+    "severity": "MODERATE",
+    "effect": "Increased bleeding",
+    "management": "Limit alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "ticagrelor--ticagrelor",
+    "food": "Alcohol",
+    "mechanism": "Platelet inhibition",
+    "severity": "MODERATE",
+    "effect": "Increased bleeding",
+    "management": "Limit alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "ticagrelor--prasugrel",
+    "food": "Alcohol",
+    "mechanism": "Platelet inhibition",
+    "severity": "MODERATE",
+    "effect": "Increased bleeding",
+    "management": "Limit alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "prasugrel--aspirin",
+    "food": "Alcohol",
+    "mechanism": "Platelet inhibition",
+    "severity": "MODERATE",
+    "effect": "Increased bleeding",
+    "management": "Limit alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "prasugrel--clopidogrel",
+    "food": "Alcohol",
+    "mechanism": "Platelet inhibition",
+    "severity": "MODERATE",
+    "effect": "Increased bleeding",
+    "management": "Limit alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "prasugrel--ticagrelor",
+    "food": "Alcohol",
+    "mechanism": "Platelet inhibition",
+    "severity": "MODERATE",
+    "effect": "Increased bleeding",
+    "management": "Limit alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "prasugrel--prasugrel",
+    "food": "Alcohol",
+    "mechanism": "Platelet inhibition",
+    "severity": "MODERATE",
+    "effect": "Increased bleeding",
+    "management": "Limit alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "amitriptyline",
+    "food": "Alcohol",
+    "mechanism": "CNS depression",
+    "severity": "MAJOR",
+    "effect": "Severe sedation",
+    "management": "Avoid alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "nortriptyline",
+    "food": "Alcohol",
+    "mechanism": "CNS depression",
+    "severity": "MAJOR",
+    "effect": "Severe sedation",
+    "management": "Avoid alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "cetirizine",
+    "food": "Alcohol",
+    "mechanism": "Additive CNS depression",
+    "severity": "MODERATE",
+    "effect": "Excessive drowsiness",
+    "management": "Avoid alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "levocetirizine",
+    "food": "Alcohol",
+    "mechanism": "Additive CNS depression",
+    "severity": "MODERATE",
+    "effect": "Excessive drowsiness",
+    "management": "Avoid alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "fexofenadine",
+    "food": "Alcohol",
+    "mechanism": "Additive CNS depression",
+    "severity": "MODERATE",
+    "effect": "Excessive drowsiness",
+    "management": "Avoid alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "loratadine",
+    "food": "Alcohol",
+    "mechanism": "Additive CNS depression",
+    "severity": "MODERATE",
+    "effect": "Excessive drowsiness",
+    "management": "Avoid alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "bilastine",
+    "food": "Alcohol",
+    "mechanism": "Additive CNS depression",
+    "severity": "MODERATE",
+    "effect": "Excessive drowsiness",
+    "management": "Avoid alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "zolpidem",
+    "food": "Alcohol",
+    "mechanism": "Additive CNS depression",
+    "severity": "MAJOR",
+    "effect": "Profound sedation",
+    "management": "Avoid alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "glimepiride",
+    "food": "Alcohol",
+    "mechanism": "Hepatic gluconeogenesis inhibition",
+    "severity": "MODERATE",
+    "effect": "Hypoglycemia",
+    "management": "Limit alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "gliclazide",
+    "food": "Alcohol",
+    "mechanism": "Hepatic gluconeogenesis inhibition",
+    "severity": "MODERATE",
+    "effect": "Hypoglycemia",
+    "management": "Limit alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "glipizide",
+    "food": "Alcohol",
+    "mechanism": "Hepatic gluconeogenesis inhibition",
+    "severity": "MODERATE",
+    "effect": "Hypoglycemia",
+    "management": "Limit alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "glibenclamide",
+    "food": "Alcohol",
+    "mechanism": "Hepatic gluconeogenesis inhibition",
+    "severity": "MODERATE",
+    "effect": "Hypoglycemia",
+    "management": "Limit alcohol",
+    "indianContext": false
+  },
+  {
+    "drugId": "insulin-glargine",
+    "food": "Alcohol",
+    "mechanism": "Hepatic gluconeogenesis inhibition",
+    "severity": "MODERATE",
+    "effect": "Delayed hypoglycemia",
+    "management": "Avoid binge drinking",
+    "indianContext": false
+  },
+  {
+    "drugId": "insulin-aspart",
+    "food": "Alcohol",
+    "mechanism": "Hepatic gluconeogenesis inhibition",
+    "severity": "MODERATE",
+    "effect": "Delayed hypoglycemia",
+    "management": "Avoid binge drinking",
+    "indianContext": false
+  },
+  {
+    "drugId": "insulin-lispro",
+    "food": "Alcohol",
+    "mechanism": "Hepatic gluconeogenesis inhibition",
+    "severity": "MODERATE",
+    "effect": "Delayed hypoglycemia",
+    "management": "Avoid binge drinking",
+    "indianContext": false
+  },
+  {
+    "drugId": "human-mixtard",
+    "food": "Alcohol",
+    "mechanism": "Hepatic gluconeogenesis inhibition",
+    "severity": "MODERATE",
+    "effect": "Delayed hypoglycemia",
+    "management": "Avoid binge drinking",
+    "indianContext": false
+  },
+  {
+    "drugId": "enalapril",
+    "food": "Leafy Greens (Spinach)",
+    "mechanism": "Potassium retention",
+    "severity": "MODERATE",
+    "effect": "Hyperkalemia",
+    "management": "Monitor dietary potassium",
+    "indianContext": false
+  },
+  {
+    "drugId": "ramipril",
+    "food": "Leafy Greens (Spinach)",
+    "mechanism": "Potassium retention",
+    "severity": "MODERATE",
+    "effect": "Hyperkalemia",
+    "management": "Monitor dietary potassium",
+    "indianContext": false
+  },
+  {
+    "drugId": "lisinopril",
+    "food": "Leafy Greens (Spinach)",
+    "mechanism": "Potassium retention",
+    "severity": "MODERATE",
+    "effect": "Hyperkalemia",
+    "management": "Monitor dietary potassium",
+    "indianContext": false
+  },
+  {
+    "drugId": "perindopril",
+    "food": "Leafy Greens (Spinach)",
+    "mechanism": "Potassium retention",
+    "severity": "MODERATE",
+    "effect": "Hyperkalemia",
+    "management": "Monitor dietary potassium",
+    "indianContext": false
+  },
+  {
+    "drugId": "telmisartan",
+    "food": "Leafy Greens (Spinach)",
+    "mechanism": "Potassium retention",
+    "severity": "MODERATE",
+    "effect": "Hyperkalemia",
+    "management": "Monitor dietary potassium",
+    "indianContext": false
+  },
+  {
+    "drugId": "losartan",
+    "food": "Leafy Greens (Spinach)",
+    "mechanism": "Potassium retention",
+    "severity": "MODERATE",
+    "effect": "Hyperkalemia",
+    "management": "Monitor dietary potassium",
+    "indianContext": false
+  },
+  {
+    "drugId": "olmesartan",
+    "food": "Leafy Greens (Spinach)",
+    "mechanism": "Potassium retention",
+    "severity": "MODERATE",
+    "effect": "Hyperkalemia",
+    "management": "Monitor dietary potassium",
+    "indianContext": false
+  },
+  {
+    "drugId": "valsartan",
+    "food": "Leafy Greens (Spinach)",
+    "mechanism": "Potassium retention",
+    "severity": "MODERATE",
+    "effect": "Hyperkalemia",
+    "management": "Monitor dietary potassium",
+    "indianContext": false
+  },
+  {
+    "drugId": "irbesartan",
+    "food": "Leafy Greens (Spinach)",
+    "mechanism": "Potassium retention",
+    "severity": "MODERATE",
+    "effect": "Hyperkalemia",
+    "management": "Monitor dietary potassium",
+    "indianContext": false
   }
-}
+]

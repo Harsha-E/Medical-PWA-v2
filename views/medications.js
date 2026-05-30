@@ -40,26 +40,24 @@ export default class MedicationsView {
               <a href="#/scan" class="w-12 h-12 rounded-full bg-[#1a0a12]/80 backdrop-blur-md border border-[#7f2f5d]/30 flex items-center justify-center text-[#ffb88c] hover:bg-[#ffb88c]/10 transition-colors shadow-lg">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h2M21 7V5a2 2 0 00-2-2h-2M3 17v2a2 2 0 002 2h2M21 17v2a2 2 0 01-2 2h-2M9 9h6v6H9z"></path></svg>
               </a>
-              <a href="#/add" class="w-12 h-12 rounded-full bg-gradient-to-br from-[#7f2f5d] to-[#4a1532] border border-[#ffb88c]/30 flex items-center justify-center text-[#ffd9b5] hover:brightness-110 transition-all shadow-[0_0_15px_rgba(127,47,93,0.5)]">
+              <a href="#/add-medication" class="w-12 h-12 rounded-full bg-gradient-to-br from-[#7f2f5d] to-[#4a1532] border border-[#ffb88c]/30 flex items-center justify-center text-[#ffd9b5] hover:brightness-110 transition-all shadow-[0_0_15px_rgba(127,47,93,0.5)]">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg>
               </a>
             </div>
           </header>
 
-          ${activeMeds.length >= 2 ? `
-            <a href="#/interactions" class="block mb-6 bg-amber-900/20 border border-amber-500/30 rounded-2xl p-4 flex items-center justify-between hover:bg-amber-900/30 transition-colors">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                </div>
-                <div>
-                  <h3 class="text-sm font-bold text-amber-400">Check Interactions</h3>
-                  <p class="text-xs text-amber-500/70">Analyze your active pharmaceutical stack</p>
-                </div>
+          <a href="${activeMeds.length >= 2 ? '#/interaction-checker' : 'javascript:void(0)'}" class="block mb-6 ${activeMeds.length >= 2 ? 'bg-amber-900/20 border-amber-500/30 hover:bg-amber-900/30' : 'bg-[#1a0a12]/50 border-[#7f2f5d]/30 opacity-60 cursor-not-allowed'} border rounded-2xl p-4 flex items-center justify-between transition-colors" ${activeMeds.length < 2 ? 'onclick="alert(\\\'Add at least 2 medications to check interactions.\\\')"' : ''}>
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full ${activeMeds.length >= 2 ? 'bg-amber-500/20 text-amber-400' : 'bg-gray-800 text-gray-500'} flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
               </div>
-              <svg class="w-5 h-5 text-amber-400 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-            </a>
-          ` : ''}
+              <div>
+                <h3 class="text-sm font-bold ${activeMeds.length >= 2 ? 'text-amber-400' : 'text-gray-400'}">Check Interactions</h3>
+                <p class="text-xs ${activeMeds.length >= 2 ? 'text-amber-500/70' : 'text-gray-500'}">${activeMeds.length >= 2 ? 'Analyze your active pharmaceutical stack' : 'Add at least 2 meds to check.'}</p>
+              </div>
+            </div>
+            <svg class="w-5 h-5 ${activeMeds.length >= 2 ? 'text-amber-400 opacity-50' : 'text-gray-600'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+          </a>
 
           <div class="space-y-3">
             ${activeMeds.length === 0 
@@ -97,7 +95,7 @@ export default class MedicationsView {
             <h3 class="text-base font-bold text-white mb-0.5">${med.name}</h3>
             <p class="text-xs font-mono text-gray-400">${med.dosage || ''} ${med.dosageUnit || 'mg'}</p>
           </div>
-          <span class="px-2.5 py-1 rounded-md bg-[#7f2f5d]/20 text-[#ffb88c] text-[9px] font-bold uppercase tracking-widest border border-[#7f2f5d]/30">
+          <span class="px-2.5 py-1 rounded-md bg-[#7f2f5d]/20 text-[#ffb88c] text-xs font-bold uppercase tracking-widest border border-[#7f2f5d]/30">
             ${category}
           </span>
         </div>
@@ -113,21 +111,6 @@ export default class MedicationsView {
           </div>
         </div>
       </a>
-    `;
-  }
-
-  _getEmptyState() {
-    // WORKAROUND: Remove opacity-0 configurations to bypass broken styles
-    return `
-      <div class="flex flex-col items-center justify-center mt-12 text-center p-8 bg-[#1a0a12]/30 border border-[#7f2f5d]/20 rounded-2xl">
-        <div class="w-16 h-16 rounded-full bg-[#1a0a12] border border-[#7f2f5d]/40 flex items-center justify-center mb-4 text-[#ffb88c]">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"></path></svg>
-        </div>
-        <h2 class="text-lg font-bold text-white mb-2">No Medications Active</h2>
-        <p class="text-xs text-gray-400 max-w-[240px] leading-relaxed mb-6">Your pharmaceutical ledger is empty. Scan a prescription or add details manually.</p>
-        <div class="flex gap-4">
-          <a href="#/scan" class="px-5 py-2.5 rounded-full border border-[#7f2f5d]/50 text-white text-xs font-mono uppercase tracking-widest">Scan Label</a>
-          <a href="#/add" class="px-5 py-2.5 rounded-full bg-gradient-to-r from-[#7f2f5d] to-[#4a1532] text-[#ffd9b5] text-xs font-mono uppercase tracking-widest">Add Manual</a>
         </div>
       </div>
     `;

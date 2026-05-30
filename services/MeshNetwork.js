@@ -60,7 +60,6 @@ class MeshNetwork {
 
                 this._peer.on('open', (id) => {
                     this._localId = id;
-                    console.log(`[Mesh] Peer initialized. ID: ${this._localId}`);
                     resolve();
                 });
 
@@ -122,7 +121,6 @@ class MeshNetwork {
                 return resolve(peerId);
             }
 
-            console.log(`[Mesh] Attempting tunnel connection to: ${peerId}`);
             const conn = this._peer.connect(peerId, { reliable: true, serialization: 'json' });
 
             // Fail-safe 10s connection timeout
@@ -142,10 +140,8 @@ class MeshNetwork {
                 conn.on('data', (data) => this._handleIncoming(data, peerId));
                 conn.on('close', () => {
                     this._connections.delete(peerId);
-                    console.log(`[Mesh] Connection to ${peerId} closed.`);
                 });
 
-                console.log(`[Mesh] Tunnel established with ${peerId}.`);
                 resolve(peerId);
             });
 
@@ -161,7 +157,6 @@ class MeshNetwork {
      * @private
      */
     _setupIncomingConnection(conn) {
-        console.log(`[Mesh] Incoming connection request from: ${conn.peer}`);
 
         conn.on('open', () => {
             conn._medcareConnectedAt = Date.now();
