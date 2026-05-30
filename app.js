@@ -100,7 +100,8 @@ class App {
     // Register Service Worker and Boot PWA Install Manager
     if ('serviceWorker' in navigator) {
       try {
-        const reg = await navigator.serviceWorker.register('/sw.js');
+        const BASE_PATH = window.location.hostname === 'harsha-e.github.io' ? '/Medical-PWA-v2' : '';
+        const reg = await navigator.serviceWorker.register(`${BASE_PATH}/sw.js`);
         console.log('[Service Worker] Registered successfully with scope:', reg.scope);
         
         await navigator.serviceWorker.ready;

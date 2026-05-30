@@ -2,14 +2,17 @@
  * MedCare | Service Worker — Offline-First Cache
  */
 
-const CACHE_NAME = 'medcare-v5';
+const CACHE_NAME = 'medcare-v6';
+
+const BASE_PATH = self.location.hostname === 'harsha-e.github.io' ? '/Medical-PWA-v2' : '';
 
 const ASSETS = [
   '/',
   '/index.html',
   '/style.css',
   '/app.js',
-  '/manifest.json',
+  '/manifest.local.json',
+  '/manifest.github.json',
   '/assets/logo.jpeg',
   '/core/db.js',
   '/core/router.js',
@@ -34,7 +37,7 @@ const ASSETS = [
   '/views/emergency.js',
   '/views/appointments.js',
   '/views/admin.js'
-];
+].map(path => BASE_PATH + path);
 
 self.addEventListener('install', (event) => {
   console.log('[SW] install');
@@ -67,8 +70,8 @@ self.addEventListener('fetch', (event) => {
 
   if (event.request.mode === 'navigate' || (event.request.headers.get('accept') || '').includes('text/html')) {
     event.respondWith(
-      caches.match('/index.html').then((cachedResponse) => {
-        return cachedResponse || fetch(event.request).catch(() => caches.match('/index.html'));
+      caches.match(`${BASE_PATH}/index.html`).then((cachedResponse) => {
+        return cachedResponse || fetch(event.request).catch(() => caches.match(`${BASE_PATH}/index.html`));
       })
     );
     return;

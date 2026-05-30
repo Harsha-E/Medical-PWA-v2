@@ -1,0 +1,28 @@
+{
+  "id": "/Medical-PWA-v2/",
+  "name": "MedCheck",
+  "short_name": "MedCheck",
+  "start_url": "/Medical-PWA-v2/",
+  "scope": "/Medical-PWA-v2/",
+  "display": "standalone",
+  "background_color": "#fdf6f0",
+  "theme_color": "#ff6b35",
+  "icons": [
+    {
+      "src": "/Medical-PWA-v2/assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/Medical-PWA-v2/assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/Medical-PWA-v2/assets/icon-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
