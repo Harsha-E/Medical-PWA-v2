@@ -1,7 +1,7 @@
 /**
  * @fileoverview CarePoint Vision Scanner — Auto-Tracking Architecture + Hardware Controls & Gallery Fallback
  */
-import { INDIAN_DRUG_DATASET, fuzzySearchDrugs, SCHEDULE_INFO } from '../data/indian-drug-dataset.js';
+import { INDIAN_DRUG_DATASET } from '../data/indian-drug-dataset.js';
 import db from '../core/db.js';
 import state from '../core/state.js';
 import { db as firebaseDb } from '../core/firebase.js';
