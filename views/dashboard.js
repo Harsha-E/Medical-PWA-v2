@@ -114,14 +114,9 @@ export default class DashboardView {
                 </div>
               </div>
             `).join('') : `
-              ${!dataset ? `
-                <div class="bg-[#1a0a12]/50 border border-[#7f2f5d]/30 rounded-3xl p-5 min-w-[150px] h-[140px] animate-pulse"></div>
-                <div class="bg-[#1a0a12]/50 border border-[#7f2f5d]/30 rounded-3xl p-5 min-w-[150px] h-[140px] animate-pulse"></div>
-              ` : `
-                <div class="bg-[#1a0a12]/50 border border-[#7f2f5d]/30 rounded-3xl p-8 w-full text-center">
-                  <p class="text-xs text-gray-500 uppercase font-bold tracking-widest">No active medications.</p>
-                </div>
-              `}
+              <div class="bg-[#1a0a12]/50 border border-[#7f2f5d]/30 rounded-3xl p-8 w-full text-center">
+                <p class="text-xs text-gray-500 uppercase font-bold tracking-widest">No active medications.</p>
+              </div>
             `}
             <a href="#/add-medication" id="add-med-btn" class="bg-[#0a0407] border-dashed border-2 border-[#7f2f5d]/50 rounded-3xl p-4 min-w-[110px] flex flex-col items-center justify-center shrink-0 cursor-pointer hover:bg-[#7f2f5d]/10 transition-colors">
               <div class="w-10 h-10 rounded-full border border-[#ffb88c]/40 flex items-center justify-center mb-3 text-[#ffb88c]">
