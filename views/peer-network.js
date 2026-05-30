@@ -139,7 +139,7 @@ export default class PeerNetworkView {
         console.error('QR Generate Error:', err);
         return;
       }
-      container.innerHTML = \`<img src="\${url}" alt="Pairing QR Code" class="rounded-xl animate-fade-in-up" />\`;
+      container.innerHTML = `<img src="${url}" alt="Pairing QR Code" class="rounded-xl animate-fade-in-up" />`;
     });
   }
 
@@ -165,7 +165,7 @@ export default class PeerNetworkView {
     let pendingPeerId = null;
     window.addEventListener('medcare:peer-request', (e) => {
         pendingPeerId = e.detail.peerId;
-        this.container.querySelector('#gatekeeper-peer-name').textContent = \`Node \${pendingPeerId.substring(0,6)}... wants to sync.\`;
+        this.container.querySelector('#gatekeeper-peer-name').textContent = `Node ${pendingPeerId.substring(0,6)}... wants to sync.`;
         modal.classList.remove('hidden');
         modal.style.display = 'flex';
         setTimeout(() => {
@@ -203,15 +203,15 @@ export default class PeerNetworkView {
       const peers = Object.keys(mesh.connections);
       
       if (peers.length === 0) {
-          rosterEl.innerHTML = \`
+          rosterEl.innerHTML = `
               <div class="text-center py-10 border border-dashed border-[#7f2f5d]/30 rounded-3xl opacity-50">
                   <p class="text-xs text-white font-mono uppercase tracking-widest">No Active Connections</p>
               </div>
-          \`;
+          `;
           return;
       }
 
-      rosterEl.innerHTML = peers.map(pid => \`
+      rosterEl.innerHTML = peers.map(pid => `
           <div class="glass-panel p-4 flex justify-between items-center bg-white/5 border border-[#00ff7f]/30">
               <div class="flex items-center gap-4">
                   <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#00ff7f]/20 to-[#1a0a12] border border-[#00ff7f]/40 flex items-center justify-center text-[#00ff7f]">
@@ -219,12 +219,12 @@ export default class PeerNetworkView {
                   </div>
                   <div>
                       <p class="font-bold text-sm text-white">Peer Node</p>
-                      <p class="text-[10px] text-[#00ff7f]/70 font-mono tracking-widest uppercase">\${pid.substring(0,8)}...</p>
+                      <p class="text-[10px] text-[#00ff7f]/70 font-mono tracking-widest uppercase">${pid.substring(0,8)}...</p>
                   </div>
               </div>
               <button class="bg-[#1a0a12] border border-red-500/30 text-red-400 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-widest active:scale-90 transition-transform">Drop</button>
           </div>
-      \`).join('');
+      `).join('');
   }
 
   destroy() {
