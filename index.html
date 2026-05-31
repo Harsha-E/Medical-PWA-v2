@@ -70,28 +70,27 @@
 
   <!-- ── Global Animated Blobs ─────────────────────────────────────────── -->
   <style>
-    @keyframes blob {
-      0% { transform: translate(0px, 0px) scale(1); }
-      33% { transform: translate(30px, -50px) scale(1.1); }
-      66% { transform: translate(-20px, 20px) scale(0.9); }
-      100% { transform: translate(0px, 0px) scale(1); }
+    @keyframes premium-blob-flow {
+      0% { transform: translate(0px, 0px) scale(1) rotate(0deg); }
+      33% { transform: translate(30px, -50px) scale(1.2) rotate(10deg); }
+      66% { transform: translate(-20px, 20px) scale(0.8) rotate(-10deg); }
+      100% { transform: translate(0px, 0px) scale(1) rotate(0deg); }
     }
     .animate-blob {
-      animation: blob 8s infinite alternate ease-in-out;
+      animation: premium-blob-flow 15s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .animation-delay-2000 {
-      animation-delay: 2s;
-    }
-    .animation-delay-4000 {
-      animation-delay: 4s;
-    }
+    .animation-delay-2000 { animation-delay: -5s; }
+    .animation-delay-4000 { animation-delay: -10s; }
   </style>
-  <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#0a0407]">
-      <!-- Organic Blob 1 -->
-      <div class="absolute top-[-10%] left-[-10%] w-[60vw] h-[60vw] bg-gradient-to-br from-[#ca5229]/40 to-[#7f2f5d]/40 mix-blend-screen filter blur-[60px]"></div>
+  <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#050203]">
+      <!-- Lava Blob 1 -->
+      <div class="animate-blob absolute top-[-10%] left-[-10%] w-[70vw] h-[70vw] rounded-full bg-gradient-to-br from-[#ca5229]/30 to-[#7f2f5d]/50 mix-blend-screen filter blur-[80px]"></div>
       
-      <!-- Organic Blob 2 -->
-      <div class="absolute top-[30%] right-[-10%] w-[50vw] h-[50vw] bg-gradient-to-tr from-[#7f2f5d]/30 to-[#ffb88c]/30 mix-blend-screen filter blur-[70px]"></div>
+      <!-- Lava Blob 2 -->
+      <div class="animate-blob animation-delay-2000 absolute top-[40%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-tr from-[#7f2f5d]/40 to-[#ffb88c]/20 mix-blend-screen filter blur-[90px]"></div>
+      
+      <!-- Lava Blob 3 -->
+      <div class="animate-blob animation-delay-4000 absolute bottom-[-10%] left-[20%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-t from-[#ca5229]/20 to-transparent mix-blend-screen filter blur-[70px]"></div>
   </div>
 
   <!-- ── Splash screen ─────────────────────────────────────────────────── -->
@@ -120,7 +119,7 @@
   -->
   <main
     id="app-viewport"
-    class="relative z-10 w-full h-[100dvh] max-h-[100dvh] overflow-x-hidden overflow-y-auto opacity-0 transition-opacity duration-1000"
+    class="relative z-10 w-full h-[100dvh] max-h-[100dvh] opacity-0 transition-opacity duration-1000 grid"
     style="padding-top: max(0rem, env(safe-area-inset-top)); padding-bottom: max(5rem, env(safe-area-inset-bottom));"
   ></main>
 

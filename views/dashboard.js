@@ -5,7 +5,7 @@ import { getFirestore, doc, setDoc } from 'https://www.gstatic.com/firebasejs/10
 export default class DashboardView {
   async render() {
     this.container = document.createElement('div');
-    this.container.className = 'container native-scroll pt-4 pb-24 h-full';
+    this.container.className = 'w-full h-full flex flex-col overflow-hidden';
 
     // Instantly return skeleton structure to router without blocking
     this.container.innerHTML = this._getSkeletonUI();
@@ -509,7 +509,7 @@ export default class DashboardView {
         </button>
       </header>
 
-      <div class="px-6 md:px-12 pb-28 max-w-7xl mx-auto" id="dashboard-main-content">
+      <div class="flex-1 overflow-y-auto px-6 md:px-12 pt-6 pb-28 w-full max-w-7xl mx-auto" id="dashboard-main-content">
         <div class="md:grid md:grid-cols-12 md:gap-10 md:items-start">
           <!-- Left Column -->
           <div class="md:col-span-7 lg:col-span-8 flex flex-col gap-10">

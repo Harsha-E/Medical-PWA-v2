@@ -4,7 +4,7 @@ import state from '../core/state.js';
 export default class AppointmentsView {
   async render() {
     this.container = document.createElement('div');
-    this.container.className = 'container';
+    this.container.className = 'w-full h-full flex flex-col overflow-hidden';
 
     // Immediate skeleton before async data
     this.container.innerHTML = `
@@ -18,7 +18,7 @@ export default class AppointmentsView {
           <div class="skeleton" style="width:44px; height:44px; border-radius:14px;"></div>
         </div>
       </header>
-      <main class="scroll-area px-6 md:px-12 pt-28 pb-28 max-w-7xl mx-auto md:grid md:grid-cols-2 md:gap-12">
+      <main class="flex-1 overflow-y-auto px-6 md:px-12 pt-4 pb-28 w-full max-w-7xl mx-auto md:grid md:grid-cols-2 md:gap-12">
         <div>
           <div class="skeleton" style="height:12px; width:100px; margin-bottom:20px;"></div>
           <div class="skeleton skeleton-card" style="height:130px; margin-bottom:16px;"></div>
@@ -77,7 +77,7 @@ export default class AppointmentsView {
         </div>
       </header>
 
-      <main class="scroll-area px-6 md:px-12 pt-28 pb-12 bg-transparent max-w-7xl mx-auto md:grid md:grid-cols-2 md:gap-12">
+      <main class="flex-1 overflow-y-auto px-6 md:px-12 pt-4 pb-12 w-full max-w-7xl mx-auto md:grid md:grid-cols-2 md:gap-12">
         <section class="mb-12">
             <h3 class="text-xs text-uppercase font-bold text-[#ffb88c]/70 mb-6 tracking-[0.2em] px-1 uppercase">Upcoming</h3>
             <div class="space-y-4">
@@ -93,9 +93,6 @@ export default class AppointmentsView {
         </section>
       </main>
 
-      <style>
-        .view-header { position: fixed; top: 0; left: 0; right: 0; height: 80px; background: rgba(10, 4, 7, 0.4); backdrop-filter: blur(24px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); display: flex; align-items: center; justify-content: space-between; z-index: 100; }
-      </style>
     `;
 
     this.attachListeners();

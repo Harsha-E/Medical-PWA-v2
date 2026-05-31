@@ -10,7 +10,7 @@ import { collection, addDoc, doc, setDoc, getFirestore } from 'https://www.gstat
 export default class AddMedicationView {
   constructor() {
     this.container = document.createElement('div');
-    this.container.className = 'container !pt-0 !mt-0';
+    this.container.className = 'w-full h-full flex flex-col overflow-hidden';
     this.isEdit = false;
     this.medId = null;
     
@@ -73,16 +73,15 @@ export default class AddMedicationView {
     }
 
     this.container.innerHTML = `
-      <div class="sticky top-0 left-0 w-full z-50 flex items-center justify-between px-4 py-4 bg-[#0a0407]/40 backdrop-blur-md border-b border-white/5 mb-6">
-        <button onclick="window.history.back()" class="flex items-center gap-2 text-[#ffb88c] hover:brightness-125 transition-all cursor-pointer">
-          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-          <span class="hidden md:inline text-sm font-bold uppercase tracking-widest">Back</span>
+      <header class="view-header">
+        <button onclick="window.history.back()" class="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-[#ffb88c] transition-colors cursor-pointer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
         <h2 class="text-lg font-bold text-white tracking-tight">${this.isEdit ? 'Edit' : 'Add'} Medication</h2>
-        <div class="w-16"></div>
-      </div>
+        <div class="w-10"></div>
+      </header>
 
-      <main class="scroll-area px-6 pt-4 pb-28">
+      <main class="flex-1 overflow-y-auto px-6 pt-6 pb-28">
         <div class="clay-glass-panel p-6 mb-8 clay-glass-panel rounded-[2rem]">
           <h3 class="form-label mb-6">Medication Details</h3>
           <div class="form-group">

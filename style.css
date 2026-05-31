@@ -1231,8 +1231,29 @@ button, .clay-glass-panel, .skeleton-card, .timeline-item {
     border-radius: 9999px !important;
 }
 
-/* View Transitions */
-.view-transition-node { position: absolute; inset: 0; width: 100%; height: 100%; }
+/* Universal Header Architecture */
+.view-header { 
+    position: sticky; 
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    min-height: 80px; 
+    background: rgba(10, 4, 7, 0.7); 
+    backdrop-filter: blur(24px); 
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    z-index: 100; 
+    padding: 0 1.5rem;
+}
+@media (min-width: 768px) {
+    .view-header { padding: 0 3rem; }
+}
+
+/* View Transitions - Zero Layout Jumping via Grid */
+.view-transition-node { grid-area: 1 / 1; width: 100%; height: 100%; z-index: 10; }
+.view-transition-node.outgoing { z-index: 1; }
 .incoming.crossfade { animation: fadeIn 400ms ease forwards; }
 .outgoing.crossfade { animation: fadeOut 400ms ease forwards; }
 
