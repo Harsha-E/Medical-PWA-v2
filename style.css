@@ -1235,3 +1235,9 @@ button, .clay-glass-panel, .skeleton-card, .timeline-item {
 header, .view-header, header [class*="rounded-"] {
   border-radius: 0 !important;
 }
+
+ . v i e w - t r a n s i t i o n - n o d e   {   p o s i t i o n :   a b s o l u t e ;   i n s e t :   0 ;   w i d t h :   1 0 0 % ;   h e i g h t :   1 0 0 % ;   } 
+ . i n c o m i n g . c r o s s f a d e   {   a n i m a t i o n :   f a d e I n   4 0 0 m s   e a s e   f o r w a r d s ;   } 
+ . o u t g o i n g . c r o s s f a d e   {   a n i m a t i o n :   f a d e O u t   4 0 0 m s   e a s e   f o r w a r d s ;   } 
+  
+ 
