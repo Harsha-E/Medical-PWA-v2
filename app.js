@@ -266,16 +266,16 @@ class App {
     }
 
     // ── Auth guard ──
-    // App installation requirement removed.
-    // const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-    // const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    // App installation requirement
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     
-    // if (!isStandalone && isMobile) {
-    //   if (hash !== '#/install') {
-    //     window.location.hash = '#/install';
-    //     return;
-    //   }
-    // }
+    if (!isStandalone && isMobile) {
+      if (hash !== '#/install') {
+        window.location.hash = '#/install';
+        return;
+      }
+    }
 
     if (!user) {
       if (!PUBLIC_ROUTES.has(hash)) {
