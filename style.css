@@ -620,17 +620,6 @@ html, body, #app-viewport {
   will-change: border-radius, transform;
 }
 
-
-  background: rgba(10, 4, 7, 0.1);
-  backdrop-filter: blur(24px) saturate(2);
-  border-bottom: 1px solid var(--color-border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
-  z-index: 1000;
-}
-
 /* ───────────────────────────────────────────────────────────────────────────────
    PWA NATIVE-GRADE INTERACTION LAYER
    Disables all web-like behaviors while preserving input interactivity
@@ -1149,6 +1138,7 @@ body.in-peer-context .bottom-nav {
     padding-bottom: env(safe-area-inset-bottom);
   }
   body.has-navbar .sticky.top-0 { top: calc(96px + env(safe-area-inset-top)) !important; }
+  body.has-navbar .view-header { top: calc(96px + env(safe-area-inset-top)) !important; }
 }
 @media (max-width: 767px) {
   body.has-navbar #app-viewport { 
@@ -1279,22 +1269,19 @@ button, .clay-glass-panel, .skeleton-card, .timeline-item {
   left: 0;
   right: 0;
   width: 100%;
-  margin: 0;
-  min-height: 80px;
-  z-index: 100;
+  z-index: 50;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1.5rem;
+  padding: env(safe-area-inset-top, 1rem) 1.5rem 1rem 1.5rem;
   background-color: rgba(10, 4, 7, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(127, 47, 93, 0.3);
   transition: all 0.3s ease;
 }
-
 @media (min-width: 768px) {
-  .view-header { padding: 0 3rem; }
+  .view-header { padding: env(safe-area-inset-top, 1.5rem) 3rem 1.5rem 3rem; }
 }
 
 /* Claymorphism + Glassmorphism Buttons in Header */
