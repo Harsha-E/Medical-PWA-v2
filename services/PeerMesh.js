@@ -107,6 +107,24 @@ export default class PeerMesh {
     }
 
     /**
+     * Actively connects to another peer.
+     * @param {string} targetId - The ID of the peer to connect to.
+     */
+    connectToPeer(targetId) {
+        if (!this._peer) throw new Error('PeerMesh not initialized.');
+        if (targetId === this.peerId) throw new Error('Cannot connect to self.');
+
+        const conn = this._peer.connect(targetId, {
+            metadata: { displayName: state.userProfile?.name || 'Unknown Device' }
+        });
+        
+        // Add to connections and open channel
+        this._connections.set(targetId, conn);
+        this._openDataChannel(conn);
+        return conn;
+    }
+
+    /**
      * Opens the data channel for communication.
      * @param {Object} conn - The PeerJS connection object.
      */
