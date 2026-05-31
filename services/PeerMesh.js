@@ -57,6 +57,17 @@ export default class PeerMesh {
             this._peer.on('connection', (conn) => {
                 this._handleIncoming(conn);
             });
+
+            // Listen for internal SOS Broadcasts to forward to active peers
+            window.addEventListener('medcare:sos-broadcast', (e) => {
+                const { message, location } = e.detail;
+                for (const [peerId, conn] of this._connections.entries()) {
+                    if (conn.open) {
+                        this.sendSignal(peerId, 'emergency-sos', { message, location });
+                    }
+                }
+            });
+            
         } catch (err) {
             console.error('[PeerMesh] Initialization failed:', err);
         }
@@ -204,6 +215,10 @@ export default class PeerMesh {
             window.dispatchEvent(new CustomEvent('medcare:write-request', { detail: { peerId } }));
         } else if (data && data.type === 'grant-write-access') {
             window.dispatchEvent(new CustomEvent('medcare:write-granted', { detail: { peerId } }));
+        } else if (data && data.type === 'emergency-sos') {
+            // High-priority alert for receiving peers
+            alert(`CRITICAL EMERGENCY SOS RECEIVED!\n\nFrom Peer: ${peerId.substring(0,6)}...\nMessage: ${data.payload?.message}\nLocation: ${data.payload?.location || 'Unknown'}`);
+            window.dispatchEvent(new CustomEvent('medcare:sos-received', { detail: { peerId, ...data.payload } }));
         }
     }
 }

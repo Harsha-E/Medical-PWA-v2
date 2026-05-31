@@ -105,25 +105,93 @@ export default class EmergencyView {
   }
 
   attachListeners() {
-    this.container.querySelector('#sos-btn').addEventListener('click', () => {
-    this.container.querySelector('#sos-btn').innerHTML = `
-          <div class="flex items-center gap-2">
-              <svg class="animate-spin" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-              BROADCASTING...
-          </div>
-      `;
-      
-      setTimeout(() => {
-          this.container.querySelector('#sos-btn').innerHTML = `
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-              SOS DISPATCHED
-          `;
-          this.container.querySelector('#sos-btn').classList.replace('from-[#ef4444]', 'from-green-600');
-          this.container.querySelector('#sos-btn').classList.replace('to-[#991b1b]', 'to-green-800');
-          this.container.querySelector('#sos-btn').classList.replace('shadow-[#ef4444]/40', 'shadow-green-900/40');
-          this.container.querySelector('#sos-btn').classList.replace('border-[#ef4444]/40', 'border-green-500/40');
-      }, 2000);
-    });
+    this.container.querySelector('#sos-btn').addEventListener('click', () => this.dispatchSOS());
+  }
+
+  async dispatchSOS() {
+    const btn = this.container.querySelector('#sos-btn');
+    
+    // UI: Start Location Phase
+    btn.innerHTML = \`
+        <div class="flex items-center gap-2">
+            <svg class="animate-spin" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+            LOCATING...
+        </div>
+    \`;
+
+    // 1. Acquire Geolocation
+    let locationStr = 'Unknown Location';
+    let mapsLink = '';
+    try {
+        const pos = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
+        });
+        mapsLink = \`https://maps.google.com/?q=\${pos.coords.latitude},\${pos.coords.longitude}\`;
+        locationStr = mapsLink;
+    } catch (e) {
+        console.warn('[SOS] Geolocation failed:', e);
+    }
+
+    // UI: Start Dispatch Phase
+    btn.innerHTML = \`
+        <div class="flex items-center gap-2">
+            <svg class="animate-spin" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+            DISPATCHING...
+        </div>
+    \`;
+
+    const primaryPhone = state.userProfile?.profile?.emergencyPhone || '';
+    const familyPhones = (state.userProfile?.profile?.familyMembers || []).map(fm => fm.phone).filter(Boolean);
+    
+    // Combine phones, stripping any non-numeric characters for URI compliance if needed (keeping +)
+    const allPhones = [primaryPhone, ...familyPhones].filter(Boolean).join(',');
+
+    const bloodType = state.userProfile?.profile?.bloodType || 'Unknown';
+    const message = \`EMERGENCY SOS: I need immediate medical assistance. Blood Type: \${bloodType}. \${locationStr !== 'Unknown Location' ? 'Location: ' + locationStr : ''}\`;
+
+    // Internal Broadcast for Peer Network auto-linking
+    window.dispatchEvent(new CustomEvent('medcare:sos-broadcast', { detail: { message, location: mapsLink } }));
+
+    let dispatched = false;
+
+    // 2. Native Web Share API (Primary method for mobile)
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: 'EMERGENCY SOS',
+                text: message,
+            });
+            dispatched = true;
+        } catch (e) {
+            console.warn('[SOS] Web Share aborted or failed:', e);
+            if (e.name === 'AbortError') {
+                dispatched = true; // User intentionally cancelled, don't fallback to force SMS
+            }
+        }
+    }
+
+    // 3. Fallback to SMS Scheme
+    if (!dispatched && allPhones) {
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        const separator = isIOS ? '&' : '?';
+        window.location.href = \`sms:\${allPhones}\${separator}body=\${encodeURIComponent(message)}\`;
+        dispatched = true;
+    } 
+    // 4. Ultimate Fallback to Phone Call
+    else if (!dispatched && primaryPhone) {
+        window.location.href = \`tel:\${primaryPhone}\`;
+        dispatched = true;
+    }
+
+    // UI: Final Dispatched State
+    btn.innerHTML = \`
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+        SOS DISPATCHED
+    \`;
+    btn.classList.replace('from-[#ef4444]', 'from-green-600');
+    btn.classList.replace('to-[#991b1b]', 'to-green-800');
+    btn.classList.replace('shadow-[#ef4444]/40', 'shadow-green-900/40');
+    btn.classList.replace('border-[#ef4444]/40', 'border-green-500/40');
   }
 
   destroy() {
