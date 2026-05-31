@@ -42,13 +42,28 @@ export default class DashboardView {
     const displayName = state.user?.displayName?.split(' ')[0] || 'User';
 
     const header = this.container.querySelector('#dashboard-header');
+    const fullHeader = this.container.querySelector('header');
     if (header) {
       header.innerHTML = `
         <div class="flex flex-col animate-fade-in">
-          <span class="text-xs text-[#ffb88c] uppercase tracking-widest leading-none">Dashboard</span>
-          <h1 class="text-xl font-bold text-white mt-1 leading-none">Good ${greeting}, ${displayName}</h1>
+          <span class="text-[10px] text-[#ffb88c] uppercase tracking-widest leading-none mb-1 opacity-80">Dashboard</span>
+          <h1 class="font-bold text-white leading-none">Good ${greeting}, ${displayName}</h1>
         </div>
       `;
+    }
+    
+    // Check if the add button is already injected
+    if (fullHeader && !fullHeader.querySelector('#add-med-btn')) {
+       const btnHTML = `
+         <button id="add-med-btn" class="header-btn ml-auto">
+           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffd9b5" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+         </button>
+       `;
+       fullHeader.insertAdjacentHTML('beforeend', btnHTML);
+       
+       fullHeader.querySelector('#add-med-btn').addEventListener('click', () => {
+         window.location.hash = '#/add-medication';
+       });
     }
   }
 
