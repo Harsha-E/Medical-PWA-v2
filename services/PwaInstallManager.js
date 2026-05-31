@@ -44,8 +44,16 @@ export default class PwaInstallManager {
 
     // Handle post-installation platform routing cleanly
     window.addEventListener('appinstalled', () => {
-      this._hideBanner();
-      setTimeout(() => { window.location.hash = '#/dashboard'; }, 600);
+      const btn = this.bannerEl?.querySelector('#pwa-action-btn');
+      if (btn) {
+        btn.textContent = 'Open App';
+        btn.classList.add('bg-[#10b981]/20', 'text-[#10b981]', 'border-[#10b981]/50');
+        btn.classList.remove('text-[#ffb88c]', 'border-[#ffb88c]/20', 'opacity-70', 'cursor-not-allowed');
+      }
+      setTimeout(() => {
+        this._hideBanner();
+        setTimeout(() => { window.location.hash = '#/dashboard'; }, 600);
+      }, 3000);
     });
 
     await this._validateInstallability();
@@ -163,6 +171,13 @@ export default class PwaInstallManager {
     }
 
     try {
+      const btn = this.bannerEl.querySelector('#pwa-action-btn');
+      if (btn) {
+        btn.textContent = 'Installing...';
+        btn.disabled = true;
+        btn.classList.add('opacity-70', 'cursor-not-allowed');
+      }
+
       await this.deferredPrompt.prompt();
       const choice = await this.deferredPrompt.userChoice;
 
@@ -172,6 +187,11 @@ export default class PwaInstallManager {
 
       if (choice.outcome === 'dismissed') {
         this.onChange?.('dismissed');
+        if (btn) {
+          btn.textContent = 'Install App';
+          btn.disabled = false;
+          btn.classList.remove('opacity-70', 'cursor-not-allowed');
+        }
       }
     } catch (err) {
       console.error('[PWA Manager] Prompt exception caught:', err);

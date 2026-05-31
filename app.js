@@ -110,7 +110,23 @@ class App {
           
           await navigator.serviceWorker.ready;
 
+          // Periodically check for updates in the background (every hour)
+          setInterval(() => {
+            try { reg.update(); } catch(e) {}
+          }, 1000 * 60 * 60);
+
+          let refreshing = false;
           navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (refreshing) return;
+            refreshing = true;
+            
+            // Show a non-intrusive update toast before hard reloading
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-[#ffb88c] text-[#0a040f] px-6 py-3 rounded-full font-bold text-sm tracking-wide shadow-[0_10px_30px_rgba(255,184,140,0.3)] z-[99999] transition-all duration-300 translate-y-0 opacity-100 flex items-center gap-3';
+            toast.innerHTML = `<svg class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> App Updating...`;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => window.location.reload(), 1500);
           });
 
           if (!navigator.serviceWorker.controller) {

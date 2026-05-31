@@ -40,6 +40,13 @@ export default class PeerNetworkView {
                     <input type="text" id="pairing-code" placeholder="Enter Pairing Code..." class="flex-1 bg-black/40 border border-[#7f2f5d]/50 rounded-xl px-4 py-3 text-white text-xs font-mono focus:outline-none focus:border-[#ffb88c]/50 transition-colors shadow-inner">
                     <button id="connect-btn" class="bg-[#ca5229] text-white px-6 py-3 rounded-xl font-bold uppercase tracking-widest text-xs active:scale-95 transition-transform shadow-lg shadow-[#ca5229]/20">Connect</button>
                 </div>
+                <div class="mt-4 text-center">
+                    <button id="start-scanner-btn" class="bg-black/40 border border-[#7f2f5d]/50 text-[#ffb88c] hover:bg-[#ca5229]/20 px-6 py-3 rounded-xl font-bold uppercase tracking-widest text-xs active:scale-95 transition-colors w-full flex justify-center items-center gap-2">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
+                      Open Camera Scanner
+                    </button>
+                </div>
+                <div id="reader" class="mt-4 rounded-xl overflow-hidden hidden border border-[#ca5229]/50 bg-black/50"></div>
             </div>
         </section>
 
@@ -192,6 +199,34 @@ export default class PeerNetworkView {
     this.attachListeners(mesh);
     this.generateQR(mesh.peerId);
     this.updateRoster(mesh);
+    
+    // Auto-Connect from Deep Link
+    const hashUrl = window.location.hash;
+    if (hashUrl.includes('?connect=')) {
+        const urlParams = new URLSearchParams(hashUrl.split('?')[1]);
+        const connectId = urlParams.get('connect');
+        if (connectId && connectId !== mesh.peerId) {
+            setTimeout(() => {
+                const input = this.container.querySelector('#pairing-code');
+                const btn = this.container.querySelector('#connect-btn');
+                if (input && btn) {
+                    input.value = connectId;
+                    btn.click();
+                    // Clean URL
+                    window.location.hash = '#/peer-hub';
+                }
+            }, 600);
+        }
+    }
+    
+    // Cleanup scanner on navigation
+    window.addEventListener('hashchange', () => {
+        if (this.html5QrcodeScanner) {
+            this.html5QrcodeScanner.stop().catch(()=>{});
+            this.html5QrcodeScanner = null;
+        }
+    }, { once: true });
+
     return this.container;
   }
 
@@ -202,7 +237,9 @@ export default class PeerNetworkView {
       return;
     }
 
-    QRCode.toDataURL(peerId, {
+    const deepLink = `${window.location.origin}${window.location.pathname}#/peer-hub?connect=${peerId}`;
+
+    QRCode.toDataURL(deepLink, {
       width: 200,
       margin: 1,
       color: { dark: '#1a0a12', light: '#ffffff' }
@@ -220,6 +257,65 @@ export default class PeerNetworkView {
     const shareBtn = this.container.querySelector('#toggle-share');
     const scanSection = this.container.querySelector('#scan-section');
     const shareSection = this.container.querySelector('#share-section');
+    
+    const startScannerBtn = this.container.querySelector('#start-scanner-btn');
+    const readerDiv = this.container.querySelector('#reader');
+
+    if (startScannerBtn) {
+        startScannerBtn.addEventListener('click', async () => {
+            if (this.html5QrcodeScanner) {
+                await this.html5QrcodeScanner.stop().catch(()=>{});
+                this.html5QrcodeScanner = null;
+                readerDiv.classList.add('hidden');
+                startScannerBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg> Open Camera Scanner`;
+                return;
+            }
+            
+            if (typeof Html5Qrcode === 'undefined') {
+                alert('Scanner library is loading. Please try again in a few seconds.');
+                return;
+            }
+            
+            readerDiv.classList.remove('hidden');
+            startScannerBtn.innerHTML = `<svg class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Starting Camera...`;
+            
+            try {
+                this.html5QrcodeScanner = new Html5Qrcode("reader");
+                await this.html5QrcodeScanner.start(
+                    { facingMode: "environment" },
+                    { fps: 10, qrbox: { width: 250, height: 250 } },
+                    (decodedText) => {
+                        let parsedId = decodedText;
+                        if (decodedText.includes('?connect=')) {
+                            const params = new URLSearchParams(decodedText.split('?')[1]);
+                            parsedId = params.get('connect') || decodedText;
+                        }
+                        
+                        const input = this.container.querySelector('#pairing-code');
+                        const btn = this.container.querySelector('#connect-btn');
+                        if (input && btn) {
+                            input.value = parsedId;
+                            btn.click();
+                        }
+                        
+                        this.html5QrcodeScanner.stop().catch(()=>{});
+                        this.html5QrcodeScanner = null;
+                        readerDiv.classList.add('hidden');
+                        startScannerBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg> Open Camera Scanner`;
+                    },
+                    (errorMessage) => { /* ignore parse errors during tracking */ }
+                );
+                startScannerBtn.innerHTML = `Stop Camera`;
+            } catch (err) {
+                console.error("Camera start failed:", err);
+                startScannerBtn.innerHTML = `Camera Access Denied`;
+                setTimeout(() => {
+                    startScannerBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg> Open Camera Scanner`;
+                    readerDiv.classList.add('hidden');
+                }, 3000);
+            }
+        });
+    }
 
     if (scanBtn && shareBtn) {
       scanBtn.addEventListener('click', () => {
