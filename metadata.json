@@ -1,0 +1,6 @@
+{
+  "name": "MedCare PWA",
+  "description": "A polished, Firebase-powered personal medication manager with interaction checking, prescription scanning, and sophisticated UI.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

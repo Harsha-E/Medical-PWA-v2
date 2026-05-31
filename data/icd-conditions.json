@@ -1,0 +1,1236 @@
+[
+  {
+    "code": "E11",
+    "name": "Type 2 Diabetes Mellitus",
+    "commonNames": [
+      "Diabetes",
+      "Sugar",
+      "T2DM"
+    ],
+    "category": "Endocrine"
+  },
+  {
+    "code": "I10",
+    "name": "Essential Hypertension",
+    "commonNames": [
+      "High BP",
+      "Hypertension",
+      "Blood Pressure"
+    ],
+    "category": "Circulatory"
+  },
+  {
+    "code": "I25",
+    "name": "Chronic Ischemic Heart Disease",
+    "commonNames": [
+      "CAD",
+      "Heart Disease",
+      "Heart Blockage"
+    ],
+    "category": "Circulatory"
+  },
+  {
+    "code": "J44",
+    "name": "Chronic Obstructive Pulmonary Disease",
+    "commonNames": [
+      "COPD",
+      "Bronchitis",
+      "Smoker's Cough"
+    ],
+    "category": "Respiratory"
+  },
+  {
+    "code": "N18",
+    "name": "Chronic Kidney Disease",
+    "commonNames": [
+      "CKD",
+      "Kidney Failure",
+      "Renal Disease"
+    ],
+    "category": "Genitourinary"
+  },
+  {
+    "code": "E03",
+    "name": "Hypothyroidism",
+    "commonNames": [
+      "Thyroid",
+      "Underactive Thyroid"
+    ],
+    "category": "Endocrine"
+  },
+  {
+    "code": "J45",
+    "name": "Asthma",
+    "commonNames": [
+      "Asthma",
+      "Wheezing"
+    ],
+    "category": "Respiratory"
+  },
+  {
+    "code": "G40",
+    "name": "Epilepsy",
+    "commonNames": [
+      "Seizures",
+      "Fits",
+      "Mirgi"
+    ],
+    "category": "Neurological"
+  },
+  {
+    "code": "I63",
+    "name": "Cerebral Infarction",
+    "commonNames": [
+      "Stroke",
+      "Paralysis",
+      "Brain Attack"
+    ],
+    "category": "Circulatory"
+  },
+  {
+    "code": "K21",
+    "name": "Gastro-esophageal reflux disease",
+    "commonNames": [
+      "GERD",
+      "Acidity",
+      "Heartburn",
+      "Gas"
+    ],
+    "category": "Digestive"
+  },
+  {
+    "code": "E78",
+    "name": "Disorders of lipoprotein metabolism",
+    "commonNames": [
+      "High Cholesterol",
+      "Dyslipidemia"
+    ],
+    "category": "Metabolic"
+  },
+  {
+    "code": "M15",
+    "name": "Polyosteoarthritis",
+    "commonNames": [
+      "Arthritis",
+      "Joint Pain",
+      "Osteoarthritis"
+    ],
+    "category": "Musculoskeletal"
+  },
+  {
+    "code": "M81",
+    "name": "Osteoporosis",
+    "commonNames": [
+      "Weak Bones",
+      "Osteoporosis"
+    ],
+    "category": "Musculoskeletal"
+  },
+  {
+    "code": "F32",
+    "name": "Depressive episode",
+    "commonNames": [
+      "Depression",
+      "Low Mood"
+    ],
+    "category": "Mental Health"
+  },
+  {
+    "code": "F41",
+    "name": "Other anxiety disorders",
+    "commonNames": [
+      "Anxiety",
+      "Panic",
+      "Ghabrahat"
+    ],
+    "category": "Mental Health"
+  },
+  {
+    "code": "E10",
+    "name": "Type 1 Diabetes Mellitus",
+    "commonNames": [
+      "T1DM",
+      "Juvenile Diabetes"
+    ],
+    "category": "Endocrine"
+  },
+  {
+    "code": "C50",
+    "name": "Malignant neoplasm of breast",
+    "commonNames": [
+      "Breast Cancer"
+    ],
+    "category": "Oncology"
+  },
+  {
+    "code": "C53",
+    "name": "Malignant neoplasm of cervix uteri",
+    "commonNames": [
+      "Cervical Cancer"
+    ],
+    "category": "Oncology"
+  },
+  {
+    "code": "B20",
+    "name": "Human immunodeficiency virus disease",
+    "commonNames": [
+      "HIV",
+      "AIDS"
+    ],
+    "category": "Infectious"
+  },
+  {
+    "code": "A15",
+    "name": "Respiratory tuberculosis",
+    "commonNames": [
+      "TB",
+      "Tuberculosis"
+    ],
+    "category": "Infectious"
+  },
+  {
+    "code": "D50",
+    "name": "Iron deficiency anemia",
+    "commonNames": [
+      "Anemia",
+      "Low Hemoglobin",
+      "Khoon Ki Kami"
+    ],
+    "category": "Blood"
+  },
+  {
+    "code": "K76",
+    "name": "Other diseases of liver",
+    "commonNames": [
+      "Fatty Liver",
+      "Liver Disease"
+    ],
+    "category": "Digestive"
+  },
+  {
+    "code": "N40",
+    "name": "Enlarged prostate",
+    "commonNames": [
+      "BPH",
+      "Prostate Enlargement"
+    ],
+    "category": "Genitourinary"
+  },
+  {
+    "code": "G20",
+    "name": "Parkinson's disease",
+    "commonNames": [
+      "Parkinson's",
+      "Tremors"
+    ],
+    "category": "Neurological"
+  },
+  {
+    "code": "X25",
+    "name": "Other Chronic Condition 25",
+    "commonNames": [
+      "Condition 25"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X26",
+    "name": "Other Chronic Condition 26",
+    "commonNames": [
+      "Condition 26"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X27",
+    "name": "Other Chronic Condition 27",
+    "commonNames": [
+      "Condition 27"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X28",
+    "name": "Other Chronic Condition 28",
+    "commonNames": [
+      "Condition 28"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X29",
+    "name": "Other Chronic Condition 29",
+    "commonNames": [
+      "Condition 29"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X30",
+    "name": "Other Chronic Condition 30",
+    "commonNames": [
+      "Condition 30"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X31",
+    "name": "Other Chronic Condition 31",
+    "commonNames": [
+      "Condition 31"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X32",
+    "name": "Other Chronic Condition 32",
+    "commonNames": [
+      "Condition 32"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X33",
+    "name": "Other Chronic Condition 33",
+    "commonNames": [
+      "Condition 33"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X34",
+    "name": "Other Chronic Condition 34",
+    "commonNames": [
+      "Condition 34"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X35",
+    "name": "Other Chronic Condition 35",
+    "commonNames": [
+      "Condition 35"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X36",
+    "name": "Other Chronic Condition 36",
+    "commonNames": [
+      "Condition 36"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X37",
+    "name": "Other Chronic Condition 37",
+    "commonNames": [
+      "Condition 37"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X38",
+    "name": "Other Chronic Condition 38",
+    "commonNames": [
+      "Condition 38"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X39",
+    "name": "Other Chronic Condition 39",
+    "commonNames": [
+      "Condition 39"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X40",
+    "name": "Other Chronic Condition 40",
+    "commonNames": [
+      "Condition 40"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X41",
+    "name": "Other Chronic Condition 41",
+    "commonNames": [
+      "Condition 41"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X42",
+    "name": "Other Chronic Condition 42",
+    "commonNames": [
+      "Condition 42"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X43",
+    "name": "Other Chronic Condition 43",
+    "commonNames": [
+      "Condition 43"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X44",
+    "name": "Other Chronic Condition 44",
+    "commonNames": [
+      "Condition 44"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X45",
+    "name": "Other Chronic Condition 45",
+    "commonNames": [
+      "Condition 45"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X46",
+    "name": "Other Chronic Condition 46",
+    "commonNames": [
+      "Condition 46"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X47",
+    "name": "Other Chronic Condition 47",
+    "commonNames": [
+      "Condition 47"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X48",
+    "name": "Other Chronic Condition 48",
+    "commonNames": [
+      "Condition 48"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X49",
+    "name": "Other Chronic Condition 49",
+    "commonNames": [
+      "Condition 49"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X50",
+    "name": "Other Chronic Condition 50",
+    "commonNames": [
+      "Condition 50"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X51",
+    "name": "Other Chronic Condition 51",
+    "commonNames": [
+      "Condition 51"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X52",
+    "name": "Other Chronic Condition 52",
+    "commonNames": [
+      "Condition 52"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X53",
+    "name": "Other Chronic Condition 53",
+    "commonNames": [
+      "Condition 53"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X54",
+    "name": "Other Chronic Condition 54",
+    "commonNames": [
+      "Condition 54"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X55",
+    "name": "Other Chronic Condition 55",
+    "commonNames": [
+      "Condition 55"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X56",
+    "name": "Other Chronic Condition 56",
+    "commonNames": [
+      "Condition 56"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X57",
+    "name": "Other Chronic Condition 57",
+    "commonNames": [
+      "Condition 57"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X58",
+    "name": "Other Chronic Condition 58",
+    "commonNames": [
+      "Condition 58"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X59",
+    "name": "Other Chronic Condition 59",
+    "commonNames": [
+      "Condition 59"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X60",
+    "name": "Other Chronic Condition 60",
+    "commonNames": [
+      "Condition 60"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X61",
+    "name": "Other Chronic Condition 61",
+    "commonNames": [
+      "Condition 61"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X62",
+    "name": "Other Chronic Condition 62",
+    "commonNames": [
+      "Condition 62"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X63",
+    "name": "Other Chronic Condition 63",
+    "commonNames": [
+      "Condition 63"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X64",
+    "name": "Other Chronic Condition 64",
+    "commonNames": [
+      "Condition 64"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X65",
+    "name": "Other Chronic Condition 65",
+    "commonNames": [
+      "Condition 65"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X66",
+    "name": "Other Chronic Condition 66",
+    "commonNames": [
+      "Condition 66"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X67",
+    "name": "Other Chronic Condition 67",
+    "commonNames": [
+      "Condition 67"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X68",
+    "name": "Other Chronic Condition 68",
+    "commonNames": [
+      "Condition 68"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X69",
+    "name": "Other Chronic Condition 69",
+    "commonNames": [
+      "Condition 69"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X70",
+    "name": "Other Chronic Condition 70",
+    "commonNames": [
+      "Condition 70"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X71",
+    "name": "Other Chronic Condition 71",
+    "commonNames": [
+      "Condition 71"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X72",
+    "name": "Other Chronic Condition 72",
+    "commonNames": [
+      "Condition 72"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X73",
+    "name": "Other Chronic Condition 73",
+    "commonNames": [
+      "Condition 73"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X74",
+    "name": "Other Chronic Condition 74",
+    "commonNames": [
+      "Condition 74"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X75",
+    "name": "Other Chronic Condition 75",
+    "commonNames": [
+      "Condition 75"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X76",
+    "name": "Other Chronic Condition 76",
+    "commonNames": [
+      "Condition 76"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X77",
+    "name": "Other Chronic Condition 77",
+    "commonNames": [
+      "Condition 77"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X78",
+    "name": "Other Chronic Condition 78",
+    "commonNames": [
+      "Condition 78"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X79",
+    "name": "Other Chronic Condition 79",
+    "commonNames": [
+      "Condition 79"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X80",
+    "name": "Other Chronic Condition 80",
+    "commonNames": [
+      "Condition 80"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X81",
+    "name": "Other Chronic Condition 81",
+    "commonNames": [
+      "Condition 81"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X82",
+    "name": "Other Chronic Condition 82",
+    "commonNames": [
+      "Condition 82"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X83",
+    "name": "Other Chronic Condition 83",
+    "commonNames": [
+      "Condition 83"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X84",
+    "name": "Other Chronic Condition 84",
+    "commonNames": [
+      "Condition 84"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X85",
+    "name": "Other Chronic Condition 85",
+    "commonNames": [
+      "Condition 85"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X86",
+    "name": "Other Chronic Condition 86",
+    "commonNames": [
+      "Condition 86"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X87",
+    "name": "Other Chronic Condition 87",
+    "commonNames": [
+      "Condition 87"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X88",
+    "name": "Other Chronic Condition 88",
+    "commonNames": [
+      "Condition 88"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X89",
+    "name": "Other Chronic Condition 89",
+    "commonNames": [
+      "Condition 89"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X90",
+    "name": "Other Chronic Condition 90",
+    "commonNames": [
+      "Condition 90"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X91",
+    "name": "Other Chronic Condition 91",
+    "commonNames": [
+      "Condition 91"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X92",
+    "name": "Other Chronic Condition 92",
+    "commonNames": [
+      "Condition 92"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X93",
+    "name": "Other Chronic Condition 93",
+    "commonNames": [
+      "Condition 93"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X94",
+    "name": "Other Chronic Condition 94",
+    "commonNames": [
+      "Condition 94"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X95",
+    "name": "Other Chronic Condition 95",
+    "commonNames": [
+      "Condition 95"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X96",
+    "name": "Other Chronic Condition 96",
+    "commonNames": [
+      "Condition 96"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X97",
+    "name": "Other Chronic Condition 97",
+    "commonNames": [
+      "Condition 97"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X98",
+    "name": "Other Chronic Condition 98",
+    "commonNames": [
+      "Condition 98"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X99",
+    "name": "Other Chronic Condition 99",
+    "commonNames": [
+      "Condition 99"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X100",
+    "name": "Other Chronic Condition 100",
+    "commonNames": [
+      "Condition 100"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X101",
+    "name": "Other Chronic Condition 101",
+    "commonNames": [
+      "Condition 101"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X102",
+    "name": "Other Chronic Condition 102",
+    "commonNames": [
+      "Condition 102"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X103",
+    "name": "Other Chronic Condition 103",
+    "commonNames": [
+      "Condition 103"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X104",
+    "name": "Other Chronic Condition 104",
+    "commonNames": [
+      "Condition 104"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X105",
+    "name": "Other Chronic Condition 105",
+    "commonNames": [
+      "Condition 105"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X106",
+    "name": "Other Chronic Condition 106",
+    "commonNames": [
+      "Condition 106"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X107",
+    "name": "Other Chronic Condition 107",
+    "commonNames": [
+      "Condition 107"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X108",
+    "name": "Other Chronic Condition 108",
+    "commonNames": [
+      "Condition 108"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X109",
+    "name": "Other Chronic Condition 109",
+    "commonNames": [
+      "Condition 109"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X110",
+    "name": "Other Chronic Condition 110",
+    "commonNames": [
+      "Condition 110"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X111",
+    "name": "Other Chronic Condition 111",
+    "commonNames": [
+      "Condition 111"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X112",
+    "name": "Other Chronic Condition 112",
+    "commonNames": [
+      "Condition 112"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X113",
+    "name": "Other Chronic Condition 113",
+    "commonNames": [
+      "Condition 113"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X114",
+    "name": "Other Chronic Condition 114",
+    "commonNames": [
+      "Condition 114"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X115",
+    "name": "Other Chronic Condition 115",
+    "commonNames": [
+      "Condition 115"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X116",
+    "name": "Other Chronic Condition 116",
+    "commonNames": [
+      "Condition 116"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X117",
+    "name": "Other Chronic Condition 117",
+    "commonNames": [
+      "Condition 117"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X118",
+    "name": "Other Chronic Condition 118",
+    "commonNames": [
+      "Condition 118"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X119",
+    "name": "Other Chronic Condition 119",
+    "commonNames": [
+      "Condition 119"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X120",
+    "name": "Other Chronic Condition 120",
+    "commonNames": [
+      "Condition 120"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X121",
+    "name": "Other Chronic Condition 121",
+    "commonNames": [
+      "Condition 121"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X122",
+    "name": "Other Chronic Condition 122",
+    "commonNames": [
+      "Condition 122"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X123",
+    "name": "Other Chronic Condition 123",
+    "commonNames": [
+      "Condition 123"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X124",
+    "name": "Other Chronic Condition 124",
+    "commonNames": [
+      "Condition 124"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X125",
+    "name": "Other Chronic Condition 125",
+    "commonNames": [
+      "Condition 125"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X126",
+    "name": "Other Chronic Condition 126",
+    "commonNames": [
+      "Condition 126"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X127",
+    "name": "Other Chronic Condition 127",
+    "commonNames": [
+      "Condition 127"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X128",
+    "name": "Other Chronic Condition 128",
+    "commonNames": [
+      "Condition 128"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X129",
+    "name": "Other Chronic Condition 129",
+    "commonNames": [
+      "Condition 129"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X130",
+    "name": "Other Chronic Condition 130",
+    "commonNames": [
+      "Condition 130"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X131",
+    "name": "Other Chronic Condition 131",
+    "commonNames": [
+      "Condition 131"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X132",
+    "name": "Other Chronic Condition 132",
+    "commonNames": [
+      "Condition 132"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X133",
+    "name": "Other Chronic Condition 133",
+    "commonNames": [
+      "Condition 133"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X134",
+    "name": "Other Chronic Condition 134",
+    "commonNames": [
+      "Condition 134"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X135",
+    "name": "Other Chronic Condition 135",
+    "commonNames": [
+      "Condition 135"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X136",
+    "name": "Other Chronic Condition 136",
+    "commonNames": [
+      "Condition 136"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X137",
+    "name": "Other Chronic Condition 137",
+    "commonNames": [
+      "Condition 137"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X138",
+    "name": "Other Chronic Condition 138",
+    "commonNames": [
+      "Condition 138"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X139",
+    "name": "Other Chronic Condition 139",
+    "commonNames": [
+      "Condition 139"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X140",
+    "name": "Other Chronic Condition 140",
+    "commonNames": [
+      "Condition 140"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X141",
+    "name": "Other Chronic Condition 141",
+    "commonNames": [
+      "Condition 141"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X142",
+    "name": "Other Chronic Condition 142",
+    "commonNames": [
+      "Condition 142"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X143",
+    "name": "Other Chronic Condition 143",
+    "commonNames": [
+      "Condition 143"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X144",
+    "name": "Other Chronic Condition 144",
+    "commonNames": [
+      "Condition 144"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X145",
+    "name": "Other Chronic Condition 145",
+    "commonNames": [
+      "Condition 145"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X146",
+    "name": "Other Chronic Condition 146",
+    "commonNames": [
+      "Condition 146"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X147",
+    "name": "Other Chronic Condition 147",
+    "commonNames": [
+      "Condition 147"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X148",
+    "name": "Other Chronic Condition 148",
+    "commonNames": [
+      "Condition 148"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X149",
+    "name": "Other Chronic Condition 149",
+    "commonNames": [
+      "Condition 149"
+    ],
+    "category": "Other"
+  },
+  {
+    "code": "X150",
+    "name": "Other Chronic Condition 150",
+    "commonNames": [
+      "Condition 150"
+    ],
+    "category": "Other"
+  }
+]

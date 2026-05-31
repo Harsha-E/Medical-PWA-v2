@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0,
+             user-scalable=no, viewport-fit=cover"
+  />
+  <title>MedCare | Clinical System</title>
+
+  <!-- ── Fonts ─────────────────────────────────────────────────────────── -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- ── Tailwind (browser build — swap for CLI build in production) ──── -->
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+
+  <script>
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = (window.location.hostname === 'harsha-e.github.io' ? '/Medical-PWA-v2' : '') + '/style.css';
+    document.head.appendChild(link);
+  </script>
+
+  <!-- ── PWA manifest ──────────────────────────────────────────────────── -->
+  <link rel="icon" type="image/jpeg" id="favicon-link" />
+  <link rel="manifest" id="manifest-link" />
+  <meta name="theme-color" content="#1a0a12" />
+  <script>
+    const BASE_PATH = window.location.hostname === 'harsha-e.github.io' ? '/Medical-PWA-v2' : '';
+    document.getElementById('favicon-link').href = `${BASE_PATH}/assets/logo.jpeg`;
+    document.getElementById('manifest-link').href = window.location.hostname === 'harsha-e.github.io' ? `${BASE_PATH}/manifest.github.json` : '/manifest.local.json';
+
+    // Catch beforeinstallprompt early to avoid race conditions with module loading
+    window.deferredInstallPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      window.deferredInstallPrompt = e;
+    });
+  </script>
+
+  <!--
+    ── Firebase config ────────────────────────────────────────────────────
+    Injected here (not inside JS) so the API key is not embedded in
+    source files tracked by git.
+
+    In production: have your server template-render the real values.
+    In local dev:  fill in your project's config from the Firebase console.
+
+    firebase.js reads this tag via document.getElementById('firebase-config').
+  -->
+  <script id="firebase-config" type="application/json">
+    {
+      "apiKey":            "REPLACE_WITH_YOUR_API_KEY",
+      "authDomain":        "REPLACE_WITH_YOUR_AUTH_DOMAIN",
+      "projectId":         "REPLACE_WITH_YOUR_PROJECT_ID",
+      "storageBucket":     "REPLACE_WITH_YOUR_STORAGE_BUCKET",
+      "messagingSenderId": "REPLACE_WITH_YOUR_SENDER_ID",
+      "appId":             "REPLACE_WITH_YOUR_APP_ID"
+    }
+  </script>
+</head>
+
+<body class="bg-[#1a0a12] text-gray-100 overflow-hidden w-screen h-screen selection:bg-[#7f2f5d] selection:text-white">
+
+  <!-- ── Global Animated Blobs ─────────────────────────────────────────── -->
+  <style>
+    @keyframes blob {
+      0% { transform: translate(0px, 0px) scale(1); }
+      33% { transform: translate(30px, -50px) scale(1.1); }
+      66% { transform: translate(-20px, 20px) scale(0.9); }
+      100% { transform: translate(0px, 0px) scale(1); }
+    }
+    .animate-blob {
+      animation: blob 8s infinite alternate ease-in-out;
+    }
+    .animation-delay-2000 {
+      animation-delay: 2s;
+    }
+    .animation-delay-4000 {
+      animation-delay: 4s;
+    }
+  </style>
+  <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+    <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-[#7f2f5d]/60 rounded-full mix-blend-screen filter blur-[80px] animate-blob"></div>
+    <div class="absolute top-[20%] right-[-10%] w-[45vw] h-[45vw] bg-[#ca5229]/50 rounded-full mix-blend-screen filter blur-[80px] animate-blob animation-delay-2000"></div>
+    <div class="absolute bottom-[-10%] left-[20%] w-[60vw] h-[60vw] bg-[#ffb88c]/40 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-4000"></div>
+  </div>
+
+  <!-- ── Splash screen ─────────────────────────────────────────────────── -->
+  <!--
+    Shown immediately while JS loads. app.js / splash.js is responsible
+    for fading this out once the app is ready. It is intentionally
+    plain HTML so it appears before any script executes.
+  -->
+  <div
+    id="splash-screen"
+    class="fixed inset-0 z-[9999] bg-[#1a0a12] flex flex-col items-center justify-center transition-opacity duration-1000"
+  >
+    <div class="relative w-12 h-12 mb-8">
+      <div class="absolute inset-0 border-t-2 border-transparent border-t-[#ffd9b5] rounded-full animate-spin"></div>
+      <div class="absolute inset-2 border-b-2 border-transparent border-b-[#7f2f5d] rounded-full animate-[spin_1.5s_linear_infinite_reverse]"></div>
+    </div>
+    <p class="font-mono text-[10px] text-[#ffd9b5] tracking-[0.4em] animate-pulse uppercase">
+      Initializing Core…
+    </p>
+  </div>
+
+  <!-- ── App viewport ──────────────────────────────────────────────────── -->
+  <!--
+    Router mounts each view's DOM here.
+    Starts opacity-0; splash.js fades it in after boot.
+  -->
+  <main
+    id="app-viewport"
+    class="relative z-10 w-full h-[100dvh] max-h-[100dvh] overflow-x-hidden overflow-y-auto opacity-0 transition-opacity duration-1000"
+    style="padding-top: max(0rem, env(safe-area-inset-top)); padding-bottom: max(5rem, env(safe-area-inset-bottom));"
+  ></main>
+
+  <!-- ── Navigation root ───────────────────────────────────────────────── -->
+  <!-- GlassNavbar mounts itself here so it always sits above the viewport -->
+  <div id="navigation-root" class="fixed z-[9000]"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.4.7/peerjs.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js" defer></script>
+  <!-- ── Entry point ───────────────────────────────────────────────────── -->
+  <script>
+    const script = document.createElement('script');
+    script.type = 'module';
+    script.src = (window.location.hostname === 'harsha-e.github.io' ? '/Medical-PWA-v2' : '') + '/app.js';
+    document.body.appendChild(script);
+  </script>
+
+</body>
+</html>

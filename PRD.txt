@@ -1,0 +1,1104 @@
+Product Requirements Document (PRD)
+Product Name: MedCare
+
+Platform: Offline-First Progressive Web Application (PWA)
+
+Version: 3.0 (v3 Architecture)
+
+Document Status: Active / Implementation Phase
+
+1. Product Overview
+MedCare is a high-performance, offline-first clinical medication environment. Engineered as a Native Progressive Web Application (PWA) without heavy framework bloat, it provides users with an encrypted, local-first platform to track medications, analyze drug interactions, and manage medical history. The application utilizes a premium "Warm Medical Luxury" design language, hardware-accelerated animations, and native-grade haptic feedback to simulate a flagship operating system experience.
+
+2. Target Audience
+Chronic Care Patients: Individuals managing complex, multi-dose daily medication schedules.
+
+Family Caretakers: Users managing prescriptions and medical histories for dependents or elderly family members.
+
+Clinical End-Users: Patients requiring secure, offline access to their medical data in clinical environments with poor network connectivity.
+
+3. Core Objectives & Principles
+Absolute Reliability (Offline-First): The application must function flawlessly without an active internet connection, utilizing Dexie.js for local data persistence and Service Worker caching (sw.js).
+
+Native Illusion: The PWA must feel indistinguishable from a Swift/Kotlin native app. This includes overriding default browser behaviors (pull-to-refresh, text selection) and implementing custom momentum scrolling and haptic touch engines.
+
+Zero-Bloat Architecture: Strict adherence to Vanilla ES6 JavaScript, HTML, and CSS. No node_modules dependency chains for the core UI layer to ensure rapid parsing and minimal memory footprint.
+
+Clinical Privacy: Sensitive medical data is processed locally where possible, with a secure, tokenized bridge to Firebase for authenticated cloud syncing.
+
+4. Key Features & Requirements
+4.1. Progressive Web App (PWA) Engine
+Autonomous Installation: A global, floating glassmorphic banner must dynamically prompt users to install the application via WebAPK (Android/Chrome) or provide fallback instructions for iOS Safari.
+
+Strict Manifest Compliance: Must serve perfectly square 192x192 and 512x512 .png maskable icons to pass stringent OS-level PWA requirements.
+
+App Shell Architecture: The root viewport must be locked (position: fixed, overflow: hidden) to prevent browser bouncing, while child views utilize hardware-accelerated -webkit-overflow-scrolling: touch.
+
+4.2. Clinical Feature Set
+Dashboard & Adherence: Visual daily tracking of medication schedules.
+
+OCR Prescription Scanning: Integration with Tesseract.js (VisionPipeline) to allow users to scan pill bottles or prescriptions via the device camera.
+
+Interaction Matrix (NLP): A local computational graph (InteractionGraph.js) that cross-references user medications against a clinical index (drug-index.json, food-interactions.json) to warn of dangerous drug-drug or drug-food interactions.
+
+Family Profiles & Hub: Shared management of dependents' medical data.
+
+Emergency Card: Instantly accessible critical health data and ICE (In Case of Emergency) contacts.
+
+4.3. UI/UX Specifications (Warm Medical Luxury)
+Color Palette: Deep, clinical dark mode. Backgrounds heavily utilize #050203, with warm ethereal accents of #ffd9b5 (Cream/Gold), #ffb88c (Peach/Orange), and #7f2f5d (Deep Rose).
+
+Ethereal Aura Engine: Canvas/WebGL-driven background layers that render massive, slow-moving radial gradients that react to user pointer parallax.
+
+Glassmorphism: Extensive use of backdrop-blur, semi-transparent borders, and deep shadow isolation to create depth.
+
+Haptics (HapticEngine.js): Intercepts touch events to simulate 3D-touch and provides distinct vibration patterns ([30, 50, 30]) for success states and navigation.
+
+5. Technical Architecture
+Frontend Layer
+Core: Vanilla ES6 JavaScript Classes (DOM manipulation, routing).
+
+Styling: Tailwind CSS (utility classes compiled via Vite).
+
+Graphics: Canvas API / WebGL (via Three.js / GhostFluid.js).
+
+State Management: Custom reactive state store (core/state.js).
+
+Data & Machine Learning Layer
+Local Database: IndexedDB wrapped by Dexie.js (core/db.js).
+
+Cloud Sync & Auth: Firebase v10 (core/firebase.js).
+
+Machine Learning: TensorFlow.js (TFJS) for local inference and Tesseract.js for optical character recognition.
+
+Routing / Sitemap (core/router.js)
+#/install - Global PWA Installation environment.
+
+#/landing / #/splash - Unauthenticated marketing/boot sequence.
+
+#/login / #/register - Authentication flow.
+
+#/onboarding - Initial medical profile setup.
+
+#/dashboard - Primary authenticated hub.
+
+#/scan - Camera-based OCR scanner.
+
+#/medications & #/medication - Inventory and detail views.
+
+#/interactions - Drug interaction graph visualizer.
+
+#/history, #/reports, #/calendar - Adherence and historical tracking.
+
+#/emergency - Rapid-access medical ID.
+
+6. Security & Compliance
+Data Isolation: User data must not leak into global window scopes.
+
+Route Guarding: Unauthenticated users must be redirected to #/landing. Non-standalone users (running in a standard browser tab) must be redirected to #/install to enforce the native app environment.
+
+Asset Integrity: Service Worker (sw.js) must prioritize cache-first strategies for HTML/JS/CSS to prevent MITM injection during offline usage.
+
+7. Future Scope (Post-MVP)
+Vibe Coding CLI: Implement natural language AI agents (Groq/Gemini) to allow users to interact with their medical data conversationally.
+
+Mesh Network / Hydra Pool: Transition from centralized API dependencies to localized P2P mesh logic for ultra-resilient data sharing (e.g., sharing an emergency card locally via Bluetooth/WebRTC).
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+MedCare v3 Architecture Summary
+System Paradigm: Offline-First Progressive Web Application (PWA) using a Native App Shell architecture.
+Design Language: "Warm Medical Luxury" (Dark mode, glassmorphism, hardware-accelerated momentum scrolling, WebGL ethereal backgrounds).
+
+1. Tech Stack
+Core: Vanilla ES6 JavaScript (No frontend frameworks like React/Vue).
+
+Styling: Tailwind CSS (compiled via Vite).
+
+Local Database: IndexedDB wrapped by Dexie.js.
+
+Cloud / Auth: Firebase v10 (Auth, Firestore).
+
+Graphics / UI: Three.js (WebGL backgrounds like GhostFluid.js).
+
+Machine Learning (On-Device): Tesseract.js (OCR)  , TensorFlow.js (TFJS).
+
+Build Tool: Vite.
+
+2. Core File Structure
+/ (Root): App entry (app.js), global styles (style.css), PWA config (manifest.json, sw.js v4).
+
+/core/: Central engines. Includes the router (router.js), reactive state (state.js), database initialization (db.js), Firebase config (firebase.js), and global visual engines (GhostFluid.js, StoryEngine.js).
+
+/services/: Business logic and native hardware simulators. Contains PwaInstallManager.js (autonomous banner), HapticEngine.js (singleton vibration API), InteractionGraph.js, and VisionPipeline.js (OCR).
+
+/views/: Route-level UI components (e.g., dashboard.js, install.js, medications.js). Elements are constructed natively via document.createElement and injected with innerHTML.
+
+/data/ & /ml/: Local clinical datasets (drug-index.json, food-interactions.json) and trained models for offline NLP/Computer Vision.
+
+3. Major Data Flows
+Offline-First Strategy: The app reads and writes primarily to the local IndexedDB via Dexie (core/db.js). This ensures zero latency and offline capability.
+
+Cloud Sync: When network conditions permit, local mutations are synced to Firebase Firestore (core/firebase.js).
+
+Asset Caching: The Service Worker (sw.js) aggressively caches all HTML, CSS, JS, and image assets (icon-192.png, icon-512.png) to bypass network requests entirely after the initial load.
+
+Local Inference: Vision pipelines and drug-interaction matrix calculations happen entirely on the client utilizing local JSON indexes and TFJS/Tesseract models, ensuring privacy.
+
+4. Active State Management & Routing
+State (core/state.js): Utilizes a custom vanilla reactive store. It subscribes to onAuthStateChanged in app.js. When a user authenticates, the state hydrates local user profiles and broadcasts changes to active views.
+
+Routing (core/router.js): A hash-based router. app.js runs a strict runGuard() lifecycle on every hash change or auth state change. The guard blocks unauthenticated users from private routes and forces non-standalone (browser) users to the #/install view to enforce the native PWA environment.
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+EXECUTIVE HAND-OFF NOTE: MEDCARE V3 ARCHITECTURE
+
+Status: Stable / PWA Core Integrated
+
+Project Phase: Native Conversion & System Hardening
+
+1. Features Completed & Hardened
+The core foundation has been fully migrated to a zero-dependency, Vanilla ES6 architecture, achieving native-app illusion and offline reliability.
+
+Autonomous Native Installation: The PwaInstallManager now autonomously injects a global, floating WebAPK installation banner without requiring localized HTML wiring.
+
+Offline-First Engine: The Service Worker (sw.js) has been bumped to v4, aggressively caching critical UI assets and perfectly square PNG icons to guarantee offline boots and pass Chrome's strict PWA heuristics.
+
+Native App Shell Mechanics: The viewport is locked (overflow: hidden) to prevent browser bouncing, while hardware-accelerated momentum scrolling (.native-scroll) is applied to individual content views.
+
+"Warm Medical Luxury" UX: WebGL Ethereal Aura backgrounds (GhostFluid.js), custom glassmorphic styling, and global Apple-grade 3D-touch haptic feedback (HapticEngine.js) are fully integrated.
+
+Clinical Data Foundations: Local IndexedDB (Dexie.js), Firebase Auth hooks, and clinical indexing (drug-index.json, InteractionGraph.js) are wired into the main routing guard.
+
+2. Known Bugs & System Risks
+While the fatal white-screen crashes and UI freezes have been patched, the following edge cases remain inherent to the PWA platform:
+
+Aggressive OS Icon Caching (Ghosting): If a user installed the app while the old manifest.json (with JPEG icons) was cached, updating the icon requires the user to manually clear their browser site data. The v4 cache bump forces this for most users, but edge cases remain.
+
+iOS Safari Install Limitations: iOS does not support the beforeinstallprompt event. We rely on a 2-second timeout to display the fallback UI ("Share → Add to Homescreen"). If Safari is heavily bogged down, this timing can feel slightly disconnected.
+
+WebGL Context Memory: While we destroy GhostFluid instances when leaving liquid-enabled routes, rapid, repeated navigation between the auth screens and the dashboard on low-end Android devices could still trigger minor GPU memory warnings.
+
+3. Immediate Next Development Tasks
+In alignment with the goal of a peer-to-peer, AI-orchestrated system without framework bloat, the next three sprints will focus on:
+
+OCR Prescription Scanning Pipeline: * Objective: Activate the #/scan view by fully connecting the device camera to the local Tesseract.js wrapper (VisionPipeline.js).
+
+Vibe Coding CLI & AI Orchestration: * Objective: Implement the natural language agent (Gemini/Groq) interface to allow users to interact with their medical data and orchestrate the UI conversationally, maintaining the strict Vanilla JS / direct-to-file constraints.
+
+P2P Mesh Network (Hydra Pool) Implementation: * Objective: Begin refactoring the backend architecture away from centralized API dependencies toward a decentralized Hydra Pool. The first use case will be allowing users to securely transmit their Emergency Card locally via WebRTC/Bluetooth without an internet connection.
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+-- ==============================================================================
+-- MedCare v3 Database Schema (Inferred from Dexie v4 Configuration)
+-- Note: 'userId' acts as a foreign key linking to Firebase Auth UIDs.
+-- ==============================================================================
+
+-- 1. USER PROFILE
+-- Acts as a key-value store for user preferences and onboarding state.
+CREATE TABLE userProfile (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    `key` VARCHAR(255) NOT NULL,
+    value JSON -- Inferred: NoSQL allows arbitrary data attached to the key
+);
+
+-- 2. MEDICATIONS (Version 4 Patch)
+CREATE TABLE medications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    userId VARCHAR(255) NOT NULL, -- Links to Firebase Auth
+    name VARCHAR(255) NOT NULL,
+    dosage VARCHAR(100),
+    frequency VARCHAR(100),
+    startDate DATE,
+    endDate DATE,
+    notes TEXT,
+    active BOOLEAN DEFAULT TRUE,
+    INDEX (userId)
+);
+
+-- 3. DOSES (Version 4 Patch)
+-- Tracks adherence logs for specific medications.
+CREATE TABLE doses (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    userId VARCHAR(255) NOT NULL,
+    medicationId INT NOT NULL,
+    takenAt TIMESTAMP,
+    skipped BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (medicationId) REFERENCES medications(id) ON DELETE CASCADE,
+    INDEX (userId)
+);
+
+-- 4. REMINDERS (Version 3)
+CREATE TABLE reminders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    userId VARCHAR(255) NOT NULL,
+    medicationId INT NOT NULL,
+    time VARCHAR(5), -- e.g., "08:00"
+    isActive BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (medicationId) REFERENCES medications(id) ON DELETE CASCADE,
+    INDEX (userId)
+);
+
+-- 5. INTERACTIONS (Version 2)
+-- Local cache of calculated drug-to-drug interactions.
+CREATE TABLE interactions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    drug1 VARCHAR(255) NOT NULL,
+    drug2 VARCHAR(255) NOT NULL,
+    severity ENUM('Low', 'Moderate', 'High', 'Severe'),
+    description TEXT,
+    checkedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 6. PRESCRIPTIONS (Version 3)
+-- Stores Tesseract.js OCR results and images.
+CREATE TABLE prescriptions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    userId VARCHAR(255) NOT NULL,
+    imageBlob LONGBLOB, -- IndexedDB natively stores Blob/File objects here
+    rawText TEXT,
+    date DATE,
+    doctorName VARCHAR(255),
+    INDEX (userId)
+);
+
+-- 7. MEDICAL HISTORY (Version 4 Patch)
+CREATE TABLE history (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    userId VARCHAR(255) NOT NULL,
+    type VARCHAR(100), -- e.g., 'Surgery', 'Condition', 'Vaccination'
+    date DATE,
+    title VARCHAR(255),
+    provider VARCHAR(255),
+    INDEX (userId)
+);
+
+-- 8. FAMILY PROFILES (Version 4 Patch)
+CREATE TABLE family (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    userId VARCHAR(255) NOT NULL, -- The main account holder
+    relationship VARCHAR(100),
+    name VARCHAR(255) NOT NULL,
+    bloodGroup VARCHAR(10),
+    INDEX (userId)
+);
+
+-- 9. APPOINTMENTS (Version 4 Patch)
+CREATE TABLE appointments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    userId VARCHAR(255) NOT NULL,
+    date DATE,
+    time VARCHAR(5),
+    title VARCHAR(255),
+    provider VARCHAR(255),
+    INDEX (userId)
+);
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+Here is a realistic JSON representation of your application's front-end state tree.
+
+This structure perfectly mirrors the State class defined in your core/state.js file, simulating a scenario where a user has successfully authenticated via Firebase and the hydrate() circuit-breaker has successfully fetched the corresponding Firestore document.
+
+JSON
+{
+  "user": {
+    "uid": "fb_uid_938xj29m_482n",
+    "email": "harsha.e@example.com",
+    "emailVerified": true,
+    "displayName": "Edupuganti Harsha",
+    "isAnonymous": false,
+    "phoneNumber": null,
+    "photoURL": "https://lh3.googleusercontent.com/a/mock_profile_image",
+    "providerData": [
+      {
+        "providerId": "password",
+        "uid": "harsha.e@example.com",
+        "displayName": "Edupuganti Harsha",
+        "email": "harsha.e@example.com",
+        "phoneNumber": null,
+        "photoURL": null
+      }
+    ],
+    "stsTokenManager": {
+      "refreshToken": "mock_refresh_token_string",
+      "accessToken": "mock_jwt_access_token_string",
+      "expirationTime": 1717143400000
+    },
+    "createdAt": "1714560000000",
+    "lastLoginAt": "1717056000000"
+  },
+  "userProfile": {
+    "role": "user",
+    "onboardingComplete": true,
+    "isOfflineFallback": false,
+    "personalDetails": {
+      "firstName": "Edupuganti",
+      "lastName": "Harsha",
+      "dob": "2007-01-02",
+      "location": "Tanuku, Andhra Pradesh",
+      "bloodGroup": "O+"
+    },
+    "emergencyContact": {
+      "name": "Amma",
+      "relationship": "Mother",
+      "phone": "+91-9876543210"
+    },
+    "preferences": {
+      "theme": "dark",
+      "language": "en",
+      "hapticsEnabled": true,
+      "notificationsEnabled": true,
+      "offlineModeStrict": false
+    },
+    "clinicalMetrics": {
+      "heightCm": 178,
+      "weightKg": 70,
+      "allergies": [
+        "Penicillin"
+      ]
+    },
+    "lastSyncTimestamp": "2026-05-29T14:47:00.000Z"
+  },
+  "isAdmin": false
+}
+Key Architectural Notes on this State:
+Separation of Concerns: The user object contains strictly standard Firebase Auth properties (which are immutable from the client-side UI), while userProfile contains the rich, mutable application data fetched from your users/{uid} Firestore document.
+
+Circuit-Breaker Flags: Notice the isOfflineFallback: false flag inside userProfile. If your 2.5-second timeout triggers during a poor connection, this flag would flip to true, allowing your views to render cached IndexedDB data while warning the user that cloud sync is temporarily paused.
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+night_sprint_v1
+
+MEDCARE V3 — NIGHT SPRINT ORCHESTRATION BRIEF
+==============================================
+Orchestrator: OpenClaw | Model: qwen3-coder-next | Backend: Ollama (localhost:11434)
+Sprint Goal: Activate two dormant view modules by wiring live browser APIs and the Dexie.js persistence layer.
+Constraint Reminder (enforce on every agent turn): Vanilla ES6 only. No frameworks. DOM via document.createElement. DB via import from '../core/db.js'.
+
+---
+
+TASK A — TARGET FILE: views/install.js
+OBJECTIVE: Implement the full PWA native install prompt lifecycle.
+
+CONTEXT FOR ARCHITECT:
+The install view renders a full-screen canvas with a glassmorphic CTA card. Currently the "Install App" button has no JavaScript binding to the browser's native install mechanism. The PWA install banner (PwaInstallManager.js) handles its own floating UI separately. This task is scoped only to the install view's internal logic.
+
+SPECIFIC REQUIREMENTS FOR LEAD DEVELOPER:
+
+1. BEFOREINSTALLPROMPT CAPTURE:
+   - On module load (not inside any class constructor), attach a window event
+     listener for the 'beforeinstallprompt' event.
+   - Call event.preventDefault() immediately on capture to suppress the default
+     browser mini-infobar.
+   - Store the event reference in a module-scoped variable named `_deferredPrompt`.
+   - Set a module-scoped boolean `_installable` to true upon capture.
+
+2. INVISIBLE TRIGGER BUTTON:
+   - After the view's existing canvas and card DOM is injected, programmatically
+     create a <button> element via document.createElement('button').
+   - Apply these exact Tailwind classes to make it a full-surface invisible overlay:
+     'absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50'
+   - Append this button as a child of the existing install card container (the
+     element with the glassmorphic styling).
+   - Attach a click event listener to this button. On click:
+     a. Guard: if `_deferredPrompt` is null, log a warning and return.
+     b. Call `_deferredPrompt.prompt()` to trigger the native OS install dialog.
+     c. Await `_deferredPrompt.userChoice` and store the outcome object.
+     d. Log the outcome.platform and outcome.outcome to console.
+     e. Set `_deferredPrompt` to null after resolution (one-time use).
+     f. Set `_installable` to false.
+
+3. STANDALONE MODE GUARD:
+   - At the top of the view's main render/mount function (before any DOM injection),
+     check: `window.matchMedia('(display-mode: standalone)').matches`
+     OR `window.navigator.standalone === true` (for iOS Safari compatibility).
+   - If either condition is true, the view must immediately redirect:
+     `window.location.hash = '#/dashboard'`
+   - Return early from the render function. Do not inject any DOM.
+
+4. APPINSTALLED EVENT CLEANUP:
+   - Attach a window event listener for the 'appinstalled' event.
+   - On fire: set `_deferredPrompt` to null, set `_installable` to false,
+     and redirect to `window.location.hash = '#/dashboard'`.
+
+REVIEWER AUDIT FOCUS FOR TASK A:
+- Confirm _deferredPrompt is module-scoped, not window-scoped.
+- Confirm prompt() is called inside a try/catch.
+- Confirm the standalone check uses BOTH matchMedia and navigator.standalone.
+- Confirm zero framework imports.
+
+---
+
+TASK B — TARGET FILE: views/scan.js
+OBJECTIVE: Connect the Tesseract.js OCR output to the Dexie.js prescriptions table and fix the _navigateToAdd() function.
+
+CONTEXT FOR ARCHITECT:
+The scan view uses VisionPipeline.js (services/VisionPipeline.js) to run Tesseract.js OCR on a camera frame. The pipeline returns a result object containing rawText (string) and matchedDrugs (array of drug name strings from the local drug-index.json lookup). Currently, _navigateToAdd() receives this result and only changes the URL hash. It does NOT persist the data. This task wires the persistence gap.
+
+SPECIFIC REQUIREMENTS FOR LEAD DEVELOPER:
+
+1. DEXIE IMPORT:
+   - At the top of views/scan.js, add the following import if not already present:
+     `import db from '../core/db.js';`
+   - Do NOT instantiate a new Dexie instance. Use only the imported singleton.
+
+2. REFACTOR _navigateToAdd(ocrResult):
+   - The function signature must accept one parameter: `ocrResult`.
+   - `ocrResult` has this guaranteed shape:
+     { rawText: string, matchedDrugs: string[], capturedImageBlob: Blob|null }
+   - The function must be declared async.
+   - Before changing the hash, execute the following persistence block inside
+     a try/catch:
+     a. Construct a prescription record object:
+        {
+          userId: (retrieve from the app's state singleton — import state from
+                   '../core/state.js' and use state.get('user').uid),
+          rawText: ocrResult.rawText,
+          imageBlob: ocrResult.capturedImageBlob ?? null,
+          date: new Date().toISOString().split('T')[0],
+          doctorName: null
+        }
+     b. Call: `const prescriptionId = await db.prescriptions.add(record);`
+     c. Log success: `console.log('[Scan] Prescription saved. ID:', prescriptionId);`
+   - In the catch block:
+     a. Log the error: `console.error('[Scan] Failed to save prescription:', err);`
+     b. Do NOT block navigation. Continue to the hash change regardless of DB failure.
+
+3. MATCHED DRUG CROSS-REFERENCE (secondary persistence):
+   - After the prescriptions.add() call (still inside the try block, after the
+     await), iterate over ocrResult.matchedDrugs.
+   - For each drug name string, check if it already exists in the medications
+     table: `const exists = await db.medications.where('name').equalsIgnoreCase(drugName).first();`
+   - If `exists` is undefined/null, add a provisional medication record:
+     `await db.medications.add({ userId: state.get('user').uid, name: drugName,
+      dosage: null, frequency: null, startDate: new Date().toISOString().split('T')[0],
+      endDate: null, notes: 'Auto-detected via OCR scan', active: true });`
+   - Log each addition: `console.log('[Scan] Auto-added medication from OCR:', drugName);`
+
+4. NAVIGATION (unchanged behavior, now occurs after persistence attempt):
+   - After the try/catch block completes (success or failure), execute:
+     `window.location.hash = '#/medications';`
+   - This must be OUTSIDE and AFTER the try/catch, guaranteeing it always runs.
+
+REVIEWER AUDIT FOCUS FOR TASK B:
+- Confirm db is imported from '../core/db.js' and not re-instantiated.
+- Confirm state is imported from '../core/state.js'.
+- Confirm _navigateToAdd is async.
+- Confirm navigation hash change is outside the try/catch (always executes).
+- Confirm equalsIgnoreCase is used (not equals) for the drug name lookup to
+  handle OCR capitalization variance.
+- Confirm imageBlob uses the nullish coalescing operator (??) not a loose OR (||).
+
+---
+
+END OF SPRINT BRIEF
+Expected outputs from OpenClaw pipeline per task:
+  1. architect_plan.json (from Architect agent)
+  2. views/install.js (complete file, from Lead Developer, post-Reviewer approval)
+  3. views/scan.js (complete file, from Lead Developer, post-Reviewer approval)
+  4. audit_report_install.json (from Reviewer)
+  5. audit_report_scan.json (from Reviewer)
+
+
+---
+
+PHASE 1 — DECENTRALIZED MESH & STATE ORCHESTRATION
+====================================================
+
+TASK C — TARGET FILES: services/PeerMesh.js (CREATE NEW), views/emergency.js (EDIT)
+READ-ONLY FILES: core/db.js (schema only), core/state.js (get/set API only), core/firebase.js (auth UID only)
+OBJECTIVE: Implement a PeerJS-brokered WebRTC P2P connection with WebAuthn biometric consent gating.
+
+[GOAL]
+Create a new singleton service PeerMesh.js that manages PeerJS identity, QR-encoded peer discovery,
+and a WebAuthn challenge-response handshake before any cross-device data channel opens. Wire the
+QR generation into the emergency view.
+
+[TARGET FILES]
+services/PeerMesh.js — create from scratch
+views/emergency.js  — add QR display and incoming connection handler
+
+[READ-ONLY FILES]
+core/state.js       — read state.get('user').uid for userId binding
+core/db.js          — schema reference only, do not modify
+
+[STRICT RULES — LEAD DEVELOPER MUST FOLLOW EXACTLY]
+
+RULE C-1: PEERJS IDENTITY INITIALIZATION
+- Import PeerJS from the CDN module cached in sw.js:
+  import Peer from '/vendor/peerjs.min.js';
+- Create and export a singleton class PeerMesh with a static getInstance() method.
+- In the constructor:
+  a. Generate a deterministic PeerJS ID by hashing the Firebase UID:
+     const rawId = await crypto.subtle.digest('SHA-256',
+       new TextEncoder().encode(state.get('user').uid));
+     const peerId = Array.from(new Uint8Array(rawId))
+       .map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 32);
+  b. Instantiate: this._peer = new Peer(peerId, { debug: 2 });
+  c. Bind this._peer.on('open', (id) => { this._myId = id; }) to confirm registration.
+  d. Store this._myId, this._connections = new Map(), this._pendingConsent = new Map().
+
+RULE C-2: QR CODE ENCODING (in emergency.js)
+- Import PeerMesh: import PeerMesh from '../services/PeerMesh.js';
+- After the emergency card DOM is injected, call:
+  const mesh = PeerMesh.getInstance();
+  await mesh.init();
+- Encode the peer ID into a QR string using the URL scheme:
+  `medcare://peer-connect?id=${mesh.myId}&name=${encodeURIComponent(userName)}`
+- Render this string into a <canvas> element using the native QRCode CDN library
+  cached at /vendor/qrcode.min.js:
+  import QRCode from '/vendor/qrcode.min.js';
+  QRCode.toCanvas(canvasElement, qrString, { width: 200, color: { dark: '#ffd9b5', light: '#05020300' } });
+- The canvas must be injected via document.createElement('canvas') and appended
+  inside the existing emergency card container. No inline styles except width/height
+  attributes on the canvas element itself.
+
+RULE C-3: INCOMING CONNECTION HANDLER (in PeerMesh.js)
+- Bind: this._peer.on('connection', (conn) => { this._handleIncoming(conn); });
+- _handleIncoming(conn) must:
+  a. Store conn in this._pendingConsent with key conn.peer.
+  b. Dispatch a custom DOM event so the UI can display a consent banner:
+     window.dispatchEvent(new CustomEvent('medcare:peer-request', {
+       detail: { peerId: conn.peer, connLabel: conn.metadata?.displayName ?? 'Unknown Device' }
+     }));
+  c. Do NOT open the data channel yet. Wait for biometric approval.
+
+RULE C-4: WEBAUTHN BIOMETRIC CONSENT GATE (in PeerMesh.js)
+- Expose an async method: async approvePeerConnection(peerId)
+- Inside a try/catch:
+  a. Retrieve the pending conn from this._pendingConsent.
+  b. Generate a cryptographic challenge:
+     const challenge = crypto.getRandomValues(new Uint8Array(32));
+  c. Call the WebAuthn assertion API:
+     const assertion = await navigator.credentials.get({
+       publicKey: {
+         challenge,
+         timeout: 60000,
+         userVerification: 'required',
+         rpId: window.location.hostname
+       }
+     });
+  d. If assertion resolves without throwing, the biometric passed.
+  e. Log: console.log('[PeerMesh] WebAuthn consent granted for peer:', peerId);
+  f. Move conn from _pendingConsent to _connections.
+  g. Call this._openDataChannel(conn).
+- In catch: log the error, delete from _pendingConsent, dispatch:
+  window.dispatchEvent(new CustomEvent('medcare:peer-denied', { detail: { peerId } }));
+
+RULE C-5: DATA CHANNEL OPEN (in PeerMesh.js)
+- _openDataChannel(conn):
+  a. conn.on('open', () => { console.log('[PeerMesh] Data channel open:', conn.peer); });
+  b. conn.on('data', (data) => { this._handleData(conn.peer, data); });
+  c. conn.on('close', () => { this._connections.delete(conn.peer); });
+
+REVIEWER AUDIT FOCUS FOR TASK C:
+- WebAuthn must use userVerification: 'required'. Any other value is CRITICAL FAIL.
+- Data channel must NOT open before approvePeerConnection resolves successfully.
+- PeerMesh must be a singleton. Confirm getInstance() pattern.
+- QR canvas uses document.createElement, not innerHTML.
+- All async functions have try/catch.
+
+---
+
+TASK D — TARGET FILES: services/SyncBridge.js (CREATE NEW), core/db.js (READ ONLY)
+READ-ONLY FILES: services/PeerMesh.js (data channel API), core/db.js (table names only)
+OBJECTIVE: Layer Y.js CRDTs over the open PeerJS data channel for real-time conflict-free shared state.
+
+[GOAL]
+Create SyncBridge.js which instantiates a Y.js document per peer session. When a shared field
+(e.g., emergencyContact, clinicalMetrics) is mutated by either peer, Y.js resolves conflicts and
+the final state is flushed to the local Dexie.js database.
+
+[TARGET FILES]
+services/SyncBridge.js — create from scratch
+
+[READ-ONLY FILES]
+services/PeerMesh.js   — _openDataChannel conn reference
+core/db.js             — table names: medications, family, prescriptions
+
+[STRICT RULES — LEAD DEVELOPER MUST FOLLOW EXACTLY]
+
+RULE D-1: YJS IMPORT AND DOCUMENT SETUP
+- Import from the CDN-cached ES module:
+  import * as Y from '/vendor/yjs.mjs';
+- Import db from '../core/db.js';
+- Import PeerMesh from './PeerMesh.js';
+- Export a singleton class SyncBridge with static getInstance().
+- The constructor initializes: this._docs = new Map(); (keyed by peerId)
+
+RULE D-2: SESSION INITIALIZATION
+- Expose async method: async attachToSession(peerId, permissionLevel)
+  where permissionLevel is the string 'READ_ONLY' or 'READ_WRITE'.
+- Inside try/catch:
+  a. const ydoc = new Y.Doc();
+  b. this._docs.set(peerId, { ydoc, permission: permissionLevel });
+  c. Get the conn from PeerMesh.getInstance()._connections.get(peerId).
+  d. Bind Y.js awareness and update sync to the PeerJS data channel:
+
+     ydoc.on('update', (update, origin) => {
+       if (origin !== 'remote') {
+         conn.send({ type: 'yjs-update', payload: Array.from(update) });
+       }
+     });
+
+  e. In PeerMesh's _handleData, route yjs-update payloads here:
+     Y.applyUpdate(ydoc, new Uint8Array(data.payload), 'remote');
+
+RULE D-3: OBSERVED FIELDS AND DB FLUSH
+- After ydoc is created, get the shared map:
+  const sharedProfile = ydoc.getMap('userProfile');
+- Observe mutations:
+  sharedProfile.observe(async (event) => {
+    if (event.transaction.origin === 'remote') {
+      const updatedData = sharedProfile.toJSON();
+      await this._flushToDb(peerId, updatedData);
+    }
+  });
+- _flushToDb(peerId, data) must be async with try/catch:
+  a. Retrieve the userId for this peer session from the local PeerMesh metadata.
+  b. Call: await db.family.where('userId').equals(localUserId).modify(data);
+  c. Log: console.log('[SyncBridge] DB flushed for peer session:', peerId);
+
+RULE D-4: WRITE GUARD
+- Expose method: setSharedField(peerId, key, value)
+- At the top: const session = this._docs.get(peerId);
+- Guard: if (session.permission !== 'READ_WRITE') {
+    console.warn('[SyncBridge] Write blocked. READ_ONLY session.');
+    return;
+  }
+- Then: session.ydoc.getMap('userProfile').set(key, value);
+
+REVIEWER AUDIT FOCUS FOR TASK D:
+- Y.js updates must NOT re-broadcast remote updates (check origin !== 'remote' guard).
+- _flushToDb must use db singleton from ../core/db.js.
+- Write guard must be enforced BEFORE any ydoc.set call.
+- All async functions have try/catch.
+
+---
+
+PHASE 2 — ON-DEVICE VISION PIPELINE
+=====================================
+
+TASK E — TARGET FILES: services/VisionPipeline.js (MAJOR REFACTOR), workers/vision.worker.js (CREATE NEW)
+READ-ONLY FILES: data/indian-drug-dataset.js (array of drug name strings), data/drug-graph.json (interaction map)
+OBJECTIVE: Build a three-stage Web Worker vision pipeline: MediaPipe boundary detection →
+OpenCV.js image preprocessing → Tesseract.js OCR → NER regex extraction → Fuse.js fuzzy match.
+
+[GOAL]
+Offload all heavy vision computation to a dedicated Web Worker. The main thread only sends the
+ImageBitmap and receives a structured result object. The worker runs the full pipeline internally.
+
+[TARGET FILES]
+workers/vision.worker.js  — create from scratch (runs inside Worker context)
+services/VisionPipeline.js — refactor to spawn the worker and message-pass results
+
+[READ-ONLY FILES]
+data/indian-drug-dataset.js — import for Fuse.js index initialization
+data/drug-graph.json        — import for DDI interaction lookup after fuzzy match
+
+[STRICT RULES — LEAD DEVELOPER MUST FOLLOW EXACTLY]
+
+RULE E-1: WEB WORKER BOOTSTRAP (workers/vision.worker.js)
+- This file runs in Worker scope. Use importScripts or static import depending on
+  worker type. Declare as module worker (type: 'module').
+- At the top of the worker file, import all vision libraries:
+  import { FilesetResolver, ObjectDetector } from '/vendor/mediapipe/tasks-vision.js';
+  import '/vendor/opencv.js';
+  import { createWorker } from '/vendor/tesseract.esm.min.js';
+  import Fuse from '/vendor/fuse.min.js';
+  import { drugDataset } from '../data/indian-drug-dataset.js';
+- Initialize Fuse.js index at worker startup (not per-message):
+  const fuse = new Fuse(drugDataset, {
+    keys: ['name', 'brandName'],
+    threshold: 0.15,
+    distance: 200,
+    useExtendedSearch: false,
+    includeScore: true
+  });
+  Note: threshold 0.15 corresponds to >85% confidence (Fuse score is inverted: 0=perfect).
+
+RULE E-2: MEDIAPIPE BOUNDARY DETECTION STAGE
+- In the worker's onmessage handler, receive: { type: 'PROCESS_FRAME', bitmap: ImageBitmap }
+- Initialize ObjectDetector once (guard with a _detectorReady flag):
+  const vision = await FilesetResolver.forVisionTasks('/vendor/mediapipe/wasm');
+  const detector = await ObjectDetector.createFromOptions(vision, {
+    baseOptions: { modelAssetPath: '/ml/document-detector.tflite', delegate: 'GPU' },
+    scoreThreshold: 0.5,
+    maxResults: 1
+  });
+- Run detection: const detections = detector.detect(bitmap);
+- Extract the bounding box of the first detection result.
+- Crop the ImageBitmap to the bounding box using OffscreenCanvas:
+  const oc = new OffscreenCanvas(bbox.width, bbox.height);
+  const ctx = oc.getContext('2d');
+  ctx.drawImage(bitmap, bbox.originX, bbox.originY, bbox.width, bbox.height, 0, 0, bbox.width, bbox.height);
+  const croppedBlob = await oc.convertToBlob({ type: 'image/png' });
+- If no detection found, use the full bitmap as fallback (do not abort pipeline).
+
+RULE E-3: OPENCV.JS PREPROCESSING STAGE
+- Load the cropped image into an OpenCV Mat:
+  const img = cv.imread(imageElementFromBlob); // create ImageBitmap → canvas → cv.imread
+- Apply the following transformations in order:
+  a. Grayscale: cv.cvtColor(img, gray, cv.COLOR_RGBA2GRAY);
+  b. Adaptive Gaussian threshold:
+     cv.adaptiveThreshold(gray, thresh, 255,
+       cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 11, 2);
+  c. Morphological dilation to connect broken letter strokes:
+     const kernel = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(2, 2));
+     cv.dilate(thresh, dilated, kernel);
+  d. Erosion to remove noise dots:
+     cv.erode(dilated, cleaned, kernel);
+- Export cleaned Mat back to a Blob for Tesseract:
+  const cleanedCanvas = new OffscreenCanvas(cleaned.cols, cleaned.rows);
+  cv.imshow(cleanedCanvas, cleaned);
+  const cleanedBlob = await cleanedCanvas.convertToBlob({ type: 'image/png' });
+- Release all Mats: img.delete(); gray.delete(); thresh.delete(); dilated.delete(); cleaned.delete();
+
+RULE E-4: TESSERACT.JS OCR STAGE
+- Initialize worker once (guard with _tesseractReady flag):
+  const ocrWorker = await createWorker('eng', 1, {
+    workerPath: '/vendor/tesseract/worker.min.js',
+    langPath: '/vendor/tesseract/lang-data',
+    corePath: '/vendor/tesseract/tesseract-core.wasm.js',
+    logger: (m) => { if (m.status === 'recognizing text') postMessage({ type: 'OCR_PROGRESS', progress: m.progress }); }
+  });
+- Run: const { data: { text } } = await ocrWorker.recognize(cleanedBlob);
+- rawText = text.trim();
+
+RULE E-5: NER REGEX PIPELINE
+- Apply the following regex extractions on rawText. Store all matches, then REMOVE
+  matched substrings from rawText to isolate drug name candidates:
+
+  a. DOSAGE EXTRACTION:
+     const dosageRegex = /(?:take\s+)?(\d+(?:\.\d+)?)\s*(mg|mcg|g|ml|tablet|capsule)/gi;
+     const dosages = [...rawText.matchAll(dosageRegex)].map(m => ({ value: m[1], unit: m[2] }));
+
+  b. FREQUENCY EXTRACTION:
+     const freqRegex = /\b(BID|TID|QID|OD|twice\s+a\s+day|once\s+daily|every\s+\d+\s+hours?)\b/gi;
+     const frequencies = [...rawText.matchAll(freqRegex)].map(m => m[1]);
+
+  c. ENTITY MASKING (strip matched tokens from rawText to isolate drug candidates):
+     let maskedText = rawText
+       .replace(dosageRegex, '')
+       .replace(freqRegex, '');
+
+  d. TOKENIZATION of residual drug candidates:
+     const candidates = maskedText
+       .split(/[\n\r,;.]+/)
+       .map(s => s.trim())
+       .filter(s => s.length > 3);
+
+RULE E-6: FUSE.JS FUZZY MATCHING AND CONFIDENCE ROUTING
+- For each candidate string in candidates:
+  a. const results = fuse.search(candidate);
+  b. if results.length === 0: push to unresolvedCandidates array, continue.
+  c. const topMatch = results[0];
+  d. const confidence = 1 - topMatch.score; // invert Fuse score to get 0–1 confidence
+  e. if (confidence >= 0.85):
+       - Push topMatch.item to confirmedDrugs array.
+       - Load drug-graph.json (import at worker top level as drugGraph).
+       - const ddiResult = checkDDI(topMatch.item.id, confirmedDrugs, drugGraph);
+       - if ddiResult.hasSevereInteraction:
+           postMessage({ type: 'DDI_ALERT', interactions: ddiResult.interactions });
+           // Do NOT add drug to confirmedDrugs yet. Halt and wait for UI acknowledgment.
+       - else: add to confirmedDrugs normally.
+  f. if (confidence < 0.85):
+       Push to lowConfidenceCandidates: { raw: candidate, suggestions: results.slice(0, 3) }
+
+- checkDDI(drugId, currentDrugList, graph) helper function:
+  a. Look up drugId in graph.interactions.
+  b. Cross-reference against each id in currentDrugList.
+  c. Return { hasSevereInteraction: boolean, interactions: [{drug1, drug2, severity, description}] }
+
+RULE E-7: WORKER RESPONSE
+- After full pipeline completion, postMessage:
+  {
+    type: 'PIPELINE_COMPLETE',
+    result: {
+      rawText,
+      dosages,
+      frequencies,
+      confirmedDrugs,
+      lowConfidenceCandidates,
+      unresolvedCandidates,
+      capturedImageBlob: croppedBlob
+    }
+  }
+
+RULE E-8: VISIONPIPELINE.JS REFACTOR (main thread side)
+- Replace existing Tesseract direct call with Web Worker spawn:
+  this._worker = new Worker('/workers/vision.worker.js', { type: 'module' });
+- Expose async method: async processFrame(videoElement)
+  a. Capture frame: const bitmap = await createImageBitmap(videoElement);
+  b. Transfer to worker: this._worker.postMessage({ type: 'PROCESS_FRAME', bitmap }, [bitmap]);
+  c. Return a Promise that resolves on PIPELINE_COMPLETE message and rejects on error.
+  d. Handle DDI_ALERT messages by dispatching a custom DOM event on window:
+     window.dispatchEvent(new CustomEvent('medcare:ddi-alert', { detail: data.interactions }));
+  e. Handle OCR_PROGRESS messages by dispatching:
+     window.dispatchEvent(new CustomEvent('medcare:ocr-progress', { detail: { progress: data.progress } }));
+
+REVIEWER AUDIT FOCUS FOR TASK E:
+- CRITICAL: All Mat objects must be .delete()-ed after use. Memory leak = FAIL.
+- Fuse threshold 0.15 corresponds to >85% confidence. Any other threshold value = FAIL.
+- DDI_ALERT must halt drug confirmation. Reviewer must confirm drug is NOT added to
+  confirmedDrugs array when ddiResult.hasSevereInteraction is true.
+- Worker must be type: 'module'. Classic worker = FAIL.
+- ImageBitmap must be transferred (not copied) to worker via transfer array.
+
+---
+
+PHASE 3 — DOCUMENT LEDGER
+===========================
+
+TASK F — TARGET FILES: views/history.js (EDIT), services/DocLedger.js (CREATE NEW)
+READ-ONLY FILES: core/db.js (history table schema only)
+OBJECTIVE: Add SHA-256 integrity hashing for uploaded documents and a Fuse.js fuzzy search
+index over the ledger timeline.
+
+[GOAL]
+Create DocLedger.js which handles file ingestion: reads ArrayBuffer, computes SHA-256 hash,
+saves to Dexie history table with the hash as a subresourceIntegrity field. Expose a fuzzy
+search method using a Fuse.js index over title, provider, and date fields.
+
+[TARGET FILES]
+services/DocLedger.js  — create from scratch
+views/history.js       — wire upload input and search input to DocLedger
+
+[READ-ONLY FILES]
+core/db.js             — history table: { id, userId, type, date, title, provider, subresourceIntegrity }
+
+[STRICT RULES — LEAD DEVELOPER MUST FOLLOW EXACTLY]
+
+RULE F-1: DOCLEDGER SINGLETON
+- Import db from '../core/db.js';
+- Import Fuse from '/vendor/fuse.min.js';
+- Import state from '../core/state.js';
+- Export default class DocLedger with static getInstance().
+- Constructor: this._fuseIndex = null; this._indexedDocs = [];
+
+RULE F-2: SHA-256 HASH COMPUTATION
+- Expose async method: async ingestDocument(file, metadata)
+  where file is a File object and metadata is { type, date, title, provider }.
+- Inside try/catch:
+  a. const arrayBuffer = await file.arrayBuffer();
+  b. const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+  c. const hashArray = Array.from(new Uint8Array(hashBuffer));
+  d. const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  e. Construct the record:
+     {
+       userId: state.get('user').uid,
+       type: metadata.type,
+       date: metadata.date,
+       title: metadata.title,
+       provider: metadata.provider ?? null,
+       subresourceIntegrity: `sha256-${hashHex}`,
+       imageBlob: new Blob([arrayBuffer], { type: file.type })
+     }
+  f. const docId = await db.history.add(record);
+  g. Log: console.log('[DocLedger] Document ingested. ID:', docId, 'SHA256:', hashHex);
+  h. After successful DB write, rebuild the Fuse index:
+     await this._rebuildIndex();
+  i. Return { docId, hashHex };
+
+RULE F-3: FUSE.JS SEARCH INDEX
+- _rebuildIndex() must be async with try/catch:
+  a. this._indexedDocs = await db.history
+       .where('userId').equals(state.get('user').uid).toArray();
+  b. this._fuseIndex = new Fuse(this._indexedDocs, {
+       keys: ['title', 'provider', 'type'],
+       threshold: 0.3,
+       includeScore: true,
+       distance: 100
+     });
+  c. Log: console.log('[DocLedger] Fuse index rebuilt. Docs indexed:', this._indexedDocs.length);
+
+- Expose method: search(query)
+  a. if (!this._fuseIndex || query.trim().length === 0):
+       return this._indexedDocs; // return full list if no query
+  b. return this._fuseIndex.search(query).map(r => r.item);
+
+RULE F-4: PEER INTEGRITY VERIFICATION
+- Expose async method: async verifyDocument(arrayBuffer, expectedHashHex)
+- Inside try/catch:
+  a. const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+  b. const hashArray = Array.from(new Uint8Array(hashBuffer));
+  c. const computedHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  d. const isValid = computedHash === expectedHashHex;
+  e. Log: console.log('[DocLedger] Integrity check:', isValid ? 'PASS' : 'FAIL');
+  f. return isValid;
+
+RULE F-5: HISTORY.JS WIRING
+- Import DocLedger: import DocLedger from '../services/DocLedger.js';
+- On view mount, call: await DocLedger.getInstance()._rebuildIndex();
+
+- UPLOAD INPUT HANDLER:
+  a. Create input element: const fileInput = document.createElement('input');
+  b. fileInput.type = 'file'; fileInput.accept = '.pdf,image/*'; fileInput.multiple = false;
+  c. fileInput.style.display = 'none';
+  d. fileInput.addEventListener('change', async (e) => {
+       const file = e.target.files[0];
+       if (!file) return;
+       const metadata = {
+         type: file.type.startsWith('image') ? 'Scan' : 'Document',
+         date: new Date().toISOString().split('T')[0],
+         title: file.name.replace(/\.[^/.]+$/, ''),
+         provider: null
+       };
+       const ledger = DocLedger.getInstance();
+       const { docId, hashHex } = await ledger.ingestDocument(file, metadata);
+       console.log('[history.js] Upload complete:', docId, hashHex);
+       renderTimeline(); // call existing timeline render function
+     });
+  e. Append fileInput to document.body (hidden). Trigger via a visible button's click handler.
+
+- SEARCH INPUT HANDLER:
+  a. Locate the existing search input element in the view DOM.
+  b. Add event listener: searchInput.addEventListener('input', (e) => {
+       const results = DocLedger.getInstance().search(e.target.value);
+       renderTimeline(results); // pass filtered results to existing render function
+     });
+
+REVIEWER AUDIT FOCUS FOR TASK F:
+- crypto.subtle.digest must be used. No third-party hashing library. External library = FAIL.
+- hashHex must be prefixed with 'sha256-' in the subresourceIntegrity field.
+- _rebuildIndex must be called AFTER db.history.add succeeds, not before.
+- fileInput must be display:none and triggered programmatically, not rendered visibly.
+- search() must return full _indexedDocs array when query is empty, not an empty array.
+
+---
+
+SERVICE WORKER CDN CACHE ADDITIONS
+====================================
+
+TASK G — TARGET FILE: sw.js (EDIT ONLY, DO NOT REFACTOR)
+READ-ONLY FILES: none
+OBJECTIVE: Add the new vendor library URLs to the Service Worker's precache list so all
+new dependencies remain fully functional offline.
+
+[GOAL]
+Append the following CDN URLs to the existing CACHE_URLS array in sw.js (v4). Do not touch
+any other logic in the file. Only add to the array.
+
+[TARGET FILES]
+sw.js — add to CACHE_URLS array only
+
+[STRICT RULES]
+- Do NOT change the cache version string (sw.js is already on v4).
+- Do NOT modify the fetch handler, install handler, or activate handler.
+- ONLY append to the CACHE_URLS array. Output only the modified array, not the full sw.js.
+- Add the following entries exactly:
+  '/vendor/peerjs.min.js',
+  '/vendor/yjs.mjs',
+  '/vendor/opencv.js',
+  '/vendor/fuse.min.js',
+  '/vendor/qrcode.min.js',
+  '/vendor/mediapipe/tasks-vision.js',
+  '/vendor/mediapipe/wasm/vision_wasm_internal.js',
+  '/vendor/mediapipe/wasm/vision_wasm_internal.wasm',
+  '/vendor/tesseract/worker.min.js',
+  '/vendor/tesseract/tesseract-core.wasm.js',
+  '/vendor/tesseract/lang-data/eng.traineddata.gz',
+  '/ml/document-detector.tflite'
+
+REVIEWER AUDIT FOCUS FOR TASK G:
+- Confirm zero changes to install, activate, or fetch handlers.
+- Confirm all 12 vendor paths are present and correctly quoted.
+- Confirm sw.js cache version string is unchanged.
+
+---
+
+OPENCLAW PIPELINE ADDITIONS — openclaw.yaml UPDATES
+======================================================
+
+APPEND these two agent definitions to your openclaw.yaml agents block:
+
+agents:
+
+  translator:
+    role: requirements_engineer
+    model: qwen3-coder-next
+    endpoint: http://localhost:11434
+    temperature: 0.1
+    description: >
+      You are a Requirements Engineer embedded in the MedCare v3 development pipeline.
+      The user will give you vague, incomplete, or high-level feature descriptions.
+      Your sole job is to rewrite the input into a highly specific, technical prompt
+      structured with the four mandatory sections: [GOAL], [TARGET FILES],
+      [READ-ONLY FILES], and [STRICT RULES]. You do NOT write code. You do NOT
+      output JSON. You output only the structured technical prompt text. Every rule
+      you write must reference a specific API, a specific file path, a specific
+      method name, or a specific Dexie.js table name. Vague rules like 'handle errors'
+      are forbidden — write 'wrap the await db.prescriptions.add() call in try/catch
+      and log the error to console.error' instead.
+    constraints:
+      - Output format is plain text using the four-section template only.
+      - Every STRICT RULE must name a specific file, method, or API.
+      - Never write code blocks in your output.
+      - If the user's idea is too vague to produce specific rules, ask one clarifying
+        question before producing the spec. Only one question maximum.
+
+  context_diet_enforcer:
+    role: worker
+    model: qwen3-coder-next
+    endpoint: http://localhost:11434
+    temperature: 0.05
+    description: >
+      You are the Context Diet Enforcer for the MedCare v3 pipeline. Before any
+      agent turn, you receive the full list of files the Lead Developer is
+      attempting to read. Your job is to reject any file not explicitly listed in
+      the current task's [TARGET FILES] or [READ-ONLY FILES] sections. You output
+      a simple JSON allow/deny manifest. Denied files are stripped from the
+      agent's context before the turn executes. This prevents context window
+      overflow on the 7B model and enforces task isolation.
+    output_format: json
+    output_schema:
+      requested_files: [string]
+      allowed_files: [string]
+      denied_files: [string]
+      reason_for_denials: string
+
+UPDATE your orchestration.pipeline block to:
+
+orchestration:
+  pipeline:
+    - agent: translator
+      input: "$USER_PROMPT"
+      output: technical_spec
+    - agent: context_diet_enforcer
+      input: "$technical_spec"
+      output: context_manifest
+    - agent: architect
+      input: "$technical_spec"
+      context_filter: "$context_manifest.allowed_files"
+      output: architect_plan
+    - agent: lead_developer
+      input: "$architect_plan"
+      context_filter: "$context_manifest.allowed_files"
+      output: developer_code
+    - agent: reviewer
+      input: "$developer_code"
+      output: reviewer_report
+  on_review_fail:
+    action: resubmit_to_lead_developer
+    max_retries: 2
+    pass_corrected_output: true
+
+---
+
+END OF APPENDED SPRINT CONTENT
+Expected additional outputs from this sprint:
+  services/PeerMesh.js          (Task C — new file)
+  views/emergency.js            (Task C — edited)
+  services/SyncBridge.js        (Task D — new file)
+  workers/vision.worker.js      (Task E — new file)
+  services/VisionPipeline.js    (Task E — refactored)
+  services/DocLedger.js         (Task F — new file)
+  views/history.js              (Task F — edited)
+  sw.js CACHE_URLS array patch  (Task G — array diff only)
+  audit_report_C.json through audit_report_G.json (Reviewer outputs)
