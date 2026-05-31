@@ -25,9 +25,9 @@ export default class SettingsView {
         </div>
       </header>
 
-      <main class="scroll-area px-6 pt-28 bg-transparent">
+      <main class="scroll-area px-6 bg-transparent">
         <div class="clay-glass-panel p-8 mb-12 flex items-center gap-6 shadow-[0_8px_32px_rgba(0,0,0,0.5)] border-white/10 bg-[#1a0a12]/40 backdrop-blur-xl">
-          <div class="avatar-circle font-display italic text-3xl shadow-xl border border-[#ffb88c]/30 bg-gradient-to-br from-[#7f2f5d] to-[#1a0a12] text-[#ffb88c]">${initials}</div>
+          <div class="w-20 h-20 rounded-full flex items-center justify-center font-display italic text-3xl font-bold shadow-[0_0_20px_rgba(202,82,41,0.3)] border border-[#ffb88c]/40 bg-gradient-to-br from-[#ca5229]/80 to-[#7f2f5d]/80 text-[#ffd9b5] backdrop-blur-md shrink-0 ring-4 ring-[#1a0a12]/50">${initials}</div>
           <div class="flex-1">
             <p class="font-bold text-xl leading-tight text-white">${displayName}</p>
             <p class="text-xs text-uppercase font-bold text-[#ffb88c] mt-2 tracking-widest uppercase">${bloodType} Clinical Node</p>
@@ -72,8 +72,6 @@ export default class SettingsView {
       </main>
 
       <style>
-        .view-header { position: fixed; top: 0; left: 0; right: 0; height: 80px; background: rgba(10, 4, 7, 0.4); backdrop-filter: blur(24px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); display: flex; align-items: center; z-index: 100; }
-        .avatar-circle { width: 64px; height: 64px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; }
         .settings-row { display: flex; justify-content: space-between; align-items: center; padding: 20px; transition: background 0.2s ease; cursor: pointer; }
         .settings-row:active { background: rgba(255,255,255,0.05); }
         .toggle { width: 36px; height: 20px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; position: relative; cursor: pointer; transition: background 0.2s; }
