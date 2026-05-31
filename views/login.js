@@ -1,5 +1,6 @@
 import { auth } from '../core/firebase.js';
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import WebGLLiquid from '../core/WebGLLiquid.js';
 
 export default class LoginView {
   async render() {
@@ -7,6 +8,15 @@ export default class LoginView {
     this.container.className = 'h-[100dvh] overflow-y-auto w-full flex flex-col items-center justify-center p-6 pt-28 relative z-10';
 
     this.container.innerHTML = `
+      <!-- WebGL Background Layer -->
+      <div id="liquid-host" class="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden bg-[#02040b]">
+        <canvas id="liquid-canvas" aria-hidden="true" class="absolute inset-0 w-full h-full block pointer-events-none"></canvas>
+        <div class="absolute inset-0 bg-gradient-to-r from-black/35 via-black/15 to-transparent pointer-events-none"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_65%_40%,rgba(255,255,255,0.08),transparent_45%)] pointer-events-none"></div>
+      </div>
+      <!-- Dark Overlay -->
+      <div class="absolute inset-0 bg-[#050203]/50 pointer-events-none z-[5]"></div>
+
       <div class="w-full max-w-md p-8 rounded-3xl bg-[#1a0a12]/40 backdrop-blur-3xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] animate-fade-in-up relative overflow-hidden" style="box-shadow: inset 0 2px 20px rgba(255,255,255,0.05), 0 20px 50px rgba(0,0,0,0.7);">
         <!-- Inner glow -->
         <div class="absolute -top-24 -left-24 w-48 h-48 bg-[#7f2f5d]/30 blur-[50px] rounded-full pointer-events-none"></div>
@@ -61,6 +71,15 @@ export default class LoginView {
       </div>
     `;
     this.bindEvents();
+
+    setTimeout(() => {
+      const canvas = this.container.querySelector('#liquid-canvas');
+      const host = this.container.querySelector('#liquid-host');
+      if (canvas && host) {
+        this._liquidAnimation = new WebGLLiquid(canvas, host);
+      }
+    }, 50);
+
     return this.container;
   }
 
@@ -137,6 +156,8 @@ export default class LoginView {
     });
   }
 
-  destroy() {}
+  destroy() {
+    if (this._liquidAnimation) this._liquidAnimation.destroy();
+  }
 }
 
