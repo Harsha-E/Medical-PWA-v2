@@ -46,9 +46,9 @@ export default class GlassNavbar {
     } else {
       this.root.innerHTML = `
         <nav id="glass-nav" class="${positionClass} left-1/2 -translate-x-1/2 w-[90%] sm:w-[95%] max-w-5xl h-14 md:h-16 flex items-center justify-between px-2 md:px-3 bg-[#0a0407]/40 backdrop-blur-2xl md:backdrop-blur-3xl border border-[#7f2f5d]/30 rounded-full z-[9000] shadow-[0_8px_32px_0_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,217,181,0.1)] transition-all duration-700 ease-pill-glide select-none pointer-events-auto">
-          <a href="#/" class="flex items-center gap-2 md:gap-3 pl-3 md:pl-4 mr-auto hover:opacity-80 transition-opacity">
+          <a href="#/landing" class="flex items-center gap-2 md:gap-3 pl-3 md:pl-4 mr-auto hover:opacity-80 transition-opacity">
             <svg class="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="#ffd9b5" stroke-width="2"><path d="M11 2a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2H2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h5a2 2 0 0 1 2 2v5a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-5a2 2 0 0 1 2-2h5a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-5a2 2 0 0 1-2-2V4a2 2 0 0 0-2-2h-4Z"></path></svg>
-            <span class="font-display text-lg tracking-tight text-white font-medium hidden min-[400px]:block mt-[2px]">MedCare</span>
+            <span class="font-display text-lg tracking-tight text-white font-medium block mt-[2px]">MedCheck</span>
           </a>
           ${this.getPublicMenu()}
         </nav>
