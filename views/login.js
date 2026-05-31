@@ -5,7 +5,7 @@ import WebGLLiquid from '../core/WebGLLiquid.js';
 export default class LoginView {
   async render() {
     this.container = document.createElement('div');
-    this.container.className = 'h-[100dvh] overflow-y-auto w-full p-6 pt-12 pb-32 relative z-10 flex flex-col';
+    this.container.className = 'h-[100dvh] overflow-y-auto w-full flex flex-col items-center justify-center p-6 pt-28 relative z-10';
 
     this.container.innerHTML = `
       <!-- WebGL Background Layer -->
@@ -16,7 +16,7 @@ export default class LoginView {
       <!-- Bright Overlay removed to fix blur stacking issues -->
       <div class="absolute inset-0 bg-[var(--color-surface)]/10 pointer-events-none z-[5]"></div>
 
-      <div class="clay-glass-panel w-full max-w-md p-8 animate-fade-in-up relative overflow-hidden z-10 mx-auto my-auto mt-12 mb-16">
+      <div class="clay-glass-panel w-full max-w-md p-8 animate-fade-in-up relative overflow-hidden z-10">
         <!-- Inner glow -->
         <div class="absolute -top-24 -left-24 w-48 h-48 bg-white/20 blur-[50px] rounded-full pointer-events-none"></div>
         <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-[#ffb88c]/20 blur-[50px] rounded-full pointer-events-none"></div>

@@ -4,7 +4,7 @@ import db from '../core/db.js';
 export default class SettingsView {
   async render() {
     this.container = document.createElement('div');
-    this.container.className = 'container';
+    this.container.className = 'container overflow-hidden h-full flex flex-col relative';
 
     const displayName = state.user?.displayName || 'Harsha Edupuganti';
     const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase() || 'HE';
@@ -18,14 +18,14 @@ export default class SettingsView {
     const dobYear = state.userProfile?.profile?.dob ? new Date(state.userProfile.profile.dob).getFullYear() : 'N/A';
 
     this.container.innerHTML = `
-      <header class="view-header">
+      <header class="view-header z-20 bg-transparent">
         <div class="flex flex-col">
             <span class="text-xs text-uppercase text-[#ffb88c]/70 uppercase tracking-widest leading-none">Configuration</span>
-            <h1 class="text-xl font-display mt-1 leading-none text-white">System Profile</h1>
+            <h1 class="text-xl font-display mt-1 leading-none text-[var(--color-text-primary)]">System Profile</h1>
         </div>
       </header>
 
-      <main class="scroll-area px-6 bg-transparent">
+      <main class="scroll-area px-6 bg-transparent pb-40">
         <div class="clay-glass-panel p-8 mb-12 flex items-center gap-6 shadow-[0_8px_32px_rgba(0,0,0,0.5)] border-white/10 bg-[#1a0a12]/40 backdrop-blur-xl">
           <div class="w-20 h-20 rounded-full flex items-center justify-center font-display italic text-3xl font-bold shadow-[0_0_20px_rgba(202,82,41,0.3)] border border-[#ffb88c]/40 bg-gradient-to-br from-[#ca5229]/80 to-[#7f2f5d]/80 text-[#ffd9b5] backdrop-blur-md shrink-0 ring-4 ring-[#1a0a12]/50">${initials}</div>
           <div class="flex-1">
