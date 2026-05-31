@@ -5,7 +5,7 @@ import { getFirestore, doc, setDoc } from 'https://www.gstatic.com/firebasejs/10
 export default class DashboardView {
   async render() {
     this.container = document.createElement('div');
-    this.container.className = 'container native-scroll !pt-0 !mt-0 h-full';
+    this.container.className = 'container native-scroll pt-4 pb-24 h-full';
 
     // Instantly return skeleton structure to router without blocking
     this.container.innerHTML = this._getSkeletonUI();
