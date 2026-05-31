@@ -129,16 +129,18 @@ class App {
       this.pwaManager = new PwaInstallManager();
     }
     
-    // 1. Initialize Clinical Engines in the background
-    try {
-      await interactionGraph.initialize();
-      // Fetch the drug index manually to hydrate the NLP context
-      const indexRes = await fetch('./data/drug-index.json');
-      const drugIndex = await indexRes.json();
-      await nlpContext.hydrate(drugIndex);
-    } catch (err) {
-      console.error('Failed to boot clinical engines:', err);
-    }
+    // 1. Initialize Clinical Engines in the background (Non-blocking)
+    (async () => {
+      try {
+        await interactionGraph.initialize();
+        // Fetch the drug index manually to hydrate the NLP context
+        const indexRes = await fetch('./data/drug-index.json');
+        const drugIndex = await indexRes.json();
+        await nlpContext.hydrate(drugIndex);
+      } catch (err) {
+        console.error('Failed to boot clinical engines:', err);
+      }
+    })();
 
     // Inject Rose-Gold theme onto the viewport
     this.viewport.classList.add('theme-rose-gold');
