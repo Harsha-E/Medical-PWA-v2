@@ -61,6 +61,13 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* Theme Utilities for missing Tailwind arbitrary classes */
+.bg-theme-surface { background-color: var(--color-surface); }
+.bg-theme-surface-elevated { background-color: var(--color-surface-elevated); }
+.text-theme-primary { color: var(--color-text-primary); }
+.text-theme-secondary { color: var(--color-text-secondary); }
+.border-theme { border: 1px solid var(--color-border); }
+
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
