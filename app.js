@@ -101,30 +101,32 @@ class App {
     // ─── PWA NATIVE STANDARDS ───────────────────────────────────────────
     hapticEngine.init();
     
-    // Register Service Worker and Boot PWA Install Manager
+    // Register Service Worker and Boot PWA Install Manager (Non-blocking)
     if ('serviceWorker' in navigator) {
-      try {
-        const BASE_PATH = window.location.hostname === 'harsha-e.github.io' ? '/Medical-PWA-v2' : '';
-        const reg = await navigator.serviceWorker.register(`${BASE_PATH}/sw.js`);
-        
-        await navigator.serviceWorker.ready;
+      (async () => {
+        try {
+          const BASE_PATH = window.location.hostname === 'harsha-e.github.io' ? '/Medical-PWA-v2' : '';
+          const reg = await navigator.serviceWorker.register(`${BASE_PATH}/sw.js`);
+          
+          await navigator.serviceWorker.ready;
 
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-        });
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+          });
 
-        if (!navigator.serviceWorker.controller) {
-          if (!sessionStorage.getItem('sw_reloaded')) {
-            console.warn('[SW] No controller. Reloading.');
-            sessionStorage.setItem('sw_reloaded', 'true');
-            window.location.reload();
-            return;
+          if (!navigator.serviceWorker.controller) {
+            if (!sessionStorage.getItem('sw_reloaded')) {
+              console.warn('[SW] No controller. Reloading.');
+              sessionStorage.setItem('sw_reloaded', 'true');
+              window.location.reload();
+              return;
+            }
           }
+          
+          this.pwaManager = new PwaInstallManager();
+        } catch (err) {
+          console.error('[Service Worker] Registration failed:', err);
         }
-        
-        this.pwaManager = new PwaInstallManager();
-      } catch (err) {
-        console.error('[Service Worker] Registration failed:', err);
-      }
+      })();
     } else {
       this.pwaManager = new PwaInstallManager();
     }
