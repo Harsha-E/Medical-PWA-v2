@@ -171,7 +171,7 @@ export default class DashboardView {
             <p class="text-xs text-gray-500 font-mono uppercase tracking-widest">No scheduled doses.</p>
             <button id="schedule-empty-add-btn" class="text-[#ffb88c] text-xs font-bold mt-2 uppercase">Add medication</button>
           </div>
-        \`}
+        `}
       </div>
     `;
   }
