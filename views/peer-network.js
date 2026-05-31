@@ -36,20 +36,16 @@ export default class PeerNetworkView {
                 <h2 class="text-lg font-display text-white mb-2">Connect to Peer</h2>
                 <p class="text-xs text-[#ffb88c]/70 font-mono mb-8">Enter a pairing code to establish a secure, localized connection with another device.</p>
                 
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <input type="text" id="pairing-code" placeholder="Enter Pairing Code..." class="flex-1 bg-black/40 border border-[#7f2f5d]/50 rounded-xl px-4 py-3 text-white text-xs font-mono focus:outline-none focus:border-[#ffb88c]/50 transition-colors shadow-inner">
-                    <button id="connect-btn" class="bg-[#ca5229] text-white px-6 py-3 rounded-xl font-bold uppercase tracking-widest text-xs active:scale-95 transition-transform shadow-lg shadow-[#ca5229]/20">Connect</button>
-                </div>
-                <div class="mt-8 text-center">
-                    <button id="start-scanner-btn" class="w-full bg-[#1a0a12] border-2 border-dashed border-[#ca5229]/50 hover:border-[#ca5229] hover:bg-[#ca5229]/10 text-[#ffb88c] rounded-2xl p-8 transition-all flex flex-col items-center justify-center gap-3 cursor-pointer group">
-                      <div class="w-16 h-16 rounded-full bg-[#ca5229]/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
-                      </div>
-                      <div class="flex flex-col">
-                          <span class="font-bold uppercase tracking-widest text-sm">Scan QR within App</span>
-                          <span class="text-[10px] text-gray-500 font-mono mt-1">Tap to open hover scanner</span>
-                      </div>
+                <div class="flex flex-col sm:flex-row items-center gap-3 w-full">
+                    <button id="start-scanner-btn" class="bg-gradient-to-r from-[#ca5229] to-[#7f2f5d] text-white px-6 py-3 rounded-full font-bold uppercase tracking-widest text-xs active:scale-95 transition-transform shadow-[0_4px_16px_rgba(202,82,41,0.4)] flex items-center justify-center gap-2 w-full sm:w-auto shrink-0">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
+                        Scan QR
                     </button>
+                    <div class="text-[10px] text-gray-500 font-mono uppercase tracking-widest hidden sm:block">OR</div>
+                    <div class="flex flex-1 w-full gap-2">
+                        <input type="text" id="pairing-code" placeholder="Enter Pairing Code..." class="flex-1 min-w-0 bg-black/40 border border-[#7f2f5d]/50 rounded-full px-4 py-3 text-white text-xs font-mono focus:outline-none focus:border-[#ffb88c]/50 transition-colors shadow-inner">
+                        <button id="connect-btn" class="bg-[#1a0a12] border border-[#ca5229]/50 text-[#ffb88c] px-5 py-3 rounded-full font-bold uppercase tracking-widest text-xs active:scale-95 transition-all shadow-lg hover:bg-[#ca5229]/10 shrink-0">Connect</button>
+                    </div>
                 </div>
                 <!-- Fullscreen Hover Scanner Modal -->
                 <div id="hover-scanner-modal" class="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
@@ -76,12 +72,8 @@ export default class PeerNetworkView {
                 <h2 class="text-lg font-display text-white mb-2">My Pairing QR</h2>
                 <p class="text-xs text-[#ffb88c]/70 font-mono mb-6">Scan this code to establish a peer-to-peer connection with ${displayName}</p>
                 
-                <div id="qr-container" class="bg-white p-4 rounded-none inline-block shadow-lg border border-white/20 relative z-10 min-h-[200px] min-w-[200px] flex items-center justify-center">
-                    <div class="loader">
-                      <div class="box1"></div>
-                      <div class="box2"></div>
-                      <div class="box3"></div>
-                    </div>
+                <div id="qr-container" class="bg-transparent p-4 inline-block relative z-10 min-h-[200px] min-w-[200px] flex items-center justify-center">
+                    <div id="qr-loader" class="clay-loader"></div>
                 </div>
                 <p id="peer-id-display" class="text-xs text-white font-mono mt-6 tracking-[0.2em] uppercase font-bold cursor-pointer hover:text-[#ffb88c] active:scale-95 transition-all select-none" title="Click to copy">Code: ${mesh.peerId || 'AWAITING_ID'}</p>
             </div>
@@ -356,19 +348,20 @@ export default class PeerNetworkView {
         scanSection.classList.add('hidden');
         scanSection.classList.remove('block');
 
-        // Show the loader animation momentarily when toggled
+        // Forcefully close the scanner modal if it's open
+        if (closeScannerBtn) {
+            closeScannerBtn.click();
+        }
+
+        // Show the claymorphism loader animation momentarily when toggled
         const qrContainer = this.container.querySelector('#qr-container');
         if (qrContainer) {
           qrContainer.innerHTML = `
-            <div class="loader">
-              <div class="box1"></div>
-              <div class="box2"></div>
-              <div class="box3"></div>
-            </div>
+            <div id="qr-loader" class="clay-loader is-active"></div>
           `;
           setTimeout(() => {
             this.generateQR(mesh.peerId);
-          }, 800);
+          }, 1200); // Give the pulsing animation a bit longer to be appreciated
         }
       });
     }
