@@ -143,30 +143,30 @@ export default class DashboardView {
           if (dose.taken) itemStatus = 'taken';
           else if (dose.date < now) itemStatus = 'missed';
 
-          return \`
-          <div class="relative timeline-item transition-all duration-300 transform origin-top" data-status="\${itemStatus}">
-            <div class="absolute -left-[31px] top-0 w-4 h-4 rounded-full border-4 border-[#0a0407] \${dose.taken ? 'bg-green-500' : Math.abs(dose.date - now) < 3600000 ? 'bg-[#ffb88c] animate-pulse' : 'bg-[#7f2f5d]'}"></div>
-            <div class="\${dose.taken ? 'opacity-50' : ''}">
+          return `
+          <div class="relative timeline-item transition-all duration-300 transform origin-top" data-status="${itemStatus}">
+            <div class="absolute -left-[31px] top-0 w-4 h-4 rounded-full border-4 border-[#0a0407] ${dose.taken ? 'bg-green-500' : Math.abs(dose.date - now) < 3600000 ? 'bg-[#ffb88c] animate-pulse' : 'bg-[#7f2f5d]'}"></div>
+            <div class="${dose.taken ? 'opacity-50' : ''}">
               <div class="flex justify-between items-start mb-2">
                 <div>
-                  <span class="text-xs font-bold text-[#ffb88c] uppercase tracking-widest leading-none">\${dose.time}</span>
-                  <h3 class="text-base font-bold text-white mt-1">\${dose.name}</h3>
+                  <span class="text-xs font-bold text-[#ffb88c] uppercase tracking-widest leading-none">${dose.time}</span>
+                  <h3 class="text-base font-bold text-white mt-1">${dose.name}</h3>
                 </div>
-                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">\${dose.dosage}</span>
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">${dose.dosage}</span>
               </div>
-              \${dose.taken
-                ? \`<div class="flex items-center gap-2 mt-2">
+              ${dose.taken
+                ? `<div class="flex items-center gap-2 mt-2">
                      <div class="flex items-center gap-1.5 px-2 py-1 bg-green-500/10 border border-green-500/30 rounded-lg">
                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
                        <span class="text-xs font-bold text-green-400 uppercase tracking-widest">Taken</span>
                      </div>
-                     <button class="undo-dose-btn px-3 py-1 bg-[#1a0a12] border border-[#7f2f5d]/50 rounded-lg text-xs font-bold text-gray-400 hover:text-white uppercase tracking-widest transition-colors" data-med-id="\${dose.id}" data-time="\${dose.time}">Undo</button>
-                   </div>\`
-                : \`<button class="confirm-dose-btn w-full mt-3 py-3 bg-[#1a0a12] border border-[#7f2f5d]/50 rounded-xl text-xs font-bold text-[#ffb88c] uppercase tracking-[0.2em] hover:bg-[#7f2f5d]/30 transition-all active:scale-[0.98]" data-med-id="\${dose.id}" data-time="\${dose.time}">Mark as Taken</button>\`
+                     <button class="undo-dose-btn px-3 py-1 bg-[#1a0a12] border border-[#7f2f5d]/50 rounded-lg text-xs font-bold text-gray-400 hover:text-white uppercase tracking-widest transition-colors" data-med-id="${dose.id}" data-time="${dose.time}">Undo</button>
+                   </div>`
+                : `<button class="confirm-dose-btn w-full mt-3 py-3 bg-[#1a0a12] border border-[#7f2f5d]/50 rounded-xl text-xs font-bold text-[#ffb88c] uppercase tracking-[0.2em] hover:bg-[#7f2f5d]/30 transition-all active:scale-[0.98]" data-med-id="${dose.id}" data-time="${dose.time}">Mark as Taken</button>`
               }
             </div>
           </div>
-        \`}).join('') : \`
+        `}).join('') : `
           <div class="py-8 text-center clay-glass-panel rounded-3xl">
             <p class="text-xs text-gray-500 font-mono uppercase tracking-widest">No scheduled doses.</p>
             <button id="schedule-empty-add-btn" class="text-[#ffb88c] text-xs font-bold mt-2 uppercase">Add medication</button>
