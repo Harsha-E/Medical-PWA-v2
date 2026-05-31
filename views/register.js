@@ -16,10 +16,12 @@ export default class RegisterView {
       <!-- Bright Overlay removed to fix blur stacking issues -->
       <div class="absolute inset-0 pointer-events-none z-[5]" style="background-color: var(--color-surface); opacity: 0.1;"></div>
 
-      <div class="clay-glass-panel w-full max-w-md p-8 animate-fade-in-up relative overflow-hidden z-10">
-        <!-- Inner glow -->
-        <div class="absolute -top-24 -left-24 w-48 h-48 bg-white/20 blur-[50px] rounded-full pointer-events-none"></div>
-        <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-[#ffb88c]/20 blur-[50px] rounded-full pointer-events-none"></div>
+      <div class="clay-glass-panel w-full max-w-md p-8 animate-fade-in-up relative z-10">
+        <!-- Inner glow wrapper to safely isolate overflow-hidden without breaking Safari/WebKit rendering -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none rounded-[inherit] z-0">
+          <div class="absolute -top-24 -left-24 w-48 h-48 bg-white/20 blur-[50px] rounded-full"></div>
+          <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-[#ffb88c]/20 blur-[50px] rounded-full"></div>
+        </div>
 
         <div class="text-center mb-8 relative z-10">
           <div class="w-16 h-16 mx-auto rounded-2xl shadow-lg flex items-center justify-center mb-4 transition-transform hover:scale-105 duration-300" style="background: linear-gradient(to bottom right, var(--color-surface-elevated), var(--color-surface)); border: 1px solid var(--color-border);">
