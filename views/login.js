@@ -7,50 +7,56 @@ export default class LoginView {
     this.container.className = 'h-[100dvh] overflow-y-auto w-full flex flex-col items-center justify-center p-6 pt-28 relative z-10';
 
     this.container.innerHTML = `
-      <div class="w-full max-w-md p-8 rounded-3xl bg-[#1a0a12] backdrop-blur-3xl border border-[#7f2f5d]/30 shadow-[0_20px_50px_rgba(0,0,0,0.5)] animate-fade-in-up">
-        <div class="text-center mb-8">
-          <h2 class="text-3xl font-display font-semibold text-white tracking-tight">Access Portal</h2>
-          <p class="text-gray-400 text-sm mt-2 font-mono uppercase tracking-widest">Identify to continue</p>
+      <div class="w-full max-w-md p-8 rounded-3xl bg-[#1a0a12]/40 backdrop-blur-3xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] animate-fade-in-up relative overflow-hidden" style="box-shadow: inset 0 2px 20px rgba(255,255,255,0.05), 0 20px 50px rgba(0,0,0,0.7);">
+        <!-- Inner glow -->
+        <div class="absolute -top-24 -left-24 w-48 h-48 bg-[#7f2f5d]/30 blur-[50px] rounded-full pointer-events-none"></div>
+        <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-[#ca5229]/20 blur-[50px] rounded-full pointer-events-none"></div>
+
+        <div class="text-center mb-8 relative z-10">
+          <div class="w-16 h-16 mx-auto bg-gradient-to-br from-[#1a0a12] to-[#0a0407] rounded-2xl border border-white/10 shadow-lg flex items-center justify-center mb-4">
+             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ffb88c" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h2 class="text-3xl font-display font-bold text-white tracking-tight">Access Portal</h2>
+          <p class="text-[#ffb88c] text-xs mt-2 font-mono uppercase tracking-widest opacity-80">Identify to continue</p>
         </div>
 
-        <div id="error-container" class="hidden mb-5 p-4 rounded-xl bg-red-900/20 border border-red-500/30 text-red-200 text-xs font-mono text-center"></div>
-        <div id="success-container" class="hidden mb-5 p-4 rounded-xl bg-green-900/20 border border-green-500/30 text-green-200 text-xs font-mono text-center"></div>
+        <div id="error-container" class="hidden relative z-10 mb-5 p-4 rounded-xl bg-red-900/20 border border-red-500/30 text-red-200 text-xs font-mono text-center"></div>
+        <div id="success-container" class="hidden relative z-10 mb-5 p-4 rounded-xl bg-green-900/20 border border-green-500/30 text-green-200 text-xs font-mono text-center"></div>
 
-        <form id="login-form" class="space-y-4">
+        <form id="login-form" class="space-y-4 relative z-10">
           <div>
             <label for="email" class="sr-only">Email Address</label>
-            <input type="email" id="email" autocomplete="email" placeholder="Email Address" required class="w-full px-5 py-4 rounded-xl bg-[#0a0407] border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-[#ffb88c]/50 focus:bg-[#1a0a12] transition-all font-sans">
+            <input type="email" id="email" autocomplete="email" placeholder="Email Address" required class="w-full px-5 py-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-[#ffb88c]/50 focus:bg-white/10 transition-all font-sans">
           </div>
           <div>
             <label for="password" class="sr-only">Password</label>
-            <input type="password" id="password" autocomplete="current-password" placeholder="Password" required class="w-full px-5 py-4 rounded-xl bg-[#0a0407] border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-[#ffb88c]/50 focus:bg-[#1a0a12] transition-all font-sans">
+            <input type="password" id="password" autocomplete="current-password" placeholder="Password" required class="w-full px-5 py-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-[#ffb88c]/50 focus:bg-white/10 transition-all font-sans">
           </div>
           
           <div class="flex justify-end">
             <button type="button" id="forgot-password" class="text-xs text-gray-400 font-mono uppercase tracking-widest hover:text-[#ffb88c] transition-colors">Forgot Password?</button>
           </div>
 
-          <button type="submit" id="submit-btn" class="w-full py-4 rounded-xl bg-linear-to-r from-[#7f2f5d] to-[#ffb88c] border border-[#ffb88c]/30 text-[#ffd9b5] font-mono text-xs font-bold uppercase tracking-widest hover:brightness-125 active:scale-95 transition-all shadow-[0_0_20px_rgba(127,47,93,0.4)] mt-2">
+          <button type="submit" id="submit-btn" class="w-full py-4 rounded-xl bg-gradient-to-r from-[#7f2f5d] to-[#ca5229] border border-[#ffb88c]/30 text-white font-mono text-xs font-bold uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-[0_0_20px_rgba(202,82,41,0.3)] mt-2">
             Authenticate
           </button>
         </form>
 
-        <div class="relative flex items-center py-6">
-          <div class="flex-grow border-t border-white/5"></div>
-          <span class="flex-shrink-0 mx-4 text-gray-600 text-xs font-mono uppercase tracking-widest">Secondary Paths</span>
-          <div class="flex-grow border-t border-white/5"></div>
+        <div class="relative flex items-center py-6 z-10">
+          <div class="flex-grow border-t border-white/10"></div>
+          <span class="flex-shrink-0 mx-4 text-gray-500 text-[10px] font-mono uppercase tracking-widest">Secondary Paths</span>
+          <div class="flex-grow border-t border-white/10"></div>
         </div>
 
-        <div class="space-y-3">
-
-          <button id="google-auth" type="button" class="w-full flex items-center justify-center gap-3 py-4 rounded-xl bg-[#0a0407] border border-white/10 text-white font-mono text-xs uppercase tracking-widest hover:bg-[#1a0a12] active:scale-95 transition-all backdrop-blur-md">
+        <div class="space-y-3 relative z-10">
+          <button id="google-auth" type="button" class="w-full flex items-center justify-center gap-3 py-4 rounded-xl bg-white/5 border border-white/10 text-white font-mono text-xs uppercase tracking-widest hover:bg-white/10 active:scale-95 transition-all">
             <svg class="w-4 h-4" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
             Continue with Google
           </button>
         </div>
 
-        <p class="mt-8 text-center text-sm text-gray-500">
-          New clinical entity? <a href="#/register" class="text-[#ffb88c] hover:text-[#ffd9b5] transition-colors font-medium">Initialize Protocol</a>
+        <p class="mt-8 text-center text-xs text-gray-400 font-mono uppercase tracking-widest relative z-10">
+          New clinical entity? <a href="#/register" class="text-[#ffb88c] hover:text-white transition-colors font-bold ml-1">Initialize Protocol</a>
         </p>
       </div>
     `;
