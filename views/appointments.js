@@ -18,12 +18,16 @@ export default class AppointmentsView {
           <div class="skeleton" style="width:44px; height:44px; border-radius:14px;"></div>
         </div>
       </header>
-      <main class="scroll-area px-6 pt-28 pb-28">
-        <div class="skeleton" style="height:12px; width:100px; margin-bottom:20px;"></div>
-        <div class="skeleton skeleton-card" style="height:130px; margin-bottom:16px;"></div>
-        <div class="skeleton skeleton-card" style="height:130px; margin-bottom:16px;"></div>
-        <div class="skeleton" style="height:12px; width:80px; margin:24px 0 16px;"></div>
-        <div class="skeleton skeleton-card" style="height:100px; opacity:0.6;"></div>
+      <main class="scroll-area px-6 md:px-12 pt-28 pb-28 max-w-7xl mx-auto md:grid md:grid-cols-2 md:gap-12">
+        <div>
+          <div class="skeleton" style="height:12px; width:100px; margin-bottom:20px;"></div>
+          <div class="skeleton skeleton-card" style="height:130px; margin-bottom:16px;"></div>
+          <div class="skeleton skeleton-card" style="height:130px; margin-bottom:16px;"></div>
+        </div>
+        <div class="hidden md:block">
+          <div class="skeleton" style="height:12px; width:80px; margin-bottom:20px;"></div>
+          <div class="skeleton skeleton-card" style="height:100px; opacity:0.6;"></div>
+        </div>
       </main>
     `;
 
@@ -73,10 +77,12 @@ export default class AppointmentsView {
         </div>
       </header>
 
-      <main class="scroll-area px-6 pt-28 pb-12 bg-transparent">
+      <main class="scroll-area px-6 md:px-12 pt-28 pb-12 bg-transparent max-w-7xl mx-auto md:grid md:grid-cols-2 md:gap-12">
         <section class="mb-12">
             <h3 class="text-xs text-uppercase font-bold text-[#ffb88c]/70 mb-6 tracking-[0.2em] px-1 uppercase">Upcoming</h3>
-            ${upcoming.length ? upcoming.map(a => renderAppt(a, true)).join('') : '<p class="text-xs text-[#ffb88c]/50 font-display italic pl-1">No upcoming appointments.</p>'}
+            <div class="space-y-4">
+                ${upcoming.length ? upcoming.map(a => renderAppt(a, true)).join('') : '<p class="text-xs text-[#ffb88c]/50 font-display italic pl-1">No upcoming appointments.</p>'}
+            </div>
         </section>
 
         <section class="mb-12">

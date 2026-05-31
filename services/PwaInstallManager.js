@@ -50,10 +50,11 @@ export default class PwaInstallManager {
         btn.classList.add('bg-[#10b981]/20', 'text-[#10b981]', 'border-[#10b981]/50');
         btn.classList.remove('text-[#ffb88c]', 'border-[#ffb88c]/20', 'opacity-70', 'cursor-not-allowed');
       }
-      setTimeout(() => {
-        this._hideBanner();
-        setTimeout(() => { window.location.hash = '#/dashboard'; }, 600);
-      }, 3000);
+      
+      const textNode = this.bannerEl?.querySelector('#pwa-banner-text');
+      if (textNode) textNode.textContent = 'Ready on Homescreen';
+      
+      // Do not hide the banner; let the Open App button persist
     });
 
     await this._validateInstallability();
@@ -159,8 +160,52 @@ export default class PwaInstallManager {
       
       if (hapticEngine) hapticEngine.triggerHaptic(30);
       
+      const btn = this.bannerEl.querySelector('#pwa-action-btn');
+      if (btn && btn.textContent === 'Update App') {
+        if (this._waitingServiceWorker) {
+            this._waitingServiceWorker.postMessage({ type: 'SKIP_WAITING' });
+            btn.textContent = 'Updating...';
+            setTimeout(() => window.location.reload(), 1000);
+        }
+        return;
+      }
+      
+      if (btn && btn.textContent === 'Open App') {
+        // App is installed, browser can't open it programmatically, so we just acknowledge it
+        return;
+      }
+
       this.install();
     });
+
+    this._listenForUpdates();
+  }
+
+  _listenForUpdates() {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.ready.then(reg => {
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              this._waitingServiceWorker = newWorker;
+              this._showUpdateBanner();
+            }
+          });
+        });
+      });
+    }
+  }
+
+  _showUpdateBanner() {
+    if (!this.bannerEl) this._createBanner();
+    this._showBanner('New Version Available');
+    const btn = this.bannerEl.querySelector('#pwa-action-btn');
+    if (btn) {
+      btn.textContent = 'Update App';
+      btn.classList.add('bg-amber-500/20', 'text-amber-400', 'border-amber-500/50');
+      btn.classList.remove('text-[#ffb88c]', 'border-[#ffb88c]/20');
+    }
   }
 
   async install() {

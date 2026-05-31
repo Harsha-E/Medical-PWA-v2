@@ -129,7 +129,7 @@ export default class PeerNetworkView {
         .box1,
         .box2,
         .box3 {
-          border: 16px solid #f5f5f5;
+          border: 16px solid #ca5229;
           box-sizing: border-box;
           position: absolute;
           display: block;
@@ -386,7 +386,15 @@ export default class PeerNetworkView {
     connectBtn.addEventListener('click', () => {
         const targetId = pairingInput.value.trim();
         if(targetId) {
-            connectBtn.innerHTML = '<svg class="animate-spin h-4 w-4 mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>';
+            connectBtn.innerHTML = `
+                <div class="relative w-6 h-6 mx-auto flex items-center justify-center">
+                    <div class="loader" style="transform: scale(0.2); transform-origin: center; position: absolute; left: -44px; top: -44px;">
+                        <div class="box1"></div>
+                        <div class="box2"></div>
+                        <div class="box3"></div>
+                    </div>
+                </div>
+            `;
             mesh.connectToPeer(targetId);
             setTimeout(() => {
                 connectBtn.innerHTML = 'CONNECT';
@@ -409,7 +417,7 @@ export default class PeerNetworkView {
     });
 
     this.container.querySelector('#gatekeeper-approve').addEventListener('click', () => {
-        if(pendingPeerId) mesh.approvePeer(pendingPeerId);
+        if(pendingPeerId) mesh.approvePeerConnection(pendingPeerId);
         closeModal();
     });
     

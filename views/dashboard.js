@@ -7,53 +7,96 @@ export default class DashboardView {
     this.container = document.createElement('div');
     this.container.className = 'container native-scroll !pt-0 !mt-0 h-full';
 
-    // Immediately show skeleton — don't block on data
+    // Instantly return skeleton structure to router without blocking
     this.container.innerHTML = this._getSkeletonUI();
+
+    // Trigger independent async loads
+    this._loadDashboardData();
+    this.attachListeners();
+    return this.container;
+  }
+
+  async _loadDashboardData() {
+    // Trigger header load immediately
+    this._loadHeader();
+
+    // Fire off independent database queries
+    const medsPromise = db.medications.toArray().catch(e => {
+        console.error('[Diagnostics] Local ledger failure:', e);
+        return [];
+    });
+    const dosesPromise = db.doses.toArray().catch(() => []);
+    
+    // Feed promises into independent rendering streams and await them
+    await Promise.all([
+      this._loadMedsStrip(medsPromise),
+      this._loadScheduleList(medsPromise, dosesPromise),
+      this._loadCompliance(medsPromise, dosesPromise)
+    ]);
+  }
+
+  async _loadHeader() {
+    const now = new Date();
+    const hour = now.getHours();
+    const greeting = hour < 12 ? 'Morning' : hour < 18 ? 'Afternoon' : 'Evening';
+    const displayName = state.user?.displayName?.split(' ')[0] || 'User';
+
+    const header = this.container.querySelector('#dashboard-header');
+    if (header) {
+      header.innerHTML = `
+        <div class="flex flex-col animate-fade-in">
+          <span class="text-xs text-[#ffb88c] uppercase tracking-widest leading-none">Dashboard</span>
+          <h1 class="text-xl font-bold text-white mt-1 leading-none">Good ${greeting}, ${displayName}</h1>
+        </div>
+      `;
+    }
+  }
+
+  async _loadMedsStrip(medsPromise) {
+    const meds = await medsPromise;
+    const section = this.container.querySelector('#dashboard-meds-section');
+    if (!section) return;
+
+    section.innerHTML = `
+      <h2 class="text-xs text-gray-400 font-bold mb-6 tracking-[0.2em] px-1 uppercase animate-fade-in">Current Medications</h2>
+      <div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar -mx-6 px-6 md:-mx-0 md:px-0 animate-fade-in">
+        ${meds.length > 0 ? meds.map(m => `
+          <div class="bg-[#1a0a12]/40 backdrop-blur-xl border border-white/10 rounded-3xl p-5 min-w-[150px] flex flex-col justify-between shrink-0 shadow-[0_8px_32px_rgba(0,0,0,0.5)] cursor-pointer hover:border-[#ffb88c]/50 transition-all" data-action="edit-med" data-id="${m.id}">
+            <div class="w-10 h-10 rounded-2xl bg-[#7f2f5d]/20 border border-[#7f2f5d]/50 flex items-center justify-center mb-6">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffb88c" stroke-width="2.5"><path d="M10.5 3.5a2.121 2.121 0 0 1 3 0l7 7a2.121 2.121 0 0 1 0 3l-7 7a2.121 2.121 0 0 1-3 0l-7-7a2.121 2.121 0 0 1 0-3l7-7Z"/><path d="m8.5 15.5 7-7"/></svg>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-white leading-tight">${m.name}</p>
+              <p class="text-xs text-gray-400 mt-1 uppercase font-bold tracking-widest">${m.dosage} ${m.dosageUnit || 'mg'}</p>
+            </div>
+          </div>
+        `).join('') : `
+          <div class="bg-[#1a0a12]/40 backdrop-blur-xl border border-white/10 rounded-3xl p-8 w-full text-center shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+            <p class="text-xs text-gray-500 uppercase font-bold tracking-widest">No active medications.</p>
+          </div>
+        `}
+        <a href="#/add-medication" id="add-med-btn" class="bg-[#1a0a12]/20 backdrop-blur-md border-dashed border-2 border-white/20 rounded-3xl p-4 min-w-[110px] flex flex-col items-center justify-center shrink-0 cursor-pointer hover:bg-white/5 transition-colors">
+          <div class="w-10 h-10 rounded-full border border-[#ffb88c]/40 flex items-center justify-center mb-3 text-[#ffb88c]">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </div>
+          <p class="text-xs text-gray-400 uppercase font-bold tracking-widest text-center">Add Med</p>
+        </a>
+      </div>
+    `;
+  }
+
+  async _loadScheduleList(medsPromise, dosesPromise) {
+    const [meds, allDoses] = await Promise.all([medsPromise, dosesPromise]);
+    const section = this.container.querySelector('#dashboard-schedule-section');
+    if (!section) return;
 
     const now = new Date();
     const today = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-    const hour = now.getHours();
-    const greeting = hour < 12 ? 'Morning' : hour < 18 ? 'Afternoon' : 'Evening';
-
-    let meds = [], appts = [], familyCount = 0, historyCount = 0, allDoses = [];
-    let databaseTimedOut = false;
-
-    try {
-      const localDataFetch = async () => {
-        return {
-          medications: await db.medications.toArray(),
-          appointments: await db.appointments.toArray(),
-          family: await db.family.count(),
-          history: await db.history.count(),
-          doses: await db.doses.toArray()
-        };
-      };
-
-      const localTimeout = new Promise(resolve => setTimeout(() => resolve(null), 1500));
-      const dataset = await Promise.race([localDataFetch(), localTimeout]);
-
-      if (dataset) {
-        meds = dataset.medications;
-        appts = dataset.appointments;
-        familyCount = dataset.family;
-        historyCount = dataset.history;
-        allDoses = dataset.doses;
-      } else {
-        databaseTimedOut = true;
-        console.warn('[Diagnostics] IndexedDB connection timed out.');
-      }
-    } catch (dbError) {
-      console.error('[Diagnostics] Local ledger failure:', dbError);
-    }
-
     const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const todayDoses = allDoses.filter(d => d.takenAt && d.takenAt.startsWith(todayStr));
     
-    // FIX 1: Create a Composite Set of "ID-Time" to track specific slots
     const takenSlots = new Set(
-      todayDoses
-        .filter(d => d.status === 'taken' || !d.skipped)
-        .map(d => `${d.medicationId}-${d.scheduledTime}`)
+      todayDoses.filter(d => d.status === 'taken' || !d.skipped).map(d => `${d.medicationId}-${d.scheduledTime}`)
     );
 
     const schedule = meds.flatMap(m => {
@@ -64,172 +107,129 @@ export default class DashboardView {
         return {
           id: m.id, name: m.name, dosage: m.dosage,
           dosageUnit: m.dosageUnit || 'mg', time: t, date: d,
-          // FIX 2: Check the exact ID and Time combination
           taken: takenSlots.has(`${m.id}-${t}`)
         };
       });
     }).sort((a, b) => a.date - b.date);
 
-    const totalScheduled = schedule.length;
-    const totalTaken = schedule.filter(d => d.taken).length;
-    const adherence = totalScheduled > 0 ? Math.round((totalTaken / totalScheduled) * 100) : 0;
-
-    appts.sort((a, b) => new Date(a.date) - new Date(b.date));
-    const nextAppt = appts.find(a => new Date(a.date) >= now);
-    const nextApptLabel = nextAppt
-      ? new Date(nextAppt.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase()
-      : 'None';
-
-    const displayName = state.user?.displayName?.split(' ')[0] || 'User';
-
-    this.container.innerHTML = `
-      <header class="sticky top-0 left-0 w-full z-50 flex items-center justify-between px-6 py-4 bg-[#0a0407]/90 backdrop-blur-md border-b border-[#7f2f5d]/30 mb-6">
-        <div class="flex flex-col">
-          <span class="text-xs text-[#ffb88c] uppercase tracking-widest leading-none">Dashboard</span>
-          <h1 class="text-xl font-bold text-white mt-1 leading-none">Good ${greeting}, ${displayName}</h1>
-        </div>
-      </header>
-
-      <main class="scroll-area px-6 pb-28 relative overflow-hidden" id="dashboard-main">
-        ${databaseTimedOut ? `
-          <div class="clay-glass-panel p-4 mb-6 border-amber-500/30 bg-amber-500/10 text-amber-200 text-xs rounded-xl flex items-center gap-3">
-            <svg class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01"/></svg>
-            <p>Loading your data securely...</p>
+    section.innerHTML = `
+      <div class="flex items-end justify-between mb-8 px-2 border-b border-[#7f2f5d]/30 pb-4 animate-fade-in">
+        <div>
+          <div class="flex items-center gap-2 mb-1.5">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ffb88c" stroke-width="3"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <h2 class="text-xs text-[#ffb88c] font-bold tracking-[0.2em] uppercase">Daily Schedule</h2>
           </div>
-        ` : ''}
+          <p class="text-lg font-bold text-white tracking-tight">${today}</p>
+        </div>
+        
+        <div class="relative z-50" id="filter-dropdown-container">
+          <button id="timeline-filter-btn" class="w-8 h-8 rounded-full bg-[#1a0a12] border border-[#7f2f5d]/50 flex items-center justify-center text-gray-400 hover:text-white hover:border-[#ffb88c]/50 transition-all active:scale-95">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+          </button>
+          
+          <div id="timeline-filter-menu" class="absolute right-0 top-10 w-48 bg-[#1a0a12]/60 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden opacity-0 pointer-events-none transform -translate-y-2 transition-all duration-200">
+            <div class="p-2 flex flex-col gap-1">
+              <button class="filter-option text-left px-4 py-2.5 text-xs font-bold text-[#ffb88c] bg-[#7f2f5d]/20 rounded-xl transition-colors uppercase tracking-widest" data-filter="all">Show All</button>
+              <button class="filter-option text-left px-4 py-2.5 text-xs font-bold text-gray-400 hover:text-white hover:bg-[#7f2f5d]/20 rounded-xl transition-colors uppercase tracking-widest" data-filter="upcoming">Upcoming</button>
+              <button class="filter-option text-left px-4 py-2.5 text-xs font-bold text-gray-400 hover:text-white hover:bg-[#7f2f5d]/20 rounded-xl transition-colors uppercase tracking-widest" data-filter="missed">Missed</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
+      <div class="relative pl-6 border-l-2 border-[#7f2f5d]/30 space-y-8 animate-fade-in">
+        ${schedule.length > 0 ? schedule.map(dose => {
+          let itemStatus = 'upcoming';
+          if (dose.taken) itemStatus = 'taken';
+          else if (dose.date < now) itemStatus = 'missed';
 
-
-        <section class="mb-10">
-          <h2 class="text-xs text-gray-400 font-bold mb-6 tracking-[0.2em] px-1 uppercase">Current Medications</h2>
-          <div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar -mx-6 px-6">
-            ${meds.length > 0 ? meds.map(m => `
-              <div class="bg-[#1a0a12]/40 backdrop-blur-xl border border-white/10 rounded-3xl p-5 min-w-[150px] flex flex-col justify-between shrink-0 shadow-[0_8px_32px_rgba(0,0,0,0.5)] cursor-pointer hover:border-[#ffb88c]/50 transition-all" data-action="edit-med" data-id="${m.id}">
-                <div class="w-10 h-10 rounded-2xl bg-[#7f2f5d]/20 border border-[#7f2f5d]/50 flex items-center justify-center mb-6">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffb88c" stroke-width="2.5"><path d="M10.5 3.5a2.121 2.121 0 0 1 3 0l7 7a2.121 2.121 0 0 1 0 3l-7 7a2.121 2.121 0 0 1-3 0l-7-7a2.121 2.121 0 0 1 0-3l7-7Z"/><path d="m8.5 15.5 7-7"/></svg>
-                </div>
+          return \`
+          <div class="relative timeline-item transition-all duration-300 transform origin-top" data-status="\${itemStatus}">
+            <div class="absolute -left-[31px] top-0 w-4 h-4 rounded-full border-4 border-[#0a0407] \${dose.taken ? 'bg-green-500' : Math.abs(dose.date - now) < 3600000 ? 'bg-[#ffb88c] animate-pulse' : 'bg-[#7f2f5d]'}"></div>
+            <div class="\${dose.taken ? 'opacity-50' : ''}">
+              <div class="flex justify-between items-start mb-2">
                 <div>
-                  <p class="text-sm font-bold text-white leading-tight">${m.name}</p>
-                  <p class="text-xs text-gray-400 mt-1 uppercase font-bold tracking-widest">${m.dosage} ${m.dosageUnit || 'mg'}</p>
+                  <span class="text-xs font-bold text-[#ffb88c] uppercase tracking-widest leading-none">\${dose.time}</span>
+                  <h3 class="text-base font-bold text-white mt-1">\${dose.name}</h3>
                 </div>
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">\${dose.dosage}</span>
               </div>
-            `).join('') : `
-              <div class="bg-[#1a0a12]/40 backdrop-blur-xl border border-white/10 rounded-3xl p-8 w-full text-center shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
-                <p class="text-xs text-gray-500 uppercase font-bold tracking-widest">No active medications.</p>
-              </div>
-            `}
-            <a href="#/add-medication" id="add-med-btn" class="bg-[#1a0a12]/20 backdrop-blur-md border-dashed border-2 border-white/20 rounded-3xl p-4 min-w-[110px] flex flex-col items-center justify-center shrink-0 cursor-pointer hover:bg-white/5 transition-colors">
-              <div class="w-10 h-10 rounded-full border border-[#ffb88c]/40 flex items-center justify-center mb-3 text-[#ffb88c]">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              </div>
-              <p class="text-xs text-gray-400 uppercase font-bold tracking-widest text-center">Add Med</p>
-            </a>
-          </div>
-        </section>
-
-        <div data-action="nav-calendar" class="group relative bg-[#1a0a12]/40 backdrop-blur-xl border border-white/10 rounded-[2rem] p-6 mb-10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden cursor-pointer hover:border-[#ffb88c]/50 transition-all duration-500">
-          
-          <div class="absolute -right-12 -top-12 w-40 h-40 bg-[#7f2f5d]/20 blur-3xl rounded-full group-hover:bg-[#ffb88c]/20 transition-all duration-700"></div>
-          
-          <div class="flex justify-between items-start mb-6 relative z-10">
-            <div>
-              <div class="flex items-center gap-2 mb-2">
-                <div id="compliance-dot" class="w-1.5 h-1.5 rounded-full ${adherence >= 80 ? 'bg-green-500' : 'bg-amber-500'} animate-pulse"></div>
-                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Compliance</span>
-              </div>
-              <div class="flex items-baseline gap-2">
-                <p id="compliance-percentage" class="text-4xl font-bold text-white tracking-tight">${adherence}%</p>
-                <span id="compliance-status" class="text-xs font-bold ${adherence >= 80 ? 'text-green-400' : 'text-amber-400'} uppercase tracking-widest">${adherence >= 80 ? 'Optimal' : 'Review'}</span>
-              </div>
-            </div>
-            
-            <div class="w-12 h-12 rounded-2xl bg-[#7f2f5d]/20 border border-[#7f2f5d]/50 flex items-center justify-center text-[#ffb88c] group-hover:scale-110 group-hover:bg-[#7f2f5d]/40 transition-all duration-300 shadow-lg">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
+              \${dose.taken
+                ? \`<div class="flex items-center gap-2 mt-2">
+                     <div class="flex items-center gap-1.5 px-2 py-1 bg-green-500/10 border border-green-500/30 rounded-lg">
+                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                       <span class="text-xs font-bold text-green-400 uppercase tracking-widest">Taken</span>
+                     </div>
+                     <button class="undo-dose-btn px-3 py-1 bg-[#1a0a12] border border-[#7f2f5d]/50 rounded-lg text-xs font-bold text-gray-400 hover:text-white uppercase tracking-widest transition-colors" data-med-id="\${dose.id}" data-time="\${dose.time}">Undo</button>
+                   </div>\`
+                : \`<button class="confirm-dose-btn w-full mt-3 py-3 bg-[#1a0a12] border border-[#7f2f5d]/50 rounded-xl text-xs font-bold text-[#ffb88c] uppercase tracking-[0.2em] hover:bg-[#7f2f5d]/30 transition-all active:scale-[0.98]" data-med-id="\${dose.id}" data-time="\${dose.time}">Mark as Taken</button>\`
+              }
             </div>
           </div>
-
-          <div class="w-full h-2 bg-[#0a0407] rounded-full overflow-hidden relative z-10 border border-[#7f2f5d]/30">
-            <div id="compliance-bar" class="h-full bg-gradient-to-r from-[#7f2f5d] to-[#ffb88c] transition-all duration-1000 relative" style="width: ${adherence}%">
-               <div class="absolute inset-0 bg-white/20 w-full animate-[shimmer_2s_infinite]"></div>
-            </div>
+        \`}).join('') : \`
+          <div class="py-8 text-center clay-glass-panel rounded-3xl">
+            <p class="text-xs text-gray-500 font-mono uppercase tracking-widest">No scheduled doses.</p>
+            <button id="schedule-empty-add-btn" class="text-[#ffb88c] text-xs font-bold mt-2 uppercase">Add medication</button>
           </div>
-          <!-- NAV-02: View Full Report -->
-          <div class="mt-5 text-right relative z-10">
-            <a href="#/reports" class="text-xs font-bold text-[#ffb88c] hover:text-white uppercase tracking-widest border-b border-[#ffb88c]/30 pb-1 transition-colors">View Full Report &rarr;</a>
-          </div>
-        </div>
-
-        <section class="mb-12">
-        <div class="flex items-end justify-between mb-8 px-2 border-b border-[#7f2f5d]/30 pb-4">
-          <div>
-            <div class="flex items-center gap-2 mb-1.5">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ffb88c" stroke-width="3"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              <h2 class="text-xs text-[#ffb88c] font-bold tracking-[0.2em] uppercase">Daily Schedule</h2>
-            </div>
-            <p class="text-lg font-bold text-white tracking-tight">${today}</p>
-          </div>
-          
-          <div class="relative z-50" id="filter-dropdown-container">
-            <button id="timeline-filter-btn" class="w-8 h-8 rounded-full bg-[#1a0a12] border border-[#7f2f5d]/50 flex items-center justify-center text-gray-400 hover:text-white hover:border-[#ffb88c]/50 transition-all active:scale-95">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
-            </button>
-            
-            <div id="timeline-filter-menu" class="absolute right-0 top-10 w-48 bg-[#1a0a12]/60 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden opacity-0 pointer-events-none transform -translate-y-2 transition-all duration-200">
-              <div class="p-2 flex flex-col gap-1">
-                <button class="filter-option text-left px-4 py-2.5 text-xs font-bold text-[#ffb88c] bg-[#7f2f5d]/20 rounded-xl transition-colors uppercase tracking-widest" data-filter="all">Show All</button>
-                <button class="filter-option text-left px-4 py-2.5 text-xs font-bold text-gray-400 hover:text-white hover:bg-[#7f2f5d]/20 rounded-xl transition-colors uppercase tracking-widest" data-filter="upcoming">Upcoming</button>
-                <button class="filter-option text-left px-4 py-2.5 text-xs font-bold text-gray-400 hover:text-white hover:bg-[#7f2f5d]/20 rounded-xl transition-colors uppercase tracking-widest" data-filter="missed">Missed</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-          <div class="relative pl-6 border-l-2 border-[#7f2f5d]/30 space-y-8">
-            ${schedule.length > 0 ? schedule.map(dose => {
-              // Determine current status
-              let itemStatus = 'upcoming';
-              if (dose.taken) itemStatus = 'taken';
-              else if (dose.date < now) itemStatus = 'missed';
-
-              return `
-              <div class="relative timeline-item transition-all duration-300 transform origin-top" data-status="${itemStatus}">
-                <div class="absolute -left-[31px] top-0 w-4 h-4 rounded-full border-4 border-[#0a0407] ${dose.taken ? 'bg-green-500' : Math.abs(dose.date - now) < 3600000 ? 'bg-[#ffb88c] animate-pulse' : 'bg-[#7f2f5d]'}"></div>
-                <div class="${dose.taken ? 'opacity-50' : ''}">
-                  <div class="flex justify-between items-start mb-2">
-                    <div>
-                      <span class="text-xs font-bold text-[#ffb88c] uppercase tracking-widest leading-none">${dose.time}</span>
-                      <h3 class="text-base font-bold text-white mt-1">${dose.name}</h3>
-                    </div>
-                    <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">${dose.dosage}</span>
-                  </div>
-                  ${dose.taken
-                    ? `<div class="flex items-center gap-2 mt-2">
-                         <div class="flex items-center gap-1.5 px-2 py-1 bg-green-500/10 border border-green-500/30 rounded-lg">
-                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-                           <span class="text-xs font-bold text-green-400 uppercase tracking-widest">Taken</span>
-                         </div>
-                         <button class="undo-dose-btn px-3 py-1 bg-[#1a0a12] border border-[#7f2f5d]/50 rounded-lg text-xs font-bold text-gray-400 hover:text-white uppercase tracking-widest transition-colors" data-med-id="${dose.id}" data-time="${dose.time}">Undo</button>
-                       </div>`
-                    : `<button class="confirm-dose-btn w-full mt-3 py-3 bg-[#1a0a12] border border-[#7f2f5d]/50 rounded-xl text-xs font-bold text-[#ffb88c] uppercase tracking-[0.2em] hover:bg-[#7f2f5d]/30 transition-all active:scale-[0.98]" data-med-id="${dose.id}" data-time="${dose.time}">Mark as Taken</button>`
-                  }
-                </div>
-              </div>
-            `}).join('') : `
-              <div class="py-8 text-center clay-glass-panel rounded-3xl">
-                <p class="text-xs text-gray-500 font-mono uppercase tracking-widest">No scheduled doses.</p>
-                <button id="schedule-empty-add-btn" class="text-[#ffb88c] text-xs font-bold mt-2 uppercase">Add medication</button>
-              </div>
-            `}
-          </div>
-        </section>
-
-
-      </main>
+        \`}
+      </div>
     `;
-
-    this.attachListeners();
-    return this.container;
   }
+
+  async _loadCompliance(medsPromise, dosesPromise) {
+    const [meds, allDoses] = await Promise.all([medsPromise, dosesPromise]);
+    const col = this.container.querySelector('#dashboard-right-column');
+    if (!col) return;
+
+    const now = new Date();
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const takenSlots = new Set(
+      allDoses.filter(d => d.takenAt && d.takenAt.startsWith(todayStr) && d.status === 'taken')
+              .map(d => `${d.medicationId}-${d.scheduledTime}`)
+    );
+
+    let expectedDoses = 0;
+    let takenCount = 0;
+    meds.forEach(m => {
+      const times = Array.isArray(m.times) && m.times.length > 0 ? m.times : ['08:00'];
+      times.forEach(t => {
+        expectedDoses++;
+        if (takenSlots.has(`${m.id}-${t}`)) takenCount++;
+      });
+    });
+
+    const adherence = expectedDoses > 0 ? Math.round((takenCount / expectedDoses) * 100) : 0;
+
+    col.innerHTML = `
+      <div data-action="nav-calendar" class="group relative bg-[#1a0a12]/40 backdrop-blur-xl border border-white/10 rounded-[2rem] p-6 shadow-[0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden cursor-pointer hover:border-[#ffb88c]/50 transition-all duration-500 animate-fade-in">
+        <div class="absolute -right-12 -top-12 w-40 h-40 bg-[#7f2f5d]/20 blur-3xl rounded-full group-hover:bg-[#ffb88c]/20 transition-all duration-700"></div>
+        <div class="flex justify-between items-start mb-6 relative z-10">
+          <div>
+            <div class="flex items-center gap-2 mb-2">
+              <div id="compliance-dot" class="w-1.5 h-1.5 rounded-full ${adherence >= 80 ? 'bg-green-500' : 'bg-amber-500'} animate-pulse"></div>
+              <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Compliance</span>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <p id="compliance-percentage" class="text-4xl font-bold text-white tracking-tight">${adherence}%</p>
+              <span id="compliance-status" class="text-xs font-bold ${adherence >= 80 ? 'text-green-400' : 'text-amber-400'} uppercase tracking-widest">${adherence >= 80 ? 'Optimal' : 'Review'}</span>
+            </div>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-[#7f2f5d]/20 border border-[#7f2f5d]/50 flex items-center justify-center text-[#ffb88c] group-hover:scale-110 group-hover:bg-[#7f2f5d]/40 transition-all duration-300 shadow-lg">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
+          </div>
+        </div>
+        <div class="w-full h-2 bg-[#0a0407] rounded-full overflow-hidden relative z-10 border border-[#7f2f5d]/30">
+          <div id="compliance-bar" class="h-full bg-gradient-to-r from-[#7f2f5d] to-[#ffb88c] transition-all duration-1000 relative" style="width: ${adherence}%">
+             <div class="absolute inset-0 bg-white/20 w-full animate-[shimmer_2s_infinite]"></div>
+          </div>
+        </div>
+        <div class="mt-5 text-right relative z-10">
+          <a href="#/reports" class="text-xs font-bold text-[#ffb88c] hover:text-white uppercase tracking-widest border-b border-[#ffb88c]/30 pb-1 transition-colors">View Full Report &rarr;</a>
+        </div>
+      </div>
+    `;
+  }
+
 
   attachListeners() {
     this.container.addEventListener('click', async (e) => {
@@ -241,6 +241,19 @@ export default class DashboardView {
         menu.classList.toggle('pointer-events-none');
         menu.classList.toggle('-translate-y-2');
         return; // Stop execution so menu stays open
+      }
+
+      // Refresh Button Handler
+      const refreshBtn = e.target.closest('#refresh-dashboard-btn');
+      if (refreshBtn) {
+          e.preventDefault();
+          const svg = refreshBtn.querySelector('svg');
+          if (svg) svg.classList.add('animate-spin', 'text-[#ca5229]');
+          
+          this._loadDashboardData().then(() => {
+              if (svg) svg.classList.remove('animate-spin', 'text-[#ca5229]');
+          });
+          return;
       }
 
       // 2. Handle Filter Selection
@@ -471,42 +484,47 @@ export default class DashboardView {
     `;
     return `
       <!-- Header -->
-      <header style="
-        position:sticky; top:0; left:0; width:100%; z-index:50;
-        display:flex; align-items:center; justify-content:space-between;
-        padding:20px 24px 16px; background:rgba(10,4,7,0.92);
-        backdrop-filter:blur(16px);
-        border-bottom:1px solid rgba(127,47,93,0.2);
-        margin-bottom:24px;
-      ">
-        <div>
+      <header class="sticky top-0 left-0 w-full z-50 flex items-center justify-between px-6 py-4 bg-[#0a0407]/92 backdrop-blur-md border-b border-[#7f2f5d]/20 mb-6">
+        <div id="dashboard-header">
           <div class="skeleton" style="height:10px; width:80px; margin-bottom:10px;"></div>
           <div class="skeleton" style="height:22px; width:180px;"></div>
         </div>
-        <div class="skeleton skeleton-round" style="width:40px; height:40px;"></div>
+        <button id="refresh-dashboard-btn" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-gray-400 hover:text-[#ca5229] hover:bg-white/5 transition-all">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+        </button>
       </header>
 
-      <div style="padding:0 24px 112px;">
-        <!-- Stats row skeleton -->
-        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:32px;">
-          <div class="skeleton skeleton-card" style="height:88px;"></div>
-          <div class="skeleton skeleton-card" style="height:88px;"></div>
-          <div class="skeleton skeleton-card" style="height:88px;"></div>
+      <div class="px-6 md:px-12 pb-28 max-w-7xl mx-auto" id="dashboard-main-content">
+        <div class="md:grid md:grid-cols-12 md:gap-10 md:items-start">
+          <!-- Left Column -->
+          <div class="md:col-span-7 lg:col-span-8 flex flex-col gap-10">
+            <section id="dashboard-meds-section">
+              <!-- Section label -->
+              <div class="skeleton" style="height:10px; width:130px; margin-bottom:24px;"></div>
+  
+              <!-- Meds horizontal strip -->
+              <div style="display:flex; gap:16px; overflow:hidden;">
+                ${medCard()}${medCard()}${medCard()}
+              </div>
+            </section>
+
+            <section id="dashboard-schedule-section">
+              <!-- Section label -->
+              <div class="skeleton" style="height:10px; width:110px; margin-bottom:32px;"></div>
+  
+              <!-- Schedule rows -->
+              <div>
+                ${scheduleRow()}${scheduleRow()}${scheduleRow()}
+              </div>
+            </section>
+          </div>
+
+          <!-- Right Column -->
+          <div class="md:col-span-5 lg:col-span-4 mt-10 md:mt-0 flex flex-col gap-6" id="dashboard-right-column">
+            <!-- Compliance Card Skeleton -->
+            <div class="skeleton skeleton-card" style="height:180px; width:100%; border-radius:2rem;"></div>
+          </div>
         </div>
-
-        <!-- Section label -->
-        <div class="skeleton" style="height:10px; width:130px; margin-bottom:20px;"></div>
-
-        <!-- Meds horizontal strip -->
-        <div style="display:flex; gap:16px; overflow:hidden; margin-bottom:32px;">
-          ${medCard()}${medCard()}${medCard()}
-        </div>
-
-        <!-- Section label -->
-        <div class="skeleton" style="height:10px; width:110px; margin-bottom:20px;"></div>
-
-        <!-- Schedule rows -->
-        ${scheduleRow()}${scheduleRow()}${scheduleRow()}
       </div>
     `;
   }

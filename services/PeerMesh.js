@@ -107,6 +107,15 @@ export default class PeerMesh {
     }
 
     /**
+     * Denies a pending peer connection.
+     * @param {string} peerId
+     */
+    denyPeer(peerId) {
+        this._pendingConsent.delete(peerId);
+        window.dispatchEvent(new CustomEvent('medcare:peer-denied', { detail: { peerId } }));
+    }
+
+    /**
      * Actively connects to another peer.
      * @param {string} targetId - The ID of the peer to connect to.
      */

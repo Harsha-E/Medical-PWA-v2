@@ -84,30 +84,9 @@ export class Router {
       // DOM Handoff Architecture
       const outgoingNode = this.viewport.firstElementChild;
       
-      // Determine Spatial Transition
+      // Use only crossfade for smooth transitions
       let transitionClass = 'crossfade';
-      
-      const isOldFade = this.fadeArray.includes(oldHash);
-      const isNewFade = this.fadeArray.includes(newHash);
-      const oldNavIdx = this.mainNav.indexOf(oldHash);
-      const newNavIdx = this.mainNav.indexOf(newHash);
-      
-      if (isOldFade || isNewFade) {
-          transitionClass = 'crossfade';
-      } else if (oldNavIdx !== -1 && newNavIdx !== -1) {
-          // Horizontal Push
-          transitionClass = newNavIdx > oldNavIdx ? 'push-left' : 'push-right';
-      } else if (oldNavIdx !== -1 && newNavIdx === -1) {
-          // Main Nav to Modal
-          transitionClass = 'slide-up';
-      } else if (oldNavIdx === -1 && newNavIdx !== -1) {
-          // Modal to Main Nav
-          transitionClass = 'slide-down';
-      } else {
-          // Modal to Modal
-          transitionClass = 'crossfade';
-      }
-      
+
       const originalClass = incomingNode.className || '';
       incomingNode.dataset.originalClass = originalClass;
 

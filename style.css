@@ -1184,41 +1184,7 @@ body.in-peer-context .bottom-nav {
   z-index: 10;
 }
 
-/* Push Left (Forward) */
-.view-transition-node.push-left.incoming {
-  animation: slideInRight 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-.view-transition-node.push-left.outgoing {
-  animation: pushOutLeft 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* Push Right (Backward) */
-.view-transition-node.push-right.incoming {
-  animation: slideInLeft 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-.view-transition-node.push-right.outgoing {
-  animation: pushOutRight 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* Slide Up (Modal Enter) */
-.view-transition-node.slide-up.incoming {
-  z-index: 30;
-  box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
-  animation: slideInBottom 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-.view-transition-node.slide-up.outgoing {
-  animation: pushOutBack 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* Slide Down (Modal Exit) */
-.view-transition-node.slide-down.incoming {
-  z-index: 10; /* Outgoing goes over */
-  animation: slideInBack 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-.view-transition-node.slide-down.outgoing {
-  z-index: 30;
-  animation: slideOutBottom 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
+/* Only Crossfade logic remains as requested */
 
 /* Crossfade */
 .view-transition-node.crossfade.incoming {
@@ -1229,42 +1195,6 @@ body.in-peer-context .bottom-nav {
 }
 
 /* Keyframes */
-@keyframes slideInRight {
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
-}
-@keyframes pushOutLeft {
-  from { transform: translateX(0) scale(1); opacity: 1; }
-  to { transform: translateX(-30%) scale(0.95); opacity: 0.5; }
-}
-
-@keyframes slideInLeft {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(0); }
-}
-@keyframes pushOutRight {
-  from { transform: translateX(0) scale(1); opacity: 1; }
-  to { transform: translateX(30%) scale(0.95); opacity: 0.5; }
-}
-
-@keyframes slideInBottom {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
-}
-@keyframes pushOutBack {
-  from { transform: scale(1); opacity: 1; }
-  to { transform: scale(0.95); opacity: 0.5; }
-}
-
-@keyframes slideOutBottom {
-  from { transform: translateY(0); }
-  to { transform: translateY(100%); }
-}
-@keyframes slideInBack {
-  from { transform: scale(0.95); opacity: 0.5; }
-  to { transform: scale(1); opacity: 1; }
-}
-
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -1272,4 +1202,36 @@ body.in-peer-context .bottom-nav {
 @keyframes fadeOut {
   from { opacity: 1; }
   to { opacity: 0; }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* USER REQUESTED BUBBLY/ROUNDED AESTHETIC OVERRIDE                            */
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* We apply 2rem (32px) heavily rounded corners to interactive elements and 
+   panels, while strictly avoiding headers. */
+
+input, select, textarea {
+  border-radius: 2rem !important;
+  padding-left: 1.25rem !important;
+  padding-right: 1.25rem !important;
+}
+
+button, .clay-glass-panel, .skeleton-card, .timeline-item {
+  border-radius: 2rem !important;
+}
+
+/* Force Tailwind's existing utility classes to be maximally rounded on divs */
+/* We explicitly exclude 'rounded-full' to preserve exact circles */
+.rounded-md, .rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-\[2rem\] {
+  border-radius: 2rem !important;
+}
+
+/* Ensure completely circular elements stay circular */
+.rounded-full {
+    border-radius: 9999px !important;
+}
+
+/* Exclude headers explicitly as requested */
+header, .view-header, header [class*="rounded-"] {
+  border-radius: 0 !important;
 }

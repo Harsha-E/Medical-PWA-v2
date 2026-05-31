@@ -28,7 +28,7 @@ export default class MedicationsView {
       const activeMeds = allMeds.filter(m => m.active !== false);
 
       this.container.innerHTML = `
-        <div class="max-w-2xl mx-auto w-full px-4 md:px-6 pt-6 md:pt-8 pb-28">
+        <div class="max-w-7xl mx-auto w-full px-4 md:px-6 pt-6 md:pt-8 pb-28">
           
           <header class="flex justify-between items-end mb-8">
             <div>
@@ -59,9 +59,9 @@ export default class MedicationsView {
             <svg class="w-5 h-5 ${activeMeds.length >= 2 ? 'text-amber-400 opacity-50' : 'text-gray-600'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
           </a>
 
-          <div class="space-y-3">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             ${activeMeds.length === 0 
-              ? this._getEmptyState() 
+              ? `<div class="col-span-full">${this._getEmptyState()}</div>`
               : activeMeds.map((med) => this._getMedCard(med)).join('')
             }
           </div>
@@ -132,7 +132,7 @@ export default class MedicationsView {
       <div class="skeleton skeleton-card" style="height:80px; margin-bottom:12px; width:100%;"></div>
     `;
     return `
-      <div class="max-w-2xl mx-auto w-full px-4 md:px-6 pt-6 md:pt-8 pb-28">
+      <div class="max-w-7xl mx-auto w-full px-4 md:px-6 pt-6 md:pt-8 pb-28">
         <!-- Header skeleton -->
         <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:32px;">
           <div>
@@ -147,7 +147,9 @@ export default class MedicationsView {
         <!-- Interaction banner skeleton -->
         <div class="skeleton skeleton-card" style="height:60px; margin-bottom:24px;"></div>
         <!-- Med cards -->
-        ${card()}${card()}${card()}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          ${card()}${card()}${card()}
+        </div>
       </div>
     `;
   }
