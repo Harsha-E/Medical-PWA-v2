@@ -553,8 +553,20 @@ export default class DashboardView {
                     spinner.style.animationDuration = '0.8s';
                 }
                 
-                // Trigger reload
-                await this._loadDashboardData();
+                // Trigger reload with a guaranteed minimum display time for realistic UX
+                const minAnimationTime = new Promise(resolve => setTimeout(resolve, 1500));
+                
+                const syncData = async () => {
+                    // Pull latest cloud profile data if online
+                    if (navigator.onLine && state.user) {
+                        await state.hydrate(state.user).catch(console.warn);
+                    }
+                    // Re-render local dashboard views
+                    await this._loadDashboardData();
+                };
+                
+                // Await both real data fetch and the UX animation delay
+                await Promise.all([syncData(), minAnimationTime]);
                 
                 // Hide
                 ptrContainer.style.transform = 'translateY(-100px)';
