@@ -12,7 +12,7 @@
   <!-- ── Fonts ─────────────────────────────────────────────────────────── -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500;600&family=Caveat:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <!-- ── Tailwind (browser build — swap for CLI build in production) ──── -->
   <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
@@ -33,7 +33,7 @@
   <meta name="theme-color" content="#1a0a12" />
   <script>
     const BASE_PATH = window.location.hostname === 'harsha-e.github.io' ? '/Medical-PWA-v2' : '';
-    document.getElementById('favicon-link').href = `${BASE_PATH}/assets/logo.jpeg`;
+    document.getElementById('favicon-link').href = `${BASE_PATH}/assets/logo.webp`;
     document.getElementById('manifest-link').href = window.location.hostname === 'harsha-e.github.io' ? `${BASE_PATH}/manifest.github.json` : '/manifest.local.json';
 
     // Catch beforeinstallprompt early to avoid race conditions with module loading
@@ -66,7 +66,7 @@
   </script>
 </head>
 
-<body class="bg-[#1a0a12] text-gray-100 overflow-hidden w-screen h-screen selection:bg-[#7f2f5d] selection:text-white">
+<body class="bg-[var(--color-surface-elevated)] text-gray-100 overflow-hidden w-screen h-screen selection:bg-[#7f2f5d] selection:text-[var(--color-text-primary)]">
 
   <!-- ── Global Animated Blobs ─────────────────────────────────────────── -->
   <style>
@@ -101,7 +101,7 @@
   -->
   <div
     id="splash-screen"
-    class="fixed inset-0 z-[9999] bg-[#1a0a12] flex flex-col items-center justify-center transition-opacity duration-1000"
+    class="fixed inset-0 z-[9999] bg-[var(--color-surface-elevated)] flex flex-col items-center justify-center transition-opacity duration-1000"
   >
     <div class="relative w-12 h-12 mb-8">
       <div class="absolute inset-0 border-t-2 border-transparent border-t-[#ffd9b5] rounded-full animate-spin"></div>

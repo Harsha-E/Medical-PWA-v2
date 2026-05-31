@@ -36,6 +36,7 @@ export default class InteractionCheckerView {
 
       // Run graph safety computation matching edge-nodes
       const summary = interactionGraph.getInteractionSummary(evaluationList);
+      const isReady = interactionGraph._isReady;
 
       this.container.innerHTML = `
         <div class="max-w-2xl mx-auto w-full px-4 md:px-6 pt-6 md:pt-8 pb-28">
@@ -45,24 +46,33 @@ export default class InteractionCheckerView {
               <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
               Back
             </a>
-            <h1 class="text-xl font-display text-white tracking-tight">Interaction Guard</h1>
+            <h1 class="text-xl font-display text-[var(--color-text-primary)] tracking-tight">Interaction Guard</h1>
             <div class="w-12"></div>
           </header>
 
-          <section class="bg-[#1a0a12]/40 backdrop-blur-xl border border-white/10 rounded-[2rem] p-5 mb-8 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+          <section class="bg-[var(--color-surface-elevated)]/40 backdrop-blur-xl border border-[var(--color-border)] rounded-[2rem] p-5 mb-8 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
             <span class="text-xs font-mono tracking-widest uppercase text-[#ffb88c] block mb-1">Pre-purchase Screener</span>
-            <h3 class="text-sm font-bold text-white mb-3">Test an Over-the-Counter Drug</h3>
-            <p class="text-xs text-gray-400 mb-4 leading-relaxed">Type any drug name to check for severe compliance issues with your ongoing treatment path before administering it.</p>
+            <h3 class="text-sm font-bold text-[var(--color-text-primary)] mb-3">Test an Over-the-Counter Drug</h3>
+            <p class="text-xs text-[var(--color-text-secondary)] mb-4 leading-relaxed">Type any drug name to check for severe compliance issues with your ongoing treatment path before administering it.</p>
             
             <div class="flex gap-2">
-              <input type="text" id="prospective-input" value="${this.prospectiveDrug || ''}" placeholder="e.g. Ibuprofen or Aspirin" class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-white/20 transition-colors">
+              <input type="text" id="prospective-input" value="${this.prospectiveDrug || ''}" placeholder="e.g. Ibuprofen or Aspirin" class="flex-1 bg-white/5 border border-[var(--color-border)] rounded-xl px-4 py-3 text-sm text-[var(--color-text-primary)] placeholder-gray-600 focus:outline-none focus:border-[var(--color-border)] transition-colors">
               ${this.prospectiveDrug ? `
-                <button id="clear-screener-btn" class="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-xs font-mono uppercase tracking-widest text-gray-400 hover:text-white transition-colors">Clear</button>
+                <button id="clear-screener-btn" class="px-4 py-3 bg-white/5 border border-[var(--color-border)] rounded-xl text-xs font-mono uppercase tracking-widest text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors">Clear</button>
               ` : `
                 <button id="run-screener-btn" class="px-5 py-3 bg-gradient-to-r from-[#7f2f5d] to-[#4a1532] border border-[#ffb88c]/40 rounded-xl text-xs font-bold uppercase tracking-widest text-[#ffd9b5] shadow-md">Check</button>
               `}
             </div>
           </section>
+
+          ${!isReady ? `
+            <div class="mb-6 p-4 rounded-2xl bg-amber-900/20 backdrop-blur-md border border-amber-500/20 text-xs text-amber-200 flex items-center gap-3 shadow-lg animate-pulse">
+              <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+              <div>
+                <strong>Offline Mode Limited:</strong> Interaction database unavailable. Could not load drug safety graph. Please verify with a clinician.
+              </div>
+            </div>
+          ` : ''}
 
           ${this.prospectiveDrug ? `
             <div class="mb-6 p-4 rounded-2xl bg-blue-900/20 backdrop-blur-md border border-blue-500/20 text-xs text-blue-300 flex items-center gap-2">
@@ -81,16 +91,16 @@ export default class InteractionCheckerView {
                 <div class="w-14 h-14 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-4 text-[#10b981]">
                   <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
-                <h3 class="text-base font-bold text-white mb-1">Regimen Cleared</h3>
-                <p class="text-xs text-gray-400 max-w-[280px] mx-auto leading-relaxed">No adverse overlapping clinical graph vectors identified across active treatments.</p>
+                <h3 class="text-base font-bold text-[var(--color-text-primary)] mb-1">Regimen Cleared</h3>
+                <p class="text-xs text-[var(--color-text-secondary)] max-w-[280px] mx-auto leading-relaxed">No adverse overlapping clinical graph vectors identified across active treatments.</p>
               </div>
             ` : ''}
 
             <section class="mt-8 pt-6 border-t border-[#7f2f5d]/20">
-              <h4 class="text-xs font-mono tracking-widest text-gray-500 uppercase mb-3">Evaluated Pharmacy Track</h4>
+              <h4 class="text-xs font-mono tracking-widest text-[var(--color-text-muted)] uppercase mb-3">Evaluated Pharmacy Track</h4>
               <div class="flex flex-wrap gap-2">
                 ${evaluationList.map(drug => `
-                  <span class="px-3 py-1.5 rounded-xl bg-[#1a0a12] border border-[#7f2f5d]/20 font-mono text-xs text-gray-400">
+                  <span class="px-3 py-1.5 rounded-xl bg-[var(--color-surface-elevated)] border border-[#7f2f5d]/20 font-mono text-xs text-[var(--color-text-secondary)]">
                     💊 ${drug}
                   </span>
                 `).join('')}
@@ -121,7 +131,7 @@ export default class InteractionCheckerView {
 
     return `
       <section>
-        <h2 class="text-xs font-mono tracking-[0.2em] uppercase text-gray-400 mb-3 px-1">${title}</h2>
+        <h2 class="text-xs font-mono tracking-[0.2em] uppercase text-[var(--color-text-secondary)] mb-3 px-1">${title}</h2>
         <div class="space-y-3">
           ${matches.map(item => {
             const mechText = (item.details?.mechanism || '').toLowerCase();
@@ -155,7 +165,7 @@ export default class InteractionCheckerView {
               </div>
               
               <div class="relative z-10">
-                <h4 class="text-sm font-bold text-white mb-1">${item.drug1} <span class="text-xs text-gray-400 font-normal">cross-linked with</span> ${item.drug2}</h4>
+                <h4 class="text-sm font-bold text-[var(--color-text-primary)] mb-1">${item.drug1} <span class="text-xs text-[var(--color-text-secondary)] font-normal">cross-linked with</span> ${item.drug2}</h4>
                 <p class="text-xs opacity-90 leading-relaxed mb-3">${item.details?.mechanism || item.description}</p>
                 <div class="pt-3 border-t border-white/5 flex gap-2 items-start">
                   <span class="text-xs font-mono text-inherit opacity-70 uppercase tracking-widest shrink-0 mt-0.5">Protocol:</span>

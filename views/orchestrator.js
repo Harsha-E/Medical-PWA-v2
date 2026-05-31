@@ -4,7 +4,7 @@ import state from '../core/state.js';
 export default class OrchestratorView {
   constructor() {
     this.container = document.createElement('div');
-    this.container.className = 'viewport-container view-enter pb-safe min-h-screen flex flex-col bg-[#0a0407] text-white';
+    this.container.className = 'viewport-container view-enter pb-safe min-h-screen flex flex-col bg-[var(--color-surface)] text-[var(--color-text-primary)]';
     this.messages = [];
   }
 
@@ -17,7 +17,7 @@ export default class OrchestratorView {
 
     this.container.innerHTML = `
       <header class="view-header">
-        <h2 class="text-lg font-display text-white tracking-tight flex items-center gap-2">
+        <h2 class="text-lg font-display text-[var(--color-text-primary)] tracking-tight flex items-center gap-2">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffb88c" stroke-width="2"><path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h0a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z"/><path d="M12 10v12"/><path d="M5 13h14"/></svg>
           Orchestrator
         </h2>
@@ -29,7 +29,7 @@ export default class OrchestratorView {
 
       <footer class="fixed bottom-[80px] left-0 w-full p-4 bg-gradient-to-t from-[#0a0407] to-[#0a0407]/0">
         <form id="orchestrator-form" class="relative max-w-lg mx-auto">
-          <input type="text" id="query-input" placeholder="Ask about medications or documents..." autocomplete="off" class="w-full px-5 py-4 pr-14 rounded-2xl bg-[#1a0a12]/90 backdrop-blur border border-[#7f2f5d]/40 text-white placeholder-gray-500 focus:outline-none focus:border-[#ffb88c]/60 shadow-[0_8px_30px_rgb(0,0,0,0.5)] text-sm transition-colors">
+          <input type="text" id="query-input" placeholder="Ask about medications or documents..." autocomplete="off" class="w-full px-5 py-4 pr-14 rounded-2xl bg-[var(--color-surface-elevated)]/90 backdrop-blur border border-[#7f2f5d]/40 text-[var(--color-text-primary)] placeholder-gray-500 focus:outline-none focus:border-[#ffb88c]/60 shadow-[0_8px_30px_rgb(0,0,0,0.5)] text-sm transition-colors">
           <button type="submit" class="absolute right-2 top-2 bottom-2 w-10 bg-[#7f2f5d]/20 hover:bg-[#7f2f5d]/40 rounded-xl flex items-center justify-center text-[#ffb88c] transition-all">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
           </button>
@@ -46,7 +46,7 @@ export default class OrchestratorView {
     if (msg.role === 'system') {
       return `
         <div class="flex flex-col items-start max-w-[85%] self-start animate-[fadeIn_0.3s_ease-out]">
-          <div class="px-5 py-3.5 bg-[#1a0a12] border border-[#7f2f5d]/30 rounded-2xl rounded-tl-sm shadow-md text-sm text-gray-200 leading-relaxed">
+          <div class="px-5 py-3.5 bg-[var(--color-surface-elevated)] border border-[#7f2f5d]/30 rounded-2xl rounded-tl-sm shadow-md text-sm text-gray-200 leading-relaxed">
             ${msg.text}
           </div>
         </div>

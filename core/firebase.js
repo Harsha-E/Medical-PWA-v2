@@ -7,13 +7,15 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getAuth } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { initializeFirestore, persistentLocalCache, doc, getDocFromServer } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
+import { ENV } from './env.js';
+
 const firebaseConfig = {
-  apiKey: "AIzaSyDfF54qdvqxaasAPLqhx2axoSASLQSvkN4",
-  authDomain: "cp-v1-ca134.firebaseapp.com",
-  projectId: "cp-v1-ca134",
-  storageBucket: "cp-v1-ca134.firebasestorage.app",
-  messagingSenderId: "864742646610",
-  appId: "1:864742646610:web:642ced3c456700e876108b"
+  apiKey: ENV.FIREBASE_API_KEY,
+  authDomain: ENV.FIREBASE_AUTH_DOMAIN,
+  projectId: ENV.FIREBASE_PROJECT_ID,
+  storageBucket: ENV.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: ENV.FIREBASE_MESSAGING_SENDER_ID,
+  appId: ENV.FIREBASE_APP_ID
 };
 
 const firebaseApp = initializeApp(firebaseConfig);

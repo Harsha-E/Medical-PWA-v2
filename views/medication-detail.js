@@ -24,32 +24,32 @@ export default class MedicationDetailView {
     const history = allHistory.slice(0, 10);
 
     this.container.innerHTML = `
-      <div class="sticky top-0 z-50 flex items-center justify-between px-4 py-4 bg-[#0a0407]/90 backdrop-blur-md border-b border-[#7f2f5d]/30 mb-6">
+      <div class="sticky top-0 z-50 flex items-center justify-between px-4 py-4 bg-[var(--color-surface)]/90 backdrop-blur-md border-b border-[#7f2f5d]/30 mb-6">
         <button onclick="window.history.back()" class="flex items-center gap-2 text-[#ffb88c] hover:brightness-125 transition-all cursor-pointer">
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
           <span class="hidden md:inline text-sm font-bold uppercase tracking-widest">Back</span>
         </button>
-        <h2 class="text-lg font-bold text-white tracking-tight">${med.name}</h2>
+        <h2 class="text-lg font-bold text-[var(--color-text-primary)] tracking-tight">${med.name}</h2>
         <div class="w-16"></div>
       </div>
 
       <main class="scroll-area px-6 pb-24">
         <!-- Section 1: Overview Card -->
         <section class="mb-8">
-          <h3 class="text-xs text-gray-400 font-bold mb-3 tracking-[0.2em] uppercase">Overview</h3>
-          <div class="bg-[#1a0a12]/40 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+          <h3 class="text-xs text-[var(--color-text-secondary)] font-bold mb-3 tracking-[0.2em] uppercase">Overview</h3>
+          <div class="bg-[var(--color-surface-elevated)]/40 backdrop-blur-xl border border-[var(--color-border)] rounded-2xl p-4 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <p class="text-xs text-gray-500 uppercase tracking-widest">Dosage</p>
+                <p class="text-xs text-[var(--color-text-muted)] uppercase tracking-widest">Dosage</p>
                 <p class="text-base font-bold text-[#ffb88c] mt-1">${med.dosage || '—'} ${med.dosageUnit || ''}</p>
               </div>
               <div>
-                <p class="text-xs text-gray-500 uppercase tracking-widest">Frequency</p>
-                <p class="text-base font-bold text-white mt-1">${med.frequency || '—'}</p>
+                <p class="text-xs text-[var(--color-text-muted)] uppercase tracking-widest">Frequency</p>
+                <p class="text-base font-bold text-[var(--color-text-primary)] mt-1">${med.frequency || '—'}</p>
               </div>
               <div class="col-span-2">
-                <p class="text-xs text-gray-500 uppercase tracking-widest">Time(s)</p>
-                <p class="text-sm font-medium text-white mt-1">${Array.isArray(med.times) ? med.times.join(', ') : (med.times || '—')}</p>
+                <p class="text-xs text-[var(--color-text-muted)] uppercase tracking-widest">Time(s)</p>
+                <p class="text-sm font-medium text-[var(--color-text-primary)] mt-1">${Array.isArray(med.times) ? med.times.join(', ') : (med.times || '—')}</p>
               </div>
             </div>
           </div>
@@ -57,11 +57,11 @@ export default class MedicationDetailView {
 
         <!-- Section 2: Action Bar -->
         <section class="mb-8 flex gap-4">
-          <button onclick="window.location.hash='#/interactions?add=${id}'" class="flex-1 bg-[#1a0a12]/40 backdrop-blur-md border border-[#ffb88c]/50 text-[#ffb88c] rounded-2xl py-4 px-2 text-xs font-bold uppercase tracking-widest hover:bg-[#ffb88c]/10 active:scale-95 transition-all text-center flex flex-col items-center justify-center gap-2 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+          <button onclick="window.location.hash='#/interactions?add=${id}'" class="flex-1 bg-[var(--color-surface-elevated)]/40 backdrop-blur-md border border-[#ffb88c]/50 text-[#ffb88c] rounded-2xl py-4 px-2 text-xs font-bold uppercase tracking-widest hover:bg-[#ffb88c]/10 active:scale-95 transition-all text-center flex flex-col items-center justify-center gap-2 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
             Check Interactions
           </button>
-          <button onclick="window.location.hash='#/add-medication?id=${id}'" class="flex-1 bg-[#7f2f5d]/20 border border-[#7f2f5d] text-white rounded-2xl py-4 px-2 text-xs font-bold uppercase tracking-widest hover:bg-[#7f2f5d]/40 active:scale-95 transition-all text-center flex flex-col items-center justify-center gap-2">
+          <button onclick="window.location.hash='#/add-medication?id=${id}'" class="flex-1 bg-[#7f2f5d]/20 border border-[#7f2f5d] text-[var(--color-text-primary)] rounded-2xl py-4 px-2 text-xs font-bold uppercase tracking-widest hover:bg-[#7f2f5d]/40 active:scale-95 transition-all text-center flex flex-col items-center justify-center gap-2">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
             Edit Details
           </button>
@@ -69,7 +69,7 @@ export default class MedicationDetailView {
 
         <!-- Section 3: History Ledger -->
         <section>
-          <h3 class="text-xs text-gray-400 font-bold mb-4 tracking-[0.2em] uppercase">History Ledger</h3>
+          <h3 class="text-xs text-[var(--color-text-secondary)] font-bold mb-4 tracking-[0.2em] uppercase">History Ledger</h3>
           <div class="space-y-3">
             ${history.length > 0 ? history.map(dose => {
               const d = new Date(dose.takenAt);
@@ -80,10 +80,10 @@ export default class MedicationDetailView {
                 : '<span class="text-red-400">Skipped</span>';
               
               return `
-                <div class="bg-[#1a0a12]/60 backdrop-blur-lg border-l-2 border-[#ffb88c] border-y border-r border-white/10 rounded-r-2xl rounded-l-sm p-4 flex justify-between items-center shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+                <div class="bg-[var(--color-surface-elevated)]/60 backdrop-blur-lg border-l-2 border-[#ffb88c] border-y border-r border-[var(--color-border)] rounded-r-2xl rounded-l-sm p-4 flex justify-between items-center shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
                   <div>
-                    <p class="text-sm font-bold text-white">${dateStr}</p>
-                    <p class="text-xs text-gray-500 uppercase tracking-widest mt-1">${timeStr}</p>
+                    <p class="text-sm font-bold text-[var(--color-text-primary)]">${dateStr}</p>
+                    <p class="text-xs text-[var(--color-text-muted)] uppercase tracking-widest mt-1">${timeStr}</p>
                   </div>
                   <div class="text-xs font-bold uppercase tracking-widest">
                     ${statusMarkup}
@@ -91,8 +91,8 @@ export default class MedicationDetailView {
                 </div>
               `;
             }).join('') : `
-              <div class="text-center py-10 bg-[#1a0a12]/40 backdrop-blur-xl rounded-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
-                <p class="text-xs text-gray-500 uppercase tracking-widest">No history recorded</p>
+              <div class="text-center py-10 bg-[var(--color-surface-elevated)]/40 backdrop-blur-xl rounded-2xl border border-[var(--color-border)] shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+                <p class="text-xs text-[var(--color-text-muted)] uppercase tracking-widest">No history recorded</p>
               </div>
             `}
           </div>
@@ -109,8 +109,8 @@ export default class MedicationDetailView {
         <div class="w-16 h-16 bg-[#7f2f5d]/20 text-[#ffb88c] rounded-full flex items-center justify-center mb-6">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         </div>
-        <h3 class="text-xl font-display text-white mb-2">${msg}</h3>
-        <button onclick="window.history.back()" class="mt-6 px-8 py-3 bg-[#1a0a12]/40 backdrop-blur-xl border border-white/10 text-[#ffb88c] hover:bg-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)] rounded-xl text-xs font-bold uppercase tracking-widest transition-all">Return to Ledger</button>
+        <h3 class="text-xl font-display text-[var(--color-text-primary)] mb-2">${msg}</h3>
+        <button onclick="window.history.back()" class="mt-6 px-8 py-3 bg-[var(--color-surface-elevated)]/40 backdrop-blur-xl border border-[var(--color-border)] text-[#ffb88c] hover:bg-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)] rounded-xl text-xs font-bold uppercase tracking-widest transition-all">Return to Ledger</button>
       </div>
     `;
   }

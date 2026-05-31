@@ -30,25 +30,35 @@ self.onmessage = async (e) => {
             
             // 1. MEDIAPIPE BOUNDARY DETECTION
             if (!_detectorReady) {
-                vision = await FilesetResolver.forVisionTasks('/vendor/mediapipe/wasm');
-                detector = await ObjectDetector.createFromOptions(vision, {
-                    baseOptions: { modelAssetPath: '/vendor/mediapipe/efficientdet_lite0.tflite', delegate: 'GPU' },
-                    scoreThreshold: 0.5,
-                    maxResults: 1
-                });
-                _detectorReady = true;
+                try {
+                    vision = await FilesetResolver.forVisionTasks('/vendor/mediapipe/wasm');
+                    detector = await ObjectDetector.createFromOptions(vision, {
+                        baseOptions: { modelAssetPath: '/vendor/mediapipe/efficientdet_lite0.tflite', delegate: 'GPU' },
+                        scoreThreshold: 0.5,
+                        maxResults: 1
+                    });
+                    _detectorReady = true;
+                } catch (mlErr) {
+                    console.warn('[VisionWorker] Missing TFLite model or ML failed, bypassing Mediapipe fallback:', mlErr);
+                    _detectorReady = false;
+                }
             }
 
             const detections = detector.detect(bitmap);
             let croppedBlob;
             
-            if (detections && detections.detections && detections.detections.length > 0) {
-                const bbox = detections.detections[0].boundingBox;
-                const oc = new OffscreenCanvas(bbox.width, bbox.height);
-                const ctx = oc.getContext('2d');
-                ctx.drawImage(bitmap, bbox.originX, bbox.originY, bbox.width, bbox.height, 0, 0, bbox.width, bbox.height);
-                croppedBlob = await oc.convertToBlob({ type: 'image/png' });
-            } else {
+            if (_detectorReady && detector) {
+                const detections = detector.detect(bitmap);
+                if (detections && detections.detections && detections.detections.length > 0) {
+                    const bbox = detections.detections[0].boundingBox;
+                    const oc = new OffscreenCanvas(bbox.width, bbox.height);
+                    const ctx = oc.getContext('2d');
+                    ctx.drawImage(bitmap, bbox.originX, bbox.originY, bbox.width, bbox.height, 0, 0, bbox.width, bbox.height);
+                    croppedBlob = await oc.convertToBlob({ type: 'image/png' });
+                }
+            }
+            
+            if (!croppedBlob) {
                 const oc = new OffscreenCanvas(bitmap.width, bitmap.height);
                 const ctx = oc.getContext('2d');
                 ctx.drawImage(bitmap, 0, 0);

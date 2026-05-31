@@ -13,7 +13,7 @@ const ASSETS = [
   '/app.js',
   '/manifest.local.json',
   '/manifest.github.json',
-  '/assets/logo.jpeg',
+  '/assets/logo.webp',
   '/core/db.js',
   '/core/router.js',
   '/core/state.js',
@@ -41,7 +41,9 @@ const ASSETS = [
   '/services/PeerMesh.js',
   '/services/SyncBridge.js',
   '/services/DocLedger.js',
-  '/workers/vision.worker.js'
+  '/workers/vision.worker.js',
+  '/data/drug-graph.json',
+  '/data/drug-index.json'
 ].map(path => BASE_PATH + path);
 
 self.addEventListener('install', (event) => {

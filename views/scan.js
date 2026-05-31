@@ -149,6 +149,13 @@ export default class ScanView {
           <div id="sv-phase-label" style="font-size: 15px; font-weight: 700; color: white;">Analyzing Image…</div>
           <div id="sv-terminal-log" style="width: 280px; height: 120px; margin-top: 15px; font-size: 10px; font-family: monospace; color: #10b981; text-align: left; background: rgba(0,0,0,0.6); padding: 10px; border-radius: 8px; border: 1px solid rgba(16,185,129,0.3); overflow-y: auto; box-shadow: inset 0 0 10px rgba(0,0,0,0.8);"></div>
         </div>
+
+        <div id="sv-camera-error" style="position: absolute; inset: 0; background: #050203; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 70; padding: 20px; text-align: center;">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5" style="margin-bottom: 16px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+          <div style="font-size: 16px; font-weight: 700; color: white; margin-bottom: 8px;">Camera Access Required</div>
+          <div style="font-size: 12px; color: #aaa; margin-bottom: 24px; max-width: 280px;">Please allow camera permissions in your browser settings to scan medicine labels.</div>
+          <button id="sv-retry-cam" style="padding: 12px 24px; border-radius: 12px; background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.5); color: #ef4444; font-weight: 700; cursor: pointer;">Retry Connection</button>
+        </div>
       </div>
 
       <div id="sv-controls" style="position: relative; z-index: 50; padding: 20px 24px 40px; background: rgba(5,2,3,0.4); backdrop-filter: blur(16px); border-top: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; align-items: center; gap: 16px;">
@@ -218,6 +225,8 @@ export default class ScanView {
     this._phaseLabel      = this.container.querySelector('#sv-phase-label');
     this._terminalLog     = this.container.querySelector('#sv-terminal-log');
     this._statusText      = this.container.querySelector('#sv-status-text');
+    this._camErrorOverlay = this.container.querySelector('#sv-camera-error');
+    this._retryCamBtn     = this.container.querySelector('#sv-retry-cam');
   }
 
   _attachListeners() {
@@ -275,6 +284,13 @@ export default class ScanView {
     this._torchBtn.addEventListener('click', () => this._toggleTorch());
     this._switchBtn.addEventListener('click', () => this._switchCamera());
     
+    if (this._retryCamBtn) {
+      this._retryCamBtn.addEventListener('click', () => {
+        if (this._camErrorOverlay) this._camErrorOverlay.style.display = 'none';
+        this._startCamera();
+      });
+    }
+
     this._galleryBtn.addEventListener('click', () => this._galleryInput.click());
     this._galleryInput.addEventListener('change', (e) => this._handleGalleryUpload(e));
     
@@ -319,9 +335,10 @@ export default class ScanView {
       if (tracks.length > 0) this.videoTrack = tracks[0];
       this._video.srcObject = this.stream;
     } catch (err) { 
-      console.warn('Camera blocked'); 
+      console.warn('Camera blocked', err); 
       this._statusText.textContent = 'CAMERA BLOCKED';
       this._statusText.style.color = '#ef4444';
+      if (this._camErrorOverlay) this._camErrorOverlay.style.display = 'flex';
     }
   }
 
@@ -696,18 +713,18 @@ export default class ScanView {
           const drugStr = drugs.join(', ');
           div.className = 'fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4';
           div.innerHTML = `
-            <div class="bg-[#1a0a12]/60 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-6 w-full max-w-sm shadow-[0_8px_32px_rgba(0,0,0,0.7)]">
-              <h2 class="text-xl font-display text-white mb-2">Low Confidence Scan</h2>
+            <div class="bg-[var(--color-surface-elevated)]/60 backdrop-blur-2xl border border-[var(--color-border)] rounded-[2rem] p-6 w-full max-w-sm shadow-[0_8px_32px_rgba(0,0,0,0.7)]">
+              <h2 class="text-xl font-display text-[var(--color-text-primary)] mb-2">Low Confidence Scan</h2>
               <p class="text-xs text-[#ffb88c] mb-6 font-mono uppercase tracking-widest">Confidence Score: ${Math.floor(confidence)}%</p>
               <div class="space-y-4">
                 <div>
-                  <label class="text-xs text-gray-400 uppercase tracking-widest font-bold ml-2 mb-1 block">Detected Text</label>
-                  <input type="text" id="conf-val" value="${drugStr}" class="w-full bg-white/5 border border-[#7f2f5d]/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#ffb88c]/50">
+                  <label class="text-xs text-[var(--color-text-secondary)] uppercase tracking-widest font-bold ml-2 mb-1 block">Detected Text</label>
+                  <input type="text" id="conf-val" value="${drugStr}" class="w-full bg-white/5 border border-[#7f2f5d]/50 rounded-xl px-4 py-3 text-[var(--color-text-primary)] text-sm focus:outline-none focus:border-[#ffb88c]/50">
                 </div>
               </div>
               <div class="flex gap-3 mt-8">
-                <button id="conf-cancel" class="flex-1 py-3.5 rounded-xl border border-[#7f2f5d]/50 text-gray-400 font-bold uppercase text-xs tracking-widest hover:bg-white/5 transition-colors">Discard</button>
-                <button id="conf-save" class="flex-1 py-3.5 rounded-xl bg-gradient-to-r from-[#7f2f5d] to-[#ca5229] text-white font-bold uppercase text-xs tracking-widest shadow-lg shadow-[#ca5229]/20 active:scale-95 transition-transform">Accept</button>
+                <button id="conf-cancel" class="flex-1 py-3.5 rounded-xl border border-[#7f2f5d]/50 text-[var(--color-text-secondary)] font-bold uppercase text-xs tracking-widest hover:bg-white/5 transition-colors">Discard</button>
+                <button id="conf-save" class="flex-1 py-3.5 rounded-xl bg-gradient-to-r from-[#7f2f5d] to-[#ca5229] text-[var(--color-text-primary)] font-bold uppercase text-xs tracking-widest shadow-lg shadow-[#ca5229]/20 active:scale-95 transition-transform">Accept</button>
               </div>
             </div>
           `;
@@ -733,21 +750,21 @@ export default class ScanView {
           div.setAttribute('role', 'alertdialog');
           div.setAttribute('aria-modal', 'true');
           div.innerHTML = `
-            <div class="bg-[#1a0a12] border border-red-500/50 rounded-[2rem] p-6 w-full max-w-sm shadow-2xl">
-              <h2 class="text-xl font-display text-white mb-2 flex items-center gap-2">
+            <div class="bg-[var(--color-surface-elevated)] border border-red-500/50 rounded-[2rem] p-6 w-full max-w-sm shadow-2xl">
+              <h2 class="text-xl font-display text-[var(--color-text-primary)] mb-2 flex items-center gap-2">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                 DANGEROUS INTERACTION
               </h2>
               <p class="text-xs text-red-400 mb-6 font-mono uppercase tracking-widest">Severe Contraindication</p>
               
               <div class="bg-red-500/10 p-4 rounded-xl border border-red-500/20 mb-6">
-                <p class="text-sm font-bold text-white mb-2">${interaction.drug1} + ${interaction.drug2}</p>
+                <p class="text-sm font-bold text-[var(--color-text-primary)] mb-2">${interaction.drug1} + ${interaction.drug2}</p>
                 <p class="text-xs text-red-200">${interaction.description}</p>
                 <p class="text-xs text-red-400 mt-2 font-bold">${interaction.recommendation}</p>
               </div>
 
               <div class="flex flex-col gap-3">
-                <button id="ddi-cancel" class="w-full py-3.5 rounded-xl bg-red-600 text-white font-bold uppercase text-xs tracking-widest shadow-lg shadow-red-900/20 active:scale-95 transition-transform">Cancel Addition</button>
+                <button id="ddi-cancel" class="w-full py-3.5 rounded-xl bg-red-600 text-[var(--color-text-primary)] font-bold uppercase text-xs tracking-widest shadow-lg shadow-red-900/20 active:scale-95 transition-transform">Cancel Addition</button>
                 <button id="ddi-override" class="w-full py-3.5 rounded-xl border border-red-500/30 text-red-400 font-bold uppercase text-xs tracking-widest hover:bg-red-500/10 transition-colors">Override & Add Anyway</button>
               </div>
             </div>

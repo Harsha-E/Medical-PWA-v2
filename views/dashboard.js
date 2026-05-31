@@ -1,5 +1,6 @@
 import db from '../core/db.js';
 import state from '../core/state.js';
+import { escapeHTML } from '../core/utils.js';
 import { getFirestore, doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 export default class DashboardView {
@@ -47,7 +48,7 @@ export default class DashboardView {
       header.innerHTML = `
         <div class="flex flex-col animate-fade-in">
           <span class="text-[10px] text-[#ffb88c] uppercase tracking-widest leading-none mb-1 opacity-80">Dashboard</span>
-          <h1 class="font-bold text-white leading-none">Good ${greeting}, ${displayName}</h1>
+          <h1 class="font-bold text-[var(--color-text-primary)] leading-none">Good ${greeting}, ${displayName}</h1>
         </div>
       `;
     }
@@ -73,28 +74,28 @@ export default class DashboardView {
     if (!section) return;
 
     section.innerHTML = `
-      <h2 class="text-xs text-gray-400 font-bold mb-6 tracking-[0.2em] px-1 uppercase animate-fade-in">Current Medications</h2>
+      <h2 class="text-xs text-[var(--color-text-secondary)] font-bold mb-6 tracking-[0.2em] px-1 uppercase animate-fade-in">Current Medications</h2>
       <div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar -mx-6 px-6 md:-mx-0 md:px-0 animate-fade-in">
         ${meds.length > 0 ? meds.map(m => `
-          <div class="bg-[#1a0a12]/40 backdrop-blur-xl border border-white/10 rounded-3xl p-5 min-w-[150px] flex flex-col justify-between shrink-0 shadow-[0_8px_32px_rgba(0,0,0,0.5)] cursor-pointer hover:border-[#ffb88c]/50 transition-all" data-action="edit-med" data-id="${m.id}">
+          <div class="bg-[var(--color-surface-elevated)]/40 backdrop-blur-xl border border-[var(--color-border)] rounded-3xl p-5 min-w-[150px] flex flex-col justify-between shrink-0 shadow-[0_8px_32px_rgba(0,0,0,0.5)] cursor-pointer hover:border-[#ffb88c]/50 transition-all" data-action="edit-med" data-id="${m.id}">
             <div class="w-10 h-10 rounded-2xl bg-[#7f2f5d]/20 border border-[#7f2f5d]/50 flex items-center justify-center mb-6">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffb88c" stroke-width="2.5"><path d="M10.5 3.5a2.121 2.121 0 0 1 3 0l7 7a2.121 2.121 0 0 1 0 3l-7 7a2.121 2.121 0 0 1-3 0l-7-7a2.121 2.121 0 0 1 0-3l7-7Z"/><path d="m8.5 15.5 7-7"/></svg>
             </div>
             <div>
-              <p class="text-sm font-bold text-white leading-tight">${m.name}</p>
-              <p class="text-xs text-gray-400 mt-1 uppercase font-bold tracking-widest">${m.dosage} ${m.dosageUnit || 'mg'}</p>
+              <p class="text-sm font-bold text-[var(--color-text-primary)] leading-tight">${m.name}</p>
+              <p class="text-xs text-[var(--color-text-secondary)] mt-1 uppercase font-bold tracking-widest">${m.dosage} ${m.dosageUnit || 'mg'}</p>
             </div>
           </div>
         `).join('') : `
-          <div class="bg-[#1a0a12]/40 backdrop-blur-xl border border-white/10 rounded-3xl p-8 w-full text-center shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
-            <p class="text-xs text-gray-500 uppercase font-bold tracking-widest">No active medications.</p>
+          <div class="bg-[var(--color-surface-elevated)]/40 backdrop-blur-xl border border-[var(--color-border)] rounded-3xl p-8 w-full text-center shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+            <p class="text-xs text-[var(--color-text-muted)] uppercase font-bold tracking-widest">No active medications.</p>
           </div>
         `}
-        <a href="#/add-medication" id="add-med-btn" class="bg-[#1a0a12]/20 backdrop-blur-md border-dashed border-2 border-white/20 rounded-3xl p-4 min-w-[110px] flex flex-col items-center justify-center shrink-0 cursor-pointer hover:bg-white/5 transition-colors">
+        <a href="#/add-medication" id="add-med-btn" class="bg-[var(--color-surface-elevated)]/20 backdrop-blur-md border-dashed border-2 border-[var(--color-border)] rounded-3xl p-4 min-w-[110px] flex flex-col items-center justify-center shrink-0 cursor-pointer hover:bg-white/5 transition-colors">
           <div class="w-10 h-10 rounded-full border border-[#ffb88c]/40 flex items-center justify-center mb-3 text-[#ffb88c]">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           </div>
-          <p class="text-xs text-gray-400 uppercase font-bold tracking-widest text-center">Add Med</p>
+          <p class="text-xs text-[var(--color-text-secondary)] uppercase font-bold tracking-widest text-center">Add Med</p>
         </a>
       </div>
     `;
@@ -134,19 +135,19 @@ export default class DashboardView {
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ffb88c" stroke-width="3"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             <h2 class="text-xs text-[#ffb88c] font-bold tracking-[0.2em] uppercase">Daily Schedule</h2>
           </div>
-          <p class="text-lg font-bold text-white tracking-tight">${today}</p>
+          <p class="text-lg font-bold text-[var(--color-text-primary)] tracking-tight">${today}</p>
         </div>
         
         <div class="relative z-50" id="filter-dropdown-container">
-          <button id="timeline-filter-btn" class="w-8 h-8 rounded-full bg-[#1a0a12] border border-[#7f2f5d]/50 flex items-center justify-center text-gray-400 hover:text-white hover:border-[#ffb88c]/50 transition-all active:scale-95">
+          <button id="timeline-filter-btn" class="w-8 h-8 rounded-full bg-[var(--color-surface-elevated)] border border-[#7f2f5d]/50 flex items-center justify-center text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:border-[#ffb88c]/50 transition-all active:scale-95">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
           </button>
           
-          <div id="timeline-filter-menu" class="absolute right-0 top-10 w-48 bg-[#1a0a12]/60 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden opacity-0 pointer-events-none transform -translate-y-2 transition-all duration-200">
+          <div id="timeline-filter-menu" class="absolute right-0 top-10 w-48 bg-[var(--color-surface-elevated)]/60 backdrop-blur-xl border border-[var(--color-border)] rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden opacity-0 pointer-events-none transform -translate-y-2 transition-all duration-200">
             <div class="p-2 flex flex-col gap-1">
               <button class="filter-option text-left px-4 py-2.5 text-xs font-bold text-[#ffb88c] bg-[#7f2f5d]/20 rounded-xl transition-colors uppercase tracking-widest" data-filter="all">Show All</button>
-              <button class="filter-option text-left px-4 py-2.5 text-xs font-bold text-gray-400 hover:text-white hover:bg-[#7f2f5d]/20 rounded-xl transition-colors uppercase tracking-widest" data-filter="upcoming">Upcoming</button>
-              <button class="filter-option text-left px-4 py-2.5 text-xs font-bold text-gray-400 hover:text-white hover:bg-[#7f2f5d]/20 rounded-xl transition-colors uppercase tracking-widest" data-filter="missed">Missed</button>
+              <button class="filter-option text-left px-4 py-2.5 text-xs font-bold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[#7f2f5d]/20 rounded-xl transition-colors uppercase tracking-widest" data-filter="upcoming">Upcoming</button>
+              <button class="filter-option text-left px-4 py-2.5 text-xs font-bold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[#7f2f5d]/20 rounded-xl transition-colors uppercase tracking-widest" data-filter="missed">Missed</button>
             </div>
           </div>
         </div>
@@ -164,10 +165,10 @@ export default class DashboardView {
             <div class="${dose.taken ? 'opacity-50' : ''}">
               <div class="flex justify-between items-start mb-2">
                 <div>
-                  <span class="text-xs font-bold text-[#ffb88c] uppercase tracking-widest leading-none">${dose.time}</span>
-                  <h3 class="text-base font-bold text-white mt-1">${dose.name}</h3>
+                  <span class="text-xs font-bold text-[#ffb88c] uppercase tracking-widest leading-none">${escapeHTML(dose.time)}</span>
+                  <h3 class="text-base font-bold text-[var(--color-text-primary)] mt-1">${escapeHTML(dose.name)}</h3>
                 </div>
-                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">${dose.dosage}</span>
+                <span class="text-xs font-bold text-[var(--color-text-secondary)] uppercase tracking-widest">${escapeHTML(dose.dosage)}</span>
               </div>
               ${dose.taken
                 ? `<div class="flex items-center gap-2 mt-2">
@@ -175,15 +176,15 @@ export default class DashboardView {
                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
                        <span class="text-xs font-bold text-green-400 uppercase tracking-widest">Taken</span>
                      </div>
-                     <button class="undo-dose-btn px-3 py-1 bg-[#1a0a12] border border-[#7f2f5d]/50 rounded-lg text-xs font-bold text-gray-400 hover:text-white uppercase tracking-widest transition-colors" data-med-id="${dose.id}" data-time="${dose.time}">Undo</button>
+                     <button class="undo-dose-btn px-3 py-1 bg-[var(--color-surface-elevated)] border border-[#7f2f5d]/50 rounded-lg text-xs font-bold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] uppercase tracking-widest transition-colors" data-med-id="${dose.id}" data-time="${dose.time}">Undo</button>
                    </div>`
-                : `<button class="confirm-dose-btn w-full mt-3 py-3 bg-[#1a0a12] border border-[#7f2f5d]/50 rounded-xl text-xs font-bold text-[#ffb88c] uppercase tracking-[0.2em] hover:bg-[#7f2f5d]/30 transition-all active:scale-[0.98]" data-med-id="${dose.id}" data-time="${dose.time}">Mark as Taken</button>`
+                : `<button class="confirm-dose-btn w-full mt-3 py-3 bg-[var(--color-surface-elevated)] border border-[#7f2f5d]/50 rounded-xl text-xs font-bold text-[#ffb88c] uppercase tracking-[0.2em] hover:bg-[#7f2f5d]/30 transition-all active:scale-[0.98]" data-med-id="${dose.id}" data-time="${dose.time}">Mark as Taken</button>`
               }
             </div>
           </div>
         `}).join('') : `
           <div class="py-8 text-center clay-glass-panel rounded-3xl">
-            <p class="text-xs text-gray-500 font-mono uppercase tracking-widest">No scheduled doses.</p>
+            <p class="text-xs text-[var(--color-text-muted)] font-mono uppercase tracking-widest">No scheduled doses.</p>
             <button id="schedule-empty-add-btn" class="text-[#ffb88c] text-xs font-bold mt-2 uppercase">Add medication</button>
           </div>
         `}
@@ -216,16 +217,16 @@ export default class DashboardView {
     const adherence = expectedDoses > 0 ? Math.round((takenCount / expectedDoses) * 100) : 0;
 
     col.innerHTML = `
-      <div data-action="nav-calendar" class="group relative bg-[#1a0a12]/40 backdrop-blur-xl border border-white/10 rounded-[2rem] p-6 shadow-[0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden cursor-pointer hover:border-[#ffb88c]/50 transition-all duration-500 animate-fade-in">
+      <div data-action="nav-calendar" class="group relative bg-[var(--color-surface-elevated)]/40 backdrop-blur-xl border border-[var(--color-border)] rounded-[2rem] p-6 shadow-[0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden cursor-pointer hover:border-[#ffb88c]/50 transition-all duration-500 animate-fade-in">
         <div class="absolute -right-12 -top-12 w-40 h-40 bg-[#7f2f5d]/20 blur-3xl rounded-full group-hover:bg-[#ffb88c]/20 transition-all duration-700"></div>
         <div class="flex justify-between items-start mb-6 relative z-10">
           <div>
             <div class="flex items-center gap-2 mb-2">
               <div id="compliance-dot" class="w-1.5 h-1.5 rounded-full ${adherence >= 80 ? 'bg-green-500' : 'bg-amber-500'} animate-pulse"></div>
-              <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Compliance</span>
+              <span class="text-xs font-bold text-[var(--color-text-secondary)] uppercase tracking-widest">Compliance</span>
             </div>
             <div class="flex items-baseline gap-2">
-              <p id="compliance-percentage" class="text-4xl font-bold text-white tracking-tight">${adherence}%</p>
+              <p id="compliance-percentage" class="text-4xl font-bold text-[var(--color-text-primary)] tracking-tight">${adherence}%</p>
               <span id="compliance-status" class="text-xs font-bold ${adherence >= 80 ? 'text-green-400' : 'text-amber-400'} uppercase tracking-widest">${adherence >= 80 ? 'Optimal' : 'Review'}</span>
             </div>
           </div>
@@ -233,13 +234,13 @@ export default class DashboardView {
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
           </div>
         </div>
-        <div class="w-full h-2 bg-[#0a0407] rounded-full overflow-hidden relative z-10 border border-[#7f2f5d]/30">
+        <div class="w-full h-2 bg-[var(--color-surface)] rounded-full overflow-hidden relative z-10 border border-[#7f2f5d]/30">
           <div id="compliance-bar" class="h-full bg-gradient-to-r from-[#7f2f5d] to-[#ffb88c] transition-all duration-1000 relative" style="width: ${adherence}%">
              <div class="absolute inset-0 bg-white/20 w-full animate-[shimmer_2s_infinite]"></div>
           </div>
         </div>
         <div class="mt-5 text-right relative z-10">
-          <a href="#/reports" class="text-xs font-bold text-[#ffb88c] hover:text-white uppercase tracking-widest border-b border-[#ffb88c]/30 pb-1 transition-colors">View Full Report &rarr;</a>
+          <a href="#/reports" class="text-xs font-bold text-[#ffb88c] hover:text-[var(--color-text-primary)] uppercase tracking-widest border-b border-[#ffb88c]/30 pb-1 transition-colors">View Full Report &rarr;</a>
         </div>
       </div>
     `;
@@ -279,9 +280,9 @@ export default class DashboardView {
         // Update Button Active States
         this.container.querySelectorAll('.filter-option').forEach(opt => {
           opt.classList.remove('text-[#ffb88c]', 'bg-[#7f2f5d]/20');
-          opt.classList.add('text-gray-400');
+          opt.classList.add('text-[var(--color-text-secondary)]');
         });
-        filterOption.classList.remove('text-gray-400');
+        filterOption.classList.remove('text-[var(--color-text-secondary)]');
         filterOption.classList.add('text-[#ffb88c]', 'bg-[#7f2f5d]/20');
 
         // Close the menu automatically
@@ -336,7 +337,7 @@ export default class DashboardView {
             if (medRecord.refillThreshold !== undefined && medRecord.totalQuantity <= medRecord.refillThreshold) {
               // Show an inline toast/alert
               const alertHTML = document.createElement('div');
-              alertHTML.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-amber-500/90 text-white px-6 py-3 rounded-2xl shadow-xl z-[9999] text-xs font-bold tracking-widest uppercase animate-[slideUpFade_0.3s_ease-out] flex items-center gap-3 backdrop-blur-md';
+              alertHTML.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-amber-500/90 text-[var(--color-text-primary)] px-6 py-3 rounded-2xl shadow-xl z-[9999] text-xs font-bold tracking-widest uppercase animate-[slideUpFade_0.3s_ease-out] flex items-center gap-3 backdrop-blur-md';
               alertHTML.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01"/></svg> Refill Alert: ${medRecord.name} is running low (${medRecord.totalQuantity} left).`;
               document.body.appendChild(alertHTML);
               setTimeout(() => {
@@ -354,7 +355,7 @@ export default class DashboardView {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
                 <span class="text-xs font-bold text-green-400 uppercase tracking-widest">Taken</span>
               </div>
-              <button class="undo-dose-btn px-3 py-1 bg-[#1a0a12] border border-[#7f2f5d]/50 rounded-lg text-xs font-bold text-gray-400 hover:text-white uppercase tracking-widest transition-colors" data-med-id="${id}" data-time="${timeSlot}">Undo</button>
+              <button class="undo-dose-btn px-3 py-1 bg-[var(--color-surface-elevated)] border border-[#7f2f5d]/50 rounded-lg text-xs font-bold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] uppercase tracking-widest transition-colors" data-med-id="${id}" data-time="${timeSlot}">Undo</button>
             </div>
           `;
           btn.outerHTML = successHTML;
@@ -512,7 +513,7 @@ export default class DashboardView {
                 
                 // Claymorphism refresh UI
                 ptrContainer.innerHTML = `
-                    <div class="p-3 bg-gradient-to-br from-[#1a0a12] to-[#0a0407] rounded-3xl border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.8)] backdrop-blur-xl relative overflow-hidden" style="box-shadow: inset 0 2px 10px rgba(255,255,255,0.05), 0 10px 30px rgba(0,0,0,0.8);">
+                    <div class="p-3 bg-gradient-to-br from-[#1a0a12] to-[#0a0407] rounded-3xl border border-[var(--color-border)] shadow-[0_10px_30px_rgba(0,0,0,0.8)] backdrop-blur-xl relative overflow-hidden" style="box-shadow: inset 0 2px 10px rgba(255,255,255,0.05), 0 10px 30px rgba(0,0,0,0.8);">
                        <div class="w-8 h-8 relative flex items-center justify-center spinner-container">
                           <div class="w-2.5 h-2.5 bg-[#ca5229] rounded-full absolute top-0 left-1/2 -translate-x-1/2 shadow-[0_0_15px_#ca5229]"></div>
                           <div class="w-2.5 h-2.5 bg-[#7f2f5d] rounded-full absolute bottom-0 left-0 shadow-[0_0_15px_#7f2f5d]"></div>

@@ -154,7 +154,7 @@ export default class PwaInstallManager {
     this.bannerEl.innerHTML = `
       <div id="pwa-inner-card" class="flex items-center justify-between p-4 bg-[#0a040f]/90 backdrop-blur-xl border border-[#ffb88c]/30 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.8),inset_0_0_20px_rgba(255,184,140,0.05)] pointer-events-auto group">
         <div class="flex items-center gap-3 cursor-pointer" id="pwa-main-action-area">
-          <img src="./assets/logo.jpeg" class="w-10 h-10 rounded-xl border border-[#ffb88c]/20 object-cover shadow-inner" alt="MedCare Logo" />
+          <img src="./assets/logo.webp" class="w-10 h-10 rounded-xl border border-[#ffb88c]/20 object-cover shadow-inner" alt="MedCare Logo" />
           <div class="flex flex-col">
             <span class="text-white text-sm font-bold tracking-wide">MedCare App</span>
             <span id="pwa-banner-text" class="text-[#ffb88c] text-[10px] uppercase tracking-widest font-mono">Install Now</span>

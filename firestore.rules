@@ -45,8 +45,8 @@ service cloud.firestore {
 
     // 3. Medications
     match /medications/{medicationId} {
-      allow get: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
-      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow get: if isSignedIn() && (isAdmin() || existing().userId == request.auth.uid);
+      allow list: if isSignedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
       allow create: if isSignedIn() && isValidId(medicationId)
         && isValidMedication(incoming())
         && incoming().userId == request.auth.uid;
@@ -65,8 +65,8 @@ service cloud.firestore {
 
     // 4. Appointments
     match /appointments/{appointmentId} {
-      allow get, update, delete: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
-      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow get, update, delete: if isSignedIn() && (isAdmin() || existing().userId == request.auth.uid);
+      allow list: if isSignedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
       allow create: if isSignedIn() && isValidId(appointmentId)
         && incoming().userId == request.auth.uid
         && incoming().title is string && incoming().title.size() <= 100;

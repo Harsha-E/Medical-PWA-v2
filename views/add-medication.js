@@ -19,7 +19,7 @@ export default class AddMedicationView {
       name: '', dosage: '', dosageUnit: 'mg',
       category: 'Tablet', frequency: 'Once daily',
       times: ['08:00'], startDate: new Date().toISOString().split('T')[0],
-      active: true, notes: ''
+      endDate: '', active: true, notes: ''
     };
   }
 
@@ -74,10 +74,10 @@ export default class AddMedicationView {
 
     this.container.innerHTML = `
       <header class="view-header">
-        <button onclick="window.history.back()" class="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-[#ffb88c] transition-colors cursor-pointer">
+        <button onclick="window.history.back()" class="w-10 h-10 rounded-2xl bg-white/5 border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text-secondary)] hover:text-[#ffb88c] transition-colors cursor-pointer">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
-        <h2 class="text-lg font-bold text-white tracking-tight">${this.isEdit ? 'Edit' : 'Add'} Medication</h2>
+        <h2 class="text-lg font-bold text-[var(--color-text-primary)] tracking-tight">${this.isEdit ? 'Edit' : 'Add'} Medication</h2>
         <div class="w-10"></div>
       </header>
 
@@ -88,6 +88,16 @@ export default class AddMedicationView {
             <label for="m-name" class="form-label">Name</label>
             <input type="text" id="m-name" autocomplete="off" class="form-input" value="${this.medData.name || ''}" placeholder="e.g. Atorvastatin">
           </div>
+          <div class="grid grid-cols-2 gap-4 mt-6">
+            <div class="form-group">
+              <label for="m-start" class="form-label">Start Date</label>
+              <input type="date" id="m-start" class="form-input [color-scheme:dark]" value="${this.medData.startDate || new Date().toISOString().split('T')[0]}">
+            </div>
+            <div class="form-group">
+              <label for="m-end" class="form-label">End Date (Optional)</label>
+              <input type="date" id="m-end" class="form-input [color-scheme:dark]" value="${this.medData.endDate || ''}">
+            </div>
+          </div>
           <div class="grid grid-cols-2 gap-4">
             <div class="form-group">
               <label for="m-dosage" class="form-label">Dosage</label>
@@ -96,7 +106,7 @@ export default class AddMedicationView {
             <div class="form-group">
               <label for="m-unit" class="form-label">Unit</label>
               <select id="m-unit" autocomplete="off" class="form-select">
-                ${['mg','ml','mcg','units'].map(u => `<option value="${u}" ${this.medData.dosageUnit===u?'selected':''}>${u}</option>`).join('')}
+                ${['mg','g','kg','mcg','ml','L','units','drops','patches','puffs','sprays'].map(u => `<option value="${u}" ${this.medData.dosageUnit===u?'selected':''}>${u}</option>`).join('')}
               </select>
             </div>
           </div>
@@ -184,7 +194,7 @@ export default class AddMedicationView {
         html += `
           <div class="form-group">
             <label for="m-time-${i}" class="form-label">Dose ${i + 1} Time</label>
-            <input type="time" id="m-time-${i}" class="form-input bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 w-full" value="${timeVal || '08:00'}">
+            <input type="time" id="m-time-${i}" class="form-input bg-white/5 border border-[var(--color-border)] text-[var(--color-text-primary)] rounded-xl px-4 py-3 w-full" value="${timeVal || '08:00'}">
           </div>
         `;
       }
@@ -246,12 +256,21 @@ export default class AddMedicationView {
       active: true,
       
       // FIX: Append strict temporal boundaries so the calendar knows when this started
-      startDate: new Date().toISOString().split('T')[0],
+      startDate: this.container.querySelector('#m-start')?.value || new Date().toISOString().split('T')[0],
+      endDate: this.container.querySelector('#m-end')?.value || '',
     };
 
     const parsedDosage = parseFloat(data.dosage) || 0;
-    if (data.dosageUnit === 'mg' && parsedDosage > 0) {
-      const dailyTotal = parsedDosage * data.times.length;
+    
+    // Normalize dosage to mg for warning check
+    let mgEquivalent = 0;
+    if (data.dosageUnit === 'mg') mgEquivalent = parsedDosage;
+    else if (data.dosageUnit === 'g') mgEquivalent = parsedDosage * 1000;
+    else if (data.dosageUnit === 'mcg') mgEquivalent = parsedDosage / 1000;
+    else if (data.dosageUnit === 'kg') mgEquivalent = parsedDosage * 1000000;
+
+    if (mgEquivalent > 0) {
+      const dailyTotal = mgEquivalent * data.times.length;
       if (dailyTotal > 4000) {
         const confirmOverride = await new Promise((resolve) => {
           const div = document.createElement('div');
@@ -259,14 +278,14 @@ export default class AddMedicationView {
           div.setAttribute('role', 'alertdialog');
           div.setAttribute('aria-modal', 'true');
           div.innerHTML = `
-            <div class="bg-[#1a0a12] border border-red-500/50 rounded-[2rem] p-6 w-full max-w-sm shadow-2xl">
-              <h2 class="text-xl font-display text-white mb-2 flex items-center gap-2">
+            <div class="bg-[var(--color-surface-elevated)] border border-red-500/50 rounded-[2rem] p-6 w-full max-w-sm shadow-2xl">
+              <h2 class="text-xl font-display text-[var(--color-text-primary)] mb-2 flex items-center gap-2">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                 Clinical Limit Exceeded
               </h2>
               <p class="text-sm text-gray-300 mb-6 font-mono">The total daily dosage (${dailyTotal}mg) exceeds typical clinical limits (4000mg/day). Do you want to override?</p>
               <div class="flex gap-3">
-                <button id="limit-cancel" class="flex-1 py-3 rounded-xl border border-white/10 text-white font-bold tracking-wider">Cancel</button>
+                <button id="limit-cancel" class="flex-1 py-3 rounded-xl border border-[var(--color-border)] text-[var(--color-text-primary)] font-bold tracking-wider">Cancel</button>
                 <button id="limit-override" class="flex-1 py-3 rounded-xl bg-red-500/20 text-red-400 font-bold tracking-wider border border-red-500/50">Override</button>
               </div>
             </div>
@@ -292,16 +311,13 @@ export default class AddMedicationView {
       if (this.isEdit && this.medId) {
         await db.medications.update(this.medId, data);
       } else {
-        await db.medications.add(data);
+        this.medId = await db.medications.add(data);
       }
 
       // 2. DUAL-WRITE: Write to Firestore (Cloud Sync) - Do not await to avoid offline hanging
       const firestoreDb = getFirestore();
-      if (this.isEdit && this.medId) {
-        setDoc(doc(firestoreDb, 'medications', this.medId.toString()), data, { merge: true }).catch(console.error);
-      } else {
-        addDoc(collection(firestoreDb, 'medications'), data).catch(console.error);
-      }
+      const cloudDocId = `${data.userId}_${this.medId}`;
+      setDoc(doc(firestoreDb, 'medications', cloudDocId), data, { merge: true }).catch(console.error);
 
       sessionStorage.removeItem('medcare_draft_form');
       window.location.hash = '#/medications';

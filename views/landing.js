@@ -13,7 +13,7 @@ export default class LandingView {
 
     this.container.innerHTML = `
       <!-- WebGL Background Layer -->
-      <div id="liquid-host" class="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden bg-[#02040b]">
+      <div id="liquid-host" class="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden bg-[var(--color-surface)]">
         <canvas id="liquid-canvas" aria-hidden="true" class="absolute inset-0 w-full h-full block pointer-events-none"></canvas>
         <div class="absolute inset-0 bg-gradient-to-r from-black/35 via-black/15 to-transparent pointer-events-none"></div>
         <div class="absolute inset-0 bg-[radial-gradient(circle_at_65%_40%,rgba(255,255,255,0.08),transparent_45%)] pointer-events-none"></div>
@@ -26,16 +26,16 @@ export default class LandingView {
         <div class="relative z-10 w-full max-w-4xl mx-auto flex flex-col items-center justify-center">
           
           <div class="mb-6 relative z-20">
-            <span class="block text-white/40 tracking-[0.3em] text-xs font-mono uppercase mb-4 animate-fade-in">
+            <span class="block text-[var(--color-text-primary)]/40 tracking-[0.3em] text-xs font-mono uppercase mb-4 animate-fade-in">
               Clinical Health Sentinel
             </span>
-            <h1 class="text-white text-5xl md:text-7xl font-semibold leading-[0.9] tracking-tighter drop-shadow-2xl animate-fade-in-up">
+            <h1 class="text-[var(--color-text-primary)] text-5xl md:text-7xl font-semibold leading-[0.9] tracking-tighter drop-shadow-2xl animate-fade-in-up">
               Secured in one <span class="bg-linear-to-r from-[#ffd9b5] via-[#ffb88c] to-[#7f2f5d] bg-clip-text text-transparent">GO</span>
             </h1>
           </div>
 
           <div class="mb-12 h-6 flex items-center justify-center relative z-20">
-            <p class="text-gray-400 text-sm md:text-base leading-relaxed font-mono tracking-wide max-w-lg mx-auto">
+            <p class="text-[var(--color-text-secondary)] text-sm md:text-base leading-relaxed font-mono tracking-wide max-w-lg mx-auto">
               <span class="typewriter-text" data-text="A unified, secure biomedical ledger and high-fidelity drug interaction engine."></span><span class="typewriter-cursor text-[#ffb88c] animate-pulse">|</span>
             </p>
           </div>

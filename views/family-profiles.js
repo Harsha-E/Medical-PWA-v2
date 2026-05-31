@@ -1,5 +1,7 @@
 import db from '../core/db.js';
 import state from '../core/state.js';
+import { showToast } from '../core/ui.js';
+import { escapeHTML } from '../core/utils.js';
 
 export default class FamilyProfilesView {
   async render() {
@@ -16,7 +18,7 @@ export default class FamilyProfilesView {
           <span class="text-xs text-uppercase text-muted uppercase tracking-widest leading-none">Social Graph</span>
           <h1 class="text-xl font-display mt-1 leading-none">Network Nodes</h1>
         </div>
-        <button id="add-family-btn" class="bg-primary text-white w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl shadow-orange-200 active:scale-90 transition-transform">
+        <button id="add-family-btn" class="bg-primary text-[var(--color-text-primary)] w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl shadow-orange-200 active:scale-90 transition-transform">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="18" y2="12"/></svg>
         </button>
       </header>
@@ -25,15 +27,15 @@ export default class FamilyProfilesView {
         <div class="grid grid-cols-1 gap-8 mt-4">
             ${family.map(member => `
               <div class="clay-glass-panel p-8 flex flex-col items-center text-center shadow-xl shadow-gray-100/50">
-                  <div class="w-24 h-24 bg-text-primary text-white rounded-4xl flex items-center justify-center font-display text-4xl italic mb-6 shadow-xl">
-                    ${member.name ? member.name[0].toUpperCase() : '?'}
+                  <div class="w-24 h-24 bg-text-primary text-[var(--color-text-primary)] rounded-4xl flex items-center justify-center font-display text-4xl italic mb-6 shadow-xl">
+                    ${member.name ? escapeHTML(member.name)[0].toUpperCase() : '?'}
                   </div>
-                  <h3 class="font-bold text-xl leading-none">${member.name}</h3>
-                  <p class="text-xs text-uppercase font-bold text-primary tracking-widest mt-2 uppercase">${member.relation || 'Unknown'} &bull; DOB: ${member.dob || 'Unknown'}</p>
-                  ${member.conditions ? `<p class="text-xs text-muted mt-3 max-w-[90%] mx-auto">Conditions: ${member.conditions}</p>` : ''}
+                  <h3 class="font-bold text-xl leading-none">${escapeHTML(member.name)}</h3>
+                  <p class="text-xs text-uppercase font-bold text-primary tracking-widest mt-2 uppercase">${escapeHTML(member.relation) || 'Unknown'} &bull; DOB: ${escapeHTML(member.dob) || 'Unknown'}</p>
+                  ${member.conditions ? `<p class="text-xs text-muted mt-3 max-w-[90%] mx-auto">Conditions: ${escapeHTML(member.conditions)}</p>` : ''}
                   <div class="flex gap-3 mt-8 w-full">
-                      <a href="#/medical-history?familyId=${member.id}" class="flex-1 py-3 bg-white/5 text-white border border-[#7f2f5d]/30 rounded-xl text-xs uppercase font-bold tracking-widest active:scale-95 transition-all text-center">Records</a>
-                      <a href="#/medications?familyId=${member.id}" class="flex-1 py-3 bg-white/5 text-white border border-[#7f2f5d]/30 rounded-xl text-xs uppercase font-bold tracking-widest active:scale-95 transition-all text-center">Prescriptions</a>
+                      <a href="#/medical-history?familyId=${member.id}" class="flex-1 py-3 bg-white/5 text-[var(--color-text-primary)] border border-[#7f2f5d]/30 rounded-xl text-xs uppercase font-bold tracking-widest active:scale-95 transition-all text-center">Records</a>
+                      <a href="#/medications?familyId=${member.id}" class="flex-1 py-3 bg-white/5 text-[var(--color-text-primary)] border border-[#7f2f5d]/30 rounded-xl text-xs uppercase font-bold tracking-widest active:scale-95 transition-all text-center">Prescriptions</a>
                   </div>
               </div>
             `).join('')}
@@ -82,32 +84,32 @@ export default class FamilyProfilesView {
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-6';
     modal.innerHTML = `
-      <div class="bg-[#1a0a12] border border-[#7f2f5d]/50 p-8 rounded-3xl max-w-sm w-full shadow-2xl">
-        <h3 class="text-lg font-display text-white mb-6">Add Dependent</h3>
+      <div class="bg-[var(--color-surface-elevated)] border border-[#7f2f5d]/50 p-8 rounded-3xl max-w-sm w-full shadow-2xl">
+        <h3 class="text-lg font-display text-[var(--color-text-primary)] mb-6">Add Dependent</h3>
         <form id="add-family-form" class="space-y-4">
           <div>
-            <label class="block text-xs text-gray-400 uppercase tracking-widest mb-1 ml-1">Name</label>
-            <input type="text" id="f-name" required class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#ffb88c]/50 focus:outline-none">
+            <label class="block text-xs text-[var(--color-text-secondary)] uppercase tracking-widest mb-1 ml-1">Name</label>
+            <input type="text" id="f-name" required class="w-full px-4 py-3 rounded-xl bg-white/5 border border-[var(--color-border)] text-[var(--color-text-primary)] focus:border-[#ffb88c]/50 focus:outline-none">
           </div>
           <div>
-            <label class="block text-xs text-gray-400 uppercase tracking-widest mb-1 ml-1">Relation</label>
-            <select id="f-relation" required class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#ffb88c]/50 focus:outline-none appearance-none">
-              <option value="Child" class="bg-[#0a0407]">Child</option>
-              <option value="Parent" class="bg-[#0a0407]">Parent</option>
-              <option value="Spouse" class="bg-[#0a0407]">Spouse</option>
-              <option value="Other" class="bg-[#0a0407]">Other</option>
+            <label class="block text-xs text-[var(--color-text-secondary)] uppercase tracking-widest mb-1 ml-1">Relation</label>
+            <select id="f-relation" required class="w-full px-4 py-3 rounded-xl bg-white/5 border border-[var(--color-border)] text-[var(--color-text-primary)] focus:border-[#ffb88c]/50 focus:outline-none appearance-none">
+              <option value="Child" class="bg-[var(--color-surface)]">Child</option>
+              <option value="Parent" class="bg-[var(--color-surface)]">Parent</option>
+              <option value="Spouse" class="bg-[var(--color-surface)]">Spouse</option>
+              <option value="Other" class="bg-[var(--color-surface)]">Other</option>
             </select>
           </div>
           <div>
-            <label class="block text-xs text-gray-400 uppercase tracking-widest mb-1 ml-1">Date of Birth</label>
-            <input type="date" id="f-dob" required class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#ffb88c]/50 focus:outline-none [color-scheme:dark]">
+            <label class="block text-xs text-[var(--color-text-secondary)] uppercase tracking-widest mb-1 ml-1">Date of Birth</label>
+            <input type="date" id="f-dob" required class="w-full px-4 py-3 rounded-xl bg-white/5 border border-[var(--color-border)] text-[var(--color-text-primary)] focus:border-[#ffb88c]/50 focus:outline-none [color-scheme:dark]">
           </div>
           <div>
-            <label class="block text-xs text-gray-400 uppercase tracking-widest mb-1 ml-1">Known Allergies/Conditions</label>
-            <textarea id="f-conditions" rows="2" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#ffb88c]/50 focus:outline-none placeholder:text-gray-600" placeholder="Optional"></textarea>
+            <label class="block text-xs text-[var(--color-text-secondary)] uppercase tracking-widest mb-1 ml-1">Known Allergies/Conditions</label>
+            <textarea id="f-conditions" rows="2" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-[var(--color-border)] text-[var(--color-text-primary)] focus:border-[#ffb88c]/50 focus:outline-none placeholder:text-gray-600" placeholder="Optional"></textarea>
           </div>
           <div class="flex gap-3 mt-8">
-            <button type="button" id="cancel-family" class="flex-1 py-3 rounded-xl border border-[#7f2f5d]/50 text-white text-xs uppercase font-bold tracking-widest hover:bg-white/5 transition-colors">Cancel</button>
+            <button type="button" id="cancel-family" class="flex-1 py-3 rounded-xl border border-[#7f2f5d]/50 text-[var(--color-text-primary)] text-xs uppercase font-bold tracking-widest hover:bg-white/5 transition-colors">Cancel</button>
             <button type="submit" class="flex-1 py-3 rounded-xl bg-linear-to-r from-[#7f2f5d] to-[#4a1532] border border-[#ffb88c]/30 text-[#ffd9b5] text-xs uppercase font-bold tracking-widest hover:brightness-125 transition-all">Save Node</button>
           </div>
         </form>

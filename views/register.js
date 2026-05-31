@@ -9,7 +9,7 @@ export default class RegisterView {
 
     this.container.innerHTML = `
       <!-- WebGL Background Layer -->
-      <div id="liquid-host" class="fixed inset-0 w-full h-full pointer-events-none z-0 overflow-hidden bg-[#02040b]">
+      <div id="liquid-host" class="fixed inset-0 w-full h-full pointer-events-none z-0 overflow-hidden bg-[var(--color-surface)]">
         <canvas id="liquid-canvas" aria-hidden="true" class="absolute inset-0 w-full h-full block pointer-events-none"></canvas>
         <div class="absolute inset-0 bg-gradient-to-r from-white/10 via-white/5 to-transparent pointer-events-none"></div>
       </div>
@@ -32,7 +32,7 @@ export default class RegisterView {
           <p class="text-[#ca5229] text-xs mt-2 font-mono uppercase tracking-widest font-semibold">Create secure ledger</p>
         </div>
 
-        <div id="error-container" class="hidden relative z-10 mb-5 p-3 rounded-xl bg-red-50 border border-red-100 text-red-600 text-xs font-mono flex items-center gap-2 transition-all opacity-0 transform -translate-y-2">
+        <div id="error-container" class="hidden relative z-10 mb-5 p-3 rounded-xl bg-red-900/40 border border-red-500/50 text-red-200 text-xs font-mono flex items-center gap-2 transition-all opacity-0 transform -translate-y-2">
           <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
           <span id="error-text"></span>
         </div>
@@ -43,13 +43,30 @@ export default class RegisterView {
             <label for="email" class="absolute left-5 top-2 text-[10px] font-mono uppercase tracking-widest transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-xs peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-2 peer-focus:text-[10px] peer-focus:uppercase peer-focus:tracking-widest pointer-events-none" style="color: var(--color-text-secondary);">Clinical Identifier (Email)</label>
           </div>
           <div class="relative">
-            <input type="password" id="password" autocomplete="new-password" required class="peer w-full px-5 py-4 pt-6 rounded-xl placeholder-transparent focus:outline-none focus:ring-2 focus:ring-[#7f2f5d]/30 transition-all font-sans shadow-sm" style="background-color: color-mix(in srgb, var(--color-surface) 60%, transparent); border: 1px solid var(--color-border); color: var(--color-text-primary);" placeholder="Create Security Key">
+            <input type="password" id="password" autocomplete="new-password" required class="peer w-full px-5 py-4 pt-6 rounded-xl placeholder-transparent focus:outline-none focus:ring-2 focus:ring-[#7f2f5d]/30 transition-all font-sans shadow-sm pr-12" style="background-color: color-mix(in srgb, var(--color-surface) 60%, transparent); border: 1px solid var(--color-border); color: var(--color-text-primary);" placeholder="Create Security Key">
             <label for="password" class="absolute left-5 top-2 text-[10px] font-mono uppercase tracking-widest transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-xs peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-2 peer-focus:text-[10px] peer-focus:uppercase peer-focus:tracking-widest pointer-events-none" style="color: var(--color-text-secondary);">Create Security Key</label>
+            <button type="button" id="toggle-password" class="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] focus:outline-none">
+                <svg id="eye-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            </button>
           </div>
           
-          <button type="submit" id="email-btn" class="relative w-full py-4 rounded-xl bg-gradient-to-r from-[#7f2f5d] to-[#ca5229] border border-[#ffb88c]/30 text-white font-mono text-xs font-bold uppercase tracking-widest hover:shadow-lg hover:shadow-[#ca5229]/20 active:scale-95 transition-all mt-2 overflow-hidden flex items-center justify-center gap-2">
+          <div class="w-full flex gap-1 h-1.5 rounded-full overflow-hidden" id="strength-meter">
+              <div class="h-full flex-1 bg-white/10 transition-colors duration-300" id="s-1"></div>
+              <div class="h-full flex-1 bg-white/10 transition-colors duration-300" id="s-2"></div>
+              <div class="h-full flex-1 bg-white/10 transition-colors duration-300" id="s-3"></div>
+          </div>
+          
+          <div class="relative">
+            <input type="password" id="confirm-password" autocomplete="new-password" required class="peer w-full px-5 py-4 pt-6 rounded-xl placeholder-transparent focus:outline-none focus:ring-2 focus:ring-[#7f2f5d]/30 transition-all font-sans shadow-sm pr-12" style="background-color: color-mix(in srgb, var(--color-surface) 60%, transparent); border: 1px solid var(--color-border); color: var(--color-text-primary);" placeholder="Confirm Security Key">
+            <label for="confirm-password" class="absolute left-5 top-2 text-[10px] font-mono uppercase tracking-widest transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-xs peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-2 peer-focus:text-[10px] peer-focus:uppercase peer-focus:tracking-widest pointer-events-none" style="color: var(--color-text-secondary);">Confirm Security Key</label>
+            <button type="button" id="toggle-confirm-password" class="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] focus:outline-none">
+                <svg id="confirm-eye-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            </button>
+          </div>
+          
+          <button type="submit" id="email-btn" class="relative w-full py-4 rounded-xl bg-gradient-to-r from-[#7f2f5d] to-[#ca5229] border border-[#ffb88c]/30 text-[var(--color-text-primary)] font-mono text-xs font-bold uppercase tracking-widest hover:shadow-lg hover:shadow-[#ca5229]/20 active:scale-95 transition-all mt-2 overflow-hidden flex items-center justify-center gap-2">
             <span class="btn-text">Deploy Protocol</span>
-            <svg class="btn-spinner hidden animate-spin h-4 w-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg>
+            <svg class="btn-spinner hidden animate-spin h-4 w-4 text-[var(--color-text-primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg>
           </button>
         </form>
 
@@ -95,6 +112,56 @@ export default class RegisterView {
     const btnText = this.container.querySelector('.btn-text');
     const btnSpinner = this.container.querySelector('.btn-spinner');
 
+    const passwordInput = this.container.querySelector('#password');
+    const confirmPasswordInput = this.container.querySelector('#confirm-password');
+    
+    // Toggle primary password
+    const togglePasswordBtn = this.container.querySelector('#toggle-password');
+    const eyeIcon = this.container.querySelector('#eye-icon');
+    if (togglePasswordBtn) {
+        togglePasswordBtn.addEventListener('click', () => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            if (type === 'text') {
+                eyeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>`;
+            } else {
+                eyeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>`;
+            }
+        });
+    }
+
+    // Toggle confirm password
+    const toggleConfirmPasswordBtn = this.container.querySelector('#toggle-confirm-password');
+    const confirmEyeIcon = this.container.querySelector('#confirm-eye-icon');
+    if (toggleConfirmPasswordBtn) {
+        toggleConfirmPasswordBtn.addEventListener('click', () => {
+            const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            confirmPasswordInput.setAttribute('type', type);
+            if (type === 'text') {
+                confirmEyeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>`;
+            } else {
+                confirmEyeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>`;
+            }
+        });
+    }
+
+    // Password strength logic
+    const s1 = this.container.querySelector('#s-1');
+    const s2 = this.container.querySelector('#s-2');
+    const s3 = this.container.querySelector('#s-3');
+
+    passwordInput.addEventListener('input', (e) => {
+        const val = e.target.value;
+        let score = 0;
+        if (val.length > 5) score++;
+        if (/[A-Z]/.test(val) && /[0-9]/.test(val)) score++;
+        if (/[^A-Za-z0-9]/.test(val)) score++;
+        
+        s1.className = 'h-full flex-1 transition-colors duration-300 ' + (score > 0 ? (score === 1 ? 'bg-red-500' : (score === 2 ? 'bg-amber-400' : 'bg-green-500')) : 'bg-white/10');
+        s2.className = 'h-full flex-1 transition-colors duration-300 ' + (score > 1 ? (score === 2 ? 'bg-amber-400' : 'bg-green-500') : 'bg-white/10');
+        s3.className = 'h-full flex-1 transition-colors duration-300 ' + (score > 2 ? 'bg-green-500' : 'bg-white/10');
+    });
+
     const showError = (msg) => {
       errText.textContent = msg;
       err.classList.remove('hidden');
@@ -132,7 +199,7 @@ export default class RegisterView {
     googleBtn.addEventListener('click', async () => {
       err.classList.add('hidden', 'opacity-0');
       googleBtn.disabled = true;
-      googleBtn.innerHTML = `<svg class="animate-spin h-4 w-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg> Establishing...`;
+      googleBtn.innerHTML = `<svg class="animate-spin h-4 w-4 text-[var(--color-text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg> Establishing...`;
       const provider = new GoogleAuthProvider();
       try {
         await signInWithPopup(auth, provider);

@@ -4,6 +4,8 @@
  * Paradigm: Offline-first push notifications using native browser APIs and polling.
  */
 
+import state from '../core/state.js';
+
 class NotificationEngine {
   constructor() {
     /** @type {'granted'|'denied'|'default'} Current notification permission state */
@@ -75,6 +77,7 @@ class NotificationEngine {
    */
   _scheduleMedication(medication) {
     if (!Array.isArray(medication.times) && !Array.isArray(medication.scheduledTimes)) return 0;
+    if (medication.userId && state.user && medication.userId !== state.user.uid) return 0;
     
     const times = medication.times || medication.scheduledTimes;
     let scheduledCount = 0;
@@ -172,6 +175,7 @@ class NotificationEngine {
       const currentTime = now.getTime();
 
       for (const medication of medications) {
+        if (medication.userId && state.user && medication.userId !== state.user.uid) continue;
         const times = medication.times || medication.scheduledTimes || [];
         
         for (const timeStr of times) {
