@@ -14,6 +14,10 @@ export class Router {
 
     /** @type {any | null} */
     this.currentView = null;
+    this.currentHash = null;
+
+    this.mainNav = ['#/dashboard', '#/medications', '#/appointments', '#/peer-hub', '#/settings', '#/admin'];
+    this.fadeArray = ['#/', '#/landing', '#/login', '#/register', '#/onboarding', '#/install'];
   }
 
   init() {
@@ -47,24 +51,89 @@ export class Router {
       return;
     }
 
-    // Clean up historical view tracking allocations to prevent memory leak states
-    if (this.currentView?.destroy) {
-      try { await this.currentView.destroy(); }
-      catch (e) { console.error('[Router] Destruction error handling:', e); }
-    }
-
     // Render configuration mapping layers onto active view ports
     try {
-      this.currentView = new ViewClass();
-      const content = await this.currentView.render();
+      const oldView = this.currentView;
+      const oldHash = this.currentHash;
+      
+      const newView = new ViewClass();
+      const content = await newView.render();
+      const newHash = baseRoute;
 
-      this.viewport.innerHTML = '';
-
-      if (content instanceof Node) {
-        this.viewport.appendChild(content);
+      // 1. Prepare incoming node
+      let incomingNode;
+      if (content instanceof HTMLElement) {
+          incomingNode = content;
       } else {
-        this.viewport.innerHTML = content || '';
+          incomingNode = document.createElement('div');
+          if (content instanceof Node) incomingNode.appendChild(content);
+          else incomingNode.innerHTML = content || '';
       }
+
+      // If this is the first render, just append
+      if (!oldHash) {
+        this.viewport.innerHTML = '';
+        this.viewport.appendChild(incomingNode);
+        this.currentView = newView;
+        this.currentHash = newHash;
+        this.viewport.style.opacity = '1';
+        this.viewport.style.visibility = 'visible';
+        return;
+      }
+
+      // DOM Handoff Architecture
+      const outgoingNode = this.viewport.firstElementChild;
+      
+      // Determine Spatial Transition
+      let transitionClass = 'crossfade';
+      
+      const isOldFade = this.fadeArray.includes(oldHash);
+      const isNewFade = this.fadeArray.includes(newHash);
+      const oldNavIdx = this.mainNav.indexOf(oldHash);
+      const newNavIdx = this.mainNav.indexOf(newHash);
+      
+      if (isOldFade || isNewFade) {
+          transitionClass = 'crossfade';
+      } else if (oldNavIdx !== -1 && newNavIdx !== -1) {
+          // Horizontal Push
+          transitionClass = newNavIdx > oldNavIdx ? 'push-left' : 'push-right';
+      } else if (oldNavIdx !== -1 && newNavIdx === -1) {
+          // Main Nav to Modal
+          transitionClass = 'slide-up';
+      } else if (oldNavIdx === -1 && newNavIdx !== -1) {
+          // Modal to Main Nav
+          transitionClass = 'slide-down';
+      } else {
+          // Modal to Modal
+          transitionClass = 'crossfade';
+      }
+      
+      const originalClass = incomingNode.className || '';
+      incomingNode.dataset.originalClass = originalClass;
+
+      // Apply locks
+      incomingNode.className = `${originalClass} view-transition-node incoming ${transitionClass}`;
+      if (outgoingNode) {
+          const outgoingOrigClass = outgoingNode.dataset.originalClass || outgoingNode.className || '';
+          outgoingNode.className = `${outgoingOrigClass} view-transition-node outgoing ${transitionClass}`;
+      }
+      
+      this.viewport.appendChild(incomingNode);
+      this.currentView = newView;
+      this.currentHash = newHash;
+
+      // Garbage Collection
+      setTimeout(async () => {
+          if (outgoingNode && outgoingNode.parentNode) {
+              outgoingNode.remove();
+          }
+          if (oldView?.destroy) {
+              try { await oldView.destroy(); }
+              catch (e) { console.error('[Router] Destruction error handling:', e); }
+          }
+          // Strip locks
+          incomingNode.className = incomingNode.dataset.originalClass || '';
+      }, 420);
       
       // Unblockable sequence: forcefully guarantee the viewport renders into view
       this.viewport.style.opacity = '1';
