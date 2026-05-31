@@ -40,13 +40,33 @@ export default class PeerNetworkView {
                     <input type="text" id="pairing-code" placeholder="Enter Pairing Code..." class="flex-1 bg-black/40 border border-[#7f2f5d]/50 rounded-xl px-4 py-3 text-white text-xs font-mono focus:outline-none focus:border-[#ffb88c]/50 transition-colors shadow-inner">
                     <button id="connect-btn" class="bg-[#ca5229] text-white px-6 py-3 rounded-xl font-bold uppercase tracking-widest text-xs active:scale-95 transition-transform shadow-lg shadow-[#ca5229]/20">Connect</button>
                 </div>
-                <div class="mt-4 text-center">
-                    <button id="start-scanner-btn" class="bg-black/40 border border-[#7f2f5d]/50 text-[#ffb88c] hover:bg-[#ca5229]/20 px-6 py-3 rounded-xl font-bold uppercase tracking-widest text-xs active:scale-95 transition-colors w-full flex justify-center items-center gap-2">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
-                      Open Camera Scanner
+                <div class="mt-8 text-center">
+                    <button id="start-scanner-btn" class="w-full bg-[#1a0a12] border-2 border-dashed border-[#ca5229]/50 hover:border-[#ca5229] hover:bg-[#ca5229]/10 text-[#ffb88c] rounded-2xl p-8 transition-all flex flex-col items-center justify-center gap-3 cursor-pointer group">
+                      <div class="w-16 h-16 rounded-full bg-[#ca5229]/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
+                      </div>
+                      <div class="flex flex-col">
+                          <span class="font-bold uppercase tracking-widest text-sm">Scan QR within App</span>
+                          <span class="text-[10px] text-gray-500 font-mono mt-1">Tap to open hover scanner</span>
+                      </div>
                     </button>
                 </div>
-                <div id="reader" class="mt-4 rounded-xl overflow-hidden hidden border border-[#ca5229]/50 bg-black/50"></div>
+                <!-- Fullscreen Hover Scanner Modal -->
+                <div id="hover-scanner-modal" class="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
+                    <div class="relative w-full max-w-sm aspect-square p-4">
+                        <!-- Custom CSS Scanning Reticle overlay -->
+                        <div class="absolute inset-0 z-10 pointer-events-none">
+                            <div class="absolute top-4 left-4 w-12 h-12 border-t-4 border-l-4 border-[#ca5229] rounded-tl-xl"></div>
+                            <div class="absolute top-4 right-4 w-12 h-12 border-t-4 border-r-4 border-[#ca5229] rounded-tr-xl"></div>
+                            <div class="absolute bottom-4 left-4 w-12 h-12 border-b-4 border-l-4 border-[#ca5229] rounded-bl-xl"></div>
+                            <div class="absolute bottom-4 right-4 w-12 h-12 border-b-4 border-r-4 border-[#ca5229] rounded-br-xl"></div>
+                            <div class="absolute top-1/2 left-4 right-4 h-0.5 bg-[#ca5229]/50 shadow-[0_0_10px_#ca5229] animate-[ping_3s_infinite]"></div>
+                        </div>
+                        <!-- The html5-qrcode reader injects the video here -->
+                        <div id="reader" class="w-full h-full rounded-2xl overflow-hidden bg-black/50 shadow-[0_0_50px_rgba(202,82,41,0.2)]"></div>
+                    </div>
+                    <button id="close-scanner-btn" class="mt-8 px-8 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold uppercase tracking-widest text-xs border border-white/20 transition-all active:scale-95">Cancel</button>
+                </div>
             </div>
         </section>
 
@@ -56,7 +76,7 @@ export default class PeerNetworkView {
                 <h2 class="text-lg font-display text-white mb-2">My Pairing QR</h2>
                 <p class="text-xs text-[#ffb88c]/70 font-mono mb-6">Scan this code to establish a peer-to-peer connection with ${displayName}</p>
                 
-                <div id="qr-container" class="bg-white p-4 rounded-3xl inline-block shadow-lg border border-white/20 relative z-10 min-h-[200px] min-w-[200px] flex items-center justify-center">
+                <div id="qr-container" class="bg-white p-4 rounded-none inline-block shadow-lg border border-white/20 relative z-10 min-h-[200px] min-w-[200px] flex items-center justify-center">
                     <div class="loader">
                       <div class="box1"></div>
                       <div class="box2"></div>
@@ -259,25 +279,19 @@ export default class PeerNetworkView {
     const shareSection = this.container.querySelector('#share-section');
     
     const startScannerBtn = this.container.querySelector('#start-scanner-btn');
-    const readerDiv = this.container.querySelector('#reader');
+    const hoverModal = this.container.querySelector('#hover-scanner-modal');
+    const closeScannerBtn = this.container.querySelector('#close-scanner-btn');
 
-    if (startScannerBtn) {
+    if (startScannerBtn && hoverModal && closeScannerBtn) {
         startScannerBtn.addEventListener('click', async () => {
-            if (this.html5QrcodeScanner) {
-                await this.html5QrcodeScanner.stop().catch(()=>{});
-                this.html5QrcodeScanner = null;
-                readerDiv.classList.add('hidden');
-                startScannerBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg> Open Camera Scanner`;
-                return;
-            }
-            
             if (typeof Html5Qrcode === 'undefined') {
                 alert('Scanner library is loading. Please try again in a few seconds.');
                 return;
             }
             
-            readerDiv.classList.remove('hidden');
-            startScannerBtn.innerHTML = `<svg class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Starting Camera...`;
+            hoverModal.classList.remove('hidden');
+            // Allow display block to render before triggering opacity transition
+            requestAnimationFrame(() => hoverModal.classList.remove('opacity-0'));
             
             try {
                 this.html5QrcodeScanner = new Html5Qrcode("reader");
@@ -298,22 +312,25 @@ export default class PeerNetworkView {
                             btn.click();
                         }
                         
-                        this.html5QrcodeScanner.stop().catch(()=>{});
-                        this.html5QrcodeScanner = null;
-                        readerDiv.classList.add('hidden');
-                        startScannerBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg> Open Camera Scanner`;
+                        closeScannerBtn.click(); // Auto-close on success
                     },
                     (errorMessage) => { /* ignore parse errors during tracking */ }
                 );
-                startScannerBtn.innerHTML = `Stop Camera`;
             } catch (err) {
                 console.error("Camera start failed:", err);
-                startScannerBtn.innerHTML = `Camera Access Denied`;
-                setTimeout(() => {
-                    startScannerBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg> Open Camera Scanner`;
-                    readerDiv.classList.add('hidden');
-                }, 3000);
+                hoverModal.classList.add('opacity-0');
+                setTimeout(() => hoverModal.classList.add('hidden'), 300);
+                alert("Camera Access Denied or Unavailable.");
             }
+        });
+
+        closeScannerBtn.addEventListener('click', async () => {
+            if (this.html5QrcodeScanner) {
+                await this.html5QrcodeScanner.stop().catch(()=>{});
+                this.html5QrcodeScanner = null;
+            }
+            hoverModal.classList.add('opacity-0');
+            setTimeout(() => hoverModal.classList.add('hidden'), 300);
         });
     }
 

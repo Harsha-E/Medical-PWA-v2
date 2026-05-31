@@ -152,45 +152,58 @@ export default class PwaInstallManager {
     this.bannerEl.style.bottom = '-100px';
 
     this.bannerEl.innerHTML = `
-      <div id="pwa-inner-card" class="flex items-center justify-between p-4 bg-[#0a040f]/90 backdrop-blur-xl border border-[#ffb88c]/30 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.8),inset_0_0_20px_rgba(255,184,140,0.05)] pointer-events-auto cursor-pointer group">
-        <div class="flex items-center gap-3 pointer-events-none">
+      <div id="pwa-inner-card" class="flex items-center justify-between p-4 bg-[#0a040f]/90 backdrop-blur-xl border border-[#ffb88c]/30 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.8),inset_0_0_20px_rgba(255,184,140,0.05)] pointer-events-auto group">
+        <div class="flex items-center gap-3 cursor-pointer" id="pwa-main-action-area">
           <img src="./assets/logo.jpeg" class="w-10 h-10 rounded-xl border border-[#ffb88c]/20 object-cover shadow-inner" alt="MedCare Logo" />
           <div class="flex flex-col">
             <span class="text-white text-sm font-bold tracking-wide">MedCare App</span>
             <span id="pwa-banner-text" class="text-[#ffb88c] text-[10px] uppercase tracking-widest font-mono">Install Now</span>
           </div>
         </div>
-        <button id="pwa-action-btn" class="bg-[#ffb88c]/10 text-[#ffb88c] px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide group-hover:bg-[#ffb88c]/20 transition-colors border border-[#ffb88c]/20 focus:outline-none whitespace-nowrap">
-          Install App
-        </button>
+        <div class="flex items-center gap-2">
+          <button id="pwa-not-now-btn" class="text-gray-400 hover:text-white px-2 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wide transition-colors focus:outline-none">
+            Not Now
+          </button>
+          <button id="pwa-action-btn" class="bg-[#ffb88c]/10 text-[#ffb88c] px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide hover:bg-[#ffb88c]/20 transition-colors border border-[#ffb88c]/20 focus:outline-none whitespace-nowrap cursor-pointer">
+            Install
+          </button>
+        </div>
       </div>
     `;
 
     document.body.appendChild(this.bannerEl);
 
-    // Click logic explicit update: Listen directly on the actionable card wrapper
-    const card = this.bannerEl.querySelector('#pwa-inner-card');
-    card.addEventListener('click', (e) => {
+    const mainActionArea = this.bannerEl.querySelector('#pwa-main-action-area');
+    const actionBtn = this.bannerEl.querySelector('#pwa-action-btn');
+    const notNowBtn = this.bannerEl.querySelector('#pwa-not-now-btn');
+
+    const handleInstallClick = (e) => {
       e.stopPropagation();
-      
       if (hapticEngine) hapticEngine.triggerHaptic(30);
       
-      const btn = this.bannerEl.querySelector('#pwa-action-btn');
-      if (btn && btn.textContent === 'Update App') {
+      if (actionBtn && actionBtn.textContent.trim() === 'Update') {
         if (this._waitingServiceWorker) {
             this._waitingServiceWorker.postMessage({ type: 'SKIP_WAITING' });
-            btn.textContent = 'Updating...';
+            actionBtn.textContent = 'Updating...';
             setTimeout(() => window.location.reload(), 1000);
         }
         return;
       }
       
-      if (btn && btn.textContent === 'Open App') {
-        // App is installed, browser can't open it programmatically, so we just acknowledge it
+      if (actionBtn && actionBtn.textContent.trim() === 'Open App') {
         return;
       }
 
       this.install();
+    };
+
+    mainActionArea.addEventListener('click', handleInstallClick);
+    actionBtn.addEventListener('click', handleInstallClick);
+
+    notNowBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      sessionStorage.setItem('pwa_dismissed', 'true');
+      this._hideBanner();
     });
 
     this._listenForUpdates();
@@ -267,10 +280,13 @@ export default class PwaInstallManager {
    */
   _showBanner(subText) {
     if (!this.bannerEl) return;
+    if (sessionStorage.getItem('pwa_dismissed') === 'true') return;
+    
     const textNode = this.bannerEl.querySelector('#pwa-banner-text');
     if (textNode) textNode.textContent = subText;
     
     this.bannerEl.style.opacity = '1';
+    this.bannerEl.style.pointerEvents = 'auto';
     this.bannerEl.style.bottom = '24px';
   }
 
@@ -281,6 +297,7 @@ export default class PwaInstallManager {
   _hideBanner() {
     if (!this.bannerEl) return;
     this.bannerEl.style.opacity = '0';
+    this.bannerEl.style.pointerEvents = 'none';
     this.bannerEl.style.bottom = '-100px';
   }
 }

@@ -1257,6 +1257,42 @@ button, .clay-glass-panel, .skeleton-card, .timeline-item {
 .incoming.crossfade { animation: fadeIn 400ms ease forwards; }
 .outgoing.crossfade { animation: fadeOut 400ms ease forwards; }
 
+/* Uiverse QR Loader */
+.loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60px;
+  width: 60px;
+  position: relative;
+}
+.loader .box1, .loader .box2, .loader .box3 {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(135deg, #ca5229, #7f2f5d);
+  border-radius: 4px;
+}
+.loader .box1 { animation: bx1 1.5s infinite; }
+.loader .box2 { animation: bx2 1.5s infinite; }
+.loader .box3 { animation: bx3 1.5s infinite; }
+
+@keyframes bx1 {
+  0%, 100% { transform: translate(-120%, -120%); }
+  33% { transform: translate(0%, -120%); width: 44px; }
+  66% { transform: translate(0%, 0%); width: 20px; }
+}
+@keyframes bx2 {
+  0%, 100% { transform: translate(120%, 120%); }
+  33% { transform: translate(0%, 120%); width: 44px; }
+  66% { transform: translate(0%, 0%); width: 20px; }
+}
+@keyframes bx3 {
+  0%, 100% { transform: translate(-120%, 120%); }
+  33% { transform: translate(-120%, 0%); height: 44px; }
+  66% { transform: translate(0%, 0%); height: 20px; }
+}
+
 /* Unified Header Component */
 .view-header {
   position: sticky;
