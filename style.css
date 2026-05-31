@@ -5,10 +5,10 @@
   --color-primary-dark:  #ca5229;
   --color-primary-light: #ff8e6b;
   --color-surface:       #0a0407;   /* Specter Deep Black */
-  --color-surface-elevated: #0a0a0a;
+  --color-surface-elevated: rgba(127, 47, 93, 0.15);
   --color-text-primary:  #ffffff;
-  --color-text-secondary:#a1a1a1;
-  --color-text-muted:    #525252;
+  --color-text-secondary: rgba(255, 255, 255, 0.85); /* Increased readability */
+  --color-text-muted:    rgba(255, 255, 255, 0.6);   /* Increased readability */
   --color-border:        rgba(127, 47, 93, 0.3);
   --color-accent-soft:   rgba(242, 107, 60, 0.1);
   --color-success:       #10b981;
@@ -51,14 +51,14 @@
   transition: all 0.3s ease;
 }
 [data-theme="dark"] .clay-glass-panel {
-  background: rgba(26, 10, 18, 0.5); /* Semi-transparent for glass effect */
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.02) !important;
+  backdrop-filter: blur(20px) saturate(120%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(120%) !important;
   box-shadow: 
     inset 2px 2px 8px rgba(255, 255, 255, 0.05),
     inset -2px -2px 8px rgba(0, 0, 0, 0.4),
     0 16px 32px rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-border);
 }
 
 /* Theme Utilities for missing Tailwind arbitrary classes */

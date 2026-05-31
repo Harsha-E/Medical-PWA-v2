@@ -46,10 +46,10 @@ export default class DashboardView {
     const fullHeader = this.container.querySelector('header');
     if (header) {
       header.innerHTML = `
-        <div class="flex flex-col animate-fade-in">
+        <a href="#/emergency" class="flex flex-col animate-fade-in hover:opacity-80 transition-opacity">
           <span class="text-[10px] text-[#ffb88c] uppercase tracking-widest leading-none mb-1 opacity-80">Dashboard</span>
           <h1 class="font-bold text-[var(--color-text-primary)] leading-none">Good ${greeting}, ${displayName}</h1>
-        </div>
+        </a>
       `;
     }
     

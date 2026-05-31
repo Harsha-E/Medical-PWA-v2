@@ -27,13 +27,16 @@ export default class SettingsView {
       </header>
 
       <main class="scroll-area px-6 bg-transparent pb-40">
-        <div class="clay-glass-panel p-8 mb-12 flex items-center gap-6 shadow-[0_8px_32px_rgba(0,0,0,0.5)] border-[var(--color-border)] bg-[var(--color-surface-elevated)]/40 backdrop-blur-xl">
-          <div class="w-20 h-20 rounded-full flex items-center justify-center font-display italic text-3xl font-bold shadow-[0_0_20px_rgba(202,82,41,0.3)] border border-[#ffb88c]/40 bg-gradient-to-br from-[#ca5229]/80 to-[#7f2f5d]/80 text-[#ffd9b5] backdrop-blur-md shrink-0 ring-4 ring-[#1a0a12]/50">${initials}</div>
-          <div class="flex-1">
-            <p class="font-bold text-xl leading-tight text-[var(--color-text-primary)]">${displayName}</p>
-            <p class="text-xs text-uppercase font-bold text-[#ffb88c] mt-2 tracking-widest uppercase">${bloodType} Clinical Node</p>
-          </div>
-          <button id="edit-profile-btn" class="bg-white/5 p-3 rounded-2xl border border-[#7f2f5d]/40 shadow-sm active:scale-90 transition-all text-[var(--color-text-primary)] backdrop-blur-md">
+        <div class="clay-glass-panel p-8 mb-12 flex items-center gap-4 shadow-[0_8px_32px_rgba(0,0,0,0.5)] border-[var(--color-border)] backdrop-blur-xl relative z-10">
+          <a href="#/emergency" class="w-20 h-20 rounded-full flex items-center justify-center font-display italic text-3xl font-bold shadow-[0_0_20px_rgba(202,82,41,0.3)] border border-[#ffb88c]/40 bg-gradient-to-br from-[#ca5229]/80 to-[#7f2f5d]/80 text-[#ffd9b5] backdrop-blur-md shrink-0 ring-4 ring-[#1a0a12]/50 hover:scale-105 transition-transform">
+            ${initials}
+          </a>
+          <a href="#/emergency" class="flex-1 block min-w-0 hover:opacity-80 transition-opacity pl-2">
+            <p class="font-bold text-xl leading-tight text-[var(--color-text-primary)] truncate">${displayName}</p>
+            <p class="text-sm text-[var(--color-text-secondary)] mt-1 truncate">${state.userProfile?.profile?.phone || 'Phone not set'}</p>
+            <p class="text-[10px] font-bold text-[#ffb88c] mt-2 tracking-widest uppercase truncate">${bloodType} Clinical Node</p>
+          </a>
+          <button id="edit-profile-btn" class="shrink-0 bg-white/5 p-3 rounded-2xl border border-[#7f2f5d]/40 shadow-sm hover:bg-[#ca5229]/20 active:scale-90 transition-all text-[var(--color-text-primary)] backdrop-blur-md relative z-20">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
           </button>
         </div>

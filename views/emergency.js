@@ -15,6 +15,7 @@ export default class EmergencyView {
     // Real Primary Responder from Onboarding Profile Data
     const primaryName = state.userProfile?.profile?.emergencyName || 'Unknown Responder';
     const primaryPhone = state.userProfile?.profile?.emergencyPhone || '';
+    const myPhone = state.userProfile?.profile?.phone || '';
 
     this.container.innerHTML = `
       <header class="view-header">
@@ -63,6 +64,21 @@ export default class EmergencyView {
                 </div>
             </div>
         </section>
+
+        <!-- Patient Contact -->
+        ${myPhone ? `
+        <section class="mb-8">
+          <div class="clay-glass-panel p-5 bg-[var(--color-surface-elevated)]/60 border border-[var(--color-border)] shadow-xl rounded-2xl flex justify-between items-center">
+            <div>
+              <p class="text-xs text-[#ffb88c]/70 uppercase font-bold tracking-widest leading-none mb-1">Patient Phone</p>
+              <p class="font-bold text-lg text-[var(--color-text-primary)]">${myPhone}</p>
+            </div>
+            <a href="tel:${myPhone}" class="w-12 h-12 bg-[#ca5229]/20 text-[#ffb88c] rounded-2xl flex items-center justify-center border border-[#ca5229]/40 active:scale-90 transition-all">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </a>
+          </div>
+        </section>
+        ` : ''}
 
         <!-- Primary Responders -->
         <section class="mb-12">
