@@ -10,8 +10,28 @@ export default class ReportsView {
     this.container = document.createElement('div');
     this.container.className = 'container';
 
+    // Immediate skeleton before heavy analytics compute
+    this.container.innerHTML = `
+      <header class="view-header px-6">
+        <div>
+          <div class="skeleton" style="height:10px; width:80px; margin-bottom:10px;"></div>
+          <div class="skeleton" style="height:24px; width:140px;"></div>
+        </div>
+      </header>
+      <main class="scroll-area px-6 pt-28 pb-28">
+        <div class="skeleton skeleton-xl" style="height:200px; margin-bottom:24px;"></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:24px;">
+          <div class="skeleton skeleton-card" style="height:90px;"></div>
+          <div class="skeleton skeleton-card" style="height:90px;"></div>
+        </div>
+        <div class="skeleton skeleton-xl" style="height:160px; margin-bottom:16px;"></div>
+        <div class="skeleton skeleton-xl" style="height:120px;"></div>
+      </main>
+    `;
+
     const meds = await db.medications.toArray();
     const allDoses = await db.doses.toArray();
+
     
     const now = new Date();
     let totalExpected30 = 0;

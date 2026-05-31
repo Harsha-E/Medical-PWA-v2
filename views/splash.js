@@ -1,55 +1,134 @@
+/**
+ * MedCare | Splash Screen
+ * A pure brand moment — not a loader. Auto-dismisses after brand animations complete.
+ */
+
 export default class SplashView {
   async render() {
     this.container = document.createElement('div');
-    this.container.className = 'splash-container';
+    this.container.id  = 'splash-view-inner';
+    this.container.style.cssText = `
+      position: fixed; inset: 0; z-index: 99999;
+      display: flex; align-items: center; justify-content: center;
+      background: #0a0407;
+      overflow: hidden;
+    `;
 
     this.container.innerHTML = `
-      <div class="splash-content">
-        <div class="logo-wrapper">
-          <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <!-- Ambient glow orbs -->
+      <div style="
+        position: absolute; inset: 0; pointer-events: none;
+      ">
+        <div style="
+          position: absolute; top: 20%; left: 50%; transform: translate(-50%, -50%);
+          width: 380px; height: 380px; border-radius: 50%;
+          background: radial-gradient(circle, rgba(127,47,93,0.35) 0%, rgba(202,82,41,0.12) 50%, transparent 75%);
+          filter: blur(60px);
+          animation: splash-glow-pulse 3s ease-in-out infinite;
+        "></div>
+        <div style="
+          position: absolute; bottom: 15%; right: 10%;
+          width: 200px; height: 200px; border-radius: 50%;
+          background: radial-gradient(circle, rgba(255,184,140,0.15) 0%, transparent 70%);
+          filter: blur(40px);
+          animation: splash-glow-pulse 4s ease-in-out infinite reverse;
+        "></div>
+      </div>
+
+      <!-- Core brand content -->
+      <div style="
+        display: flex; flex-direction: column; align-items: center;
+        text-align: center; position: relative; z-index: 2;
+      ">
+        <!-- Logo mark -->
+        <div id="splash-logo" style="
+          width: 88px; height: 88px; border-radius: 28px;
+          background: linear-gradient(145deg, rgba(127,47,93,0.6) 0%, rgba(202,82,41,0.4) 100%);
+          border: 1px solid rgba(255,184,140,0.25);
+          box-shadow:
+            0 0 0 1px rgba(255,184,140,0.08),
+            0 24px 48px rgba(0,0,0,0.6),
+            inset 0 1px 0 rgba(255,184,140,0.15);
+          display: flex; align-items: center; justify-content: center;
+          backdrop-filter: blur(20px);
+          animation: splash-logo-bloom 0.9s cubic-bezier(0.16,1,0.3,1) 0.1s both;
+        ">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none"
+               stroke="url(#splash-grad)" stroke-width="1.5"
+               stroke-linecap="round" stroke-linejoin="round">
+            <defs>
+              <linearGradient id="splash-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ffb88c"/>
+                <stop offset="100%" stop-color="#ca5229"/>
+              </linearGradient>
+            </defs>
             <path d="M11 2a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2H2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h5a2 2 0 0 1 2 2v5a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-5a2 2 0 0 1 2-2h5a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-5a2 2 0 0 1-2-2V4a2 2 0 0 0-2-2h-4Z"/>
           </svg>
         </div>
-        <h1 class="font-display text-4xl mt-4">MedCare</h1>
-        <p class="text-xs font-bold text-muted mt-2 tracking-[0.2em] uppercase">Clinical Precision &bull; Offline First</p>
-        <div class="loading-track mt-16">
-          <div class="loading-bar"></div>
-        </div>
-      </div>
 
-      <style>
-        .splash-container { height:100vh;display:flex;align-items:center;justify-content:center; }
-        .splash-content { text-align:center;max-width:300px;width:100%; }
-        .logo-wrapper { margin-bottom:var(--space-6);animation:logo-pop 0.8s cubic-bezier(0.34,1.56,0.64,1); }
-        @keyframes logo-pop { 0%{transform:scale(0.5);opacity:0} 100%{transform:scale(1);opacity:1} }
-        .loading-track { width:200px;height:4px;background:rgba(255,107,53,0.1);border-radius:var(--radius-full);margin:0 auto;overflow:hidden; }
-        .loading-bar { width:0%;height:100%;background:var(--color-primary);border-radius:var(--radius-full);transition:width 2s cubic-bezier(0.65,0,0.35,1); }
-      </style>
+        <!-- Wordmark -->
+        <h1 id="splash-wordmark" style="
+          font-family: 'Inter', sans-serif;
+          font-size: 38px; font-weight: 700;
+          color: #ffffff;
+          margin: 20px 0 0 0;
+          letter-spacing: -0.02em;
+          line-height: 1;
+          animation: splash-wordmark-rise 0.7s cubic-bezier(0.16,1,0.3,1) 0.55s both;
+        ">MedCare</h1>
+
+        <!-- Tagline -->
+        <p id="splash-tagline" style="
+          font-family: 'Inter', sans-serif;
+          font-size: 11px; font-weight: 600;
+          color: rgba(255,184,140,0.65);
+          margin: 10px 0 0 0;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
+          animation: splash-tagline-fade 0.6s ease-out 1.1s both;
+        ">Clinical Precision &bull; Offline First</p>
+
+        <!-- Decorative line -->
+        <div id="splash-line" style="
+          width: 48px; height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(255,184,140,0.4), transparent);
+          margin: 20px auto 0;
+          animation: splash-tagline-fade 0.6s ease-out 1.3s both;
+        "></div>
+      </div>
     `;
 
-    requestAnimationFrame(() => {
-      const bar = this.container.querySelector('.loading-bar');
-      if (bar) setTimeout(() => { bar.style.width = '100%'; }, 50);
-    });
-
-    const htmlSplash = document.getElementById('splash-screen');
-    const viewport = document.getElementById('app-viewport');
-    
+    // Auto-dismiss after brand sequence completes — 1.9s total
     this._timer = setTimeout(() => {
-      if (htmlSplash) { 
-        htmlSplash.style.opacity = '0'; 
-        htmlSplash.style.pointerEvents = 'none'; 
-      }
-      if (viewport) { 
-        viewport.style.opacity = '1'; 
-      }
-    }, 800);
+      this._dismiss();
+    }, 1900);
 
     return this.container;
+  }
+
+  _dismiss() {
+    const htmlSplash = document.getElementById('splash-screen');
+    const viewport   = document.getElementById('app-viewport');
+
+    // Animate inner content out
+    if (this.container) {
+      this.container.style.animation = 'splash-dismiss 0.5s cubic-bezier(0.4,0,0.2,1) forwards';
+    }
+
+    // Simultaneously fade out the HTML splash overlay
+    if (htmlSplash) {
+      htmlSplash.style.transition = 'opacity 0.5s ease';
+      htmlSplash.style.opacity    = '0';
+      htmlSplash.style.pointerEvents = 'none';
+      setTimeout(() => htmlSplash.remove(), 500);
+    }
+
+    if (viewport) {
+      viewport.style.opacity = '1';
+    }
   }
 
   destroy() {
     if (this._timer) clearTimeout(this._timer);
   }
 }
-

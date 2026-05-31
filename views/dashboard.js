@@ -5,7 +5,10 @@ import { getFirestore, doc, setDoc } from 'https://www.gstatic.com/firebasejs/10
 export default class DashboardView {
   async render() {
     this.container = document.createElement('div');
-    this.container.className = 'container native-scroll !pt-0 !mt-0 h-full'; // Ensure no layout bleeding
+    this.container.className = 'container native-scroll !pt-0 !mt-0 h-full';
+
+    // Immediately show skeleton — don't block on data
+    this.container.innerHTML = this._getSkeletonUI();
 
     const now = new Date();
     const today = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
@@ -453,6 +456,62 @@ export default class DashboardView {
         window.location.hash = '#/add-medication';
       }
     });
+  }
+
+  _getSkeletonUI() {
+    const medCard = () => `
+      <div class="skeleton skeleton-xl" style="min-width:150px; height:160px; flex-shrink:0;"></div>
+    `;
+    const scheduleRow = () => `
+      <div style="display:flex; align-items:center; gap:16px; padding:16px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+        <div class="skeleton skeleton-round" style="width:40px; height:40px; flex-shrink:0;"></div>
+        <div style="flex:1;">
+          <div class="skeleton" style="height:14px; width:55%; margin-bottom:8px;"></div>
+          <div class="skeleton" style="height:11px; width:35%;"></div>
+        </div>
+        <div class="skeleton skeleton-round" style="width:72px; height:32px;"></div>
+      </div>
+    `;
+    return `
+      <!-- Header -->
+      <header style="
+        position:sticky; top:0; left:0; width:100%; z-index:50;
+        display:flex; align-items:center; justify-content:space-between;
+        padding:20px 24px 16px; background:rgba(10,4,7,0.92);
+        backdrop-filter:blur(16px);
+        border-bottom:1px solid rgba(127,47,93,0.2);
+        margin-bottom:24px;
+      ">
+        <div>
+          <div class="skeleton" style="height:10px; width:80px; margin-bottom:10px;"></div>
+          <div class="skeleton" style="height:22px; width:180px;"></div>
+        </div>
+        <div class="skeleton skeleton-round" style="width:40px; height:40px;"></div>
+      </header>
+
+      <div style="padding:0 24px 112px;">
+        <!-- Stats row skeleton -->
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:32px;">
+          <div class="skeleton skeleton-card" style="height:88px;"></div>
+          <div class="skeleton skeleton-card" style="height:88px;"></div>
+          <div class="skeleton skeleton-card" style="height:88px;"></div>
+        </div>
+
+        <!-- Section label -->
+        <div class="skeleton" style="height:10px; width:130px; margin-bottom:20px;"></div>
+
+        <!-- Meds horizontal strip -->
+        <div style="display:flex; gap:16px; overflow:hidden; margin-bottom:32px;">
+          ${medCard()}${medCard()}${medCard()}
+        </div>
+
+        <!-- Section label -->
+        <div class="skeleton" style="height:10px; width:110px; margin-bottom:20px;"></div>
+
+        <!-- Schedule rows -->
+        ${scheduleRow()}${scheduleRow()}${scheduleRow()}
+      </div>
+    `;
   }
 
   destroy() {}

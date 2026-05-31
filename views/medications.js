@@ -128,21 +128,26 @@ export default class MedicationsView {
   }
 
   _getSkeletonUI() {
+    const card = () => `
+      <div class="skeleton skeleton-card" style="height:80px; margin-bottom:12px; width:100%;"></div>
+    `;
     return `
-      <div class="max-w-2xl mx-auto w-full px-6 pt-8">
-        <div class="flex justify-between items-end mb-8">
+      <div class="max-w-2xl mx-auto w-full px-4 md:px-6 pt-6 md:pt-8 pb-28">
+        <!-- Header skeleton -->
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:32px;">
           <div>
-            <div class="h-8 w-40 bg-white/5 rounded animate-pulse mb-2"></div>
-            <div class="h-4 w-24 bg-white/5 rounded animate-pulse"></div>
+            <div class="skeleton" style="height:32px; width:160px; margin-bottom:8px;"></div>
+            <div class="skeleton" style="height:14px; width:110px;"></div>
           </div>
-          <div class="flex gap-2">
-            <div class="w-12 h-12 rounded-full bg-white/5 animate-pulse"></div>
-            <div class="w-12 h-12 rounded-full bg-white/5 animate-pulse"></div>
+          <div style="display:flex; gap:8px;">
+            <div class="skeleton skeleton-round" style="width:48px; height:48px;"></div>
+            <div class="skeleton skeleton-round" style="width:48px; height:48px;"></div>
           </div>
         </div>
-        <div class="space-y-3">
-          <div class="h-24 bg-white/5 border border-white/5 rounded-2xl animate-pulse"></div>
-        </div>
+        <!-- Interaction banner skeleton -->
+        <div class="skeleton skeleton-card" style="height:60px; margin-bottom:24px;"></div>
+        <!-- Med cards -->
+        ${card()}${card()}${card()}
       </div>
     `;
   }

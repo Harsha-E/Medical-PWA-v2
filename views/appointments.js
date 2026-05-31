@@ -6,6 +6,27 @@ export default class AppointmentsView {
     this.container = document.createElement('div');
     this.container.className = 'container';
 
+    // Immediate skeleton before async data
+    this.container.innerHTML = `
+      <header class="view-header px-6">
+        <div>
+          <div class="skeleton" style="height:10px; width:100px; margin-bottom:10px;"></div>
+          <div class="skeleton" style="height:24px; width:160px;"></div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <div class="skeleton" style="width:44px; height:44px; border-radius:14px;"></div>
+          <div class="skeleton" style="width:44px; height:44px; border-radius:14px;"></div>
+        </div>
+      </header>
+      <main class="scroll-area px-6 pt-28 pb-28">
+        <div class="skeleton" style="height:12px; width:100px; margin-bottom:20px;"></div>
+        <div class="skeleton skeleton-card" style="height:130px; margin-bottom:16px;"></div>
+        <div class="skeleton skeleton-card" style="height:130px; margin-bottom:16px;"></div>
+        <div class="skeleton" style="height:12px; width:80px; margin:24px 0 16px;"></div>
+        <div class="skeleton skeleton-card" style="height:100px; opacity:0.6;"></div>
+      </main>
+    `;
+
     const appointments = await db.appointments.toArray();
     appointments.sort((a, b) => new Date(a.date) - new Date(b.date));
     
