@@ -17,7 +17,7 @@ export default class EmergencyView {
     const primaryPhone = state.userProfile?.profile?.emergencyPhone || '';
 
     this.container.innerHTML = `
-      <header class="view-header bg-gradient-to-r from-[#1a0a12] to-[#4a1532] border-b border-[#7f2f5d]/40 justify-between px-6 shadow-xl shadow-[#ca5229]/5">
+      <header class="view-header">
         <div class="flex flex-col">
           <span class="text-xs text-[#ffb88c]/70 uppercase font-bold tracking-widest leading-none">Critical</span>
           <h1 class="text-xl font-display mt-1 text-white leading-none">Emergency Hub</h1>

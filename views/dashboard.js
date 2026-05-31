@@ -484,7 +484,7 @@ export default class DashboardView {
     `;
     return `
       <!-- Header -->
-      <header class="sticky top-0 left-0 w-full z-50 flex items-center justify-between px-6 py-4 bg-[#0a0407]/92 backdrop-blur-md border-b border-[#7f2f5d]/20 mb-6">
+      <header class="view-header">
         <div id="dashboard-header">
           <div class="skeleton" style="height:10px; width:80px; margin-bottom:10px;"></div>
           <div class="skeleton" style="height:22px; width:180px;"></div>

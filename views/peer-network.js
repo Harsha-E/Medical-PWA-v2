@@ -12,7 +12,7 @@ export default class PeerNetworkView {
     await mesh.init();
 
     this.container.innerHTML = `
-      <header class="view-header bg-gradient-to-r from-[#1a0a12] to-[#2a121e] border-b border-[#7f2f5d]/40 justify-between px-6 shadow-xl shadow-[#7f2f5d]/5">
+      <header class="view-header">
         <div class="flex flex-col">
           <span class="text-xs text-[#ffb88c]/70 uppercase font-bold tracking-widest leading-none">P2P Network</span>
           <h1 class="text-xl font-display mt-1 text-white leading-none">The Handshake</h1>

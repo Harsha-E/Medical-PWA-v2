@@ -1241,3 +1241,23 @@ header, .view-header, header [class*="rounded-"] {
  . o u t g o i n g . c r o s s f a d e   {   a n i m a t i o n :   f a d e O u t   4 0 0 m s   e a s e   f o r w a r d s ;   } 
   
  
+ / *   U n i f i e d   H e a d e r   C o m p o n e n t   * / 
+ . v i e w - h e a d e r   { 
+     p o s i t i o n :   s t i c k y ; 
+     t o p :   0 ; 
+     l e f t :   0 ; 
+     w i d t h :   1 0 0 % ; 
+     z - i n d e x :   5 0 ; 
+     d i s p l a y :   f l e x ; 
+     a l i g n - i t e m s :   c e n t e r ; 
+     j u s t i f y - c o n t e n t :   s p a c e - b e t w e e n ; 
+     p a d d i n g :   1 r e m   1 . 5 r e m ; 
+     b a c k g r o u n d - c o l o r :   r g b a ( 1 0 ,   4 ,   7 ,   0 . 9 2 ) ; 
+     b a c k d r o p - f i l t e r :   b l u r ( 1 2 p x ) ; 
+     - w e b k i t - b a c k d r o p - f i l t e r :   b l u r ( 1 2 p x ) ; 
+     b o r d e r - b o t t o m :   1 p x   s o l i d   r g b a ( 1 2 7 ,   4 7 ,   9 3 ,   0 . 2 ) ; 
+     m a r g i n - b o t t o m :   1 . 5 r e m ; 
+     t r a n s i t i o n :   a l l   0 . 3 s   e a s e ; 
+ } 
+  
+ 

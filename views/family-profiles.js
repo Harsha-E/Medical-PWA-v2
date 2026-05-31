@@ -11,7 +11,7 @@ export default class FamilyProfilesView {
     const family = await db.family.filter(f => f.userId === state.user?.uid).toArray();
 
     this.container.innerHTML = `
-      <header class="view-header px-6">
+      <header class="view-header">
         <div class="flex flex-col">
           <span class="text-xs text-uppercase text-muted uppercase tracking-widest leading-none">Social Graph</span>
           <h1 class="text-xl font-display mt-1 leading-none">Network Nodes</h1>

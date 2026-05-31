@@ -8,7 +8,7 @@ export default class AppointmentsView {
 
     // Immediate skeleton before async data
     this.container.innerHTML = `
-      <header class="view-header px-6">
+      <header class="view-header">
         <div>
           <div class="skeleton" style="height:10px; width:100px; margin-bottom:10px;"></div>
           <div class="skeleton" style="height:24px; width:160px;"></div>
@@ -62,7 +62,7 @@ export default class AppointmentsView {
     `;
 
     this.container.innerHTML = `
-      <header class="view-header px-6">
+      <header class="view-header">
         <div class="flex flex-col">
           <span class="text-xs text-uppercase text-[#ffb88c]/70 uppercase font-bold tracking-widest leading-none">Clinical Calendar</span>
           <h1 class="text-2xl font-display mt-1 text-white leading-none">Appointments</h1>

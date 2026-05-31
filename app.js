@@ -77,7 +77,12 @@ const ROUTES = {
 const PUBLIC_ROUTES = new Set(['#/', '#/landing', '#/splash', '#/login', '#/register', '#/install']);
 
 /** Routes where the navbar should be hidden. */
-const HIDE_NAV_ROUTES = new Set(['#/onboarding', '#/splash', '#/install']);
+const HIDE_NAV_ROUTES = new Set([
+  '#/onboarding', '#/splash', '#/install', 
+  '#/add-medication', '#/medication-detail', '#/scan', 
+  '#/interaction-checker', '#/medical-history', 
+  '#/family-profiles', '#/reports', '#/emergency'
+]);
 
 /** Routes where the WebGL liquid background is active. */
 const LIQUID_ROUTES = new Set(['#/', '#/landing', '#/login', '#/register']);
@@ -119,14 +124,24 @@ class App {
           navigator.serviceWorker.addEventListener('controllerchange', () => {
             if (refreshing) return;
             refreshing = true;
-            
-            // Show a non-intrusive update toast before hard reloading
-            const toast = document.createElement('div');
-            toast.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-[#ffb88c] text-[#0a040f] px-6 py-3 rounded-full font-bold text-sm tracking-wide shadow-[0_10px_30px_rgba(255,184,140,0.3)] z-[99999] transition-all duration-300 translate-y-0 opacity-100 flex items-center gap-3';
-            toast.innerHTML = `<svg class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> App Updating...`;
-            document.body.appendChild(toast);
-            
-            setTimeout(() => window.location.reload(), 1500);
+            window.location.reload();
+          });
+
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // Show a non-intrusive update toast
+                const toast = document.createElement('div');
+                toast.className = 'fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-[#1a0a12] text-[#ffb88c] border border-[#ffb88c]/40 px-6 py-3 rounded-full font-bold text-sm tracking-wide shadow-[0_10px_30px_rgba(255,184,140,0.3)] z-[99999] flex items-center gap-4 animate-fade-in cursor-pointer';
+                toast.innerHTML = `<span>App Update Available</span> <button class="bg-[#ca5229] text-white px-3 py-1 rounded-full text-xs hover:bg-[#ffb88c] transition-colors">Update Now</button>`;
+                toast.addEventListener('click', () => {
+                   toast.innerHTML = `<svg class="animate-spin h-4 w-4 text-[#ffb88c]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Updating...`;
+                   newWorker.postMessage({ type: 'SKIP_WAITING' });
+                });
+                document.body.appendChild(toast);
+              }
+            });
           });
 
           if (!navigator.serviceWorker.controller) {

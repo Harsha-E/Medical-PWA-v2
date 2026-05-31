@@ -184,7 +184,7 @@ export default class CalendarView {
 
   renderBaseLayout(title, gridHTML) {
     this.container.innerHTML = `
-      <header class="sticky top-0 left-0 w-full z-40 flex items-center justify-between px-4 py-4 bg-[#0a0407]/40 backdrop-blur-md border-b border-white/5 mb-6 transition-all duration-300">
+      <header class="view-header">
         <button onclick="window.history.back()" class="flex items-center gap-2 text-[#ffb88c] hover:brightness-125 transition-all">
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
           <span class="hidden md:inline text-sm font-bold uppercase tracking-widest">Back</span>

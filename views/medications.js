@@ -30,7 +30,7 @@ export default class MedicationsView {
       this.container.innerHTML = `
         <div class="max-w-7xl mx-auto w-full px-4 md:px-6 pt-6 md:pt-8 pb-28">
           
-          <header class="flex justify-between items-end mb-8">
+          <header class="view-header">
             <div>
               <h1 class="text-3xl font-display text-white tracking-tight mb-1">Medications</h1>
               <p class="text-sm font-mono text-gray-400">${activeMeds.length} Active Prescriptions</p>

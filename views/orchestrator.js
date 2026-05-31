@@ -16,7 +16,7 @@ export default class OrchestratorView {
     }
 
     this.container.innerHTML = `
-      <header class="sticky top-0 z-50 flex items-center justify-between px-6 py-4 bg-[#0a0407]/90 backdrop-blur-md border-b border-[#7f2f5d]/30">
+      <header class="view-header">
         <h2 class="text-lg font-display text-white tracking-tight flex items-center gap-2">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffb88c" stroke-width="2"><path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h0a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z"/><path d="M12 10v12"/><path d="M5 13h14"/></svg>
           Orchestrator

@@ -26,7 +26,7 @@ export default class PeerDashboardView {
     }
 
     this.container.innerHTML = `
-      <header class="view-header fixed top-0 left-0 right-0 h-20 bg-gradient-to-r from-[#ca5229]/20 to-[#1a0a12] border-b border-[#ca5229]/40 flex items-center justify-between px-6 z-50 backdrop-blur-xl">
+      <header class="view-header">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-full bg-[#ca5229] flex items-center justify-center text-white font-display italic font-bold shadow-lg shadow-[#ca5229]/50">${initials}</div>
           <div class="flex flex-col">
