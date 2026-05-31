@@ -5,22 +5,23 @@ import WebGLLiquid from '../core/WebGLLiquid.js';
 export default class RegisterView {
   async render() {
     this.container = document.createElement('div');
-    this.container.className = 'h-[100dvh] overflow-y-auto w-full flex flex-col items-center justify-center p-6 pt-28 relative z-10';
+    this.container.className = 'min-h-[100dvh] w-full flex flex-col items-center justify-center p-6 py-12 relative z-10 overflow-y-auto';
 
     this.container.innerHTML = `
       <!-- WebGL Background Layer -->
-      <div id="liquid-host" class="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden bg-[#02040b]">
+      <div id="liquid-host" class="fixed inset-0 w-full h-full pointer-events-none z-0 overflow-hidden bg-[#02040b]">
         <canvas id="liquid-canvas" aria-hidden="true" class="absolute inset-0 w-full h-full block pointer-events-none"></canvas>
         <div class="absolute inset-0 bg-gradient-to-r from-white/10 via-white/5 to-transparent pointer-events-none"></div>
       </div>
       <!-- Bright Overlay removed to fix blur stacking issues -->
-      <div class="absolute inset-0 pointer-events-none z-[5]" style="background-color: var(--color-surface); opacity: 0.1;"></div>
+      <div class="fixed inset-0 pointer-events-none z-[5]" style="background-color: var(--color-surface); opacity: 0.1;"></div>
 
       <div class="clay-glass-panel w-full max-w-md p-8 animate-fade-in-up relative z-10">
         <!-- Inner glow wrapper to safely isolate overflow-hidden without breaking Safari/WebKit rendering -->
         <div class="absolute inset-0 overflow-hidden pointer-events-none rounded-[inherit] z-0">
-          <div class="absolute -top-24 -left-24 w-48 h-48 bg-white/20 blur-[50px] rounded-full"></div>
-          <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-[#ffb88c]/20 blur-[50px] rounded-full"></div>
+          <div class="absolute inset-0 bg-black/20 z-0"></div>
+          <div class="absolute -top-24 -left-24 w-48 h-48 bg-white/20 blur-[50px] rounded-full z-10"></div>
+          <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-[#ffb88c]/20 blur-[50px] rounded-full z-10"></div>
         </div>
 
         <div class="text-center mb-8 relative z-10">
