@@ -26,7 +26,7 @@ export default class SettingsView {
       </header>
 
       <main class="scroll-area px-6 pt-28 bg-transparent">
-        <div class="glass-panel p-8 mb-12 flex items-center gap-6 shadow-[0_8px_32px_rgba(0,0,0,0.5)] border-white/10 bg-[#1a0a12]/40 backdrop-blur-xl">
+        <div class="clay-glass-panel p-8 mb-12 flex items-center gap-6 shadow-[0_8px_32px_rgba(0,0,0,0.5)] border-white/10 bg-[#1a0a12]/40 backdrop-blur-xl">
           <div class="avatar-circle font-display italic text-3xl shadow-xl border border-[#ffb88c]/30 bg-gradient-to-br from-[#7f2f5d] to-[#1a0a12] text-[#ffb88c]">${initials}</div>
           <div class="flex-1">
             <p class="font-bold text-xl leading-tight text-white">${displayName}</p>
@@ -40,7 +40,7 @@ export default class SettingsView {
 
         <section class="mb-10">
           <h3 class="text-xs text-uppercase font-bold text-[#ffb88c]/70 mb-4 tracking-[0.2em] px-1">Alerting Protocols</h3>
-          <div class="glass-panel overflow-hidden border border-white/10 bg-[#1a0a12]/40 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-2xl">
+          <div class="clay-glass-panel overflow-hidden border border-white/10 bg-[#1a0a12]/40 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-2xl">
             <div class="settings-row text-white">
               <span class="text-sm font-medium">Push Notifications</span>
               <div class="toggle" data-setting="notifications"></div>
@@ -58,7 +58,7 @@ export default class SettingsView {
 
         <section class="mb-10">
           <h3 class="text-xs text-uppercase font-bold text-[#ffb88c]/70 mb-4 tracking-[0.2em] px-1">Data Architecture</h3>
-          <div class="glass-panel overflow-hidden border border-white/10 bg-[#1a0a12]/40 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-2xl">
+          <div class="clay-glass-panel overflow-hidden border border-white/10 bg-[#1a0a12]/40 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-2xl">
             <button class="settings-row w-full text-left bg-transparent border-none" id="logout-btn">
               <span class="text-sm font-medium text-[#ca5229]">Terminate Session</span>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ca5229" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
@@ -232,3 +232,4 @@ export default class SettingsView {
     // Cleanup if necessary
   }
 }
+

@@ -92,7 +92,7 @@ export default class DashboardView {
 
       <main class="scroll-area px-6 pb-28 relative overflow-hidden" id="dashboard-main">
         ${databaseTimedOut ? `
-          <div class="glass-panel p-4 mb-6 border-amber-500/30 bg-amber-500/10 text-amber-200 text-xs rounded-xl flex items-center gap-3">
+          <div class="clay-glass-panel p-4 mb-6 border-amber-500/30 bg-amber-500/10 text-amber-200 text-xs rounded-xl flex items-center gap-3">
             <svg class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01"/></svg>
             <p>Loading your data securely...</p>
           </div>
@@ -215,7 +215,7 @@ export default class DashboardView {
                 </div>
               </div>
             `}).join('') : `
-              <div class="py-8 text-center bg-[#1a0a12]/40 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-3xl">
+              <div class="py-8 text-center clay-glass-panel rounded-3xl">
                 <p class="text-xs text-gray-500 font-mono uppercase tracking-widest">No scheduled doses.</p>
                 <button id="schedule-empty-add-btn" class="text-[#ffb88c] text-xs font-bold mt-2 uppercase">Add medication</button>
               </div>
@@ -457,3 +457,4 @@ export default class DashboardView {
 
   destroy() {}
 }
+

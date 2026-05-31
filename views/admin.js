@@ -41,11 +41,11 @@ export default class AdminView {
 
       <main class="scroll-area px-6 pt-28 pb-12">
         <div class="grid grid-cols-2 gap-4 mb-10">
-          <div class="glass-panel p-5">
+          <div class="clay-glass-panel p-5">
             <span class="text-xs font-bold text-muted uppercase tracking-widest block mb-2">Total Users</span>
             <p class="text-3xl font-display text-primary" id="user-count">...</p>
           </div>
-          <div class="glass-panel p-5">
+          <div class="clay-glass-panel p-5">
             <span class="text-xs font-bold text-muted uppercase tracking-widest block mb-2">Medications</span>
             <p class="text-3xl font-display text-blue-500" id="med-count">...</p>
           </div>
@@ -82,7 +82,7 @@ export default class AdminView {
       list.innerHTML = userSnap.docs.map(d => {
         const u = d.data();
         return `
-          <div class="glass-panel p-4 flex justify-between items-center bg-white">
+          <div class="clay-glass-panel p-4 flex justify-between items-center bg-white">
             <div>
               <p class="font-bold text-sm leading-none">${u.name || 'Unknown'}</p>
               <p class="text-xs text-muted mt-1 uppercase tracking-tighter">${u.email || ''}</p>
@@ -96,3 +96,4 @@ export default class AdminView {
     }
   }
 }
+

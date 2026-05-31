@@ -156,3 +156,4 @@ export default class LoginView {
 
   destroy() {}
 }
+

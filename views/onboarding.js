@@ -144,3 +144,4 @@ export default class OnboardingView {
     // Cleanup if necessary
   }
 }
+

@@ -29,7 +29,7 @@ export default class PeerNetworkView {
 
         <!-- P2P SCANNING / CONNECT (Card 1) -->
         <section id="scan-section" class="mb-10 block animate-fade-in">
-            <div class="glass-panel p-8 text-center border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] bg-[#1a0a12]/40 backdrop-blur-xl relative overflow-hidden rounded-[2rem]">
+            <div class="clay-glass-panel p-8 text-center border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] bg-[#1a0a12]/40 backdrop-blur-xl relative overflow-hidden rounded-[2rem]">
                 <div class="w-16 h-16 bg-[#ca5229]/20 rounded-full flex items-center justify-center mb-6 border border-[#ca5229]/50 mx-auto">
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ca5229" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
                 </div>
@@ -45,7 +45,7 @@ export default class PeerNetworkView {
 
         <!-- QR DETAILS (Card 2) -->
         <section id="share-section" class="mb-12 hidden animate-fade-in">
-            <div class="glass-panel p-8 text-center border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] relative overflow-hidden bg-[#1a0a12]/40 backdrop-blur-xl rounded-[2rem]">
+            <div class="clay-glass-panel p-8 text-center border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] relative overflow-hidden bg-[#1a0a12]/40 backdrop-blur-xl rounded-[2rem]">
                 <h2 class="text-lg font-display text-white mb-2">My Pairing QR</h2>
                 <p class="text-xs text-[#ffb88c]/70 font-mono mb-6">Scan this code to establish a peer-to-peer connection with ${displayName}</p>
                 
@@ -112,7 +112,7 @@ export default class PeerNetworkView {
 
       <style>
         .view-header { position: fixed; top: 0; left: 0; right: 0; height: 80px; backdrop-filter: blur(24px); display: flex; align-items: center; z-index: 100; }
-        .glass-panel { backdrop-filter: blur(12px); border-radius: var(--radius-lg); }
+        .clay-glass-panel { backdrop-filter: blur(12px); border-radius: var(--radius-lg); }
         .loader {
           width: 112px;
           height: 112px;
@@ -350,7 +350,7 @@ export default class PeerNetworkView {
       }
 
       rosterEl.innerHTML = peers.map(pid => `
-          <div class="glass-panel p-4 flex justify-between items-center bg-[#1a0a12]/40 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+          <div class="clay-glass-panel p-4 flex justify-between items-center clay-glass-panel">
               <div class="flex items-center gap-4">
                   <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#00ff7f]/20 to-[#1a0a12] border border-[#00ff7f]/40 flex items-center justify-center text-[#00ff7f]">
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
@@ -369,3 +369,4 @@ export default class PeerNetworkView {
     // Cleanup event listeners
   }
 }
+

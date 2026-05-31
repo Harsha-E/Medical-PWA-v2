@@ -117,3 +117,4 @@ export default class MedicationDetailView {
 
   destroy() {}
 }
+

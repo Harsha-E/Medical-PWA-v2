@@ -774,3 +774,4 @@ export default class ScanView {
     if (this.pipeline) this.pipeline.clearMemory();
   }
 }
+

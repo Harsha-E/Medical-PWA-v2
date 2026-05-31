@@ -68,7 +68,7 @@ export default class EmergencyView {
         <section class="mb-12">
             <h3 class="text-xs font-bold text-[#ca5229] mb-4 tracking-[0.2em] px-1 uppercase">Primary Responders</h3>
             <div class="space-y-4">
-                <div class="glass-panel p-5 flex justify-between items-center bg-white/5 border-[#7f2f5d]/40 shadow-xl shadow-[#000]">
+                <div class="clay-glass-panel p-5 flex justify-between items-center bg-white/5 border-[#7f2f5d]/40 shadow-xl shadow-[#000]">
                     <div>
                         <p class="font-bold text-sm text-white">${primaryName}</p>
                         <p class="text-xs text-[#ffb88c]/60 mt-1 font-medium uppercase tracking-widest leading-none">Primary Contact &bull; ${primaryPhone}</p>
@@ -83,7 +83,7 @@ export default class EmergencyView {
 
       <style>
         .view-header { position: fixed; top: 0; left: 0; right: 0; height: 80px; backdrop-filter: blur(24px); display: flex; align-items: center; z-index: 100; }
-        .glass-panel { backdrop-filter: blur(12px); border-radius: var(--radius-lg); }
+        .clay-glass-panel { backdrop-filter: blur(12px); border-radius: var(--radius-lg); }
       </style>
     `;
 
@@ -117,3 +117,4 @@ export default class EmergencyView {
     // Cleanup
   }
 }
+

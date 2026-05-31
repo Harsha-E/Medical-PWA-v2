@@ -42,7 +42,7 @@ export default class PeerDashboardView {
 
       <main class="scroll-area px-6 pt-28 bg-[#1a0a12] min-h-screen">
         <section class="mb-10">
-          <div class="glass-panel p-6 border-[#ca5229]/30 bg-[#ca5229]/5 shadow-xl shadow-[#ca5229]/10">
+          <div class="clay-glass-panel p-6 border-[#ca5229]/30 bg-[#ca5229]/5 shadow-xl shadow-[#ca5229]/10">
             <h2 class="text-xs font-bold text-[#ffb88c] uppercase tracking-widest mb-4">Vital Statistics</h2>
             <div class="grid grid-cols-2 gap-4">
               <div class="p-4 bg-black/40 rounded-2xl border border-white/5">
@@ -68,14 +68,14 @@ export default class PeerDashboardView {
           <h3 class="text-xs font-bold text-[#ffb88c]/70 uppercase tracking-widest mb-4 px-2">Active Medications</h3>
           <div class="space-y-4">
             ${meds.length > 0 ? meds.map(m => `
-              <div class="glass-panel p-5 border-[#7f2f5d]/30 bg-white/5 flex justify-between items-center">
+              <div class="clay-glass-panel p-5 border-[#7f2f5d]/30 bg-white/5 flex justify-between items-center">
                 <div>
                   <p class="font-bold text-white text-base">${m.name}</p>
                   <p class="text-xs font-mono text-[#ffb88c]/70 uppercase tracking-widest">${m.dosage || ''} ${m.dosageUnit || 'mg'} &bull; ${m.frequency || 'Daily'}</p>
                 </div>
               </div>
             `).join('') : `
-              <div class="glass-panel p-6 border-[#7f2f5d]/30 bg-white/5 text-center opacity-70">
+              <div class="clay-glass-panel p-6 border-[#7f2f5d]/30 bg-white/5 text-center opacity-70">
                 <p class="text-xs text-gray-400 font-mono uppercase tracking-widest">No active medications shared.</p>
               </div>
             `}
@@ -87,3 +87,4 @@ export default class PeerDashboardView {
     return this.container;
   }
 }
+

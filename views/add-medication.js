@@ -83,7 +83,7 @@ export default class AddMedicationView {
       </div>
 
       <main class="scroll-area px-6 pt-4 pb-28">
-        <div class="glass-panel p-6 mb-8 bg-[#1a0a12]/40 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-[2rem]">
+        <div class="clay-glass-panel p-6 mb-8 clay-glass-panel rounded-[2rem]">
           <h3 class="form-label mb-6">Medication Details</h3>
           <div class="form-group">
             <label for="m-name" class="form-label">Name</label>
@@ -119,7 +119,7 @@ export default class AddMedicationView {
           </div>
         </div>
 
-        <div class="glass-panel p-6 mb-8 bg-[#1a0a12]/40 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-[2rem]">
+        <div class="clay-glass-panel p-6 mb-8 clay-glass-panel rounded-[2rem]">
           <h3 class="form-label mb-6">Schedule</h3>
           <div class="form-group">
             <label for="m-freq" class="form-label">Frequency</label>
@@ -130,7 +130,7 @@ export default class AddMedicationView {
           <div id="time-slots-container" class="space-y-4 mt-4"></div>
         </div>
 
-        <div class="glass-panel p-6 mb-8 bg-[#1a0a12]/40 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-[2rem]">
+        <div class="clay-glass-panel p-6 mb-8 clay-glass-panel rounded-[2rem]">
           <h3 class="form-label mb-6">Notes</h3>
           <label for="m-notes" class="sr-only">Notes</label>
           <textarea id="m-notes" class="form-textarea" rows="4" placeholder="Any special instructions...">${this.medData.notes || ''}</textarea>
@@ -317,3 +317,4 @@ export default class AddMedicationView {
 
   destroy() {}
 }
+

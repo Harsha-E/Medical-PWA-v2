@@ -48,7 +48,7 @@ export default class MedicalHistoryView {
             <input type="file" id="ledger-upload" class="hidden" accept=".pdf,image/*">
         </div>
 
-        <div class="glass-panel p-6 mb-10 bg-[#1a0a12]/40 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-[2rem]">
+        <div class="clay-glass-panel p-6 mb-10 clay-glass-panel rounded-[2rem]">
             <h3 class="text-xs text-uppercase font-bold text-muted mb-6 tracking-[0.2em] uppercase">Allergies & Contraindications</h3>
             <div class="flex flex-wrap gap-2">
                 ${allergies.length ? allergies.map(a => `<span class="text-xs font-bold px-3 py-1.5 bg-red-50 text-red-600 rounded-xl border border-red-100 shadow-sm">${a}</span>`).join('') : '<span class="text-xs font-bold text-muted uppercase tracking-widest">None Recorded</span>'}
@@ -60,19 +60,19 @@ export default class MedicalHistoryView {
                 <h3 class="text-xs text-uppercase font-bold text-muted tracking-[0.2em] uppercase">Clinical Categorization</h3>
             </div>
             <div class="grid grid-cols-2 gap-4">
-                <div class="glass-panel p-5 bg-[#1a0a12]/40 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-2xl">
+                <div class="clay-glass-panel p-5 clay-glass-panel rounded-2xl">
                     <p class="text-xs font-bold text-muted uppercase tracking-widest mb-1">Diseases</p>
                     <p class="text-xs font-bold">${diseases.length ? diseases.map(d => d.title).join('<br>') : 'None Recorded'}</p>
                 </div>
-                <div class="glass-panel p-5 bg-[#1a0a12]/40 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-2xl">
+                <div class="clay-glass-panel p-5 clay-glass-panel rounded-2xl">
                     <p class="text-xs font-bold text-muted uppercase tracking-widest mb-1">Surgeries</p>
                     <p class="text-xs font-bold">${surgeries.length ? surgeries.map(s => s.title).join('<br>') : 'None Recorded'}</p>
                 </div>
-                <div class="glass-panel p-5 bg-[#1a0a12]/40 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-2xl">
+                <div class="clay-glass-panel p-5 clay-glass-panel rounded-2xl">
                     <p class="text-xs font-bold text-muted uppercase tracking-widest mb-1">Vaccinations</p>
                     <p class="text-xs font-bold">${vaccinations.length ? vaccinations.map(v => v.title).join('<br>') : 'None Recorded'}</p>
                 </div>
-                <div class="glass-panel p-5 bg-[#1a0a12]/40 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-2xl">
+                <div class="clay-glass-panel p-5 clay-glass-panel rounded-2xl">
                     <p class="text-xs font-bold text-muted uppercase tracking-widest mb-1">Hospital Init</p>
                     <p class="text-xs font-bold">${hospitals.length ? hospitals.map(h => h.title).join('<br>') : 'None Recorded'}</p>
                 </div>
@@ -278,3 +278,4 @@ export default class MedicalHistoryView {
 
   destroy() {}
 }
+

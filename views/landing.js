@@ -324,3 +324,4 @@ export default class LandingView {
     document.querySelector('.story-engine-overlay')?.remove();
   }
 }
+

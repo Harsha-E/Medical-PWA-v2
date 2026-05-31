@@ -286,3 +286,4 @@ export default class InstallView {
     if (this._raf) cancelAnimationFrame(this._raf);
   }
 }
+

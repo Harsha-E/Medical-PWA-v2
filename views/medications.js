@@ -147,3 +147,4 @@ export default class MedicationsView {
     `;
   }
 }
+

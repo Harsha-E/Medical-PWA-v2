@@ -52,3 +52,4 @@ export default class SplashView {
     if (this._timer) clearTimeout(this._timer);
   }
 }
+

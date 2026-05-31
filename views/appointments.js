@@ -14,7 +14,7 @@ export default class AppointmentsView {
     const past = appointments.filter(a => new Date(a.date) < now);
 
     const renderAppt = (appt, isUpcoming) => `
-      <div class="glass-panel p-6 mb-4 ${!isUpcoming ? 'opacity-60 border-white/10 bg-[#1a0a12]/40 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)]' : 'border-[#ca5229]/50 bg-[#1a0a12]/40 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)]'} text-white transition-all rounded-2xl">
+      <div class="clay-glass-panel p-6 mb-4 ${!isUpcoming ? 'opacity-60 border-white/10 bg-[#1a0a12]/40 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)]' : 'border-[#ca5229]/50 bg-[#1a0a12]/40 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)]'} text-white transition-all rounded-2xl">
           <div class="flex justify-between items-start mb-4">
               <div>
                   ${isUpcoming ? `<span class="text-xs font-bold text-[#ffb88c] uppercase tracking-widest bg-[#ca5229]/20 px-2 py-1 rounded-lg border border-[#ca5229]/30">Scheduled</span>` : ''}
@@ -135,3 +135,4 @@ export default class AppointmentsView {
 
   destroy() {}
 }
+
