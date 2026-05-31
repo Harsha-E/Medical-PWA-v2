@@ -82,7 +82,7 @@ export class Router {
       }
 
       // DOM Handoff Architecture
-      const outgoingNode = this.viewport.firstElementChild;
+      const outgoingNodes = Array.from(this.viewport.children);
       
       // Use only crossfade for smooth transitions
       let transitionClass = 'crossfade';
@@ -92,9 +92,10 @@ export class Router {
 
       // Apply locks
       incomingNode.className = `${originalClass} view-transition-node incoming ${transitionClass}`;
-      if (outgoingNode) {
-          const outgoingOrigClass = outgoingNode.dataset.originalClass || outgoingNode.className || '';
-          outgoingNode.className = `${outgoingOrigClass} view-transition-node outgoing ${transitionClass}`;
+      
+      for (const node of outgoingNodes) {
+          const outgoingOrigClass = node.dataset.originalClass || node.className || '';
+          node.className = `${outgoingOrigClass} view-transition-node outgoing ${transitionClass}`;
       }
       
       this.viewport.appendChild(incomingNode);
@@ -103,8 +104,8 @@ export class Router {
 
       // Garbage Collection
       setTimeout(async () => {
-          if (outgoingNode && outgoingNode.parentNode) {
-              outgoingNode.remove();
+          for (const node of outgoingNodes) {
+              if (node && node.parentNode) node.remove();
           }
           if (oldView?.destroy) {
               try { await oldView.destroy(); }
