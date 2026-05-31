@@ -28,6 +28,39 @@
   font-family: 'Inter', sans-serif; /* Clinical standard font */
 }
 
+/* Light Theme Overrides */
+[data-theme="light"] {
+  --color-surface:       #fcfcfc;
+  --color-surface-elevated: #ffffff;
+  --color-text-primary:  #1e293b;
+  --color-text-secondary:#64748b;
+  --color-text-muted:    #94a3b8;
+  --color-border:        rgba(127, 47, 93, 0.15);
+  --color-accent-soft:   rgba(242, 107, 60, 0.05);
+}
+
+/* Claymorphism + Glassmorphism Hybrid */
+.clay-glass-panel {
+  background: var(--color-surface-elevated);
+  border-radius: var(--radius-lg);
+  box-shadow: 
+    inset 4px 4px 12px rgba(255, 255, 255, 0.8), /* Inner highlight (top-left) */
+    inset -4px -4px 12px rgba(0, 0, 0, 0.03),    /* Inner shadow (bottom-right) */
+    0 12px 24px rgba(0, 0, 0, 0.05);             /* Soft drop shadow */
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  transition: all 0.3s ease;
+}
+[data-theme="dark"] .clay-glass-panel {
+  background: rgba(26, 10, 18, 0.5); /* Semi-transparent for glass effect */
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 
+    inset 2px 2px 8px rgba(255, 255, 255, 0.05),
+    inset -2px -2px 8px rgba(0, 0, 0, 0.4),
+    0 16px 32px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;

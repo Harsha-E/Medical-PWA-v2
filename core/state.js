@@ -20,6 +20,21 @@ class State {
 
     /** @type {Array<Function>} */
     this._listeners = [];
+
+    // Initialize Theme
+    const storedTheme = localStorage.getItem('medcare_theme');
+    const systemTheme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    this.theme = storedTheme || systemTheme;
+    document.documentElement.setAttribute('data-theme', this.theme);
+  }
+
+  // ─── Theme Management ────────────────────────────────────────────────────────
+  
+  toggleTheme() {
+    this.theme = this.theme === 'light' ? 'dark' : 'light';
+    localStorage.setItem('medcare_theme', this.theme);
+    document.documentElement.setAttribute('data-theme', this.theme);
+    this._notify();
   }
 
   // ─── Subscription ────────────────────────────────────────────────────────────

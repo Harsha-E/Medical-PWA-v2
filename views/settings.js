@@ -57,6 +57,16 @@ export default class SettingsView {
         </section>
 
         <section class="mb-10">
+          <h3 class="text-xs text-uppercase font-bold text-[#ffb88c]/70 mb-4 tracking-[0.2em] px-1">Appearance</h3>
+          <div class="clay-glass-panel overflow-hidden border border-white/10 bg-[var(--color-surface)]/40 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-2xl">
+            <div class="settings-row text-[var(--color-text-primary)]" id="theme-toggle-row">
+              <span class="text-sm font-medium">Light Theme</span>
+              <div class="toggle" id="theme-toggle"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="mb-10">
           <h3 class="text-xs text-uppercase font-bold text-[#ffb88c]/70 mb-4 tracking-[0.2em] px-1">Data Architecture</h3>
           <div class="clay-glass-panel overflow-hidden border border-white/10 bg-[#1a0a12]/40 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-2xl">
             <button class="settings-row w-full text-left bg-transparent border-none" id="logout-btn">
@@ -97,11 +107,16 @@ export default class SettingsView {
 
 
   applyToggleStates() {
-    this.container.querySelectorAll('.toggle').forEach(t => {
+    this.container.querySelectorAll('.toggle:not(#theme-toggle)').forEach(t => {
       const setting = t.dataset.setting;
       const isActive = localStorage.getItem(`setting-${setting}`) === 'true';
       t.classList.toggle('active', isActive);
     });
+
+    const themeToggle = this.container.querySelector('#theme-toggle');
+    if (themeToggle) {
+      themeToggle.classList.toggle('active', state.theme === 'light');
+    }
   }
 
   attachListeners() {
@@ -209,6 +224,12 @@ export default class SettingsView {
 
     this.container.querySelectorAll('.toggle').forEach(t => {
       t.onclick = async () => {
+        if (t.id === 'theme-toggle') {
+          state.toggleTheme();
+          t.classList.toggle('active', state.theme === 'light');
+          return;
+        }
+
         const setting = t.dataset.setting;
         const wantsActive = !t.classList.contains('active');
 
