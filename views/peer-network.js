@@ -586,6 +586,7 @@ export default class PeerNetworkView {
         this.updateRoster(mesh);
         alert(`Connection with node ${e.detail.peerId.substring(0,6)}... dropped: ${e.detail.message}`);
     });
+  }
 
   updateRoster(mesh) {
       const rosterEl = this.container.querySelector('#roster-container');
