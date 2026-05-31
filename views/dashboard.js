@@ -258,18 +258,6 @@ export default class DashboardView {
         return; // Stop execution so menu stays open
       }
 
-      // Refresh Button Handler
-      const refreshBtn = e.target.closest('#refresh-dashboard-btn');
-      if (refreshBtn) {
-          e.preventDefault();
-          const svg = refreshBtn.querySelector('svg');
-          if (svg) svg.classList.add('animate-spin', 'text-[#ca5229]');
-          
-          this._loadDashboardData().then(() => {
-              if (svg) svg.classList.remove('animate-spin', 'text-[#ca5229]');
-          });
-          return;
-      }
 
       // 2. Handle Filter Selection
       const filterOption = e.target.closest('.filter-option');
@@ -481,6 +469,111 @@ export default class DashboardView {
         window.location.hash = '#/add-medication';
       }
     });
+
+    // Custom Pull-to-Refresh Logic
+    const scrollArea = this.container.querySelector('#dashboard-main-content');
+    if (!scrollArea) return;
+
+    let startY = 0;
+    let currentY = 0;
+    let isRefreshing = false;
+    let ptrContainer = null;
+    let isPulling = false;
+
+    scrollArea.addEventListener('touchstart', (e) => {
+        if (scrollArea.scrollTop <= 0) {
+            startY = e.touches[0].clientY;
+            isPulling = true;
+        }
+    }, { passive: true });
+
+    scrollArea.addEventListener('touchmove', (e) => {
+        if (!isPulling || isRefreshing) return;
+        
+        currentY = e.touches[0].clientY;
+        const pullDistance = currentY - startY;
+        
+        if (pullDistance > 0 && scrollArea.scrollTop <= 0) {
+            if (e.cancelable) e.preventDefault(); // Block native refresh
+            
+            if (!ptrContainer) {
+                ptrContainer = document.createElement('div');
+                Object.assign(ptrContainer.style, {
+                    position: 'absolute',
+                    top: '0px',
+                    left: '0',
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    zIndex: '100',
+                    transform: 'translateY(-80px)',
+                    transition: 'none'
+                });
+                
+                // Claymorphism refresh UI
+                ptrContainer.innerHTML = `
+                    <div class="p-3 bg-gradient-to-br from-[#1a0a12] to-[#0a0407] rounded-3xl border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.8)] backdrop-blur-xl relative overflow-hidden" style="box-shadow: inset 0 2px 10px rgba(255,255,255,0.05), 0 10px 30px rgba(0,0,0,0.8);">
+                       <div class="w-8 h-8 relative flex items-center justify-center spinner-container">
+                          <div class="w-2.5 h-2.5 bg-[#ca5229] rounded-full absolute top-0 left-1/2 -translate-x-1/2 shadow-[0_0_15px_#ca5229]"></div>
+                          <div class="w-2.5 h-2.5 bg-[#7f2f5d] rounded-full absolute bottom-0 left-0 shadow-[0_0_15px_#7f2f5d]"></div>
+                          <div class="w-2.5 h-2.5 bg-[#ffb88c] rounded-full absolute bottom-0 right-0 shadow-[0_0_15px_#ffb88c]"></div>
+                       </div>
+                    </div>
+                `;
+                this.container.appendChild(ptrContainer);
+            }
+            
+            // Exponential decay for realistic pull resistance
+            const resistance = pullDistance < 150 ? pullDistance : 150 + (pullDistance - 150) * 0.3;
+            ptrContainer.style.transform = `translateY(${Math.min(resistance - 80, 40)}px)`;
+            
+            const spinner = ptrContainer.querySelector('.spinner-container');
+            if (spinner) {
+                spinner.style.transform = `rotate(${resistance * 2}deg) scale(${Math.min(resistance / 100, 1)})`;
+            }
+        }
+    }, { passive: false });
+
+    scrollArea.addEventListener('touchend', async () => {
+        if (!isPulling) return;
+        isPulling = false;
+        
+        const pullDistance = currentY - startY;
+        
+        if (pullDistance > 80 && !isRefreshing) {
+            isRefreshing = true;
+            
+            if (ptrContainer) {
+                ptrContainer.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                ptrContainer.style.transform = 'translateY(40px)';
+                
+                const spinner = ptrContainer.querySelector('.spinner-container');
+                if (spinner) {
+                    spinner.classList.add('animate-spin');
+                    spinner.style.animationDuration = '0.8s';
+                }
+                
+                // Trigger reload
+                await this._loadDashboardData();
+                
+                // Hide
+                ptrContainer.style.transform = 'translateY(-100px)';
+                setTimeout(() => {
+                    if (ptrContainer && ptrContainer.parentNode) ptrContainer.remove();
+                    ptrContainer = null;
+                    isRefreshing = false;
+                }, 400);
+            }
+        } else if (ptrContainer) {
+            // Cancel refresh
+            ptrContainer.style.transition = 'transform 0.3s ease-out';
+            ptrContainer.style.transform = 'translateY(-100px)';
+            setTimeout(() => {
+                if (ptrContainer && ptrContainer.parentNode) ptrContainer.remove();
+                ptrContainer = null;
+            }, 300);
+        }
+    });
   }
 
   _getSkeletonUI() {
@@ -504,12 +597,10 @@ export default class DashboardView {
           <div class="skeleton" style="height:10px; width:80px; margin-bottom:10px;"></div>
           <div class="skeleton" style="height:22px; width:180px;"></div>
         </div>
-        <button id="refresh-dashboard-btn" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-gray-400 hover:text-[#ca5229] hover:bg-white/5 transition-all">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
-        </button>
+        </div>
       </header>
 
-      <div class="flex-1 overflow-y-auto px-6 md:px-12 pt-6 pb-28 w-full max-w-7xl mx-auto" id="dashboard-main-content">
+      <div class="flex-1 overflow-y-auto px-6 md:px-12 pt-6 pb-28 w-full max-w-7xl mx-auto" id="dashboard-main-content" style="overscroll-behavior-y: none;">
         <div class="md:grid md:grid-cols-12 md:gap-10 md:items-start">
           <!-- Left Column -->
           <div class="md:col-span-7 lg:col-span-8 flex flex-col gap-10">
