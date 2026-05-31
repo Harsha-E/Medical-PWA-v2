@@ -54,7 +54,22 @@ export default class PwaInstallManager {
       const textNode = this.bannerEl?.querySelector('#pwa-banner-text');
       if (textNode) textNode.textContent = 'Ready on Homescreen';
       
-      // Do not hide the banner; let the Open App button persist
+      // Enforce visibility restriction for "Open App" state
+      if (!window.location.hash.startsWith('#/install')) {
+        this._hideBanner();
+      }
+    });
+
+    // Listen to route changes to strictly control "Open App" banner visibility
+    window.addEventListener('hashchange', () => {
+      const btn = this.bannerEl?.querySelector('#pwa-action-btn');
+      if (btn && btn.textContent === 'Open App') {
+        if (window.location.hash.startsWith('#/install')) {
+          this._showBanner('Ready on Homescreen');
+        } else {
+          this._hideBanner();
+        }
+      }
     });
 
     await this._validateInstallability();
