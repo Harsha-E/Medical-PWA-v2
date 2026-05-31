@@ -18,10 +18,14 @@ export default class OnboardingView {
         <div id="error-container" class="hidden mb-5 p-4 rounded-xl bg-red-900/20 border border-red-500/30 text-red-200 text-xs font-mono text-center"></div>
 
         <form id="onboarding-form" class="space-y-4">
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label for="fullName" class="block text-xs font-mono text-gray-500 uppercase mb-2 ml-1">Full Name</label>
               <input type="text" id="fullName" autocomplete="name" required class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#ffb88c]/50 focus:outline-none">
+            </div>
+            <div>
+              <label for="myPhone" class="block text-xs font-mono text-gray-500 uppercase mb-2 ml-1">My Phone #</label>
+              <input type="tel" id="myPhone" autocomplete="tel" required class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#ffb88c]/50 focus:outline-none">
             </div>
             <div>
               <label for="bloodType" class="block text-xs font-mono text-gray-500 uppercase mb-2 ml-1">Blood Type</label>
@@ -37,14 +41,13 @@ export default class OnboardingView {
                 <option value="AB-" class="bg-[#0a0407] text-white">AB-</option>
               </select>
             </div>
+            <div>
+              <label for="dob" class="block text-xs font-mono text-gray-500 uppercase mb-2 ml-1">Date of Birth</label>
+              <input type="date" id="dob" autocomplete="bday" required class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#ffb88c]/50 focus:outline-none [color-scheme:dark]">
+            </div>
           </div>
 
-          <div>
-            <label for="dob" class="block text-xs font-mono text-gray-500 uppercase mb-2 ml-1">Date of Birth</label>
-            <input type="date" id="dob" autocomplete="bday" required class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#ffb88c]/50 focus:outline-none [color-scheme:dark]">
-          </div>
-
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <div>
               <label for="emergencyName" class="block text-xs font-mono text-gray-500 uppercase mb-2 ml-1">Primary Responder</label>
               <input type="text" id="emergencyName" placeholder="Name" required class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#ffb88c]/50 focus:outline-none">
@@ -106,6 +109,7 @@ export default class OnboardingView {
         if (!user) throw new Error("No authenticated user found.");
 
         const profileData = {
+          phone: form.myPhone.value,
           bloodType: form.bloodType.value,
           dob: form.dob.value,
           emergencyName: form.emergencyName.value,

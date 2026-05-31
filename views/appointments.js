@@ -77,7 +77,7 @@ export default class AppointmentsView {
         </div>
       </header>
 
-      <main class="flex-1 overflow-y-auto px-6 md:px-12 pt-4 pb-12 w-full max-w-7xl mx-auto md:grid md:grid-cols-2 md:gap-12">
+      <main class="flex-1 overflow-y-auto px-6 md:px-12 pt-4 pb-28 w-full max-w-7xl mx-auto md:grid md:grid-cols-2 md:gap-12">
         <section class="mb-12">
             <h3 class="text-xs text-uppercase font-bold text-[#ffb88c]/70 mb-6 tracking-[0.2em] px-1 uppercase">Upcoming</h3>
             <div class="space-y-4">

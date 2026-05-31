@@ -77,6 +77,19 @@ export default class EmergencyView {
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                     </a>
                 </div>
+                ${(state.userProfile?.profile?.familyMembers || []).map(fm => `
+                <div class="clay-glass-panel p-5 flex justify-between items-center bg-[#1a0a12]/40 border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#00ff7f]/20 to-[#1a0a12] border border-[#00ff7f]/40 flex items-center justify-center text-[#00ff7f]">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/></svg>
+                        </div>
+                        <div>
+                            <p class="font-bold text-sm text-white">${fm.name}</p>
+                            <p class="text-[10px] text-[#00ff7f]/70 mt-1 font-mono uppercase tracking-widest leading-none">Linked SOS Peer &bull; ${fm.phone}</p>
+                        </div>
+                    </div>
+                </div>
+                `).join('')}
             </div>
         </section>
       </main>

@@ -40,6 +40,9 @@ export class Router {
     }
     
 
+    this.navigationSequenceId = (this.navigationSequenceId || 0) + 1;
+    const currentSequence = this.navigationSequenceId;
+
     // Identify matching template class configuration against mapped routes
     const ViewClass = this.routes[baseRoute] ?? this.routes['#/landing'];
 
@@ -58,6 +61,10 @@ export class Router {
       
       const newView = new ViewClass();
       const content = await newView.render();
+      
+      // ABORT CHECK: If user clicked another link while we were rendering, abort immediately.
+      if (this.navigationSequenceId !== currentSequence) return;
+
       const newHash = baseRoute;
 
       // 1. Prepare incoming node

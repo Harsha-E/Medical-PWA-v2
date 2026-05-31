@@ -99,6 +99,7 @@ export default class PeerMesh {
             this._connections.set(peerId, conn);
             this._pendingConsent.delete(peerId);
             this._openDataChannel(conn);
+            window.dispatchEvent(new CustomEvent('medcare:peer-connected', { detail: { peerId, metadata: conn.metadata } }));
         } catch (error) {
             console.error('[PeerMesh] Biometric consent failed or denied.', error);
             this._pendingConsent.delete(peerId);
@@ -111,8 +112,42 @@ export default class PeerMesh {
      * @param {string} peerId
      */
     denyPeer(peerId) {
+        const conn = this._pendingConsent.get(peerId);
+        if (conn) {
+            conn.send({ type: 'peer-dropped', payload: { message: 'Connection denied' } });
+            setTimeout(() => conn.close(), 500);
+        }
         this._pendingConsent.delete(peerId);
         window.dispatchEvent(new CustomEvent('medcare:peer-denied', { detail: { peerId } }));
+    }
+
+    /**
+     * Drops an active connection.
+     * @param {string} peerId
+     */
+    disconnectPeer(peerId) {
+        const conn = this._connections.get(peerId);
+        if (conn) {
+            conn.send({ type: 'peer-dropped', payload: { message: 'Connection dropped by user' } });
+            setTimeout(() => {
+                conn.close();
+                this._connections.delete(peerId);
+                window.dispatchEvent(new CustomEvent('medcare:peer-disconnected', { detail: { peerId } }));
+            }, 500);
+        }
+    }
+
+    /**
+     * Sends a custom signal over the data channel.
+     * @param {string} peerId 
+     * @param {string} type 
+     * @param {any} payload 
+     */
+    sendSignal(peerId, type, payload = {}) {
+        const conn = this._connections.get(peerId);
+        if (conn && conn.open) {
+            conn.send({ type, payload });
+        }
     }
 
     /**
@@ -124,7 +159,10 @@ export default class PeerMesh {
         if (targetId === this.peerId) throw new Error('Cannot connect to self.');
 
         const conn = this._peer.connect(targetId, {
-            metadata: { displayName: state.userProfile?.name || 'Unknown Device' }
+            metadata: { 
+                displayName: state.userProfile?.name || 'Unknown Device',
+                phone: state.userProfile?.profile?.phone || ''
+            }
         });
         
         // Add to connections and open channel
@@ -139,6 +177,7 @@ export default class PeerMesh {
      */
     _openDataChannel(conn) {
         conn.on('open', () => {
+            window.dispatchEvent(new CustomEvent('medcare:peer-connected', { detail: { peerId: conn.peer, metadata: conn.metadata } }));
         });
 
         conn.on('data', (data) => {
@@ -147,6 +186,7 @@ export default class PeerMesh {
 
         conn.on('close', () => {
             this._connections.delete(conn.peer);
+            window.dispatchEvent(new CustomEvent('medcare:peer-disconnected', { detail: { peerId: conn.peer } }));
         });
         
         conn.on('error', (err) => {
@@ -157,6 +197,13 @@ export default class PeerMesh {
     _handleData(peerId, data) {
         if (data && data.type === 'yjs-update') {
             SyncBridge.getInstance().handleRemoteUpdate(peerId, data.payload);
+        } else if (data && data.type === 'peer-dropped') {
+            this._connections.delete(peerId);
+            window.dispatchEvent(new CustomEvent('medcare:peer-dropped', { detail: { peerId, message: data.payload?.message } }));
+        } else if (data && data.type === 'request-write-access') {
+            window.dispatchEvent(new CustomEvent('medcare:write-request', { detail: { peerId } }));
+        } else if (data && data.type === 'grant-write-access') {
+            window.dispatchEvent(new CustomEvent('medcare:write-granted', { detail: { peerId } }));
         }
     }
 }

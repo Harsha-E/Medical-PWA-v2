@@ -111,11 +111,11 @@ export default class PeerNetworkView {
                             <p class="text-[10px] text-gray-400 font-mono mt-1">Peer can view your compliance data.</p>
                         </div>
                     </label>
-                    <label class="flex items-center gap-3 p-4 border border-[#7f2f5d]/50 rounded-xl bg-white/5 cursor-pointer opacity-50">
-                        <input type="radio" name="permissions" value="admin" disabled class="accent-[#ca5229]">
+                    <label class="flex items-center gap-3 p-4 border border-[#7f2f5d]/50 rounded-xl bg-white/5 cursor-pointer">
+                        <input type="radio" name="permissions" value="request-write" class="accent-[#ca5229]">
                         <div>
-                            <p class="text-sm font-bold text-white">Admin / Caregiver</p>
-                            <p class="text-[10px] text-gray-400 font-mono mt-1">Peer can modify doses. (Locked)</p>
+                            <p class="text-sm font-bold text-white">Request Write Access</p>
+                            <p class="text-[10px] text-gray-400 font-mono mt-1">Peer can view your data, and you request permission to edit theirs.</p>
                         </div>
                     </label>
                 </div>
@@ -128,6 +128,22 @@ export default class PeerNetworkView {
         </div>
 
       </main>
+
+      <!-- Write Access Request Modal -->
+      <div id="write-request-modal" class="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md hidden items-center justify-center p-6 opacity-0 transition-opacity duration-300">
+          <div class="bg-[#1a0a12]/60 backdrop-blur-2xl border border-[#ca5229]/50 rounded-[32px] p-8 max-w-sm w-full shadow-[0_8px_32px_rgba(202,82,41,0.3)] transform scale-95 transition-transform duration-300" id="write-request-content">
+              <div class="w-16 h-16 bg-[#ca5229]/20 rounded-full flex items-center justify-center mb-6 border border-[#ca5229]/50 mx-auto">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ca5229" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              </div>
+              <h2 class="text-2xl font-display text-white text-center mb-2">Edit Access Requested</h2>
+              <p class="text-xs text-[#ffb88c]/80 text-center font-mono mb-8" id="write-request-peer-name">Unknown Device wants permission to modify your compliance data.</p>
+              
+              <div class="flex flex-col sm:flex-row gap-3">
+                  <button id="write-request-deny" class="flex-1 py-4 border border-[#7f2f5d]/50 text-gray-400 font-bold uppercase text-xs tracking-widest rounded-xl hover:bg-white/5 transition-colors">Deny</button>
+                  <button id="write-request-approve" class="flex-1 py-4 bg-gradient-to-r from-[#7f2f5d] to-[#ca5229] text-white font-bold uppercase text-xs tracking-widest rounded-xl shadow-lg shadow-[#ca5229]/20 active:scale-95 transition-transform">Grant</button>
+              </div>
+          </div>
+      </div>
 
       <style>
         .view-header { position: fixed; top: 0; left: 0; right: 0; height: 80px; backdrop-filter: blur(24px); display: flex; align-items: center; z-index: 100; }
@@ -230,6 +246,14 @@ export default class PeerNetworkView {
             }, 600);
         }
     }
+    
+    // Check for pending gatekeeper requests
+    setTimeout(() => {
+        if (mesh._pendingConsent && mesh._pendingConsent.size > 0) {
+            const firstPendingId = Array.from(mesh._pendingConsent.keys())[0];
+            window.dispatchEvent(new CustomEvent('medcare:peer-request', { detail: { peerId: firstPendingId } }));
+        }
+    }, 500);
     
     // Cleanup scanner on navigation
     window.addEventListener('hashchange', () => {
@@ -427,7 +451,13 @@ export default class PeerNetworkView {
     });
 
     this.container.querySelector('#gatekeeper-approve').addEventListener('click', () => {
-        if(pendingPeerId) mesh.approvePeerConnection(pendingPeerId);
+        const selectedPerm = this.container.querySelector('input[name="permissions"]:checked')?.value;
+        if(pendingPeerId) {
+            mesh.approvePeerConnection(pendingPeerId);
+            if (selectedPerm === 'request-write') {
+                setTimeout(() => mesh.sendSignal(pendingPeerId, 'request-write-access'), 1000);
+            }
+        }
         closeModal();
     });
     
@@ -446,13 +476,120 @@ export default class PeerNetworkView {
         }, 300);
     };
 
-    window.addEventListener('medcare:peer-connected', () => this.updateRoster(mesh));
+    // --- WRITE ACCESS PERMISSION FLOW ---
+    let requestingWritePeerId = null;
+    window.addEventListener('medcare:write-request', (e) => {
+        requestingWritePeerId = e.detail.peerId;
+        const writeModal = this.container.querySelector('#write-request-modal');
+        const writeContent = this.container.querySelector('#write-request-content');
+        
+        const peerConn = mesh._connections.get(requestingWritePeerId);
+        const name = peerConn?.metadata?.displayName || 'Unknown Device';
+        
+        this.container.querySelector('#write-request-peer-name').textContent = `${name} wants permission to modify your compliance data.`;
+        
+        writeModal.classList.remove('hidden');
+        writeModal.style.display = 'flex';
+        setTimeout(() => {
+            writeModal.classList.remove('opacity-0');
+            writeContent.classList.remove('scale-95');
+        }, 10);
+    });
+
+    const closeWriteModal = () => {
+        const writeModal = this.container.querySelector('#write-request-modal');
+        const writeContent = this.container.querySelector('#write-request-content');
+        writeModal.classList.add('opacity-0');
+        writeContent.classList.add('scale-95');
+        setTimeout(() => {
+            writeModal.style.display = 'none';
+            writeModal.classList.add('hidden');
+            requestingWritePeerId = null;
+        }, 300);
+    };
+
+    this.container.querySelector('#write-request-approve').addEventListener('click', () => {
+        if(requestingWritePeerId) {
+            mesh.sendSignal(requestingWritePeerId, 'grant-write-access');
+            const conn = mesh._connections.get(requestingWritePeerId);
+            if (conn) conn.hasWriteAccess = true;
+            alert('Write access granted.');
+        }
+        closeWriteModal();
+    });
+
+    this.container.querySelector('#write-request-deny').addEventListener('click', () => {
+        if (requestingWritePeerId) {
+             mesh.sendSignal(requestingWritePeerId, 'peer-dropped', { message: 'Write access request denied.' });
+        }
+        closeWriteModal();
+    });
+
+    window.addEventListener('medcare:write-granted', (e) => {
+        alert('Your request for write access was GRANTED by the peer.');
+        const conn = mesh._connections.get(e.detail.peerId);
+        if (conn) conn.hasWriteAccess = true;
+    });
+
+    window.addEventListener('medcare:peer-connected', async (e) => {
+        this.updateRoster(mesh);
+        
+        const peerId = e.detail?.peerId;
+        const metadata = e.detail?.metadata;
+        if (!peerId || !metadata) return;
+
+        const peerPhone = metadata.phone;
+        let peerName = metadata.displayName || 'Peer Node';
+        const emergencyPhone = state.userProfile?.profile?.emergencyPhone;
+        const emergencyName = state.userProfile?.profile?.emergencyName;
+
+        // 1. Name Match Logic from Onboarding
+        if (peerPhone && emergencyPhone && peerPhone === emergencyPhone) {
+            if (confirm(`This peer's phone number matches your emergency contact. Do you want to name this connection '${emergencyName}'?`)) {
+                const conn = mesh._connections.get(peerId);
+                if (conn) {
+                    conn.metadata.displayName = emergencyName;
+                    peerName = emergencyName;
+                    this.updateRoster(mesh);
+                }
+            }
+        }
+
+        // 2. SOS Prompt
+        if (confirm(`Do you want to add ${peerName} to your SOS/Family Responders list?`)) {
+            if (!state.userProfile.profile.familyMembers) {
+                state.userProfile.profile.familyMembers = [];
+            }
+            
+            // Check if already exists
+            const exists = state.userProfile.profile.familyMembers.find(f => f.peerId === peerId);
+            if (!exists) {
+                state.userProfile.profile.familyMembers.push({
+                    name: peerName,
+                    phone: peerPhone || '',
+                    peerId: peerId
+                });
+                
+                // Save to Firestore silently
+                import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js').then(({ getFirestore, doc, setDoc }) => {
+                    const db = getFirestore();
+                    setDoc(doc(db, 'users', state.user.uid), { profile: state.userProfile.profile }, { merge: true }).catch(console.error);
+                });
+            }
+        }
+    });
+
     window.addEventListener('medcare:peer-disconnected', () => this.updateRoster(mesh));
-  }
+    
+    // Listen for connection drops natively
+    window.addEventListener('medcare:peer-dropped', (e) => {
+        this.updateRoster(mesh);
+        alert(`Connection with node ${e.detail.peerId.substring(0,6)}... dropped: ${e.detail.message}`);
+    });
 
   updateRoster(mesh) {
       const rosterEl = this.container.querySelector('#roster-container');
-      const peers = Array.from(mesh._connections?.keys() || []);
+      const peers = Array.from(mesh._connections?.entries() || []);
       
       if (peers.length === 0) {
           rosterEl.innerHTML = `
@@ -463,20 +600,29 @@ export default class PeerNetworkView {
           return;
       }
 
-      rosterEl.innerHTML = peers.map(pid => `
-          <div class="clay-glass-panel p-4 flex justify-between items-center clay-glass-panel">
+      rosterEl.innerHTML = peers.map(([pid, conn]) => {
+          const pName = conn.metadata?.displayName || 'Peer Node';
+          return `
+          <div class="clay-glass-panel p-4 flex justify-between items-center">
               <div class="flex items-center gap-4">
                   <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#00ff7f]/20 to-[#1a0a12] border border-[#00ff7f]/40 flex items-center justify-center text-[#00ff7f]">
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
                   </div>
                   <div>
-                      <p class="font-bold text-sm text-white">Peer Node</p>
+                      <p class="font-bold text-sm text-white">${pName}</p>
                       <p class="text-[10px] text-[#00ff7f]/70 font-mono tracking-widest uppercase">${pid.substring(0,8)}...</p>
                   </div>
               </div>
-              <button class="bg-[#1a0a12] border border-red-500/30 text-red-400 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-widest active:scale-90 transition-transform">Drop</button>
+              <button data-drop-pid="${pid}" class="bg-[#1a0a12] border border-red-500/30 text-red-400 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-widest active:scale-90 transition-transform hover:bg-red-900/20">Drop</button>
           </div>
-      `).join('');
+      `}).join('');
+
+      rosterEl.querySelectorAll('[data-drop-pid]').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+              const dropId = e.target.getAttribute('data-drop-pid');
+              mesh.disconnectPeer(dropId);
+          });
+      });
   }
 
   destroy() {

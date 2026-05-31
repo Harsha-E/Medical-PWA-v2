@@ -40,7 +40,7 @@ import EmergencyView        from './views/emergency.js';
 import PeerNetworkView      from './views/peer-network.js';
 import PeerDashboardView    from './views/peer-dashboard.js';
 import AppointmentsView     from './views/appointments.js';
-import AdminView            from './views/admin.js';
+
 import CalendarView         from './views/calendar.js';
 import OrchestratorView     from './views/orchestrator.js';
 
@@ -67,7 +67,7 @@ const ROUTES = {
   '#/emergency': EmergencyView,
   '#/peer-dashboard': PeerDashboardView,
   '#/appointments': AppointmentsView,
-  '#/admin': AdminView,
+
   '#/calendar': CalendarView,
   '#/orchestrator': OrchestratorView,
   '#/medication-detail': MedicationDetailView
