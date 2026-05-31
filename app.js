@@ -138,20 +138,18 @@ class App {
                 toast.addEventListener('click', () => {
                    toast.innerHTML = `<svg class="animate-spin h-4 w-4 text-[#ffb88c]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Updating...`;
                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                   
+                   // Fallback: If controllerchange doesn't fire within 1.5 seconds, force a reload.
+                   setTimeout(() => {
+                       window.location.reload();
+                   }, 1500);
                 });
                 document.body.appendChild(toast);
               }
             });
           });
 
-          if (!navigator.serviceWorker.controller) {
-            if (!sessionStorage.getItem('sw_reloaded')) {
-              console.warn('[SW] No controller. Reloading.');
-              sessionStorage.setItem('sw_reloaded', 'true');
-              window.location.reload();
-              return;
-            }
-          }
+
           
           this.pwaManager = new PwaInstallManager();
         } catch (err) {
