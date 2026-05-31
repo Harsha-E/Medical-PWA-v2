@@ -1147,46 +1147,6 @@ body.in-peer-context .bottom-nav {
   }
 }
 
-/* ─────────────────────────────────────────────────────────────────────────── */
-/* VIEW TRANSITION ENGINE (Hardware-Accelerated)                               */
-/* ─────────────────────────────────────────────────────────────────────────── */
-
-.view-transition-node {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background-color: #1a0a12;
-}
-
-.view-transition-node.incoming {
-  z-index: 20;
-}
-
-.view-transition-node.outgoing {
-  z-index: 10;
-}
-
-/* Only Crossfade logic remains as requested */
-
-/* Crossfade */
-.view-transition-node.crossfade.incoming {
-  animation: fadeIn 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-.view-transition-node.crossfade.outgoing {
-  animation: fadeOut 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* Keyframes */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-@keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
-}
 
 /* ─────────────────────────────────────────────────────────────────────────── */
 /* USER REQUESTED BUBBLY/ROUNDED AESTHETIC OVERRIDE                            */
@@ -1217,11 +1177,6 @@ button, .clay-glass-panel, .skeleton-card, .timeline-item {
 
 
 
-/* View Transitions - Zero Layout Jumping via Grid */
-.view-transition-node { grid-area: 1 / 1; width: 100%; height: 100%; z-index: 10; }
-.view-transition-node.outgoing { z-index: 1; }
-.incoming.crossfade { animation: fadeIn 400ms ease forwards; }
-.outgoing.crossfade { animation: fadeOut 400ms ease forwards; }
 
 /* Premium Claymorphism Loader */
 .clay-loader {

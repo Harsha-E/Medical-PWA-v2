@@ -81,39 +81,17 @@ export class Router {
         return;
       }
 
-      // DOM Handoff Architecture
-      const outgoingNodes = Array.from(this.viewport.children);
-      
-      // Use only crossfade for smooth transitions
-      let transitionClass = 'crossfade';
-
-      const originalClass = incomingNode.className || '';
-      incomingNode.dataset.originalClass = originalClass;
-
-      // Apply locks
-      incomingNode.className = `${originalClass} view-transition-node incoming ${transitionClass}`;
-      
-      for (const node of outgoingNodes) {
-          const outgoingOrigClass = node.dataset.originalClass || node.className || '';
-          node.className = `${outgoingOrigClass} view-transition-node outgoing ${transitionClass}`;
-      }
-      
+      // Swap views immediately without transitions
+      this.viewport.innerHTML = '';
       this.viewport.appendChild(incomingNode);
       this.currentView = newView;
       this.currentHash = newHash;
 
-      // Garbage Collection
-      setTimeout(async () => {
-          for (const node of outgoingNodes) {
-              if (node && node.parentNode) node.remove();
-          }
-          if (oldView?.destroy) {
-              try { await oldView.destroy(); }
-              catch (e) { console.error('[Router] Destruction error handling:', e); }
-          }
-          // Strip locks
-          incomingNode.className = incomingNode.dataset.originalClass || '';
-      }, 420);
+      // Clean up old view
+      if (oldView?.destroy) {
+          try { await oldView.destroy(); }
+          catch (e) { console.error('[Router] Destruction error handling:', e); }
+      }
       
       // Unblockable sequence: forcefully guarantee the viewport renders into view
       this.viewport.style.opacity = '1';

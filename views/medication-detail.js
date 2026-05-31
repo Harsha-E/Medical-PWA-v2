@@ -61,7 +61,7 @@ export default class MedicationDetailView {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
             Check Interactions
           </button>
-          <button onclick="window.location.hash='#/edit?id=${id}'" class="flex-1 bg-[#7f2f5d]/20 border border-[#7f2f5d] text-white rounded-2xl py-4 px-2 text-xs font-bold uppercase tracking-widest hover:bg-[#7f2f5d]/40 active:scale-95 transition-all text-center flex flex-col items-center justify-center gap-2">
+          <button onclick="window.location.hash='#/add-medication?id=${id}'" class="flex-1 bg-[#7f2f5d]/20 border border-[#7f2f5d] text-white rounded-2xl py-4 px-2 text-xs font-bold uppercase tracking-widest hover:bg-[#7f2f5d]/40 active:scale-95 transition-all text-center flex flex-col items-center justify-center gap-2">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
             Edit Details
           </button>

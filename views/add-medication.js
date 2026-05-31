@@ -26,12 +26,12 @@ export default class AddMedicationView {
   async render() {
     const hash = window.location.hash || '';
     
-    // 1. Extract parameters from routing path segments (e.g., #/edit/12)
-    if (hash.includes('#/edit')) {
+    // 1. Extract parameters from routing path segments (e.g., #/add-medication/edit/12)
+    if (hash.includes('/edit/')) {
       this.isEdit = true;
-      const pathSegments = hash.split('?')[0].split('/');
-      if (pathSegments.length >= 3) {
-        this.medId = parseInt(pathSegments[2], 10);
+      const idMatch = hash.match(/\/edit\/(\d+)/);
+      if (idMatch && idMatch[1]) {
+        this.medId = parseInt(idMatch[1], 10);
       }
     }
 
@@ -295,22 +295,22 @@ export default class AddMedicationView {
         await db.medications.add(data);
       }
 
-      // 2. DUAL-WRITE: Write to Firestore (Cloud Sync)
+      // 2. DUAL-WRITE: Write to Firestore (Cloud Sync) - Do not await to avoid offline hanging
       const firestoreDb = getFirestore();
       if (this.isEdit && this.medId) {
-        await setDoc(doc(firestoreDb, 'medications', this.medId.toString()), data, { merge: true });
+        setDoc(doc(firestoreDb, 'medications', this.medId.toString()), data, { merge: true }).catch(console.error);
       } else {
-        await addDoc(collection(firestoreDb, 'medications'), data);
+        addDoc(collection(firestoreDb, 'medications'), data).catch(console.error);
       }
 
       sessionStorage.removeItem('medcare_draft_form');
       window.location.hash = '#/medications';
     } catch (e) {
       console.error('[AddMedication] Save error:', e);
-      errorEl.textContent = 'Saved locally, but cloud sync failed.';
+      errorEl.textContent = 'Failed to save medication locally.';
       errorEl.classList.remove('hidden');
       saveBtn.disabled = false;
-      saveBtn.textContent = 'Retry Cloud Sync';
+      saveBtn.textContent = this.isEdit ? 'Save Changes' : 'Add Medication';
     }
   }
 

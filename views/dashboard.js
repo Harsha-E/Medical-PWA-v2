@@ -433,7 +433,7 @@ export default class DashboardView {
       const actionEl = e.target.closest('[data-action]');
       if (actionEl) {
         const action = actionEl.dataset.action;
-        if (action === 'edit-med') window.location.hash = `#/edit/${actionEl.dataset.id}`;
+        if (action === 'edit-med') window.location.hash = `#/add-medication/edit/${actionEl.dataset.id}`;
         // Add the new Calendar routing handler here
         if (action === 'nav-calendar') window.location.hash = '#/calendar';
       }
