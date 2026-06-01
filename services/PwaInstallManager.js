@@ -152,6 +152,11 @@ export default class PwaInstallManager {
     this.bannerEl.style.bottom = '-100px';
 
     this.bannerEl.innerHTML = `
+      <style>
+        @media (max-width: 640px) {
+          #pwa-not-now-btn { display: none !important; }
+        }
+      </style>
       <div id="pwa-inner-card" class="flex items-center justify-between p-4 bg-[#0a040f]/90 backdrop-blur-xl border border-[#ffb88c]/30 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.8),inset_0_0_20px_rgba(255,184,140,0.05)] pointer-events-auto group">
         <div class="flex items-center gap-3 cursor-pointer" id="pwa-main-action-area">
           <img src="./assets/logo.webp" class="w-10 h-10 rounded-xl border border-[#ffb88c]/20 object-cover shadow-inner" alt="MedCare Logo" />
@@ -161,7 +166,7 @@ export default class PwaInstallManager {
           </div>
         </div>
         <div class="flex items-center gap-2">
-          <button id="pwa-not-now-btn" class="hidden sm:block text-gray-400 hover:text-white px-2 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wide transition-colors focus:outline-none">
+          <button id="pwa-not-now-btn" class="text-gray-400 hover:text-white px-2 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wide transition-colors focus:outline-none">
             Not Now
           </button>
           <button id="pwa-action-btn" class="bg-[#ffb88c]/10 text-[#ffb88c] px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide hover:bg-[#ffb88c]/20 transition-colors border border-[#ffb88c]/20 focus:outline-none whitespace-nowrap cursor-pointer">
