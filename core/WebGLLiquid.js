@@ -191,7 +191,7 @@ export default class WebGLLiquid {
         ? Math.min(1, elapsedSec / Math.max(this.settings.revealDuration, 0.05))
         : 1;
 
-      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      const isLight = false;
       const activeColorDeep = this.settings.colorDeep;
       const activeColorMid = this.settings.colorMid;
       const activeColorHighlight = this.settings.colorHighlight;

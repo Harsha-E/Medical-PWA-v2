@@ -12,12 +12,12 @@ export default class PeerNetworkView {
     await mesh.init();
 
     this.container.innerHTML = `
-      <main class="scroll-area pt-[112px] bg-transparent pb-24" style="padding-left:0; padding-right:0;">
+      <main class="scroll-area pt-[112px] bg-transparent pb-40" style="padding-left:0; padding-right:0;">
 <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
         
         <!-- Toggle Control -->
         <div class="flex bg-surface-elevated/40 border border-border shadow-[0_8px_32px_var(--color-card-shadow)] rounded-2xl p-1 mb-8 backdrop-blur-xl">
-            <button id="toggle-scan" class="flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-xl bg-primary text-text-primary transition-all btn-neumorphic">Scan</button>
+            <button id="toggle-scan" class="flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-xl bg-surface-deep/50 text-primary shadow-inner transition-all">Scan</button>
             <button id="toggle-share" class="flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-xl text-text-secondary hover:text-text-primary transition-all btn-neumorphic">Share</button>
         </div>
 
@@ -66,7 +66,7 @@ export default class PeerNetworkView {
                 <h2 class="text-lg font-display text-text-primary mb-2">My Pairing QR</h2>
                 <p class="text-xs text-accent-primary/70 font-mono mb-6">Scan this code to establish a peer-to-peer connection with ${displayName}</p>
                 
-                <div id="qr-container" class="bg-transparent p-4 inline-block relative z-10 min-h-[200px] min-w-[200px] flex items-center justify-center">
+                <div id="qr-container" class="bg-transparent p-4 flex w-full relative z-10 min-h-[200px] justify-center items-center mx-auto">
                     <div id="qr-loader" class="flex space-x-2 justify-center items-center h-full">
                         <div class="w-3 h-3 bg-primary rounded-full animate-bounce"></div>
                         <div class="w-3 h-3 bg-primary rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
@@ -208,7 +208,7 @@ export default class PeerNetworkView {
         console.error('QR Generate Error:', err);
         return;
       }
-      container.innerHTML = `<img src="${url}" alt="Pairing QR Code" class="shadow-[0_0_30px_var(--color-primary)] border-4 border-surface-deep bg-white p-2" style="border-radius: 0px; animation: float 4s ease-in-out infinite;" />`;
+      container.innerHTML = `<img src="${url}" alt="Pairing QR Code" class="shadow-[0_0_30px_var(--color-primary)] border-4 border-surface-deep bg-white p-2 block mx-auto" style="border-radius: 0px; animation: float 4s ease-in-out infinite;" />`;
     });
   }
 
@@ -305,7 +305,7 @@ export default class PeerNetworkView {
         const qrContainer = this.container.querySelector('#qr-container');
         if (qrContainer) {
           qrContainer.innerHTML = `
-            <div id="qr-loader" class="clay-loader is-active"></div>
+            <div id="qr-loader" class="w-48 h-48 rounded-[2rem] bg-surface-elevated/40 animate-pulse border-4 border-surface-deep flex items-center justify-center mx-auto"></div>
           `;
           setTimeout(() => {
             this.generateQR(mesh.peerId);

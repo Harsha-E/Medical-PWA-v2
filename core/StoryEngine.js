@@ -180,7 +180,7 @@ export default class StoryEngine {
 
     const root = document.createElement('div');
     root.id = 'se-root';
-    root.className = 'se-hide-scrollbar';
+    root.className = 'se-hide-scrollbar force-dark-theme';
     root.style.cssText = `
       position: fixed; inset: 0; z-index: 9999;
       background: #030303; opacity: 0; transition: opacity 0.45s ease;

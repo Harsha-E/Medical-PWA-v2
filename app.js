@@ -392,18 +392,13 @@ class App {
     }
 
     // ── Enforce global theme ──
-    const isUnauthFlow = ['#/', '#/landing', '#/login', '#/register', '#/splash'].includes(hash);
-    if (isUnauthFlow) {
-      document.documentElement.removeAttribute('data-theme');
-    } else {
-      try {
-        if (localStorage.getItem('medcare-theme') === 'light') {
-          document.documentElement.setAttribute('data-theme', 'light');
-        } else {
-          document.documentElement.removeAttribute('data-theme');
-        }
-      } catch(e) {}
-    }
+    try {
+      if (localStorage.getItem('medcare-theme') === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+      }
+    } catch(e) {}
 
     // Guard passed — render the current hash
     this.router.handleRoute();
