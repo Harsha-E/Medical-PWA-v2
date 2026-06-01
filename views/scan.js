@@ -1,13 +1,17 @@
 /**
  * @fileoverview CarePoint Vision Scanner — Auto-Tracking Architecture + Hardware Controls & Gallery Fallback
+ * Orchestrates the scanner view utilizing modular sub-controllers.
  */
-import { INDIAN_DRUG_DATASET } from '../data/indian-drug-dataset.js';
-import db from '../core/db.js';
-import state from '../core/state.js';
-import { db as firebaseDb } from '../core/firebase.js';
-import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import VisionPipeline from '../services/VisionPipeline.js';
-import { interactionGraph } from '../services/InteractionGraph.js';
+import ScanCameraController from './scan/ScanCameraController.js';
+import ScanOverlayController from './scan/ScanOverlayController.js';
+import ScanStateController from './scan/ScanStateController.js';
+import ScanResultController from './scan/ScanResultController.js';
+import { ScanSessionManager } from '../services/vision/ScanSessionManager.js';
+import { UserConfirmationEngine } from '../services/vision/UserConfirmationEngine.js';
+import { StripConsistencyEngine } from '../services/vision/StripConsistencyEngine.js';
+import { SessionConfidenceEngine } from '../services/vision/SessionConfidenceEngine.js';
+import { MultiAngleFusion } from '../services/vision/MultiAngleFusion.js';
 
 export default class ScanView {
   constructor() {
@@ -21,9 +25,17 @@ export default class ScanView {
     this.huntStartTime     = 0;
     this.galleryPromptShown= false;
     
-    // --- APPENDED: Hardware State ---
+    // Vision Engines
+    this.sessionManager = new ScanSessionManager();
+    this.confirmationEngine = new UserConfirmationEngine();
+    this.consistencyEngine = new StripConsistencyEngine();
+    this.confidenceEngine = new SessionConfidenceEngine();
+    this.fusion = new MultiAngleFusion();
+    
+    // Hardware State
     this.facingMode        = 'environment';
     this.torchOn           = false;
+    this.videoTrack        = null;
 
     this.container = document.createElement('div');
     this.container.className = 'scan-view-root';
@@ -33,44 +45,23 @@ export default class ScanView {
       flex-direction: column; font-family: 'Inter', sans-serif; z-index: 10;
     `;
     this._boundLoop = this._renderLoop.bind(this);
+
+    // Initialize sub-controllers
+    this.cameraController = new ScanCameraController(this);
+    this.overlay = new ScanOverlayController(this);
+    this.stateController = new ScanStateController(this);
+    this.resultController = new ScanResultController(this);
   }
 
+  // State coordination wrapper
   _setState(newState) {
-    if (this.state === newState) return;
-    this.state = newState;
-    
-    if (this._statusText) {
-      switch(newState) {
-        case 'IDLE':
-          this._statusText.textContent = 'SYSTEM IDLE';
-          this._statusText.style.color = '#ffffff';
-          break;
-        case 'HUNTING':
-          this._statusText.textContent = 'HUNTING FOR MATCH';
-          this._statusText.style.color = '#ffb88c';
-          break;
-        case 'LOCKING':
-          this._statusText.textContent = 'ACQUIRING LOCK';
-          this._statusText.style.color = '#10b981';
-          break;
-        case 'VERIFYING':
-          this._statusText.textContent = 'VERIFYING DATA';
-          this._statusText.style.color = '#3b82f6';
-          break;
-        case 'RESULT':
-          this._statusText.textContent = 'LOCKED';
-          this._statusText.style.color = '#10b981';
-          this._triggerAutoLock();
-          if (this.currentResults) {
-            const cacheObj = { ...this.currentResults, croppedBlob: null };
-            sessionStorage.setItem('medcare_scan_cache', JSON.stringify(cacheObj));
-          }
-          break;
-      }
-    }
+    this.stateController.setState(newState);
   }
 
   async render() {
+    if (this.pipeline) {
+      this.pipeline.activeSessionId = 'session-' + Date.now();
+    }
     this._buildDOM();
     this._cacheElements();
     this._attachListeners();
@@ -129,6 +120,7 @@ export default class ScanView {
       <div id="sv-viewport" style="position: relative; flex: 1; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden;">
         <video id="sv-video" autoplay playsinline muted style="position: absolute; width: 100%; height: 100%; object-fit: cover;"></video>
         <canvas id="sv-capture-canvas" style="display: none;"></canvas>
+        <canvas id="sv-ghost-canvas" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.3; pointer-events: none; display: none;"></canvas>
         <div id="sv-particle-host" class="particle-host"></div>
 
         <div id="sv-frame" style="position: absolute; inset: 0; pointer-events: none; display: flex; align-items: center; justify-content: center;">
@@ -138,6 +130,45 @@ export default class ScanView {
             <div style="position:absolute;bottom:-2px;left:-2px;width:24px;height:24px;border-bottom:3px solid #ffb88c;border-left:3px solid #ffb88c;animation:cornerPulse 1.8s ease-in-out infinite 0.4s;"></div>
             <div style="position:absolute;bottom:-2px;right:-2px;width:24px;height:24px;border-bottom:3px solid #ffb88c;border-right:3px solid #ffb88c;animation:cornerPulse 1.8s ease-in-out infinite 0.6s;"></div>
           </div>
+        </div>
+
+        <!-- Intent Toggle Overlay -->
+        <div id="sv-intent-overlay" style="position: absolute; inset: 0; background: rgba(5,2,3,0.9); z-index: 65; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(8px);">
+           <h3 style="color: white; font-size: 18px; font-weight: 700; margin-bottom: 20px;">What are you scanning?</h3>
+           <div style="display: flex; flex-direction: column; gap: 12px; width: 220px;">
+              <button class="sv-intent-btn" data-target="FRONT" style="padding: 14px; border-radius: 12px; background: rgba(26,10,18,0.8); border: 1px solid #ffb88c; color: #ffb88c; font-weight: bold; cursor: pointer;">Front of strip</button>
+              <button class="sv-intent-btn" data-target="BACK" style="padding: 14px; border-radius: 12px; background: rgba(26,10,18,0.8); border: 1px solid rgba(255,184,140,0.5); color: white; font-weight: bold; cursor: pointer;">Back of strip</button>
+              <button class="sv-intent-btn" data-target="UNKNOWN" style="padding: 14px; border-radius: 12px; background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #aaa; font-weight: bold; cursor: pointer;">Not sure</button>
+           </div>
+        </div>
+
+        <!-- Smart Scan Recovery UI -->
+        <div id="sv-recovery-overlay" style="position: absolute; top: 16px; left: 16px; right: 16px; display: none; flex-direction: column; gap: 8px; z-index: 60;">
+           <div style="background: rgba(26,10,18,0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,184,140,0.4); border-radius: 16px; padding: 12px; display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+              <canvas id="sv-recovery-thumb" width="40" height="40" style="border-radius: 8px; background: #000; flex-shrink: 0;"></canvas>
+              <div style="flex: 1;">
+                 <div style="color: #ffb88c; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em;">Strip Session Started</div>
+                 <div id="sv-recovery-instruction" style="color: white; font-size: 14px; font-weight: bold; margin-top: 2px;">Align the same strip here</div>
+              </div>
+           </div>
+           
+           <div style="background: rgba(26,10,18,0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,184,140,0.2); border-radius: 16px; padding: 12px;">
+              <div id="sv-recovery-human-state" style="color: white; font-size: 13px; font-weight: 600; margin-bottom: 6px; text-align: center;">Finding medicine...</div>
+              <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;">
+                 <div id="sv-recovery-progress" style="width: 0%; height: 100%; background: #10b981; transition: width 0.3s;"></div>
+              </div>
+           </div>
+        </div>
+
+        <!-- Intrusion Dialog -->
+        <div id="sv-intrusion-dialog" style="position: absolute; inset: 0; background: rgba(5,2,3,0.95); z-index: 80; display: none; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(8px); padding: 24px; text-align: center;">
+           <div style="font-size: 40px; margin-bottom: 12px;">👨‍⚕️</div>
+           <h3 style="color: white; font-size: 18px; font-weight: 700; margin-bottom: 8px;">Different Strip Detected</h3>
+           <p style="color: #ccc; font-size: 14px; margin-bottom: 24px;">This looks like a different medicine strip. What would you like to do?</p>
+           <div style="display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 260px;">
+              <button id="sv-intrusion-continue" style="padding: 14px; border-radius: 12px; background: rgba(26,10,18,0.8); border: 1px solid #ffb88c; color: #ffb88c; font-weight: bold; cursor: pointer;">Continue current scan</button>
+              <button id="sv-intrusion-new" style="padding: 14px; border-radius: 12px; background: #10b981; border: none; color: white; font-weight: bold; cursor: pointer;">Start new scan</button>
+           </div>
         </div>
 
         <div id="sv-processing-overlay" style="position: absolute; inset: 0; background: rgba(5,2,3,0.95); backdrop-filter: blur(8px); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 60;">
@@ -184,18 +215,32 @@ export default class ScanView {
       </div>
 
       <div id="sv-result-sheet" style="position: fixed; left: 0; right: 0; bottom: 0; z-index: 100; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1); border-radius: 24px 24px 0 0; background: rgba(26,10,18,0.7); backdrop-filter: blur(24px); border-top: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; max-height: 80vh; box-shadow: 0 -10px 40px rgba(0,0,0,0.7);">
-        <div style="padding: 14px 20px 10px; display: flex; justify-content: space-between; align-items: center;">
-          <div>
-            <div style="font-size: 11px; color: #7f2f5d; font-family: monospace; text-transform: uppercase;">Locked Match</div>
+        
+        <!-- Confirmation Sub-Sheet -->
+        <div id="sv-confirm-dialog" style="padding: 20px; text-align: center; display: none; flex-direction: column; align-items: center; gap: 16px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+           <div style="font-size: 13px; color: #ffb88c; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Possible Match</div>
+           <div id="sv-confirm-name" style="font-size: 24px; font-weight: 800; color: white;">Dolo 650</div>
+           <div style="font-size: 15px; color: #ccc;">Does this look correct?</div>
+           <div style="display: flex; gap: 12px; width: 100%;">
+             <button id="sv-confirm-yes" style="flex: 1; padding: 14px; border-radius: 12px; background: #10b981; color: white; font-weight: bold; border: none; cursor: pointer;">Yes</button>
+             <button id="sv-confirm-no" style="flex: 1; padding: 14px; border-radius: 12px; background: rgba(239,68,68,0.2); color: #ef4444; font-weight: bold; border: 1px solid rgba(239,68,68,0.5); cursor: pointer;">No</button>
+           </div>
+        </div>
+
+        <div id="sv-final-result-content" style="display: flex; flex-direction: column; flex: 1; opacity: 0; pointer-events: none; transition: opacity 0.3s;">
+          <div style="padding: 14px 20px 10px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-size: 11px; color: #7f2f5d; font-family: monospace; text-transform: uppercase;">Locked Match</div>
             <div id="sv-result-name" style="font-size: 20px; font-weight: 800; color: white;"></div>
           </div>
           <div id="sv-result-schedule-badge" style="padding: 5px 12px; border-radius: 20px; font-size: 10px; font-weight: 700;"></div>
         </div>
-        <div style="flex: 1; overflow-y: auto; padding: 0 20px 20px;">
-          <div id="sv-result-dosage-row" style="display: flex; gap: 10px; margin-bottom: 24px;"></div>
-          <div style="display: flex; gap: 10px;">
-            <button id="sv-result-add" style="flex: 1; padding: 14px; border-radius: 14px; background: linear-gradient(135deg, #7f2f5d, #4a1532); border: 1px solid rgba(255,184,140,0.2); color: white; font-weight: 700;">Add to Medications</button>
-            <button id="sv-result-retry" style="padding: 14px 16px; border-radius: 14px; background: rgba(26,10,18,0.8); border: 1px solid rgba(255,184,140,0.15); color: rgba(255,184,140,0.7);">Retry</button>
+          <div style="flex: 1; overflow-y: auto; padding: 0 20px 20px;">
+            <div id="sv-result-dosage-row" style="display: flex; gap: 10px; margin-bottom: 24px;"></div>
+            <div style="display: flex; gap: 10px;">
+              <button id="sv-result-add" style="flex: 1; padding: 14px; border-radius: 14px; background: linear-gradient(135deg, #7f2f5d, #4a1532); border: 1px solid rgba(255,184,140,0.2); color: white; font-weight: 700;">Add to Medications</button>
+              <button id="sv-result-retry" style="padding: 14px 16px; border-radius: 14px; background: rgba(26,10,18,0.8); border: 1px solid rgba(255,184,140,0.15); color: rgba(255,184,140,0.7);">Retry</button>
+            </div>
           </div>
         </div>
       </div>
@@ -204,7 +249,7 @@ export default class ScanView {
 
   _cacheElements() {
     this._video           = this.container.querySelector('#sv-video');
-    this._captureCanvas   = this.container.querySelector('#sv-capture-canvas'); // Appended
+    this._captureCanvas   = this.container.querySelector('#sv-capture-canvas');
     this._particleHost    = this.container.querySelector('#sv-particle-host');
     this._confRing        = this.container.querySelector('#sv-confidence-ring');
     this._confText        = this.container.querySelector('#sv-confidence-text');
@@ -216,7 +261,6 @@ export default class ScanView {
     this._resultAdd       = this.container.querySelector('#sv-result-add');
     this._resultRetry     = this.container.querySelector('#sv-result-retry');
     
-    // --- APPENDED: Cached Elements ---
     this._torchBtn        = this.container.querySelector('#sv-torch');
     this._switchBtn       = this.container.querySelector('#sv-cam-switch');
     this._galleryBtn      = this.container.querySelector('#sv-gallery');
@@ -227,44 +271,72 @@ export default class ScanView {
     this._statusText      = this.container.querySelector('#sv-status-text');
     this._camErrorOverlay = this.container.querySelector('#sv-camera-error');
     this._retryCamBtn     = this.container.querySelector('#sv-retry-cam');
+
+    // Smart Scan Recovery UI Elements
+    this._intentOverlay = this.container.querySelector('#sv-intent-overlay');
+    this._intentBtns = this.container.querySelectorAll('.sv-intent-btn');
+    this._recoveryOverlay = this.container.querySelector('#sv-recovery-overlay');
+    this._recoveryThumb = this.container.querySelector('#sv-recovery-thumb');
+    this._recoveryInstruction = this.container.querySelector('#sv-recovery-instruction');
+    this._recoveryHumanState = this.container.querySelector('#sv-recovery-human-state');
+    this._recoveryProgress = this.container.querySelector('#sv-recovery-progress');
+    this._ghostCanvas = this.container.querySelector('#sv-ghost-canvas');
+    this._confirmDialog = this.container.querySelector('#sv-confirm-dialog');
+    this._confirmName = this.container.querySelector('#sv-confirm-name');
+    this._confirmYes = this.container.querySelector('#sv-confirm-yes');
+    this._confirmNo = this.container.querySelector('#sv-confirm-no');
+    this._finalResultContent = this.container.querySelector('#sv-final-result-content');
+    
+    this._intrusionDialog = this.container.querySelector('#sv-intrusion-dialog');
+    this._intrusionContinue = this.container.querySelector('#sv-intrusion-continue');
+    this._intrusionNew = this.container.querySelector('#sv-intrusion-new');
   }
 
   _attachListeners() {
     this._resultAdd.addEventListener('click', async () => {
-      const ocrResult = {
-        rawText: this.currentResults?.rawText || '',
-        matchedDrugs: this.currentResults?.bestMatch ? [this.currentResults.bestMatch.name] : [],
-        capturedImageBlob: this.currentResults?.croppedBlob ?? null
-      };
-
-      const conf = this.currentResults?.confidence || 100;
-      let finalDrugs = ocrResult.matchedDrugs;
-
-      if (conf < 75) {
-         const userConfirmed = await this._showConfidenceValidationModal(finalDrugs, conf);
-         if (!userConfirmed) return;
-         finalDrugs = userConfirmed;
-      }
-      ocrResult.matchedDrugs = finalDrugs;
-
-      if (finalDrugs.length > 0) {
-         const activeMeds = await db.medications.filter(m => m.active && m.userId === state.user?.uid).toArray();
-         const drugList = [...activeMeds.map(m => m.name), ...finalDrugs];
-         
-         await interactionGraph.initialize();
-         const interactions = interactionGraph.findInteractions(drugList);
-         const critical = interactions.find(i => i.severity === 'severe');
-         
-         if (critical) {
-             const override = await this._showDDIModal(critical);
-             if (!override) return;
-         }
-      }
-
-      this._navigateToAdd(ocrResult);
+      await this.resultController.handleResultAdd();
     });
+
+    this._intentBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.target;
+        this.sessionManager.startLiveScan(target);
+        this._intentOverlay.style.display = 'none';
+      });
+    });
+
+    if (this._confirmYes) {
+      this._confirmYes.addEventListener('click', () => {
+         const drugName = this._confirmName.textContent;
+         this.confirmationEngine.logConfirmation(drugName, {}, true);
+         this._confirmDialog.style.display = 'none';
+         this._finalResultContent.style.opacity = '1';
+         this._finalResultContent.style.pointerEvents = 'auto';
+      });
+    }
+
+    if (this._confirmNo) {
+      this._confirmNo.addEventListener('click', () => {
+         const drugName = this._confirmName.textContent;
+         this.confirmationEngine.logConfirmation(drugName, {}, false);
+         this._confirmDialog.style.display = 'none';
+         this._resultRetry.click();
+      });
+    }
+
+    if (this._intrusionContinue) {
+       this._intrusionContinue.addEventListener('click', () => {
+           this._intrusionDialog.style.display = 'none';
+       });
+       this._intrusionNew.addEventListener('click', () => {
+           this._intrusionDialog.style.display = 'none';
+           this._resultRetry.click();
+       });
+    }
+
     this._resultRetry.addEventListener('click', () => {
       this._resultSheet.style.transform = 'translateY(100%)';
+      this.pipeline.recordFailure(this.pipeline.activeSessionId || 'default-session', 'USER_RETRY');
       this.pipeline.clearMemory();
       this.confidenceTracker = 0;
       this._setState('IDLE');
@@ -272,7 +344,7 @@ export default class ScanView {
       this.particles.forEach(p => p.el.remove());
       this.particles = [];
       this._updateConfidenceUI();
-      if(this._video) this._video.play(); 
+      if (this._video) this._video.play(); 
     });
 
     this._video.addEventListener('loadedmetadata', () => {
@@ -280,7 +352,6 @@ export default class ScanView {
       this._startRenderLoop();
     });
 
-    // --- APPENDED: Hardware & Gallery Listeners ---
     this._torchBtn.addEventListener('click', () => this._toggleTorch());
     this._switchBtn.addEventListener('click', () => this._switchCamera());
     
@@ -294,9 +365,8 @@ export default class ScanView {
     this._galleryBtn.addEventListener('click', () => this._galleryInput.click());
     this._galleryInput.addEventListener('change', (e) => this._handleGalleryUpload(e));
     
-    // Tap radar to force manual scan focus
     this._autoCenter.addEventListener('click', () => {
-       if(this.state !== 'RESULT' && !this.pipeline.isProcessing) {
+       if (this.state !== 'RESULT' && !this.pipeline.isProcessing) {
           this.confidenceTracker = Math.min(100, this.confidenceTracker + 20);
           this._updateConfidenceUI();
           this._runContinuousScan();
@@ -310,7 +380,6 @@ export default class ScanView {
       }
     });
 
-    // Handle OS suspension/backgrounding
     this._visibilityHandler = () => {
       if (document.hidden) {
         if (this.animFrameId) cancelAnimationFrame(this.animFrameId);
@@ -323,142 +392,61 @@ export default class ScanView {
     document.addEventListener('visibilitychange', this._visibilityHandler);
   }
 
-  // --- APPENDED: Hardware Methods ---
-  async _startCamera() {
-    try {
-      if (this.stream) this.stream.getTracks().forEach(t => t.stop());
-      this.stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: this.facingMode }, width: { ideal: 1280 }, height: { ideal: 720 } }, 
-        audio: false
-      });
-      const tracks = this.stream.getVideoTracks();
-      if (tracks.length > 0) this.videoTrack = tracks[0];
-      this._video.srcObject = this.stream;
-    } catch (err) { 
-      console.warn('Camera blocked', err); 
-      this._statusText.textContent = 'CAMERA BLOCKED';
-      this._statusText.style.color = '#ef4444';
-      if (this._camErrorOverlay) this._camErrorOverlay.style.display = 'flex';
-    }
+  // Delegation methods pointing to Sub-Controllers
+  _startCamera() {
+    return this.cameraController.startCamera();
   }
 
-  async _switchCamera() {
-    this.facingMode = this.facingMode === 'environment' ? 'user' : 'environment';
-    this.torchOn = false;
-    this._torchBtn.style.color = 'rgba(255,184,140,0.45)';
-    this._torchBtn.style.background = 'rgba(26,10,18,0.8)';
-    await this._startCamera();
+  _switchCamera() {
+    return this.cameraController.switchCamera();
   }
 
-  async _toggleTorch() {
-    if (!this.videoTrack) return;
-    const capabilities = this.videoTrack.getCapabilities?.();
-    if (capabilities?.torch) {
-      this.torchOn = !this.torchOn;
-      await this.videoTrack.applyConstraints({ advanced: [{ torch: this.torchOn }] });
-      this._torchBtn.style.color = this.torchOn ? '#0a0407' : 'rgba(255,184,140,0.45)';
-      this._torchBtn.style.background = this.torchOn ? '#ffb88c' : 'rgba(26,10,18,0.8)';
-    }
+  _toggleTorch() {
+    return this.cameraController.toggleTorch();
   }
 
-  // --- APPENDED: Gallery Processing Methods ---
   _handleGalleryUpload(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    
-    const img = new Image();
-    img.onload = async () => {
-      // Pause live camera
-      if (this._video) this._video.pause();
-      this._setState('VERIFYING'); // Lock the auto-scanner loop
-      
-      this._showProcessingOverlay('Importing Image…', 'Analyzing high-res photo');
-      
-      this._captureCanvas.width = img.width;
-      this._captureCanvas.height = img.height;
-      const ctx = this._captureCanvas.getContext('2d');
-      ctx.drawImage(img, 0, 0);
-
-      await this._runGalleryPipeline();
-    };
-    img.src = URL.createObjectURL(file);
+    this.cameraController.handleGalleryUpload(e);
   }
 
-  _showProcessingOverlay(title, logMsg) {
-    this._procOverlay.style.display = 'flex';
-    this._phaseLabel.textContent = title;
-    this._terminalLog.innerHTML = '';
-    this._appendLog(logMsg);
+  _updateConfidenceUI() {
+    this.overlay.updateConfidenceUI();
+  }
+
+  _updateParticles() {
+    this.overlay.updateParticles();
+  }
+
+  _spawnPinnedParticles(bbox) {
+    this.overlay.spawnPinnedParticles(bbox);
   }
 
   _appendLog(msg) {
-    if (this._terminalLog) {
-      const line = document.createElement('div');
-      line.textContent = `> ${msg}`;
-      this._terminalLog.appendChild(line);
-      this._terminalLog.scrollTop = this._terminalLog.scrollHeight;
-    }
-  }
-
-  _hideProcessingOverlay() { 
-    this._procOverlay.style.display = 'none'; 
-  }
-
-  async _runGalleryPipeline() {
-    try {
-      this._appendLog('Applying Adaptive Binarization Matrix...');
-      
-      const data = await this.pipeline.processFrame(this._captureCanvas, 1.0, true);
-      
-      await new Promise(r => setTimeout(r, 600)); // UX buffer
-      this._hideProcessingOverlay();
-
-      if (data && (data.state === 'VERIFYING' || data.bestMatch)) {
-        this.currentResults = data;
-        this.confidenceTracker = 100;
-        this._updateConfidenceUI();
-        this._setState('RESULT');
-      } else {
-        // Fallback if gallery image failed
-        this._setState('IDLE');
-        if(this._video) this._video.play();
-        this._statusText.textContent = 'NO MATCH FOUND';
-        this._statusText.style.color = '#ef4444';
-        setTimeout(() => {
-           this._setState('HUNTING');
-        }, 3000);
-      }
-    } catch (err) {
-      console.error(err);
-      this._hideProcessingOverlay();
-      this._setState('IDLE');
-      if(this._video) this._video.play();
-    }
+    this.overlay.appendLog(msg);
   }
 
   _showGalleryPrompt() {
-      this.galleryPromptShown = true;
-      const prompt = document.createElement('div');
-      prompt.style.cssText = `
-          position: absolute; top: 80px; left: 50%; transform: translateX(-50%);
-          background: rgba(5,2,3,0.85); border: 1px solid rgba(255,184,140,0.4);
-          color: #ffb88c; padding: 12px 20px; border-radius: 20px; font-size: 12px;
-          z-index: 80; backdrop-filter: blur(8px); display: flex; align-items: center; gap: 10px;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.5); cursor: pointer;
-      `;
-      prompt.innerHTML = `
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          Can't read the label? Try uploading a photo.
-      `;
-      prompt.addEventListener('click', () => {
-          prompt.remove();
-          this._galleryInput.click();
-      });
-      this.container.appendChild(prompt);
-      setTimeout(() => { if (prompt.parentNode) prompt.remove(); }, 10000);
+    this.galleryPromptShown = true;
+    const prompt = document.createElement('div');
+    prompt.style.cssText = `
+        position: absolute; top: 80px; left: 50%; transform: translateX(-50%);
+        background: rgba(5,2,3,0.85); border: 1px solid rgba(255,184,140,0.4);
+        color: #ffb88c; padding: 12px 20px; border-radius: 20px; font-size: 12px;
+        z-index: 80; backdrop-filter: blur(8px); display: flex; align-items: center; gap: 10px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5); cursor: pointer;
+    `;
+    prompt.innerHTML = `
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        Can't read the label? Try uploading a photo.
+    `;
+    prompt.addEventListener('click', () => {
+        prompt.remove();
+        this._galleryInput.click();
+    });
+    this.container.appendChild(prompt);
+    setTimeout(() => { if (prompt.parentNode) prompt.remove(); }, 10000);
   }
 
-  // --- CORE LOOP ---
   _startRenderLoop() {
     this._renderLoop();
   }
@@ -476,312 +464,131 @@ export default class ScanView {
 
   async _runContinuousScan() {
     if (this.state === 'RESULT' || !this.cameraReady || !this.pipeline.isReady) return;
+    if (this.sessionManager.state === 'INIT') return; // Block scan until user selects intent
 
     if (this.state === 'IDLE') this._setState('HUNTING');
 
-    const data = await this.pipeline.processFrame(this._video, 0.5);
-    if (!data) return;
+    const matchResult = await this.pipeline.processFrame(this._video, 0.5);
+    if (!matchResult) return;
 
-    if (data.state === 'ERROR' && data.error === 'NO_TEXT') {
-        this.confidenceTracker = Math.max(0, this.confidenceTracker - 10);
-        this._updateConfidenceUI();
-        this._statusText.textContent = 'NO TEXT DETECTED';
-        this._statusText.style.color = '#ef4444';
-        if (!this.galleryPromptShown) this._showGalleryPrompt();
+    // Pass data to the Session Manager
+    const confidence = matchResult.state === 'ERROR' ? 0 : matchResult.confidence || 0;
+    const sessionAction = this.sessionManager.addFrame(matchResult, confidence);
+    
+    // Update Recovery UI if in recovery mode
+    if (this.sessionManager.state === 'RECOVERY') {
+       if (this._recoveryOverlay.style.display !== 'flex') {
+           this._recoveryOverlay.style.display = 'flex';
+           // Grab ghost frame
+           const ctx = this._ghostCanvas.getContext('2d');
+           this._ghostCanvas.width = this._video.videoWidth;
+           this._ghostCanvas.height = this._video.videoHeight;
+           ctx.drawImage(this._video, 0, 0);
+           this._ghostCanvas.style.display = 'block';
+       }
+       
+       const humanState = this.confidenceEngine.getHumanReadableState(confidence, 'RECOVERY');
+       this._recoveryHumanState.textContent = humanState;
+       this._recoveryProgress.style.width = `${Math.min(100, (this.sessionManager.frames.length / 10) * 100)}%`;
+       
+       const cCheck = this.consistencyEngine.checkConsistency(matchResult);
+       if (!cCheck.consistent) {
+           console.warn("Intrusion detected: ", cCheck.reason);
+           if (this._intrusionDialog && this._intrusionDialog.style.display !== 'flex') {
+               this._intrusionDialog.style.display = 'flex';
+           }
+       }
+    } else {
+       this._recoveryOverlay.style.display = 'none';
+       this._ghostCanvas.style.display = 'none';
+    }
+
+    if (matchResult.state === 'ERROR') {
+        if (matchResult.error === 'NO_TEXT') {
+            this.confidenceTracker = Math.max(0, this.confidenceTracker - 10);
+            this._updateConfidenceUI();
+            this._statusText.textContent = 'NO TEXT DETECTED';
+            this._statusText.style.color = '#ef4444';
+            if (!this.galleryPromptShown) this._showGalleryPrompt();
+        }
         return;
     }
 
-    if (data.state === 'HUNTING') {
+    if (this._terminalLog && matchResult.diagnosticReport) {
+      this._terminalLog.innerHTML = '';
+      const diag = matchResult.diagnosticReport;
+      const breakdown = diag.confidenceBreakdown || {};
+      const pack = diag.packagingProfile || {};
+      const boost = diag.sessionBoostApplied || 0;
+
+      this.overlay.appendLog(`Accumulated Frames: ${diag.processedFramesCount || 1}/30`);
+      this.overlay.appendLog(`Stabilization State: ${matchResult.state}`);
+      this.overlay.appendLog(`Type: ${pack.packagingType || 'unknown'} (layout conf: ${Math.round(pack.layoutConfidence * 100)}%)`);
+      
+      if (boost > 0) {
+        this.overlay.appendLog(`⚡ Recognition Boost: +${boost}%`);
+      }
+
+      this.overlay.appendLog(`Confidence: ${matchResult.confidence}% (Match:${Math.round(breakdown.datasetContribution || 0)} | Temp:${Math.round(breakdown.fusionContribution || 0)} | OCR:${Math.round(breakdown.ocrContribution || 0)} | Dose:${Math.round(breakdown.dosageContribution || 0)} | Mfg:${Math.round(breakdown.mfgContribution || 0)} | Pack:${Math.round(breakdown.packagingContribution || 0)})`);
+
+      if (matchResult.bestMatch) {
+        this.overlay.appendLog(`Matching Drug: ${matchResult.bestMatch.name}`);
+      }
+
+      const tips = diag.recommendations || [];
+      for (const tip of tips) {
+        this.overlay.appendLog(`Tip: ${tip}`);
+      }
+    }
+
+    if (matchResult.state === 'HUNTING') {
         this._setState('HUNTING');
         this.confidenceTracker = Math.max(0, this.confidenceTracker - 10);
         
         if (this.huntStartTime === 0) {
             this.huntStartTime = Date.now();
         } else if (Date.now() - this.huntStartTime > 5000 && !this.galleryPromptShown) {
-            this._showGalleryPrompt();
+            // Replaced gallery prompt with recovery mode handling
         }
-    } else if (data.state === 'LOCKING') {
-        this._setState('LOCKING');
-        this.huntStartTime = 0;
-        this.confidenceTracker = Math.min(90, data.consecutiveFrames * 20);
-    } else if (data.state === 'VERIFYING') {
+    } else if (matchResult.state === 'VERIFYING') {
         this._setState('VERIFYING');
         this.huntStartTime = 0;
-        this.confidenceTracker = 100;
-        this.currentResults = data;
+        this.confidenceTracker = matchResult.confidence;
+    } else if (matchResult.state === 'ACCEPTED' || sessionAction?.action === 'TRANSITION_TO_CONFIRMATION') {
+        this._setState('VERIFYING');
+        this.huntStartTime = 0;
         
-        if (data.bbox) {
-            this._spawnPinnedParticles(data.bbox);
-        }
-
-        setTimeout(() => {
-            if (this.state === 'VERIFYING') {
-                this._setState('RESULT');
+        const validDrug = matchResult.bestMatch || (this.sessionManager.frames.length > 0 ? this.sessionManager.frames[this.sessionManager.frames.length-1].data.bestMatch : null);
+        if (validDrug) {
+            this.confidenceTracker = 100;
+            this.currentResults = matchResult;
+            
+            if (matchResult.bbox) {
+                this._spawnPinnedParticles(matchResult.bbox);
             }
-        }, 300);
-    }
 
-      this._updateConfidenceUI();
-  }
+            // Show confirmation dialog before final result
+            if (this._confirmDialog) {
+                this._confirmDialog.style.display = 'flex';
+                this._confirmName.textContent = validDrug.name || "Unknown Medicine";
+                this._finalResultContent.style.opacity = '0';
+                this._finalResultContent.style.pointerEvents = 'none';
+            }
 
-  _updateConfidenceUI() {
-    const offset = 283 - (this.confidenceTracker / 100) * 283;
-    this._confRing.style.strokeDashoffset = offset;
-    this._confText.textContent = `${Math.floor(this.confidenceTracker)}%`;
-    
-    if (this.confidenceTracker > 50) {
-      this._autoCenter.style.background = 'rgba(16,185,129,0.3)';
-      this._autoCenter.style.borderColor = 'rgba(16,185,129,0.8)';
-    } else {
-      this._autoCenter.style.background = 'rgba(16,185,129,0.1)';
-      this._autoCenter.style.borderColor = 'rgba(16,185,129,0.3)';
-    }
-  }
-
-  _triggerAutoLock() {
-    this.isAutoLocked = true;
-    this._video.pause(); 
-    if (navigator.vibrate) navigator.vibrate([30, 50, 30]); 
-    
-    this._autoCenter.style.animation = 'pulseRing 1s ease-out forwards';
-    this._confText.textContent = 'LOCKED';
-
-    const vpRect = this.container.getBoundingClientRect();
-    for(let i=0; i<3; i++) setTimeout(() => this._emitTargetedParticleCloud(vpRect.width / 2, vpRect.height / 2, 100), i * 150);
-
-    setTimeout(() => {
-      this._showResultSheet(this.currentResults);
-    }, 500);
-  }
-
-  _emitTargetedParticleCloud(cx, cy, spread = 40) {
-    for (let i = 0; i < 15; i++) {
-      const el = document.createElement('div');
-      el.className = 'particle-dot';
-      const px = cx + (Math.random() - 0.5) * spread;
-      const py = cy + (Math.random() - 0.5) * spread;
-      const size = 3 + Math.random() * 5;
-      el.style.cssText = `
-        width: ${size}px; height: ${size}px; background: #10b981;
-        left: ${px}px; top: ${py}px; --dur: ${0.8 + Math.random()}s;
-        opacity: 0; box-shadow: 0 0 ${size * 3}px #10b981;
-      `;
-      this._particleHost.appendChild(el);
-      setTimeout(() => el.remove(), 1800);
-    }
-  }
-
-  _spawnPinnedParticles(bbox) {
-    const vpRect = this.container.getBoundingClientRect();
-    let x0, y0, x1, y1;
-    
-    if (this._video && this._video.videoWidth > 0) {
-      const vW = this._video.videoWidth;
-      const vH = this._video.videoHeight;
-      const scale = Math.max(vpRect.width / vW, vpRect.height / vH);
-      const scaledW = vW * scale;
-      const scaledH = vH * scale;
-      const offsetX = (vpRect.width - scaledW) / 2;
-      const offsetY = (vpRect.height - scaledH) / 2;
-
-      x0 = bbox.x0 * scale + offsetX;
-      y0 = bbox.y0 * scale + offsetY;
-      x1 = bbox.x1 * scale + offsetX;
-      y1 = bbox.y1 * scale + offsetY;
-    } else {
-      x0 = bbox.x0; y0 = bbox.y0; x1 = bbox.x1; y1 = bbox.y1;
-    }
-    
-    this.targetBBox = { x0, y0, x1, y1, width: x1 - x0, height: y1 - y0 };
-
-    for (let i = 0; i < 40; i++) {
-      const p = {
-        el: document.createElement('div'),
-        offsetX: Math.random() * this.targetBBox.width,
-        offsetY: Math.random() * this.targetBBox.height,
-        life: 1.0,
-        decay: 0.015 + Math.random() * 0.02
-      };
-      p.el.className = 'particle-dot';
-      const size = 3 + Math.random() * 5;
-      p.el.style.cssText = `
-        position: absolute;
-        width: ${size}px; height: ${size}px;
-        background: #10b981;
-        border-radius: 50%;
-        pointer-events: none;
-        box-shadow: 0 0 ${size * 3}px #10b981;
-        z-index: 100;
-      `;
-      this._particleHost.appendChild(p.el);
-      this.particles.push(p);
-    }
-  }
-
-  _updateParticles() {
-    if (!this.targetBBox) return;
-
-    for (let i = this.particles.length - 1; i >= 0; i--) {
-      const p = this.particles[i];
-      p.life -= p.decay;
-      
-      if (p.life <= 0) {
-        p.el.remove();
-        this.particles.splice(i, 1);
-        continue;
-      }
-
-      const currentX = this.targetBBox.x0 + p.offsetX;
-      const currentY = this.targetBBox.y0 + p.offsetY;
-
-      p.el.style.left = `${currentX}px`;
-      p.el.style.top = `${currentY}px`;
-      p.el.style.opacity = p.life;
-      p.el.style.transform = `scale(${p.life})`;
-    }
-  }
-
-  _showResultSheet(data) {
-    const drug = data.bestMatch;
-    const sched = SCHEDULE_INFO[drug.schedule] || SCHEDULE_INFO['OTC'];
-
-    this._resultName.textContent = drug.name;
-    this._resultSched.textContent = drug.schedule || 'OTC';
-    this._resultSched.style.color = sched.color;
-    this._resultSched.style.background = `${sched.color}22`;
-    
-    this._resultDosRow.innerHTML = '';
-    if (data.dosage) {
-      this._resultDosRow.innerHTML += `<div style="padding: 6px 12px; border-radius: 20px; background: rgba(255,184,140,0.12); color: #ffb88c; font-size: 12px; font-family: monospace;">💊 ${data.dosage}${data.unit}</div>`;
-    }
-    if (data.quantity) {
-      this._resultDosRow.innerHTML += `<div style="padding: 6px 12px; border-radius: 20px; background: rgba(16,185,129,0.12); color: #10b981; font-size: 12px; font-family: monospace;">📦 QTY: ${data.quantity}</div>`;
-    }
-    
-    this._resultSheet.style.transform = 'translateY(0)';
-  }
-
-  /**
-   * Persists the OCR results to the database and navigates to the medications list.
-   * @param {Object} ocrResult - The payload from the vision pipeline.
-   * @param {string} ocrResult.rawText - The raw string text from Tesseract.
-   * @param {string[]} ocrResult.matchedDrugs - Array of drug names identified.
-   * @param {Blob|null} ocrResult.capturedImageBlob - The cropped image blob.
-   * @returns {Promise<void>}
-   */
-  async _navigateToAdd(ocrResult) {
-    try {
-      const userId = state.get('user').uid;
-      if (!userId) throw new Error('User not authenticated.');
-
-      const record = {
-        userId: userId,
-        rawText: ocrResult.rawText || '',
-        imageBlob: ocrResult.capturedImageBlob ?? null,
-        date: new Date().toISOString().split('T')[0],
-        doctorName: null
-      };
-
-      const prescriptionId = await db.prescriptions.add(record);
-
-      for (const drugName of ocrResult.matchedDrugs) {
-        const exists = await db.medications.where('name').equalsIgnoreCase(drugName).first();
-        if (!exists) {
-          await db.medications.add({
-            userId: userId,
-            name: drugName,
-            dosage: null,
-            frequency: null,
-            startDate: new Date().toISOString().split('T')[0],
-            endDate: null,
-            notes: 'Auto-detected via OCR scan',
-            active: true
-          });
+            setTimeout(() => {
+                if (this.state === 'VERIFYING') {
+                    this._setState('RESULT');
+                }
+            }, 300);
+        } else {
+            this._setState('HUNTING');
+            this._statusText.textContent = 'UNVERIFIED DRUG DATA';
+            this._statusText.style.color = '#ef4444';
+            this.confidenceTracker = Math.max(0, this.confidenceTracker - 30);
         }
-      }
-    } catch (err) {
-      console.error('[Scan] Failed to save prescription:', err);
     }
-    
-    this.destroy();
-    window.location.hash = '#/medications';
-  }
 
-  _showConfidenceValidationModal(drugs, confidence) {
-      return new Promise((resolve) => {
-          const div = document.createElement('div');
-          const drugStr = drugs.join(', ');
-          div.className = 'fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4';
-          div.innerHTML = `
-            <div class="bg-[var(--color-surface-elevated)]/60 backdrop-blur-2xl border border-[var(--color-border)] rounded-[2rem] p-6 w-full max-w-sm shadow-[0_8px_32px_rgba(0,0,0,0.7)]">
-              <h2 class="text-xl font-display text-[var(--color-text-primary)] mb-2">Low Confidence Scan</h2>
-              <p class="text-xs text-[#ffb88c] mb-6 font-mono uppercase tracking-widest">Confidence Score: ${Math.floor(confidence)}%</p>
-              <div class="space-y-4">
-                <div>
-                  <label class="text-xs text-[var(--color-text-secondary)] uppercase tracking-widest font-bold ml-2 mb-1 block">Detected Text</label>
-                  <input type="text" id="conf-val" value="${drugStr}" class="w-full bg-white/5 border border-[#7f2f5d]/50 rounded-xl px-4 py-3 text-[var(--color-text-primary)] text-sm focus:outline-none focus:border-[#ffb88c]/50">
-                </div>
-              </div>
-              <div class="flex gap-3 mt-8">
-                <button id="conf-cancel" class="flex-1 py-3.5 rounded-xl border border-[#7f2f5d]/50 text-[var(--color-text-secondary)] font-bold uppercase text-xs tracking-widest hover:bg-white/5 transition-colors">Discard</button>
-                <button id="conf-save" class="flex-1 py-3.5 rounded-xl bg-gradient-to-r from-[#7f2f5d] to-[#ca5229] text-[var(--color-text-primary)] font-bold uppercase text-xs tracking-widest shadow-lg shadow-[#ca5229]/20 active:scale-95 transition-transform">Accept</button>
-              </div>
-            </div>
-          `;
-          document.body.appendChild(div);
-
-          div.querySelector('#conf-cancel').onclick = () => {
-              div.remove();
-              resolve(null);
-          };
-          div.querySelector('#conf-save').onclick = () => {
-              const val = div.querySelector('#conf-val').value.trim();
-              div.remove();
-              resolve(val ? val.split(',').map(s => s.trim()) : []);
-          };
-      });
-  }
-
-  _showDDIModal(interaction) {
-      return new Promise((resolve) => {
-          window.medcareAlertLock = true;
-          const div = document.createElement('div');
-          div.className = 'fixed inset-0 z-[9999] bg-red-900/90 backdrop-blur-sm flex items-center justify-center p-4';
-          div.setAttribute('role', 'alertdialog');
-          div.setAttribute('aria-modal', 'true');
-          div.innerHTML = `
-            <div class="bg-[var(--color-surface-elevated)] border border-red-500/50 rounded-[2rem] p-6 w-full max-w-sm shadow-2xl">
-              <h2 class="text-xl font-display text-[var(--color-text-primary)] mb-2 flex items-center gap-2">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                DANGEROUS INTERACTION
-              </h2>
-              <p class="text-xs text-red-400 mb-6 font-mono uppercase tracking-widest">Severe Contraindication</p>
-              
-              <div class="bg-red-500/10 p-4 rounded-xl border border-red-500/20 mb-6">
-                <p class="text-sm font-bold text-[var(--color-text-primary)] mb-2">${interaction.drug1} + ${interaction.drug2}</p>
-                <p class="text-xs text-red-200">${interaction.description}</p>
-                <p class="text-xs text-red-400 mt-2 font-bold">${interaction.recommendation}</p>
-              </div>
-
-              <div class="flex flex-col gap-3">
-                <button id="ddi-cancel" class="w-full py-3.5 rounded-xl bg-red-600 text-[var(--color-text-primary)] font-bold uppercase text-xs tracking-widest shadow-lg shadow-red-900/20 active:scale-95 transition-transform">Cancel Addition</button>
-                <button id="ddi-override" class="w-full py-3.5 rounded-xl border border-red-500/30 text-red-400 font-bold uppercase text-xs tracking-widest hover:bg-red-500/10 transition-colors">Override & Add Anyway</button>
-              </div>
-            </div>
-          `;
-          document.body.appendChild(div);
-
-          div.querySelector('#ddi-cancel').onclick = () => {
-              window.medcareAlertLock = false;
-              div.remove();
-              resolve(false);
-          };
-          div.querySelector('#ddi-override').onclick = () => {
-              window.medcareAlertLock = false;
-              div.remove();
-              resolve(true);
-          };
-      });
+    this._updateConfidenceUI();
   }
 
   destroy() {
@@ -791,4 +598,3 @@ export default class ScanView {
     if (this.pipeline) this.pipeline.clearMemory();
   }
 }
-

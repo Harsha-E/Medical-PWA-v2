@@ -22,19 +22,31 @@ class State {
     this._listeners = [];
 
     // Initialize Theme
-    const storedTheme = localStorage.getItem('medcare_theme');
-    const systemTheme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-    this.theme = storedTheme || systemTheme;
-    document.documentElement.setAttribute('data-theme', this.theme);
+    this.themePref = localStorage.getItem('medcare_theme_pref') || 'system';
+    this._applyThemePref();
+
+    // Listen for OS theme changes
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+      if (this.themePref === 'system') this._applyThemePref();
+    });
   }
 
   // ─── Theme Management ────────────────────────────────────────────────────────
   
-  toggleTheme() {
-    this.theme = this.theme === 'light' ? 'dark' : 'light';
-    localStorage.setItem('medcare_theme', this.theme);
-    document.documentElement.setAttribute('data-theme', this.theme);
+  setThemePreference(pref) {
+    this.themePref = pref;
+    localStorage.setItem('medcare_theme_pref', pref);
+    this._applyThemePref();
     this._notify();
+  }
+
+  _applyThemePref() {
+    if (this.themePref === 'system') {
+      this.theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    } else {
+      this.theme = this.themePref;
+    }
+    document.documentElement.setAttribute('data-theme', this.theme);
   }
 
   // ─── Subscription ────────────────────────────────────────────────────────────

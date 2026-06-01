@@ -11,7 +11,7 @@ import { escapeHTML } from '../core/utils.js';
 export default class MedicationsView {
   constructor() {
     this.container = document.createElement('div');
-    this.container.className = 'viewport-container pb-safe min-h-screen text-gray-100';
+    this.container.className = 'viewport-container pb-safe min-h-screen text-text-primary';
   }
 
   async render() {
@@ -29,32 +29,16 @@ export default class MedicationsView {
       const activeMeds = allMeds.filter(m => m.active !== false);
 
       this.container.innerHTML = `
-        <div class="max-w-7xl mx-auto w-full px-4 md:px-6 pt-6 md:pt-8 pb-28">
-          
-          <header class="view-header">
-            <div>
-              <h1 class="text-3xl font-display text-[var(--color-text-primary)] tracking-tight mb-1">Medications</h1>
-              <p class="text-sm font-mono text-[var(--color-text-secondary)]">${activeMeds.length} Active Prescriptions</p>
-            </div>
-            
-            <div class="flex gap-2">
-              <a href="#/scan" class="w-12 h-12 rounded-full bg-[var(--color-surface-elevated)]/40 backdrop-blur-xl border border-[var(--color-border)] flex items-center justify-center text-[#ffb88c] hover:bg-white/5 transition-colors shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h2M21 7V5a2 2 0 00-2-2h-2M3 17v2a2 2 0 002 2h2M21 17v2a2 2 0 01-2 2h-2M9 9h6v6H9z"></path></svg>
-              </a>
-              <a href="#/add-medication" class="w-12 h-12 rounded-full bg-gradient-to-br from-[#7f2f5d] to-[#4a1532] border border-[#ffb88c]/30 flex items-center justify-center text-[#ffd9b5] hover:brightness-110 transition-all shadow-[0_0_15px_rgba(127,47,93,0.5)]">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg>
-              </a>
-            </div>
-          </header>
+        <div class="max-w-7xl mx-auto w-full px-4 md:px-6 pt-[112px] pb-28">
 
-          <a href="${activeMeds.length >= 2 ? '#/interaction-checker' : 'javascript:void(0)'}" class="block mb-6 ${activeMeds.length >= 2 ? 'bg-amber-900/20 border-amber-500/30 hover:bg-amber-900/30' : 'bg-[var(--color-surface-elevated)]/40 backdrop-blur-xl border-[var(--color-border)] opacity-60 cursor-not-allowed'} border rounded-2xl p-4 flex items-center justify-between transition-colors shadow-[0_8px_32px_rgba(0,0,0,0.5)]" ${activeMeds.length < 2 ? 'onclick="alert(\\\'Add at least 2 medications to check interactions.\\\')"' : ''}>
+          <a href="${activeMeds.length >= 2 ? '#/interaction-checker' : 'javascript:void(0)'}" class="block mb-6 ${activeMeds.length >= 2 ? 'bg-amber-900/20 border-amber-500/30 hover:bg-amber-900/30' : 'bg-surface-elevated/40 backdrop-blur-xl border-border opacity-60 cursor-not-allowed'} border rounded-2xl p-4 flex items-center justify-between transition-colors shadow-[0_8px_32px_rgba(0,0,0,0.5)]" ${activeMeds.length < 2 ? 'onclick="alert(\\\'Add at least 2 medications to check interactions.\\\')"' : ''}>
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-full ${activeMeds.length >= 2 ? 'bg-amber-500/20 text-amber-400' : 'bg-gray-800 text-[var(--color-text-muted)]'} flex items-center justify-center">
+              <div class="w-10 h-10 rounded-full ${activeMeds.length >= 2 ? 'bg-amber-500/20 text-amber-400' : 'bg-gray-800 text-text-muted'} flex items-center justify-center">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
               </div>
               <div>
-                <h3 class="text-sm font-bold ${activeMeds.length >= 2 ? 'text-amber-400' : 'text-[var(--color-text-secondary)]'}">Check Interactions</h3>
-                <p class="text-xs ${activeMeds.length >= 2 ? 'text-amber-500/70' : 'text-[var(--color-text-muted)]'}">${activeMeds.length >= 2 ? 'Analyze your active pharmaceutical stack' : 'Add at least 2 meds to check.'}</p>
+                <h3 class="text-sm font-bold ${activeMeds.length >= 2 ? 'text-amber-400' : 'text-text-secondary'}">Check Interactions</h3>
+                <p class="text-xs ${activeMeds.length >= 2 ? 'text-amber-500/70' : 'text-text-muted'}">${activeMeds.length >= 2 ? 'Analyze your active pharmaceutical stack' : 'Add at least 2 meds to check.'}</p>
               </div>
             </div>
             <svg class="w-5 h-5 ${activeMeds.length >= 2 ? 'text-amber-400 opacity-50' : 'text-gray-600'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
@@ -72,7 +56,7 @@ export default class MedicationsView {
     } catch (error) {
       console.error('[MedicationsView] Render Pipeline Failure:', error);
       this.container.innerHTML = `
-        <div class="max-w-2xl mx-auto w-full px-4 pt-12 text-center">
+        <div class="max-w-7xl mx-auto w-full px-4 md:px-6 pt-[112px] pb-28">
           <div class="p-4 rounded-2xl bg-red-900/30 border border-red-500/40 text-red-200 text-xs font-mono text-left">
             Structural Exception Caught: ${error.message}
           </div>
@@ -90,18 +74,18 @@ export default class MedicationsView {
 
     // WORKAROUND: Route explicitly via query parameters for clean path parameter matching
     return `
-      <a href="#/medication-detail?id=${med.id}" class="block bg-[var(--color-surface-elevated)]/40 backdrop-blur-xl border border-[var(--color-border)] hover:border-[#ffb88c]/50 rounded-2xl p-4 transition-all duration-200 hover:-translate-y-0.5 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+      <a href="#/medication-detail?id=${med.id}" class="block bg-surface-elevated/40 backdrop-blur-xl border border-border hover:border-accent-primary/50 rounded-2xl p-4 transition-all duration-200 hover:-translate-y-0.5 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
         <div class="flex justify-between items-start mb-3">
           <div>
-            <h3 class="text-base font-bold text-[var(--color-text-primary)] mb-0.5">${escapeHTML(med.name)}</h3>
-            <p class="text-xs font-mono text-[var(--color-text-secondary)]">${escapeHTML(med.dosage) || ''} ${escapeHTML(med.dosageUnit) || 'mg'}</p>
+            <h3 class="text-base font-bold text-text-primary mb-0.5">${escapeHTML(med.name)}</h3>
+            <p class="text-xs font-mono text-text-secondary">${escapeHTML(med.dosage) || ''} ${escapeHTML(med.dosageUnit) || 'mg'}</p>
           </div>
-          <span class="px-2.5 py-1 rounded-md bg-[#7f2f5d]/20 text-[#ffb88c] text-xs font-bold uppercase tracking-widest border border-[#7f2f5d]/30">
+          <span class="px-2.5 py-1 rounded-md bg-secondary/20 text-accent-primary text-xs font-bold uppercase tracking-widest border border-border">
             ${category}
           </span>
         </div>
         
-        <div class="flex items-center gap-4 text-xs text-[var(--color-text-muted)] font-mono">
+        <div class="flex items-center gap-4 text-xs text-text-muted font-mono">
           <div class="flex items-center gap-1.5">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             ${scheduleStr}
@@ -117,13 +101,13 @@ export default class MedicationsView {
 
   _getEmptyState() {
     return `
-      <div class="text-center py-12 px-6 border border-dashed border-[var(--color-border)] rounded-3xl bg-[var(--color-surface-elevated)]/40 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
-        <div class="w-16 h-16 rounded-full bg-[#7f2f5d]/10 flex items-center justify-center mx-auto mb-4 border border-[#7f2f5d]/30">
-          <svg class="w-8 h-8 text-[#ffb88c]/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+      <div class="text-center py-12 px-6 border border-dashed border-border rounded-3xl bg-surface-elevated/40 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+        <div class="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center mx-auto mb-4 border border-border">
+          <svg class="w-8 h-8 text-accent-primary/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
         </div>
-        <h3 class="text-lg font-bold text-[var(--color-text-primary)] mb-2">No Active Medications</h3>
-        <p class="text-xs text-[var(--color-text-secondary)] font-mono mb-6 max-w-xs mx-auto">Your pharmaceutical ledger is empty. Add a medication manually or scan a prescription.</p>
-        <a href="#/add-medication" class="inline-block px-6 py-3 bg-[#ca5229] hover:bg-[#ca5229]/90 text-[var(--color-text-primary)] font-bold text-xs uppercase tracking-widest rounded-xl transition-colors shadow-lg shadow-[#ca5229]/20">Add Prescription</a>
+        <h3 class="text-lg font-bold text-text-primary mb-2">No Active Medications</h3>
+        <p class="text-xs text-text-secondary font-mono mb-6 max-w-xs mx-auto">Your pharmaceutical ledger is empty. Add a medication manually or scan a prescription.</p>
+        <a href="#/add-medication" class="inline-block px-6 py-3 bg-primary hover:bg-primary/90 text-text-primary font-bold text-xs uppercase tracking-widest rounded-xl transition-colors shadow-lg shadow-primary/20">Add Prescription</a>
       </div>
     `;
   }
@@ -133,18 +117,7 @@ export default class MedicationsView {
       <div class="skeleton skeleton-card" style="height:80px; margin-bottom:12px; width:100%;"></div>
     `;
     return `
-      <div class="max-w-7xl mx-auto w-full px-4 md:px-6 pt-6 md:pt-8 pb-28">
-        <!-- Header skeleton -->
-        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:32px;">
-          <div>
-            <div class="skeleton" style="height:32px; width:160px; margin-bottom:8px;"></div>
-            <div class="skeleton" style="height:14px; width:110px;"></div>
-          </div>
-          <div style="display:flex; gap:8px;">
-            <div class="skeleton skeleton-round" style="width:48px; height:48px;"></div>
-            <div class="skeleton skeleton-round" style="width:48px; height:48px;"></div>
-          </div>
-        </div>
+      <div class="max-w-7xl mx-auto w-full px-4 md:px-6 pt-[112px] pb-28">
         <!-- Interaction banner skeleton -->
         <div class="skeleton skeleton-card" style="height:60px; margin-bottom:24px;"></div>
         <!-- Med cards -->

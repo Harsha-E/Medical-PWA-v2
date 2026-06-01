@@ -10,11 +10,11 @@ export default class OnboardingView {
     this.container.className = 'min-h-[100dvh] w-full flex flex-col items-center justify-center p-6 relative z-10';
 
     this.container.innerHTML = `
-      <div class="w-full max-w-lg p-8 rounded-3xl bg-[var(--color-surface)]/60 backdrop-blur-3xl border border-[#7f2f5d]/50 shadow-[0_20px_50px_rgba(0,0,0,0.7)] animate-fade-in-up">
-        <div class="mb-8 border-b border-[var(--color-border)] pb-6">
-          <span class="text-[#ffb88c] font-mono text-xs uppercase tracking-widest">Final Step</span>
-          <h2 class="text-3xl font-display font-semibold text-[var(--color-text-primary)] mt-2">Clinical Profile</h2>
-          <p class="text-[var(--color-text-secondary)] text-sm mt-2">Establish your biological baseline to activate the safety engine.</p>
+      <div class="w-full max-w-lg p-8 rounded-3xl bg-surface/60 backdrop-blur-3xl border border-border shadow-[0_20px_50px_rgba(0,0,0,0.7)] animate-fade-in-up">
+        <div class="mb-8 border-b border-border pb-6">
+          <span class="text-accent-primary font-mono text-xs uppercase tracking-widest">Final Step</span>
+          <h2 class="text-3xl font-display font-semibold text-text-primary mt-2">Clinical Profile</h2>
+          <p class="text-text-secondary text-sm mt-2">Establish your biological baseline to activate the safety engine.</p>
         </div>
 
         <div id="error-container" class="hidden mb-5 p-4 rounded-xl bg-red-900/20 border border-red-500/30 text-red-200 text-xs font-mono text-center"></div>
@@ -22,45 +22,45 @@ export default class OnboardingView {
         <form id="onboarding-form" class="space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label for="fullName" class="block text-xs font-mono text-[var(--color-text-muted)] uppercase mb-2 ml-1">Full Name</label>
-              <input type="text" id="fullName" autocomplete="name" required class="w-full px-4 py-3 rounded-xl bg-white/5 border border-[var(--color-border)] text-[var(--color-text-primary)] focus:border-[#ffb88c]/50 focus:outline-none">
+              <label for="fullName" class="block text-xs font-mono text-text-muted uppercase mb-2 ml-1">Full Name</label>
+              <input type="text" id="fullName" autocomplete="name" required class="w-full px-4 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
             </div>
             <div>
-              <label for="myPhone" class="block text-xs font-mono text-[var(--color-text-muted)] uppercase mb-2 ml-1">My Phone #</label>
-              <input type="tel" id="myPhone" autocomplete="tel" required class="w-full px-4 py-3 rounded-xl bg-white/5 border border-[var(--color-border)] text-[var(--color-text-primary)] focus:border-[#ffb88c]/50 focus:outline-none">
+              <label for="myPhone" class="block text-xs font-mono text-text-muted uppercase mb-2 ml-1">My Phone #</label>
+              <input type="tel" id="myPhone" autocomplete="tel" required class="w-full px-4 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
             </div>
             <div>
-              <label for="bloodType" class="block text-xs font-mono text-[var(--color-text-muted)] uppercase mb-2 ml-1">Blood Type</label>
-              <select id="bloodType" required class="w-full px-4 py-3 rounded-xl bg-white/5 border border-[var(--color-border)] text-[var(--color-text-primary)] focus:border-[#ffb88c]/50 focus:outline-none appearance-none">
-                <option value="" disabled selected class="bg-[var(--color-surface)] text-[var(--color-text-muted)]">Select</option>
-                <option value="A+" class="bg-[var(--color-surface)] text-[var(--color-text-primary)]">A+</option>
-                <option value="A-" class="bg-[var(--color-surface)] text-[var(--color-text-primary)]">A-</option>
-                <option value="B+" class="bg-[var(--color-surface)] text-[var(--color-text-primary)]">B+</option>
-                <option value="B-" class="bg-[var(--color-surface)] text-[var(--color-text-primary)]">B-</option>
-                <option value="O+" class="bg-[var(--color-surface)] text-[var(--color-text-primary)]">O+</option>
-                <option value="O-" class="bg-[var(--color-surface)] text-[var(--color-text-primary)]">O-</option>
-                <option value="AB+" class="bg-[var(--color-surface)] text-[var(--color-text-primary)]">AB+</option>
-                <option value="AB-" class="bg-[var(--color-surface)] text-[var(--color-text-primary)]">AB-</option>
+              <label for="bloodType" class="block text-xs font-mono text-text-muted uppercase mb-2 ml-1">Blood Type</label>
+              <select id="bloodType" required class="w-full px-4 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
+                <option value="" disabled selected class="bg-surface text-text-muted">Select</option>
+                <option value="A+" class="bg-surface text-text-primary">A+</option>
+                <option value="A-" class="bg-surface text-text-primary">A-</option>
+                <option value="B+" class="bg-surface text-text-primary">B+</option>
+                <option value="B-" class="bg-surface text-text-primary">B-</option>
+                <option value="O+" class="bg-surface text-text-primary">O+</option>
+                <option value="O-" class="bg-surface text-text-primary">O-</option>
+                <option value="AB+" class="bg-surface text-text-primary">AB+</option>
+                <option value="AB-" class="bg-surface text-text-primary">AB-</option>
               </select>
             </div>
             <div>
-              <label for="dob" class="block text-xs font-mono text-[var(--color-text-muted)] uppercase mb-2 ml-1">Date of Birth</label>
-              <input type="date" id="dob" autocomplete="bday" required class="w-full px-4 py-3 rounded-xl bg-white/5 border border-[var(--color-border)] text-[var(--color-text-primary)] focus:border-[#ffb88c]/50 focus:outline-none [color-scheme:dark]">
+              <label for="dob" class="block text-xs font-mono text-text-muted uppercase mb-2 ml-1">Date of Birth</label>
+              <input type="date" id="dob" autocomplete="bday" required class="w-full px-4 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2[color-scheme:dark]">
             </div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <div>
-              <label for="emergencyName" class="block text-xs font-mono text-[var(--color-text-muted)] uppercase mb-2 ml-1">Primary Responder</label>
-              <input type="text" id="emergencyName" placeholder="Name" required class="w-full px-4 py-3 rounded-xl bg-white/5 border border-[var(--color-border)] text-[var(--color-text-primary)] focus:border-[#ffb88c]/50 focus:outline-none">
+              <label for="emergencyName" class="block text-xs font-mono text-text-muted uppercase mb-2 ml-1">Primary Responder</label>
+              <input type="text" id="emergencyName" placeholder="Name" required class="w-full px-4 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
             </div>
             <div>
-              <label for="emergencyPhone" class="block text-xs font-mono text-[var(--color-text-muted)] uppercase mb-2 ml-1">Emergency Phone</label>
-              <input type="tel" id="emergencyPhone" autocomplete="tel" required class="w-full px-4 py-3 rounded-xl bg-white/5 border border-[var(--color-border)] text-[var(--color-text-primary)] focus:border-[#ffb88c]/50 focus:outline-none">
+              <label for="emergencyPhone" class="block text-xs font-mono text-text-muted uppercase mb-2 ml-1">Emergency Phone</label>
+              <input type="tel" id="emergencyPhone" autocomplete="tel" required class="w-full px-4 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
             </div>
           </div>
           
-          <button type="submit" class="w-full py-4 rounded-xl bg-linear-to-r from-[#00ff7f]/20 to-[#00ff7f]/5 border border-[#00ff7f]/30 text-[#00ff7f] font-mono text-xs uppercase tracking-widest hover:bg-[#00ff7f]/20 active:scale-95 transition-all mt-8">
+          <button type="submit" class="w-full py-4 rounded-xl bg-linear-to-r from-success/20 to-success/5 text-success font-mono text-xs uppercase tracking-widest active:scale-95 transition-all mt-8 btn-neumorphic">
             Lock Ledger & Enter
           </button>
         </form>

@@ -4,7 +4,7 @@ import state from '../core/state.js';
 export default class OrchestratorView {
   constructor() {
     this.container = document.createElement('div');
-    this.container.className = 'viewport-container view-enter pb-safe min-h-screen flex flex-col bg-[var(--color-surface)] text-[var(--color-text-primary)]';
+    this.container.className = 'viewport-container view-enter pb-safe min-h-screen flex flex-col bg-surface text-text-primary';
     this.messages = [];
   }
 
@@ -16,27 +16,22 @@ export default class OrchestratorView {
     }
 
     this.container.innerHTML = `
-      <header class="view-header">
-        <h2 class="text-lg font-display text-[var(--color-text-primary)] tracking-tight flex items-center gap-2">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffb88c" stroke-width="2"><path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h0a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z"/><path d="M12 10v12"/><path d="M5 13h14"/></svg>
-          Orchestrator
-        </h2>
-      </header>
-
-      <main class="flex-1 overflow-y-auto p-6 space-y-6 flex flex-col no-scrollbar pb-32" id="chat-window">
+      <main class="flex-1 overflow-y-auto pt-[112px] space-y-6 flex flex-col no-scrollbar pb-32" style="padding-left:0; padding-right:0;">
+<div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1" id="chat-window">
         ${this.messages.map(msg => this._renderMessage(msg)).join('')}
-      </main>
+      </div></main>
 
-      <footer class="fixed bottom-[80px] left-0 w-full p-4 bg-gradient-to-t from-[#0a0407] to-[#0a0407]/0">
+      <footer class="fixed bottom-[80px] left-0 w-full p-4 bg-gradient-to-t from-surface to-surface/0">
         <form id="orchestrator-form" class="relative max-w-lg mx-auto">
-          <input type="text" id="query-input" placeholder="Ask about medications or documents..." autocomplete="off" class="w-full px-5 py-4 pr-14 rounded-2xl bg-[var(--color-surface-elevated)]/90 backdrop-blur border border-[#7f2f5d]/40 text-[var(--color-text-primary)] placeholder-gray-500 focus:outline-none focus:border-[#ffb88c]/60 shadow-[0_8px_30px_rgb(0,0,0,0.5)] text-sm transition-colors">
-          <button type="submit" class="absolute right-2 top-2 bottom-2 w-10 bg-[#7f2f5d]/20 hover:bg-[#7f2f5d]/40 rounded-xl flex items-center justify-center text-[#ffb88c] transition-all">
+          <input type="text" id="query-input" placeholder="Ask about medications or documents..." autocomplete="off" class="w-full px-5 py-4 pr-14 rounded-2xl bg-surface-elevated/90 backdrop-blur border border-border text-text-primary placeholder-gray-500 focus:outline-none focus:border-accent-primary/60 shadow-[0_8px_30px_rgb(0,0,0,0.5)] text-sm transition-colors">
+          <button type="submit" class="absolute right-2 top-2 bottom-2 w-10 bg-secondary/20 rounded-xl flex items-center justify-center text-accent-primary transition-all btn-neumorphic">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
           </button>
         </form>
       </footer>
     `;
 
+    document.dispatchEvent(new CustomEvent('view:ready', { detail: { hash: '#/orchestrator' } }));
     this._attachListeners();
     this._scrollToBottom();
     return this.container;
@@ -46,7 +41,7 @@ export default class OrchestratorView {
     if (msg.role === 'system') {
       return `
         <div class="flex flex-col items-start max-w-[85%] self-start animate-[fadeIn_0.3s_ease-out]">
-          <div class="px-5 py-3.5 bg-[var(--color-surface-elevated)] border border-[#7f2f5d]/30 rounded-2xl rounded-tl-sm shadow-md text-sm text-gray-200 leading-relaxed">
+          <div class="px-5 py-3.5 bg-surface-elevated border border-border rounded-2xl rounded-tl-sm shadow-md text-sm text-text-primary leading-relaxed">
             ${msg.text}
           </div>
         </div>
@@ -54,7 +49,7 @@ export default class OrchestratorView {
     } else {
       return `
         <div class="flex flex-col items-end max-w-[85%] self-end ml-auto animate-[fadeIn_0.3s_ease-out]">
-          <div class="px-5 py-3.5 bg-gradient-to-br from-[#7f2f5d] to-[#4a1532] text-[#ffd9b5] rounded-2xl rounded-tr-sm shadow-lg text-sm font-medium leading-relaxed">
+          <div class="px-5 py-3.5 bg-gradient-to-br from-secondary to-surface-deep text-accent-bright rounded-2xl rounded-tr-sm shadow-lg text-sm font-medium leading-relaxed">
             ${msg.text}
           </div>
         </div>
@@ -78,7 +73,7 @@ export default class OrchestratorView {
 
       // 2. Add loading state
       const loadingId = Date.now();
-      this.messages.push({ role: 'system', text: '<span class="flex gap-1 items-center"><span class="w-1.5 h-1.5 rounded-full bg-[#ffb88c] animate-bounce"></span><span class="w-1.5 h-1.5 rounded-full bg-[#ffb88c] animate-bounce" style="animation-delay:0.1s"></span><span class="w-1.5 h-1.5 rounded-full bg-[#ffb88c] animate-bounce" style="animation-delay:0.2s"></span></span>', id: loadingId });
+      this.messages.push({ role: 'system', text: '<span class="flex gap-1 items-center"><span class="w-1.5 h-1.5 rounded-full bg-accent-primary animate-bounce"></span><span class="w-1.5 h-1.5 rounded-full bg-accent-primary animate-bounce" style="animation-delay:0.1s"></span><span class="w-1.5 h-1.5 rounded-full bg-accent-primary animate-bounce" style="animation-delay:0.2s"></span></span>', id: loadingId });
       this._updateChat();
 
       // 3. Process query

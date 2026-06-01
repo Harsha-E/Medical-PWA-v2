@@ -35,7 +35,7 @@ export default class InstallView {
     }
 
     this.container = document.createElement('div');
-    this.container.className = 'min-h-[100dvh] w-full flex flex-col relative z-10 text-gray-100 font-sans pointer-events-none transition-opacity duration-500';
+    this.container.className = 'min-h-[100dvh] w-full flex flex-col relative z-10 text-text-primary font-sans pointer-events-none transition-opacity duration-500';
 
     this.container.innerHTML = `
       <style>
@@ -51,7 +51,7 @@ export default class InstallView {
           width: 68px; 
           height: 68px; 
           border-radius: 20px; 
-          background: linear-gradient(145deg, #7f2f5d 0%, #3d1228 100%); 
+          background: linear-gradient(145deg, var(--color-secondary) 0%, #3d1228 100%); 
           border: 1px solid rgba(255,184,140,0.25); 
           display: flex; 
           align-items: center; 
@@ -93,7 +93,7 @@ export default class InstallView {
           transform: translateY(12px); 
           animation: mcFadeUp 0.9s 0.2s cubic-bezier(0.16,1,0.3,1) forwards; 
         }
-        .mc-brand em { font-style: normal; color: #ffb88c; }
+        .mc-brand em { font-style: normal; color: var(--color-accent-primary); }
         .mc-tagline { 
           margin-top: 6px; 
           font-family: 'Courier New', monospace; 
@@ -122,7 +122,7 @@ export default class InstallView {
           font-size: 9px; 
           letter-spacing: 1.5px; 
           text-transform: uppercase; 
-          color: #ffb88c; 
+          color: var(--color-accent-primary); 
         }
         @keyframes mcFadeUp { to { opacity: 1; transform: translateY(0); } }
         @keyframes breathe { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-4px); } }
@@ -130,10 +130,11 @@ export default class InstallView {
       </style>
 
       <canvas id="install-canvas" class="absolute inset-0 w-full h-full z-0 pointer-events-none"></canvas>
-      <div class="absolute inset-0 backdrop-blur-[80px] bg-[#050203]/40 z-10 pointer-events-none"></div>
+      <div class="absolute inset-0 backdrop-blur-[80px] bg-surface-deep/40 z-10 pointer-events-none"></div>
       
-      <div class="min-h-[100dvh] w-full flex flex-col relative z-20 text-gray-100 font-sans pointer-events-none">
-        <main class="flex-1 flex flex-col items-center justify-center text-center px-6 relative overflow-hidden pointer-events-auto">
+      <div class="min-h-[100dvh] w-full flex flex-col relative z-20 text-text-primary font-sans pointer-events-none">
+        <main class="flex-1 flex flex-col items-center justify-center text-center relative overflow-hidden pointer-events-auto" style="padding-left:0; padding-right:0;">
+<div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
           
           <div class="relative w-full max-w-4xl mx-auto flex flex-col items-center justify-center panel-breathe">
             
@@ -155,13 +156,13 @@ export default class InstallView {
             </div>
 
             <div class="mb-8 h-6 flex items-center justify-center relative z-20">
-              <p class="text-gray-300 text-sm md:text-base leading-relaxed font-mono tracking-wide max-w-lg mx-auto">
-                <span class="typewriter-text" data-text="Install MedCare as a native app for faster startup, offline access and secure OS-level integration."></span><span class="typewriter-cursor text-[#ffb88c] animate-pulse">|</span>
+              <p class="text-text-secondary text-sm md:text-base leading-relaxed font-mono tracking-wide max-w-lg mx-auto">
+                <span class="typewriter-text" data-text="Install MedCare as a native app for faster startup, offline access and secure OS-level integration."></span><span class="typewriter-cursor text-accent-primary animate-pulse">|</span>
               </p>
             </div>
 
           </div>
-        </main>
+        </div></main>
       </div>
     `;
 
@@ -254,7 +255,7 @@ export default class InstallView {
     const h = this.canvas.height / (window.devicePixelRatio || 1);
 
     this.ctx.globalCompositeOperation = 'source-over';
-    this.ctx.fillStyle = '#050203';
+    this.ctx.fillStyle = 'var(--color-surface-deep)';
     this.ctx.fillRect(0, 0, w, h);
 
     const dx = (this.mouse.x - w / 2) * 0.05;

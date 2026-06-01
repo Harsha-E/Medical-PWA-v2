@@ -10,7 +10,7 @@ export default class SplashView {
     this.container.style.cssText = `
       position: fixed; inset: 0; z-index: 99999;
       display: flex; align-items: center; justify-content: center;
-      background: #0a0407;
+      background: var(--color-surface);
       overflow: hidden;
     `;
 
@@ -58,8 +58,8 @@ export default class SplashView {
                stroke-linecap="round" stroke-linejoin="round">
             <defs>
               <linearGradient id="splash-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#ffb88c"/>
-                <stop offset="100%" stop-color="#ca5229"/>
+                <stop offset="0%" stop-color="var(--color-accent-primary)"/>
+                <stop offset="100%" stop-color="var(--color-primary-dark)"/>
               </linearGradient>
             </defs>
             <path d="M11 2a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2H2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h5a2 2 0 0 1 2 2v5a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-5a2 2 0 0 1 2-2h5a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-5a2 2 0 0 1-2-2V4a2 2 0 0 0-2-2h-4Z"/>
@@ -70,7 +70,7 @@ export default class SplashView {
         <h1 id="splash-wordmark" style="
           font-family: 'Inter', sans-serif;
           font-size: 38px; font-weight: 700;
-          color: #ffffff;
+          color: var(--color-text-primary);
           margin: 20px 0 0 0;
           letter-spacing: -0.02em;
           line-height: 1;

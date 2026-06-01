@@ -1310,3 +1310,183 @@ button, .clay-glass-panel, .skeleton-card, .timeline-item {
   font-weight: 700;
   letter-spacing: -0.02em;
 }
+
+/* ==========================================================================
+   UNIFIED MORPHISM UI (CLAY + NEU + GLASS) OVERRIDES
+   ========================================================================== */
+
+/* Dark Theme Variables for Neu/Clay */
+:root {
+  --neu-dark-shadow: rgba(0, 0, 0, 0.6);
+  --neu-light-shadow: rgba(255, 255, 255, 0.05);
+  --clay-highlight: rgba(255, 255, 255, 0.08);
+  --clay-shadow: rgba(0, 0, 0, 0.4);
+}
+
+/* Light Theme Variables for Neu/Clay */
+[data-theme="light"] {
+  --neu-dark-shadow: rgba(202, 82, 41, 0.15);
+  --neu-light-shadow: rgba(255, 255, 255, 0.8);
+  --clay-highlight: rgba(255, 255, 255, 0.9);
+  --clay-shadow: rgba(127, 47, 93, 0.08);
+}
+
+/* Unified Panel (Clay + Glass + Neu) */
+.clay-glass-panel, .glass-card {
+  background: var(--color-surface-elevated) !important;
+  backdrop-filter: blur(24px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(150%) !important;
+  border-radius: 2rem !important;
+  border: 1px solid var(--neu-light-shadow) !important;
+  box-shadow: 
+    12px 12px 24px var(--neu-dark-shadow), /* Neu Outer Shadow */
+    -8px -8px 24px var(--neu-light-shadow), /* Neu Outer Highlight */
+    inset 4px 4px 12px var(--clay-highlight), /* Clay Inner Highlight */
+    inset -4px -4px 12px var(--clay-shadow) !important; /* Clay Inner Shadow */
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.clay-glass-panel:hover, .glass-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    16px 16px 32px var(--neu-dark-shadow),
+    -12px -12px 32px var(--neu-light-shadow),
+    inset 6px 6px 16px var(--clay-highlight),
+    inset -6px -6px 16px var(--clay-shadow) !important;
+}
+
+/* Form Inputs (Sunken Neumorphism + Glass) */
+.form-input, .form-select, .form-textarea, input[type="text"], input[type="number"], input[type="password"] {
+  background: var(--color-input-bg) !important;
+  border: 1px solid transparent !important;
+  border-radius: 2rem !important;
+  box-shadow: 
+    inset 6px 6px 12px var(--neu-dark-shadow), 
+    inset -6px -6px 12px var(--neu-light-shadow) !important;
+  backdrop-filter: blur(12px) !important;
+  color: var(--color-text-primary) !important;
+  transition: all 0.3s ease !important;
+  padding-left: 1.25rem !important;
+  padding-right: 1.25rem !important;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus, input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:focus {
+  border-color: var(--color-primary) !important;
+  box-shadow: 
+    inset 4px 4px 8px var(--neu-dark-shadow), 
+    inset -4px -4px 8px var(--neu-light-shadow),
+    0 0 0 3px var(--color-accent-soft) !important;
+}
+
+/* Buttons (Extruded Neumorphism + Clay) */
+.btn-primary, .btn-secondary, button:not(.back-btn):not(.add-followup-btn):not(.calendar-btn):not(#dismiss-banner-btn):not(.toggle):not(.header-btn):not(.nav-item) {
+  border-radius: 2rem !important;
+  border: 1px solid var(--neu-light-shadow) !important;
+  box-shadow: 
+    6px 6px 16px var(--neu-dark-shadow), 
+    -6px -6px 16px var(--neu-light-shadow),
+    inset 2px 2px 6px var(--clay-highlight),
+    inset -2px -2px 6px var(--clay-shadow) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.btn-primary:active, .btn-secondary:active, button:not(.back-btn):not(.add-followup-btn):not(.calendar-btn):not(#dismiss-banner-btn):not(.toggle):not(.header-btn):not(.nav-item):active {
+  transform: scale(0.96) !important;
+  box-shadow: 
+    inset 6px 6px 12px var(--neu-dark-shadow), 
+    inset -6px -6px 12px var(--neu-light-shadow) !important;
+}
+
+.btn-primary {
+  background: var(--color-primary) !important;
+  color: #fff !important;
+}
+[data-theme="light"] .btn-primary {
+  color: #fff !important;
+}
+
+.btn-secondary {
+  background: var(--color-surface) !important;
+}
+
+/* Small contextual buttons (like 'Add' on dashboard) */
+.add-followup-btn, .header-btn {
+  border-radius: 1rem !important;
+  box-shadow: 
+    4px 4px 10px var(--neu-dark-shadow), 
+    -4px -4px 10px var(--neu-light-shadow),
+    inset 1px 1px 3px var(--clay-highlight),
+    inset -1px -1px 3px var(--clay-shadow) !important;
+}
+
+.add-followup-btn:active, .header-btn:active {
+  box-shadow: 
+    inset 4px 4px 8px var(--neu-dark-shadow), 
+    inset -4px -4px 8px var(--neu-light-shadow) !important;
+}
+
+/* Fix option elements in dropdowns to prevent inherited rounded corners and borders */
+option, .form-select option {
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  background-color: var(--color-surface) !important;
+  color: var(--color-text-primary) !important;
+}
+
+/* LIGHT THEME WEBGL BLOB COLOR OVERRIDES */
+/* The user requested to use the EXACT SAME blob colors as the dark theme.
+   Since light theme originally had separate overrides, we override them here at the bottom of the file to fall back to the root variables. */
+[data-theme="light"] {
+  --color-page-blob-1: rgba(202, 82, 41, 0.25);
+  --color-page-blob-2: rgba(127, 47, 93, 0.35);
+  --color-page-blob-3: rgba(255, 184, 140, 0.15);
+}
+
+[data-theme="light"] .shape-indigo-blur {
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.35) 0%, rgba(139, 92, 246, 0.15) 70%, transparent 100%) !important;
+}
+
+[data-theme="light"] .shape-orange-ellipse {
+  background: linear-gradient(135deg, rgba(242, 107, 60, 0.35) 0%, rgba(255, 142, 107, 0.1) 100%) !important;
+  border: 1px solid rgba(242, 107, 60, 0.06) !important;
+}
+
+[data-theme="light"] .shape-cyan-pill {
+  background: linear-gradient(45deg, rgba(6, 182, 212, 0.25) 0%, rgba(59, 130, 246, 0.1) 100%) !important;
+  border: 1px solid rgba(6, 182, 212, 0.06) !important;
+}
+
+[data-theme="light"] .shape-center-glow {
+  background: radial-gradient(circle, rgba(242, 107, 60, 0.15) 0%, transparent 70%) !important;
+}
+
+/* Force dark theme variables for specific pages (Landing, Login, Register) */
+.force-dark-theme {
+  --color-surface:       #0a0407 !important;
+  --color-surface-elevated: rgba(127, 47, 93, 0.15) !important;
+  --color-surface-deep:  #0a0407 !important;
+  --color-text-primary:  #ffffff !important;
+  --color-text-secondary: rgba(255, 255, 255, 0.85) !important;
+  --color-text-muted:    rgba(255, 255, 255, 0.6) !important;
+  --color-border:        rgba(127, 47, 93, 0.3) !important;
+  --color-border-strong: rgba(127, 47, 93, 0.6) !important;
+  --color-card-bg:       rgba(26, 10, 18, 0.50) !important;
+  --color-card-border:   rgba(255, 255, 255, 0.08) !important;
+  --color-card-shadow:   rgba(0, 0, 0, 0.50) !important;
+  --color-input-bg:      rgba(255, 255, 255, 0.05) !important;
+  --color-input-border:  rgba(127, 47, 93, 0.30) !important;
+  --color-nav-bg:        rgba(10, 4, 7, 0.75) !important;
+  --color-nav-border:    rgba(127, 47, 93, 0.50) !important;
+  --color-primary:       #ffb88c !important;
+  --color-primary-dark:  #ca5229 !important;
+  --color-secondary:     #7f2f5d !important;
+  --color-success:       #10b981 !important;
+  --color-danger:        #ef4444 !important;
+  
+  /* Reset Neu/Clay to dark theme values */
+  --neu-dark-shadow: rgba(0, 0, 0, 0.6) !important;
+  --neu-light-shadow: rgba(255, 255, 255, 0.05) !important;
+  --clay-highlight: rgba(255, 255, 255, 0.08) !important;
+  --clay-shadow: rgba(0, 0, 0, 0.4) !important;
+}

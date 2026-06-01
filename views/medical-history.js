@@ -5,6 +5,7 @@ import Fuse from 'https://esm.sh/fuse.js@7.0.0';
 
 const CLINICAL_DICTIONARY = ['Nausea', 'Headache', 'Fever', 'Rash', 'Dizziness', 'Fatigue', 'Vomiting', 'Diarrhea', 'Hypertension', 'Diabetes', 'Asthma', 'Arthritis', 'Anemia', 'Pneumonia'];
 const fuse = new Fuse(CLINICAL_DICTIONARY, { threshold: 0.4 });
+import app from '../app.js';
 
 export default class MedicalHistoryView {
   async render() {
@@ -26,23 +27,11 @@ export default class MedicalHistoryView {
     const hospitals = records.filter(r => r.type === 'Hospital');
 
     this.container.innerHTML = `
-      <div class="sticky top-0 z-50 flex items-center justify-between px-4 py-4 bg-[var(--color-surface)]/40 backdrop-blur-md border-b border-white/5 mb-6">
-        <button onclick="window.history.back()" class="flex items-center gap-2 text-[#ffb88c] hover:brightness-125 transition-all">
-          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-          <span class="hidden md:inline text-sm font-bold uppercase tracking-widest">Back</span>
-        </button>
-        <h2 class="text-lg font-bold text-[var(--color-text-primary)] tracking-tight">Medical History</h2>
-        <div class="w-16 flex justify-end">
-          <button class="text-[#ffb88c] hover:brightness-125 transition-transform active:scale-90" id="add-history">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <main class="scroll-area px-6">
+      <main class="scroll-area pt-[112px]" style="padding-left:0; padding-right:0;">
+<div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
         <div class="mb-6 flex gap-2">
-            <input type="text" id="ledger-search" placeholder="Search Clinical Vault..." class="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-[#7f2f5d]/30 text-[var(--color-text-primary)] focus:border-[#ffb88c]/50 focus:outline-none placeholder:text-[#ffb88c]/30 text-xs shadow-inner">
-            <button id="upload-doc-btn" class="px-4 py-3 rounded-xl bg-gradient-to-br from-[#7f2f5d] to-[#4a1532] border border-[#ffb88c]/30 text-[#ffb88c] hover:brightness-125 transition-transform active:scale-95 shadow-lg">
+            <input type="text" id="ledger-search" placeholder="Search Clinical Vault..." class="flex-1 px-4 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
+            <button id="upload-doc-btn" class="px-4 py-3 rounded-xl bg-gradient-to-br from-secondary to-surface-deep text-accent-primary hover:brightness-125 transition-transform active:scale-95 btn-neumorphic">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             </button>
             <input type="file" id="ledger-upload" class="hidden" accept=".pdf,image/*">
@@ -82,7 +71,7 @@ export default class MedicalHistoryView {
         <section class="mb-12">
             <h3 class="text-xs text-uppercase font-bold text-muted mb-6 tracking-[0.2em] uppercase">Records</h3>
             <div class="relative pl-1">
-                <div class="absolute left-6 top-0 bottom-0 w-px bg-gradient-to-b from-[#7f2f5d]/50 via-[#ffb88c]/30 to-transparent"></div>
+                <div class="absolute left-6 top-0 bottom-0 w-px bg-gradient-to-b from-secondary/50 via-accent-primary/30 to-transparent"></div>
                 <div class="space-y-6 relative z-10">
                   ${records.length > 0 ? records.map((record, index) => {
                     const dateObj = new Date(record.date);
@@ -93,64 +82,65 @@ export default class MedicalHistoryView {
                     return `
                     <div class="relative pl-14 group">
                       <!-- Timeline Node -->
-                      <div class="absolute left-1 top-4 w-10 h-10 rounded-full bg-[var(--color-surface-elevated)] border-2 border-[#7f2f5d] flex items-center justify-center text-[#ffb88c] z-10 group-hover:bg-[#7f2f5d]/20 group-hover:scale-110 group-hover:border-[#ffb88c] transition-all duration-300 shadow-[0_0_15px_rgba(127,47,93,0.3)]">
+                      <div class="absolute left-1 top-4 w-10 h-10 rounded-full bg-surface-elevated border-2 border-secondary flex items-center justify-center text-accent-primary z-10 group-hover:bg-secondary/20 group-hover:scale-110 group-hover:border-accent-primary transition-all duration-300 shadow-[0_0_15px_rgba(127,47,93,0.3)]">
                         ${typeIcon}
                       </div>
 
                       <!-- Content Card -->
-                      <div class="bg-[var(--color-surface-elevated)]/40 backdrop-blur-xl border border-[var(--color-border)] rounded-3xl p-5 shadow-[0_8px_32px_rgba(0,0,0,0.5)] group-hover:border-[var(--color-border)] transition-all cursor-pointer">
+                      <div class="bg-surface-elevated/40 backdrop-blur-xl border border-border rounded-3xl p-5 shadow-[0_8px_32px_rgba(0,0,0,0.5)] group-hover:border-border transition-all cursor-pointer">
                         <div class="flex justify-between items-start mb-2">
                           <div class="flex gap-4 items-center">
                              <div class="text-center shrink-0">
-                               <span class="block text-xs text-[#ffb88c] font-bold uppercase tracking-widest leading-none">${month}</span>
-                               <span class="block text-xl font-bold text-[var(--color-text-primary)] leading-none mt-1">${day}</span>
+                               <span class="block text-xs text-accent-primary font-bold uppercase tracking-widest leading-none">${month}</span>
+                               <span class="block text-xl font-bold text-text-primary leading-none mt-1">${day}</span>
                              </div>
                              <div>
                                <div class="flex items-center gap-2 mb-1">
                                   <span class="inline-block px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-widest border ${this._getBadgeStyles(record.type)}">${record.type}</span>
-                                  ${record.signature ? `<span class="flex items-center gap-1 text-[#10b981] bg-[#10b981]/10 px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-widest border border-[#10b981]/30" title="Cryptographically Verified"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg> VERIFIED</span>` : ''}
+                                  ${record.signature ? `<span class="flex items-center gap-1 text-success bg-success/10 px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-widest border border-success/30" title="Cryptographically Verified"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg> VERIFIED</span>` : ''}
                                </div>
-                               <h3 class="text-base font-bold text-[var(--color-text-primary)] leading-tight ${this._highlightTerminology(record.title)}">${record.title}</h3>
-                               ${record.provider ? `<p class="text-xs text-[#ffb88c] mt-1 font-mono tracking-wide flex items-center gap-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${record.provider}</p>` : ''}
+                               <h3 class="text-base font-bold text-text-primary leading-tight ${this._highlightTerminology(record.title)}">${record.title}</h3>
+                               ${record.provider ? `<p class="text-xs text-accent-primary mt-1 font-mono tracking-wide flex items-center gap-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${record.provider}</p>` : ''}
                              </div>
                           </div>
                         </div>
                         
-                        ${record.notes ? `<p class="text-sm text-[var(--color-text-secondary)] mt-3 leading-relaxed border-t border-white/5 pt-3">${this._highlightTerminology(record.notes)}</p>` : ''}
+                        ${record.notes ? `<p class="text-sm text-text-secondary mt-3 leading-relaxed border-t border-border pt-3">${this._highlightTerminology(record.notes)}</p>` : ''}
                       </div>
                     </div>
                   `}).join('') : `
                     ${!dataset ? `
                       <div class="pl-14 pt-4">
-                        <div class="w-full h-[120px] bg-[var(--color-surface-elevated)]/40 backdrop-blur-xl border border-[var(--color-border)] rounded-3xl animate-pulse"></div>
+                        <div class="w-full h-[120px] bg-surface-elevated/40 backdrop-blur-xl border border-border rounded-3xl animate-pulse"></div>
                       </div>
                       <div class="pl-14 pt-4">
-                        <div class="w-full h-[120px] bg-[var(--color-surface-elevated)]/40 backdrop-blur-xl border border-[var(--color-border)] rounded-3xl animate-pulse delay-75"></div>
+                        <div class="w-full h-[120px] bg-surface-elevated/40 backdrop-blur-xl border border-border rounded-3xl animate-pulse delay-75"></div>
                       </div>
                     ` : `
-                      <div class="py-12 flex flex-col items-center justify-center bg-[var(--color-surface-elevated)]/40 backdrop-blur-xl border border-dashed border-[var(--color-border)] rounded-3xl text-center ml-14">
-                        <p class="text-xs text-[var(--color-text-muted)] font-mono uppercase tracking-widest max-w-[200px]">No medical history recorded yet.</p>
+                      <div class="py-12 flex flex-col items-center justify-center bg-surface-elevated/40 backdrop-blur-xl border border-dashed border-border rounded-3xl text-center ml-14">
+                        <p class="text-xs text-text-muted font-mono uppercase tracking-widest max-w-[200px]">No medical history recorded yet.</p>
                       </div>
                     `}
                   `}
                 </div>
             </div>
         </section>
-      </main>
+      </div></main>
 
       <style>
         .timeline-container { position:relative; padding-left:12px; }
         .timeline-line { position:absolute; left:3px; top:0; bottom:0; width:2px; background:var(--color-border); }
-        .timeline-dot { position:absolute; left:-1px; top:4px; width:10px; height:10px; background:var(--color-primary); border-radius:50%; box-shadow:0 0 0 3px #1a0a12; }
+        .timeline-dot { position:absolute; left:-1px; top:4px; width:10px; height:10px; background:var(--color-primary); border-radius:50%; box-shadow:0 0 0 3px var(--color-card-bg); }
       </style>
     `;
 
+    document.dispatchEvent(new CustomEvent('view:ready', { detail: { hash: '#/medical-history' } }));
     this.attachListeners();
     return this.container;
   }
 
   attachListeners() {
-    this.container.querySelector('#add-history')?.addEventListener('click', () => {
+    app.appHeader.on('add-history', () => {
       this.showAddModal();
     });
 
@@ -213,35 +203,35 @@ export default class MedicalHistoryView {
   showAddModal() {
     const todayStr = new Date().toISOString().split('T')[0];
     const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-6';
+    modal.className = 'fixed inset-0 z-[9999] flex items-center justify-center bg-overlay-bg backdrop-blur-sm p-6';
     modal.innerHTML = `
-      <div class="bg-[var(--color-surface-elevated)]/60 backdrop-blur-2xl border border-[var(--color-border)] p-8 rounded-3xl max-w-sm w-full shadow-[0_8px_32px_rgba(0,0,0,0.7)]">
-        <h3 class="text-lg font-display text-[var(--color-text-primary)] mb-6">Add Clinical Record</h3>
+      <div class="bg-surface-elevated/60 backdrop-blur-2xl border border-border p-8 rounded-3xl max-w-sm w-full shadow-[0_8px_32px_rgba(0,0,0,0.7)]">
+        <h3 class="text-lg font-display text-text-primary mb-6">Add Clinical Record</h3>
         <form id="add-history-form" class="space-y-4">
           <div>
-            <label class="block text-xs text-[var(--color-text-secondary)] uppercase tracking-widest mb-1 ml-1">Record Type</label>
-            <select id="h-type" required class="w-full px-4 py-3 rounded-xl bg-white/5 border border-[var(--color-border)] text-[var(--color-text-primary)] focus:border-[#ffb88c]/50 focus:outline-none appearance-none">
-              <option value="Disease" class="bg-[var(--color-surface)]">Disease</option>
-              <option value="Surgery" class="bg-[var(--color-surface)]">Surgery</option>
-              <option value="Vaccination" class="bg-[var(--color-surface)]">Vaccination</option>
-              <option value="Allergy" class="bg-[var(--color-surface)]">Allergy</option>
+            <label class="block text-xs text-text-secondary uppercase tracking-widest mb-1 ml-1">Record Type</label>
+            <select id="h-type" required class="w-full px-4 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
+              <option value="Disease" class="bg-surface">Disease</option>
+              <option value="Surgery" class="bg-surface">Surgery</option>
+              <option value="Vaccination" class="bg-surface">Vaccination</option>
+              <option value="Allergy" class="bg-surface">Allergy</option>
             </select>
           </div>
           <div>
-            <label class="block text-xs text-[var(--color-text-secondary)] uppercase tracking-widest mb-1 ml-1">Title/Name</label>
-            <input type="text" id="h-title" required class="w-full px-4 py-3 rounded-xl bg-white/5 border border-[var(--color-border)] text-[var(--color-text-primary)] focus:border-[#ffb88c]/50 focus:outline-none">
+            <label class="block text-xs text-text-secondary uppercase tracking-widest mb-1 ml-1">Title/Name</label>
+            <input type="text" id="h-title" required class="w-full px-4 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
           </div>
           <div>
-            <label class="block text-xs text-[var(--color-text-secondary)] uppercase tracking-widest mb-1 ml-1">Date</label>
-            <input type="date" id="h-date" max="${todayStr}" required class="w-full px-4 py-3 rounded-xl bg-white/5 border border-[var(--color-border)] text-[var(--color-text-primary)] focus:border-[#ffb88c]/50 focus:outline-none [color-scheme:dark]">
+            <label class="block text-xs text-text-secondary uppercase tracking-widest mb-1 ml-1">Date</label>
+            <input type="date" id="h-date" max="${todayStr}" required class="w-full px-4 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2[color-scheme:dark]">
           </div>
           <div>
-            <label class="block text-xs text-[var(--color-text-secondary)] uppercase tracking-widest mb-1 ml-1">Clinical Notes</label>
-            <textarea id="h-notes" rows="2" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-[var(--color-border)] text-[var(--color-text-primary)] focus:border-[#ffb88c]/50 focus:outline-none placeholder:text-gray-600"></textarea>
+            <label class="block text-xs text-text-secondary uppercase tracking-widest mb-1 ml-1">Clinical Notes</label>
+            <textarea id="h-notes" rows="2" class="w-full px-4 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2"></textarea>
           </div>
           <div class="flex gap-3 mt-8">
-            <button type="button" id="cancel-history" class="flex-1 py-3 rounded-xl border border-[#7f2f5d]/50 text-[var(--color-text-primary)] text-xs uppercase font-bold tracking-widest hover:bg-white/5 transition-colors">Cancel</button>
-            <button type="submit" class="flex-1 py-3 rounded-xl bg-linear-to-r from-[#7f2f5d] to-[#4a1532] border border-[#ffb88c]/30 text-[#ffb88c] text-xs uppercase font-bold tracking-widest hover:brightness-125 transition-all">Save Record</button>
+            <button type="button" id="cancel-history" class="flex-1 py-3 rounded-xl text-text-primary text-xs uppercase font-bold tracking-widest transition-colors btn-neumorphic">Cancel</button>
+            <button type="submit" class="flex-1 py-3 rounded-xl bg-linear-to-r from-secondary to-surface-deep text-accent-primary text-xs uppercase font-bold tracking-widest hover:brightness-125 transition-all btn-neumorphic">Save Record</button>
           </div>
         </form>
       </div>
@@ -257,7 +247,7 @@ export default class MedicalHistoryView {
       const notes = modal.querySelector('#h-notes').value.trim();
       
       if (!title || !/^[a-zA-Z0-9\s\-_]+$/.test(title)) {
-          alert('Please enter a valid alphanumeric title.');
+          await appAlert('Please enter a valid alphanumeric title.', 'Invalid Title');
           return;
       }
       

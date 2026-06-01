@@ -1,7 +1,7 @@
 import state from '../core/state.js';
 import db from '../core/db.js';
 import { APP_VERSION } from '../core/config.js';
-import { showToast } from '../core/ui.js';
+import { showToast, appAlert, appConfirm, appPrompt } from '../core/ui.js';
 export default class SettingsView {
   async render() {
     this.container = document.createElement('div');
@@ -19,86 +19,93 @@ export default class SettingsView {
     const dobYear = state.userProfile?.profile?.dob ? new Date(state.userProfile.profile.dob).getFullYear() : 'N/A';
 
     this.container.innerHTML = `
-      <header class="view-header z-20 bg-transparent">
-        <div class="flex flex-col">
-            <span class="text-xs text-uppercase text-[#ffb88c]/70 uppercase tracking-widest leading-none">Configuration</span>
-            <h1 class="text-xl font-display mt-1 leading-none text-[var(--color-text-primary)]">System Profile</h1>
-        </div>
-      </header>
-
-      <main class="scroll-area px-6 bg-transparent pb-40">
-        <div class="clay-glass-panel p-8 mb-12 flex items-center gap-4 shadow-[0_8px_32px_rgba(0,0,0,0.5)] border-[var(--color-border)] backdrop-blur-xl relative z-10">
-          <a href="#/emergency" class="w-20 h-20 rounded-full flex items-center justify-center font-display italic text-3xl font-bold shadow-[0_0_20px_rgba(202,82,41,0.3)] border border-[#ffb88c]/40 bg-gradient-to-br from-[#ca5229]/80 to-[#7f2f5d]/80 text-[#ffd9b5] backdrop-blur-md shrink-0 ring-4 ring-[#1a0a12]/50 hover:scale-105 transition-transform">
+      <main class="scroll-area pt-[112px] bg-transparent pb-40" style="padding-left:0; padding-right:0;">
+<div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
+        <div class="clay-glass-panel p-8 mb-12 flex items-center gap-4 shadow-[0_8px_32px_var(--color-card-shadow)] border-border backdrop-blur-xl relative z-10">
+          <a href="#/emergency" class="w-20 h-20 rounded-full flex items-center justify-center font-display italic text-3xl font-bold shadow-[0_0_20px_var(--color-primary)] border border-accent-primary/40 bg-gradient-to-br from-primary/80 to-secondary/80 text-accent-bright backdrop-blur-md shrink-0 ring-4 ring-surface-elevated/50 hover:scale-105 transition-transform">
             ${initials}
           </a>
           <a href="#/emergency" class="flex-1 block min-w-0 hover:opacity-80 transition-opacity pl-2">
-            <p class="font-bold text-xl leading-tight text-[var(--color-text-primary)] truncate">${displayName}</p>
-            <p class="text-sm text-[var(--color-text-secondary)] mt-1 truncate">${state.userProfile?.profile?.phone || 'Phone not set'}</p>
-            <p class="text-[10px] font-bold text-[#ffb88c] mt-2 tracking-widest uppercase truncate">${bloodType} Clinical Node</p>
+            <p class="font-bold text-xl leading-tight text-text-primary truncate">${displayName}</p>
+            <p class="text-sm text-text-secondary mt-1 truncate">${state.userProfile?.profile?.phone || 'Phone not set'}</p>
+            <p class="text-[10px] font-bold text-accent-primary mt-2 tracking-widest uppercase truncate">${bloodType} Clinical Node</p>
           </a>
-          <button id="edit-profile-btn" class="shrink-0 bg-white/5 p-3 rounded-2xl border border-[#7f2f5d]/40 shadow-sm hover:bg-[#ca5229]/20 active:scale-90 transition-all text-[var(--color-text-primary)] backdrop-blur-md relative z-20">
+          <button id="edit-profile-btn" class="shrink-0 p-3 rounded-2xl active:scale-90 transition-all text-text-primary backdrop-blur-md relative z-20 btn-neumorphic">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
           </button>
         </div>
 
 
         <section class="mb-10">
-          <h3 class="text-xs text-uppercase font-bold text-[#ffb88c]/70 mb-4 tracking-[0.2em] px-1">Alerting Protocols</h3>
-          <div class="clay-glass-panel overflow-hidden border border-[var(--color-border)] bg-[var(--color-surface-elevated)]/40 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-2xl">
-            <div class="settings-row text-[var(--color-text-primary)]">
+          <h3 class="text-xs text-uppercase font-bold text-accent-primary/70 mb-4 tracking-[0.2em] px-1">Alerting Protocols</h3>
+          <div class="clay-glass-panel overflow-hidden border border-border bg-surface-elevated/40 backdrop-blur-xl shadow-[0_8px_32px_var(--color-card-shadow)] rounded-2xl">
+            <div class="settings-row text-text-primary">
               <span class="text-sm font-medium">Push Notifications</span>
               <div class="toggle" data-setting="notifications"></div>
             </div>
-            <div class="settings-row border-t border-[#7f2f5d]/30 text-[var(--color-text-primary)]">
+            <div class="settings-row border-t border-border text-text-primary">
               <span class="text-sm font-medium">Refill Telemetry</span>
               <div class="toggle" data-setting="refills"></div>
             </div>
-            <div class="settings-row border-t border-[#7f2f5d]/30 text-[var(--color-text-primary)]">
+            <div class="settings-row border-t border-border text-text-primary">
               <span class="text-sm font-medium">Interaction Watchdog</span>
               <div class="toggle" data-setting="interactions"></div>
             </div>
           </div>
         </section>
 
+
+        
         <section class="mb-10">
-          <h3 class="text-xs text-uppercase font-bold text-[#ffb88c]/70 mb-4 tracking-[0.2em] px-1">Appearance</h3>
-          <div class="clay-glass-panel overflow-hidden border border-[var(--color-border)] bg-[var(--color-surface)]/40 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-2xl">
-            <div class="settings-row text-[var(--color-text-primary)]" id="theme-toggle-row">
-              <span class="text-sm font-medium">Light Theme</span>
-              <div class="toggle" id="theme-toggle"></div>
+          <h3 class="text-xs text-uppercase font-bold text-accent-primary/70 mb-4 tracking-[0.2em] px-1">Appearance</h3>
+          <div class="clay-glass-panel border border-border bg-surface/40 backdrop-blur-xl shadow-[0_8px_32px_var(--color-card-shadow)] rounded-2xl">
+            <div class="settings-row text-text-primary border-none" style="flex-direction: column; align-items: flex-start; gap: 12px;">
+              <span class="text-sm font-medium">Theme Preference</span>
+              <div class="w-full relative" id="theme-dropdown-container">
+                <button id="theme-dropdown-btn" class="w-full px-4 py-3 bg-surface-deep border border-border rounded-xl flex items-center justify-between text-sm hover:border-accent-primary/50 transition-colors">
+                  <span id="theme-dropdown-label">System Default</span>
+                  <svg class="w-4 h-4 text-text-secondary transition-transform duration-200" id="theme-dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div id="theme-dropdown-menu" class="hidden w-full mt-2 bg-surface-elevated backdrop-blur-xl border border-border rounded-xl shadow-xl overflow-hidden transition-all duration-200">
+                  <button class="theme-option w-full text-left px-4 py-3 text-sm text-text-primary hover:bg-accent-soft hover:text-primary transition-colors" data-value="system">System Default</button>
+                  <button class="theme-option w-full text-left px-4 py-3 text-sm text-text-primary hover:bg-accent-soft hover:text-primary transition-colors" data-value="light">Light (Gold & Orange)</button>
+                  <button class="theme-option w-full text-left px-4 py-3 text-sm text-text-primary hover:bg-accent-soft hover:text-primary transition-colors" data-value="dark">Dark (Sunset Obsidian)</button>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
         <section class="mb-10">
-          <h3 class="text-xs text-uppercase font-bold text-[#ffb88c]/70 mb-4 tracking-[0.2em] px-1">Data Architecture</h3>
-          <div class="clay-glass-panel overflow-hidden border border-[var(--color-border)] bg-[var(--color-surface-elevated)]/40 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-2xl">
+          <h3 class="text-xs text-uppercase font-bold text-accent-primary/70 mb-4 tracking-[0.2em] px-1">Data Architecture</h3>
+          <div class="clay-glass-panel overflow-hidden border border-border bg-surface-elevated/40 backdrop-blur-xl shadow-[0_8px_32px_var(--color-card-shadow)] rounded-2xl">
             <button class="settings-row w-full text-left bg-transparent border-none" id="logout-btn">
-              <span class="text-sm font-medium text-[#ca5229]">Terminate Session</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ca5229" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              <span class="text-sm font-medium text-primary">Terminate Session</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-primary" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
             </button>
             <button class="settings-row w-full text-left bg-transparent border-none border-t border-red-500/30" id="delete-account-btn">
-              <span class="text-sm font-medium text-red-500">Purge Data & Delete Account</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+              <span class="text-sm font-medium text-danger">Purge Data & Delete Account</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-danger" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
             </button>
           </div>
         </section>
 
         <div class="app-info text-center py-10 opacity-30">
-          <p class="text-[8px] text-uppercase font-bold tracking-[0.4em] text-[#ffb88c]">MedCare Precision Environment &bull; v${APP_VERSION}</p>
+          <p class="text-[8px] text-uppercase font-bold tracking-[0.4em] text-accent-primary">MedCare Precision Environment &bull; v${APP_VERSION}</p>
         </div>
-      </main>
+      </div></main>
 
       <style>
         .settings-row { display: flex; justify-content: space-between; align-items: center; padding: 20px; transition: background 0.2s ease; cursor: pointer; }
-        .settings-row:active { background: rgba(255,255,255,0.05); }
-        .toggle { width: 36px; height: 20px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; position: relative; cursor: pointer; transition: background 0.2s; }
+        .settings-row:active { background: var(--color-accent-soft); }
+        .toggle { width: 36px; height: 20px; background: var(--color-input-bg); border: 1px solid var(--color-border); border-radius: 10px; position: relative; cursor: pointer; transition: background 0.2s; }
         .toggle::after { content: ''; position: absolute; left: 2px; top: 1px; width: 14px; height: 14px; background: white; border-radius: 50%; transition: left 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        .toggle.active { background: #ca5229; border-color: #ca5229; }
+        .toggle.active { background: var(--color-primary); border-color: var(--color-primary); }
         .toggle.active::after { left: 18px; }
       </style>
     `;
     
+    document.dispatchEvent(new CustomEvent('view:ready', { detail: { hash: '#/settings' } }));
 
     this.applyToggleStates();
     this.attachListeners();
@@ -115,10 +122,10 @@ export default class SettingsView {
       t.classList.toggle('active', isActive);
     });
 
-    const themeToggle = this.container.querySelector('#theme-toggle');
-    if (themeToggle) {
-      themeToggle.classList.toggle('active', state.theme === 'light');
-    }
+    const currentPref = state.themePref || 'system';
+    const labelMap = { 'system': 'System Default', 'light': 'Light (Gold & Orange)', 'dark': 'Dark (Specter)' };
+    const labelEl = this.container.querySelector('#theme-dropdown-label');
+    if (labelEl) labelEl.textContent = labelMap[currentPref] || 'System Default';
   }
 
   attachListeners() {
@@ -131,25 +138,25 @@ export default class SettingsView {
         const emPhone = state.userProfile?.profile?.emergencyPhone || '';
         
         const modalHtml = `
-          <div id="profile-modal" class="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-            <div class="bg-[var(--color-surface-elevated)]/60 backdrop-blur-2xl border border-[var(--color-border)] rounded-[2rem] p-6 w-full max-w-sm shadow-[0_8px_32px_rgba(0,0,0,0.7)]">
-              <h2 class="text-xl font-display text-[var(--color-text-primary)] mb-6">Edit Identity</h2>
+          <div id="profile-modal" class="fixed inset-0 z-[9999] bg-overlay-bg backdrop-blur-md flex items-center justify-center p-4">
+            <div class="bg-surface-elevated/60 backdrop-blur-2xl border border-border rounded-[2rem] p-6 w-full max-w-sm shadow-[0_8px_32px_rgba(0,0,0,0.7)]">
+              <h2 class="text-xl font-display text-text-primary mb-6">Edit Identity</h2>
               <div class="space-y-4 max-h-[50vh] overflow-y-auto pr-2">
                 <div>
-                  <label class="text-xs text-[var(--color-text-secondary)] uppercase tracking-widest font-bold ml-2 mb-1 block">Display Name</label>
-                  <input type="text" id="prof-name" value="${currentName}" class="w-full bg-white/5 border border-[#7f2f5d]/50 rounded-xl px-4 py-3 text-[var(--color-text-primary)] text-sm focus:outline-none focus:border-[#ffb88c]/50">
+                  <label class="text-xs text-text-secondary uppercase tracking-widest font-bold ml-2 mb-1 block">Display Name</label>
+                  <input type="text" id="prof-name" value="${currentName}" class="w-full btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
                 </div>
                 <div>
-                  <label class="text-xs text-[var(--color-text-secondary)] uppercase tracking-widest font-bold ml-2 mb-1 block">Phone (E.164)</label>
-                  <input type="tel" id="prof-phone" value="${myPhone}" placeholder="+1234567890" class="w-full bg-white/5 border border-[#7f2f5d]/50 rounded-xl px-4 py-3 text-[var(--color-text-primary)] text-sm focus:outline-none focus:border-[#ffb88c]/50">
+                  <label class="text-xs text-text-secondary uppercase tracking-widest font-bold ml-2 mb-1 block">Phone (E.164)</label>
+                  <input type="tel" id="prof-phone" value="${myPhone}" placeholder="+1234567890" class="w-full btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
                 </div>
                 <div>
-                  <label class="text-xs text-[var(--color-text-secondary)] uppercase tracking-widest font-bold ml-2 mb-1 block">Date of Birth</label>
-                  <input type="date" id="prof-dob" value="${dob}" class="w-full bg-white/5 border border-[#7f2f5d]/50 rounded-xl px-4 py-3 text-[var(--color-text-primary)] text-sm [color-scheme:dark] focus:outline-none focus:border-[#ffb88c]/50">
+                  <label class="text-xs text-text-secondary uppercase tracking-widest font-bold ml-2 mb-1 block">Date of Birth</label>
+                  <input type="date" id="prof-dob" value="${dob}" class="w-full btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2[color-scheme:dark] focus:outline-none focus:border-accent-primary/50">
                 </div>
                 <div>
-                  <label class="text-xs text-[var(--color-text-secondary)] uppercase tracking-widest font-bold ml-2 mb-1 block">Blood Type</label>
-                  <select id="prof-blood" class="w-full bg-white/5 border border-[#7f2f5d]/50 rounded-xl px-4 py-3 text-[var(--color-text-primary)] text-sm focus:outline-none focus:border-[#ffb88c]/50">
+                  <label class="text-xs text-text-secondary uppercase tracking-widest font-bold ml-2 mb-1 block">Blood Type</label>
+                  <select id="prof-blood" class="w-full btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
                     <option value="A+" ${bloodType==='A+'?'selected':''}>A+</option>
                     <option value="A-" ${bloodType==='A-'?'selected':''}>A-</option>
                     <option value="B+" ${bloodType==='B+'?'selected':''}>B+</option>
@@ -161,17 +168,17 @@ export default class SettingsView {
                   </select>
                 </div>
                 <div>
-                  <label class="text-xs text-[var(--color-text-secondary)] uppercase tracking-widest font-bold ml-2 mb-1 block">Emergency Contact Name</label>
-                  <input type="text" id="prof-em-name" value="${emName}" class="w-full bg-white/5 border border-[#7f2f5d]/50 rounded-xl px-4 py-3 text-[var(--color-text-primary)] text-sm focus:outline-none focus:border-[#ffb88c]/50">
+                  <label class="text-xs text-text-secondary uppercase tracking-widest font-bold ml-2 mb-1 block">Emergency Contact Name</label>
+                  <input type="text" id="prof-em-name" value="${emName}" class="w-full btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
                 </div>
                 <div>
-                  <label class="text-xs text-[var(--color-text-secondary)] uppercase tracking-widest font-bold ml-2 mb-1 block">Emergency Phone (E.164)</label>
-                  <input type="tel" id="prof-em-phone" value="${emPhone}" placeholder="+1234567890" class="w-full bg-white/5 border border-[#7f2f5d]/50 rounded-xl px-4 py-3 text-[var(--color-text-primary)] text-sm focus:outline-none focus:border-[#ffb88c]/50">
+                  <label class="text-xs text-text-secondary uppercase tracking-widest font-bold ml-2 mb-1 block">Emergency Phone (E.164)</label>
+                  <input type="tel" id="prof-em-phone" value="${emPhone}" placeholder="+1234567890" class="w-full btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
                 </div>
               </div>
               <div class="flex gap-3 mt-8">
-                <button id="prof-cancel" class="flex-1 py-3.5 rounded-xl border border-[#7f2f5d]/50 text-[var(--color-text-secondary)] font-bold uppercase text-xs tracking-widest hover:bg-white/5 transition-colors">Cancel</button>
-                <button id="prof-save" class="flex-1 py-3.5 rounded-xl bg-gradient-to-r from-[#7f2f5d] to-[#ca5229] text-[var(--color-text-primary)] font-bold uppercase text-xs tracking-widest shadow-lg shadow-[#ca5229]/20 active:scale-95 transition-transform">Save</button>
+                <button id="prof-cancel" class="flex-1 py-3.5 rounded-xl text-text-secondary font-bold uppercase text-xs tracking-widest transition-colors btn-neumorphic">Cancel</button>
+                <button id="prof-save" class="flex-1 py-3.5 rounded-xl btn-neumorphic-primary font-bold uppercase text-xs tracking-widest".replace(/s+/g, ' ').trim()>Save</button>
               </div>
             </div>
           </div>
@@ -217,16 +224,35 @@ export default class SettingsView {
 
 
     this.container.querySelector('#logout-btn')?.addEventListener('click', async () => {
-      if (confirm('Terminate secure session?')) {
+      const modalHtml = `
+        <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-surface/80 backdrop-blur-md animate-fade-in" id="logout-modal">
+          <div class="bg-surface-elevated border border-border w-full max-w-sm rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent pointer-events-none"></div>
+            <h2 class="text-xl font-bold text-text-primary mb-2">Terminate Session</h2>
+            <p class="text-sm text-text-secondary mb-6">Are you sure you want to securely log out of your account?</p>
+            <div class="flex gap-3">
+              <button id="logout-cancel" class="flex-1 py-3 rounded-xl text-text-secondary font-bold uppercase text-xs tracking-widest transition-colors btn-neumorphic">Cancel</button>
+              <button id="logout-confirm" class="flex-1 py-3 rounded-xl btn-neumorphic-primary font-bold uppercase text-xs tracking-widest".replace(/s+/g, ' ').trim()>Terminate</button>
+            </div>
+          </div>
+        </div>
+      `;
+      const div = document.createElement('div');
+      div.innerHTML = modalHtml;
+      document.body.appendChild(div);
+
+      document.getElementById('logout-cancel').onclick = () => div.remove();
+      document.getElementById('logout-confirm').onclick = async () => {
+        div.remove();
         const { auth } = await import('../core/firebase.js');
         await auth.signOut();
         window.location.hash = '#/login';
-      }
+      };
     });
 
     this.container.querySelector('#delete-account-btn')?.addEventListener('click', async () => {
-      if (confirm('CRITICAL WARNING: This will permanently delete your account, wipe all local data, and remove your cloud backups. This cannot be undone. Type "PURGE" in the next prompt to confirm.')) {
-         const validation = prompt('Type PURGE to confirm deletion:');
+      if (await appConfirm('CRITICAL WARNING: This will permanently delete your account, wipe all local data, and remove your cloud backups. This cannot be undone. Type "PURGE" in the next prompt to confirm.', 'Critical Warning')) {
+         const validation = await appPrompt('Type PURGE to confirm deletion:', 'Confirm Purge');
          if (validation === 'PURGE') {
              const { auth } = await import('../core/firebase.js');
              const user = auth.currentUser;
@@ -238,9 +264,9 @@ export default class SettingsView {
                      window.location.reload();
                  } catch (err) {
                      if (err.code === 'auth/requires-recent-login') {
-                         alert('Security Policy: You must re-authenticate to delete your account. Please log out, log back in, and try again.');
+                         await appAlert('Security Policy: You must re-authenticate to delete your account. Please log out, log back in, and try again.', 'Authentication Required');
                      } else {
-                         alert('Failed to delete account: ' + err.message);
+                         await appAlert('Failed to delete account: ' + err.message, 'Error');
                      }
                  }
              } else {
@@ -253,7 +279,7 @@ export default class SettingsView {
     });
 
     this.container.querySelector('#sos-btn')?.addEventListener('click', async () => {
-        if (confirm("This will broadcast a high-priority distress signal. Proceed?")) {
+        if (await appConfirm('This will broadcast a high-priority distress signal. Proceed?', 'SOS Broadcast')) {
             const currentName = state.user?.displayName || 'User';
             const bloodType = state.userProfile?.profile?.bloodType || 'Unknown';
             const allergies = (state.userProfile?.profile?.allergies || []).join(', ') || 'None known';
@@ -286,13 +312,46 @@ export default class SettingsView {
         }
     });
 
-    this.container.querySelectorAll('.toggle').forEach(t => {
-      t.onclick = async () => {
-        if (t.id === 'theme-toggle') {
-          state.toggleTheme();
-          t.classList.toggle('active', state.theme === 'light');
-          return;
+    const dropdownBtn = this.container.querySelector('#theme-dropdown-btn');
+    const dropdownMenu = this.container.querySelector('#theme-dropdown-menu');
+    const dropdownIcon = this.container.querySelector('#theme-dropdown-icon');
+    
+    if (dropdownBtn && dropdownMenu) {
+      dropdownBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = !dropdownMenu.classList.contains('hidden');
+        if (isOpen) {
+          dropdownMenu.classList.add('hidden');
+          dropdownIcon.style.transform = 'rotate(0deg)';
+        } else {
+          dropdownMenu.classList.remove('hidden');
+          dropdownIcon.style.transform = 'rotate(180deg)';
         }
+      });
+
+      this.container.querySelectorAll('.theme-option').forEach(opt => {
+        opt.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const value = opt.dataset.value;
+          state.setThemePreference(value);
+          const labelMap = { 'system': 'System Default', 'light': 'Light (Gold & Orange)', 'dark': 'Dark (Specter)' };
+          this.container.querySelector('#theme-dropdown-label').textContent = labelMap[value] || 'System Default';
+          dropdownMenu.classList.add('hidden');
+          dropdownIcon.style.transform = 'rotate(0deg)';
+        });
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!this.container.querySelector('#theme-dropdown-container')?.contains(e.target)) {
+          dropdownMenu.classList.add('hidden');
+          dropdownIcon.style.transform = 'rotate(0deg)';
+        }
+      });
+    }
+
+    this.container.querySelectorAll('.toggle:not(#theme-toggle)').forEach(t => {
+      t.onclick = async () => {
 
         const setting = t.dataset.setting;
         const wantsActive = !t.classList.contains('active');

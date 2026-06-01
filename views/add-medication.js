@@ -73,15 +73,8 @@ export default class AddMedicationView {
     }
 
     this.container.innerHTML = `
-      <header class="view-header">
-        <button onclick="window.history.back()" class="w-10 h-10 rounded-2xl bg-white/5 border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text-secondary)] hover:text-[#ffb88c] transition-colors cursor-pointer">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <h2 class="text-lg font-bold text-[var(--color-text-primary)] tracking-tight">${this.isEdit ? 'Edit' : 'Add'} Medication</h2>
-        <div class="w-10"></div>
-      </header>
-
-      <main class="flex-1 overflow-y-auto px-6 pt-6 pb-28">
+      <main class="flex-1 overflow-y-auto pt-[112px] pb-28" style="padding-left:0; padding-right:0;">
+<div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
         <div class="clay-glass-panel p-6 mb-8 clay-glass-panel rounded-[2rem]">
           <h3 class="form-label mb-6">Medication Details</h3>
           <div class="form-group">
@@ -145,12 +138,12 @@ export default class AddMedicationView {
           <textarea id="m-notes" class="form-textarea" rows="4" placeholder="Any special instructions...">${this.medData.notes || ''}</textarea>
         </div>
 
-        <div id="save-error" class="hidden text-xs text-red-500 font-bold bg-red-50 border border-red-100 rounded-xl px-4 py-3 mb-4"></div>
+        <div id="save-error" class="hidden text-xs text-danger font-bold bg-red-50 border border-red-100 rounded-xl px-4 py-3 mb-4"></div>
 
-        <button id="save-btn" class="mb-8 w-full max-w-xl mx-auto block py-4 rounded-2xl bg-gradient-to-r from-[#7f2f5d] to-[#4a1532] border border-[#ffb88c]/40 text-[#ffd9b5] text-sm font-bold uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(127,47,93,0.4)] active:scale-95 transition-all">
+        <button id="save-btn" class="mb-8 w-full max-w-xl mx-auto block py-4 rounded-2xl bg-gradient-to-r from-secondary to-surface-deep text-accent-bright text-sm font-bold uppercase tracking-[0.2em] [0_0_20px_rgba(127,47,93,0.4)] active:scale-95 transition-all btn-neumorphic">
           ${this.isEdit ? 'Save Changes' : 'Add Medication'}
         </button>
-      </main>
+      </div></main>
     `;
 
     this.attachListeners();
@@ -194,7 +187,7 @@ export default class AddMedicationView {
         html += `
           <div class="form-group">
             <label for="m-time-${i}" class="form-label">Dose ${i + 1} Time</label>
-            <input type="time" id="m-time-${i}" class="form-input bg-white/5 border border-[var(--color-border)] text-[var(--color-text-primary)] rounded-xl px-4 py-3 w-full" value="${timeVal || '08:00'}">
+            <input type="time" id="m-time-${i}" class="form-input btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2" value="${timeVal || '08:00'}">
           </div>
         `;
       }
@@ -278,15 +271,15 @@ export default class AddMedicationView {
           div.setAttribute('role', 'alertdialog');
           div.setAttribute('aria-modal', 'true');
           div.innerHTML = `
-            <div class="bg-[var(--color-surface-elevated)] border border-red-500/50 rounded-[2rem] p-6 w-full max-w-sm shadow-2xl">
-              <h2 class="text-xl font-display text-[var(--color-text-primary)] mb-2 flex items-center gap-2">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <div class="bg-surface-elevated border border-red-500/50 rounded-[2rem] p-6 w-full max-w-sm shadow-2xl">
+              <h2 class="text-xl font-display text-text-primary mb-2 flex items-center gap-2">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-danger)" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                 Clinical Limit Exceeded
               </h2>
-              <p class="text-sm text-gray-300 mb-6 font-mono">The total daily dosage (${dailyTotal}mg) exceeds typical clinical limits (4000mg/day). Do you want to override?</p>
+              <p class="text-sm text-text-secondary mb-6 font-mono">The total daily dosage (${dailyTotal}mg) exceeds typical clinical limits (4000mg/day). Do you want to override?</p>
               <div class="flex gap-3">
-                <button id="limit-cancel" class="flex-1 py-3 rounded-xl border border-[var(--color-border)] text-[var(--color-text-primary)] font-bold tracking-wider">Cancel</button>
-                <button id="limit-override" class="flex-1 py-3 rounded-xl bg-red-500/20 text-red-400 font-bold tracking-wider border border-red-500/50">Override</button>
+                <button id="limit-cancel" class="flex-1 py-3 rounded-xl text-text-primary font-bold tracking-wider btn-neumorphic">Cancel</button>
+                <button id="limit-override" class="flex-1 py-3 rounded-xl bg-red-500/20 text-danger font-bold tracking-wider btn-neumorphic">Override</button>
               </div>
             </div>
           `;

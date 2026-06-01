@@ -11,7 +11,7 @@ import { interactionGraph } from '../services/InteractionGraph.js';
 export default class InteractionCheckerView {
   constructor() {
     this.container = document.createElement('div');
-    this.container.className = 'viewport-container view-enter pb-safe min-h-screen text-gray-100';
+    this.container.className = 'viewport-container view-enter pb-safe min-h-screen text-text-primary';
     this.prospectiveDrug = '';
   }
 
@@ -39,28 +39,19 @@ export default class InteractionCheckerView {
       const isReady = interactionGraph._isReady;
 
       this.container.innerHTML = `
-        <div class="max-w-2xl mx-auto w-full px-4 md:px-6 pt-6 md:pt-8 pb-28">
-          
-          <header class="view-header">
-            <a href="#/medications" class="flex items-center gap-2 text-[#ffb88c] hover:brightness-125 transition-all font-mono text-xs uppercase tracking-widest">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-              Back
-            </a>
-            <h1 class="text-xl font-display text-[var(--color-text-primary)] tracking-tight">Interaction Guard</h1>
-            <div class="w-12"></div>
-          </header>
+        <div class="max-w-2xl mx-auto w-full px-4 md:px-6 pt-[112px] pb-28">
 
-          <section class="bg-[var(--color-surface-elevated)]/40 backdrop-blur-xl border border-[var(--color-border)] rounded-[2rem] p-5 mb-8 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
-            <span class="text-xs font-mono tracking-widest uppercase text-[#ffb88c] block mb-1">Pre-purchase Screener</span>
-            <h3 class="text-sm font-bold text-[var(--color-text-primary)] mb-3">Test an Over-the-Counter Drug</h3>
-            <p class="text-xs text-[var(--color-text-secondary)] mb-4 leading-relaxed">Type any drug name to check for severe compliance issues with your ongoing treatment path before administering it.</p>
+          <section class="bg-surface-elevated/40 backdrop-blur-xl border border-border rounded-[2rem] p-5 mb-8 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+            <span class="text-xs font-mono tracking-widest uppercase text-accent-primary block mb-1">Pre-purchase Screener</span>
+            <h3 class="text-sm font-bold text-text-primary mb-3">Test an Over-the-Counter Drug</h3>
+            <p class="text-xs text-text-secondary mb-4 leading-relaxed">Type any drug name to check for severe compliance issues with your ongoing treatment path before administering it.</p>
             
             <div class="flex gap-2">
-              <input type="text" id="prospective-input" value="${this.prospectiveDrug || ''}" placeholder="e.g. Ibuprofen or Aspirin" class="flex-1 bg-white/5 border border-[var(--color-border)] rounded-xl px-4 py-3 text-sm text-[var(--color-text-primary)] placeholder-gray-600 focus:outline-none focus:border-[var(--color-border)] transition-colors">
+              <input type="text" id="prospective-input" value="${this.prospectiveDrug || ''}" placeholder="e.g. Ibuprofen or Aspirin" class="flex-1 btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
               ${this.prospectiveDrug ? `
-                <button id="clear-screener-btn" class="px-4 py-3 bg-white/5 border border-[var(--color-border)] rounded-xl text-xs font-mono uppercase tracking-widest text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors">Clear</button>
+                <button id="clear-screener-btn" class="px-4 py-3 btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">Clear</button>
               ` : `
-                <button id="run-screener-btn" class="px-5 py-3 bg-gradient-to-r from-[#7f2f5d] to-[#4a1532] border border-[#ffb88c]/40 rounded-xl text-xs font-bold uppercase tracking-widest text-[#ffd9b5] shadow-md">Check</button>
+                <button id="run-screener-btn" class="px-5 py-3 bg-gradient-to-r from-secondary to-surface-deep rounded-xl text-xs font-bold uppercase tracking-widest text-accent-bright btn-neumorphic">Check</button>
               `}
             </div>
           </section>
@@ -88,19 +79,19 @@ export default class InteractionCheckerView {
             
             ${summary.severe.length === 0 && summary.moderate.length === 0 && summary.mild.length === 0 ? `
               <div class="text-center p-8 bg-green-900/10 backdrop-blur-md border border-green-500/20 rounded-[2rem] shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
-                <div class="w-14 h-14 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-4 text-[#10b981]">
+                <div class="w-14 h-14 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-4 text-success">
                   <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
-                <h3 class="text-base font-bold text-[var(--color-text-primary)] mb-1">Regimen Cleared</h3>
-                <p class="text-xs text-[var(--color-text-secondary)] max-w-[280px] mx-auto leading-relaxed">No adverse overlapping clinical graph vectors identified across active treatments.</p>
+                <h3 class="text-base font-bold text-text-primary mb-1">Regimen Cleared</h3>
+                <p class="text-xs text-text-secondary max-w-[280px] mx-auto leading-relaxed">No adverse overlapping clinical graph vectors identified across active treatments.</p>
               </div>
             ` : ''}
 
-            <section class="mt-8 pt-6 border-t border-[#7f2f5d]/20">
-              <h4 class="text-xs font-mono tracking-widest text-[var(--color-text-muted)] uppercase mb-3">Evaluated Pharmacy Track</h4>
+            <section class="mt-8 pt-6 border-t border-border">
+              <h4 class="text-xs font-mono tracking-widest text-text-muted uppercase mb-3">Evaluated Pharmacy Track</h4>
               <div class="flex flex-wrap gap-2">
                 ${evaluationList.map(drug => `
-                  <span class="px-3 py-1.5 rounded-xl bg-[var(--color-surface-elevated)] border border-[#7f2f5d]/20 font-mono text-xs text-[var(--color-text-secondary)]">
+                  <span class="px-3 py-1.5 rounded-xl bg-surface-elevated border border-border font-mono text-xs text-text-secondary">
                     💊 ${drug}
                   </span>
                 `).join('')}
@@ -112,11 +103,12 @@ export default class InteractionCheckerView {
         </div>
       `;
 
+      document.dispatchEvent(new CustomEvent('view:ready', { detail: { hash: '#/interaction-checker' } }));
       this._attachListeners();
 
     } catch (err) {
       console.error('[InteractionChecker] Execution broken:', err);
-      this.container.innerHTML = `<div class="p-6 text-sm font-mono text-red-400 bg-red-950/10 border border-red-500/20 rounded-xl m-6">Processing Exception: ${err.message}</div>`;
+      this.container.innerHTML = `<div class="p-6 text-sm font-mono text-danger bg-red-950/10 border border-red-500/20 rounded-xl m-6">Processing Exception: ${err.message}</div>`;
     }
 
     return this.container;
@@ -131,7 +123,7 @@ export default class InteractionCheckerView {
 
     return `
       <section>
-        <h2 class="text-xs font-mono tracking-[0.2em] uppercase text-[var(--color-text-secondary)] mb-3 px-1">${title}</h2>
+        <h2 class="text-xs font-mono tracking-[0.2em] uppercase text-text-secondary mb-3 px-1">${title}</h2>
         <div class="space-y-3">
           ${matches.map(item => {
             const mechText = (item.details?.mechanism || '').toLowerCase();
@@ -156,20 +148,20 @@ export default class InteractionCheckerView {
               ` : ''}
               
               <div class="flex justify-between items-center mb-2 relative z-10">
-                <span class="text-xs font-mono uppercase tracking-widest font-bold px-2 py-0.5 rounded bg-black/40 border border-white/5">
+                <span class="text-xs font-mono uppercase tracking-widest font-bold px-2 py-0.5 rounded bg-overlay-bg border border-border">
                   ${label}
                 </span>
-                <span class="text-xs font-mono text-[#ffb88c] border border-[#ffb88c]/30 px-2 py-0.5 rounded uppercase tracking-widest bg-[#ca5229]/10">
+                <span class="text-xs font-mono text-accent-primary border border-accent-primary/30 px-2 py-0.5 rounded uppercase tracking-widest bg-primary/10">
                   ${mechType}
                 </span>
               </div>
               
               <div class="relative z-10">
-                <h4 class="text-sm font-bold text-[var(--color-text-primary)] mb-1">${item.drug1} <span class="text-xs text-[var(--color-text-secondary)] font-normal">cross-linked with</span> ${item.drug2}</h4>
+                <h4 class="text-sm font-bold text-text-primary mb-1">${item.drug1} <span class="text-xs text-text-secondary font-normal">cross-linked with</span> ${item.drug2}</h4>
                 <p class="text-xs opacity-90 leading-relaxed mb-3">${item.details?.mechanism || item.description}</p>
-                <div class="pt-3 border-t border-white/5 flex gap-2 items-start">
+                <div class="pt-3 border-t border-border flex gap-2 items-start">
                   <span class="text-xs font-mono text-inherit opacity-70 uppercase tracking-widest shrink-0 mt-0.5">Protocol:</span>
-                  <p class="text-xs text-gray-300 italic leading-relaxed">${item.recommendation}</p>
+                  <p class="text-xs text-text-secondary italic leading-relaxed">${item.recommendation}</p>
                 </div>
               </div>
             </div>
@@ -206,9 +198,9 @@ export default class InteractionCheckerView {
   _getSkeletonUI() {
     return `
       <div class="max-w-2xl mx-auto w-full px-6 pt-8">
-        <div class="h-6 w-32 bg-white/5 rounded animate-pulse mb-8"></div>
-        <div class="h-36 bg-white/5 rounded-3xl animate-pulse mb-6"></div>
-        <div class="h-24 bg-white/5 rounded-2xl animate-pulse"></div>
+        <div class="h-6 w-32 bg-surface-deep rounded animate-pulse mb-8"></div>
+        <div class="h-36 bg-surface-deep rounded-3xl animate-pulse mb-6"></div>
+        <div class="h-24 bg-surface-deep rounded-2xl animate-pulse"></div>
       </div>
     `;
   }

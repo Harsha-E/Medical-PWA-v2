@@ -110,8 +110,8 @@ export default class WebGLLiquid {
     this.settings = {
       colorDeep: "#1a0a12", // Deep background
       colorMid: "#7f2f5d",  // Burgundy/pink transitions
-      colorHighlight: "#ffb88c", // Brilliant gold/peach highlight
-      speed: 0.4, // Reduced speed for a more relaxing, ambient feel
+      colorHighlight: "#ffd9b5", // Brilliant gold/peach highlight
+      speed: 0.3, // Slower, calmer animated flow
       flowStrength: 1,
       grain: 0.03,
       contrast: 1.1,
@@ -191,9 +191,14 @@ export default class WebGLLiquid {
         ? Math.min(1, elapsedSec / Math.max(this.settings.revealDuration, 0.05))
         : 1;
 
-      const deep = hexToRgb01(this.settings.colorDeep);
-      const mid = hexToRgb01(this.settings.colorMid);
-      const highlight = hexToRgb01(this.settings.colorHighlight);
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      const activeColorDeep = this.settings.colorDeep;
+      const activeColorMid = this.settings.colorMid;
+      const activeColorHighlight = this.settings.colorHighlight;
+
+      const deep = hexToRgb01(activeColorDeep);
+      const mid = hexToRgb01(activeColorMid);
+      const highlight = hexToRgb01(activeColorHighlight);
 
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);

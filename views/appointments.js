@@ -2,6 +2,7 @@ import db from '../core/db.js';
 import state from '../core/state.js';
 import { showToast } from '../core/ui.js';
 import { escapeHTML } from '../core/utils.js';
+import app from '../app.js';
 
 export default class AppointmentsView {
   async render() {
@@ -10,17 +11,8 @@ export default class AppointmentsView {
 
     // Immediate skeleton before async data
     this.container.innerHTML = `
-      <header class="view-header">
-        <div>
-          <div class="skeleton" style="height:10px; width:100px; margin-bottom:10px;"></div>
-          <div class="skeleton" style="height:24px; width:160px;"></div>
-        </div>
-        <div style="display:flex; gap:8px;">
-          <div class="skeleton" style="width:44px; height:44px; border-radius:14px;"></div>
-          <div class="skeleton" style="width:44px; height:44px; border-radius:14px;"></div>
-        </div>
-      </header>
-      <main class="flex-1 overflow-y-auto px-6 md:px-12 pt-4 pb-28 w-full max-w-7xl mx-auto md:grid md:grid-cols-2 md:gap-12">
+      <main class="flex-1 overflow-y-auto md:px-12 pt-[112px] pb-28 w-full max-w-7xl mx-auto md:grid md:grid-cols-2 md:gap-12" style="padding-left:0; padding-right:0;">
+<div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
         <div>
           <div class="skeleton" style="height:12px; width:100px; margin-bottom:20px;"></div>
           <div class="skeleton skeleton-card" style="height:130px; margin-bottom:16px;"></div>
@@ -30,7 +22,7 @@ export default class AppointmentsView {
           <div class="skeleton" style="height:12px; width:80px; margin-bottom:20px;"></div>
           <div class="skeleton skeleton-card" style="height:100px; opacity:0.6;"></div>
         </div>
-      </main>
+      </div></main>
     `;
 
     const appointments = await db.appointments.toArray();
@@ -41,102 +33,89 @@ export default class AppointmentsView {
     const past = appointments.filter(a => new Date(a.date) < now);
 
     const renderAppt = (appt, isUpcoming) => `
-      <div class="clay-glass-panel p-6 mb-4 ${!isUpcoming ? 'opacity-60 border-[var(--color-border)] bg-[var(--color-surface-elevated)]/40 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)]' : 'border-[#ca5229]/50 bg-[var(--color-surface-elevated)]/40 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)]'} text-[var(--color-text-primary)] transition-all rounded-2xl">
+      <div class="clay-glass-panel p-6 mb-4 ${!isUpcoming ? 'opacity-60 border-border bg-surface-elevated/40 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)]' : 'border-primary/50 bg-surface-elevated/40 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)]'} text-text-primary transition-all rounded-2xl">
           <div class="flex justify-between items-start mb-4">
               <div>
-                  ${isUpcoming ? `<span class="text-xs font-bold text-[#ffb88c] uppercase tracking-widest bg-[#ca5229]/20 px-2 py-1 rounded-lg border border-[#ca5229]/30">Scheduled</span>` : ''}
-                  <h4 class="${isUpcoming ? 'text-2xl mt-4 text-[#ffb88c]' : 'text-lg text-[var(--color-text-primary)]'} font-display italic">${escapeHTML(appt.title)}</h4>
+                  ${isUpcoming ? `<span class="text-xs font-bold text-accent-primary uppercase tracking-widest bg-primary/20 px-2 py-1 rounded-lg border border-primary/30">Scheduled</span>` : ''}
+                  <h4 class="${isUpcoming ? 'text-2xl mt-4 text-accent-primary' : 'text-lg text-text-primary'} font-display italic">${escapeHTML(appt.title)}</h4>
               </div>
               <div class="text-right">
-                  <p class="${isUpcoming ? 'text-xl text-[var(--color-text-primary)]' : 'text-sm text-[#ffb88c]/80'} font-bold leading-none">${escapeHTML(appt.time) || '--:--'}</p>
-                  <p class="text-xs uppercase font-bold text-[#ffb88c]/60 mt-2 tracking-widest">${new Date(appt.date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: '2-digit' }).toUpperCase()}</p>
+                  <p class="${isUpcoming ? 'text-xl text-text-primary' : 'text-sm text-accent-primary/80'} font-bold leading-none">${escapeHTML(appt.time) || '--:--'}</p>
+                  <p class="text-xs uppercase font-bold text-accent-primary/60 mt-2 tracking-widest">${new Date(appt.date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: '2-digit' }).toUpperCase()}</p>
               </div>
           </div>
-          <div class="flex flex-col gap-2 pt-4 border-t ${isUpcoming ? 'border-[#ca5229]/30' : 'border-[#7f2f5d]/30'}">
+          <div class="flex flex-col gap-2 pt-4 border-t ${isUpcoming ? 'border-primary/30' : 'border-border'}">
               <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-xl bg-[var(--color-surface-elevated)] border border-[#7f2f5d]/40 flex items-center justify-center shadow-sm text-[#ffb88c]">
+                  <div class="w-10 h-10 rounded-xl bg-surface-elevated border border-border flex items-center justify-center shadow-sm text-accent-primary">
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                   </div>
                   <div>
-                      <p class="text-xs font-bold text-[var(--color-text-primary)]/90">${escapeHTML(appt.provider) || 'Unknown Provider'}</p>
+                      <p class="text-xs font-bold text-text-primary/90">${escapeHTML(appt.provider) || 'Unknown Provider'}</p>
                   </div>
               </div>
-              ${appt.location ? `<p class="text-xs text-[var(--color-text-secondary)] font-mono mt-1 ml-13">📍 ${escapeHTML(appt.location)}</p>` : ''}
-              ${appt.notes ? `<p class="text-xs text-[var(--color-text-muted)] italic mt-1 ml-13">📝 ${escapeHTML(appt.notes)}</p>` : ''}
-              ${appt.reminder ? `<p class="text-xs text-[#00ff7f]/70 font-bold uppercase tracking-widest mt-1 ml-13">⏰ Reminder Active</p>` : ''}
+              ${appt.location ? `<p class="text-xs text-text-secondary font-mono mt-1 ml-13">📍 ${escapeHTML(appt.location)}</p>` : ''}
+              ${appt.notes ? `<p class="text-xs text-text-muted italic mt-1 ml-13">📝 ${escapeHTML(appt.notes)}</p>` : ''}
+              ${appt.reminder ? `<p class="text-xs text-success/70 font-bold uppercase tracking-widest mt-1 ml-13">⏰ Reminder Active</p>` : ''}
           </div>
       </div>
     `;
 
     this.container.innerHTML = `
-      <header class="view-header">
-        <div class="flex flex-col">
-          <span class="text-xs text-uppercase text-[#ffb88c]/70 uppercase font-bold tracking-widest leading-none">Clinical Calendar</span>
-          <h1 class="text-2xl font-display mt-1 text-[var(--color-text-primary)] leading-none">Appointments</h1>
-        </div>
-        <div class="flex gap-2">
-          <a href="#/calendar" class="bg-[var(--color-surface-elevated)] border border-[#7f2f5d]/50 text-[#ffb88c] px-3 h-11 rounded-2xl flex items-center justify-center shadow-lg active:scale-90 transition-transform">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          </a>
-          <button id="add-appointment-btn" class="bg-gradient-to-br from-[#7f2f5d] to-[#ca5229] border border-[#ffb88c]/30 text-[#ffb88c] w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg shadow-[#ca5229]/20 active:scale-90 transition-transform">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          </button>
-        </div>
-      </header>
-
-      <main class="flex-1 overflow-y-auto px-6 md:px-12 pt-4 pb-28 w-full max-w-7xl mx-auto md:grid md:grid-cols-2 md:gap-12">
+      <main class="flex-1 overflow-y-auto md:px-12 pt-[112px] pb-28 w-full max-w-7xl mx-auto md:grid md:grid-cols-2 md:gap-12" style="padding-left:0; padding-right:0;">
+<div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
         <section class="mb-12">
-            <h3 class="text-xs text-uppercase font-bold text-[#ffb88c]/70 mb-6 tracking-[0.2em] px-1 uppercase">Upcoming</h3>
+            <h3 class="text-xs text-uppercase font-bold text-accent-primary/70 mb-6 tracking-[0.2em] px-1 uppercase">Upcoming</h3>
             <div class="space-y-4">
-                ${upcoming.length ? upcoming.map(a => renderAppt(a, true)).join('') : '<p class="text-xs text-[#ffb88c]/50 font-display italic pl-1">No upcoming appointments.</p>'}
+                ${upcoming.length ? upcoming.map(a => renderAppt(a, true)).join('') : '<p class="text-xs text-accent-primary/50 font-display italic pl-1">No upcoming appointments.</p>'}
             </div>
         </section>
 
         <section class="mb-12">
-            <h3 class="text-xs text-uppercase font-bold text-[#ffb88c]/70 mb-6 tracking-[0.2em] px-1 uppercase">Past Consultations</h3>
+            <h3 class="text-xs text-uppercase font-bold text-accent-primary/70 mb-6 tracking-[0.2em] px-1 uppercase">Past Consultations</h3>
             <div class="space-y-4">
-                ${past.length ? past.map(a => renderAppt(a, false)).join('') : '<p class="text-xs text-[#ffb88c]/50 font-display italic pl-1">No past history found.</p>'}
+                ${past.length ? past.map(a => renderAppt(a, false)).join('') : '<p class="text-xs text-accent-primary/50 font-display italic pl-1">No past history found.</p>'}
             </div>
         </section>
-      </main>
+      </div></main>
 
     `;
 
+    document.dispatchEvent(new CustomEvent('view:ready', { detail: { hash: '#/appointments' } }));
     this.attachListeners();
     return this.container;
   }
 
   _showToast(msg, type = 'success') {
     const t = document.createElement('div');
-    t.className = `fixed bottom-24 left-1/2 -translate-x-1/2 px-6 py-3 rounded-2xl text-xs font-mono uppercase tracking-widest z-[99999] shadow-xl transition-all ${type === 'error' ? 'bg-red-900/80 border border-red-500/40 text-red-200' : 'bg-[#00ff7f]/10 border border-[#00ff7f]/30 text-[#00ff7f]'}`;
+    t.className = `fixed bottom-24 left-1/2 -translate-x-1/2 px-6 py-3 rounded-2xl text-xs font-mono uppercase tracking-widest z-[99999] shadow-xl transition-all ${type === 'error' ? 'bg-red-900/80 border border-red-500/40 text-red-200' : 'bg-success/10 border border-success/30 text-success'}`;
     t.textContent = msg;
     document.body.appendChild(t);
     setTimeout(() => t.remove(), 3500);
   }
 
   attachListeners() {
-    this.container.querySelector('#add-appointment-btn').addEventListener('click', () => {
+    app.appHeader.on('add-appt', () => {
         const modalHtml = `
-          <div id="appt-modal" class="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-            <div class="bg-[var(--color-surface-elevated)]/60 backdrop-blur-2xl border border-[var(--color-border)] rounded-[2rem] p-6 w-full max-w-sm shadow-[0_8px_32px_rgba(0,0,0,0.7)]">
-              <h2 class="text-xl font-display text-[var(--color-text-primary)] mb-6">New Appointment</h2>
+          <div id="appt-modal" class="fixed inset-0 z-[9999] bg-overlay-bg backdrop-blur-md flex items-center justify-center p-4">
+            <div class="bg-surface-elevated/60 backdrop-blur-2xl border border-border rounded-[2rem] p-6 w-full max-w-sm shadow-[0_8px_32px_rgba(0,0,0,0.7)]">
+              <h2 class="text-xl font-display text-text-primary mb-6">New Appointment</h2>
               <div class="space-y-4">
-                <input type="text" id="appt-title" placeholder="Title (e.g., Dentist)" class="w-full bg-white/5 border border-[#7f2f5d]/50 rounded-xl px-4 py-3 text-[var(--color-text-primary)] text-sm focus:outline-none focus:border-[#ffb88c]/50">
-                <input type="text" id="appt-provider" placeholder="Provider (e.g., Dr. Smith)" class="w-full bg-white/5 border border-[#7f2f5d]/50 rounded-xl px-4 py-3 text-[var(--color-text-primary)] text-sm focus:outline-none focus:border-[#ffb88c]/50">
-                <input type="text" id="appt-location" placeholder="Location or Link" class="w-full bg-white/5 border border-[#7f2f5d]/50 rounded-xl px-4 py-3 text-[var(--color-text-primary)] text-sm focus:outline-none focus:border-[#ffb88c]/50">
+                <input type="text" id="appt-title" placeholder="Title (e.g., Dentist)" class="w-full btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
+                <input type="text" id="appt-provider" placeholder="Provider (e.g., Dr. Smith)" class="w-full btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
+                <input type="text" id="appt-location" placeholder="Location or Link" class="w-full btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
                 <div class="flex gap-2">
-                  <input type="date" id="appt-date" class="flex-1 bg-white/5 border border-[#7f2f5d]/50 rounded-xl px-4 py-3 text-[var(--color-text-primary)] text-sm focus:outline-none focus:border-[#ffb88c]/50" style="color-scheme: dark;">
-                  <input type="time" id="appt-time" class="flex-1 bg-white/5 border border-[#7f2f5d]/50 rounded-xl px-4 py-3 text-[var(--color-text-primary)] text-sm focus:outline-none focus:border-[#ffb88c]/50" style="color-scheme: dark;">
+                  <input type="date" id="appt-date" class="flex-1 btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2" style="color-scheme: dark;">
+                  <input type="time" id="appt-time" class="flex-1 btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2" style="color-scheme: dark;">
                 </div>
-                <textarea id="appt-notes" placeholder="Pre-appointment notes..." rows="2" class="w-full bg-white/5 border border-[#7f2f5d]/50 rounded-xl px-4 py-3 text-[var(--color-text-primary)] text-sm focus:outline-none focus:border-[#ffb88c]/50"></textarea>
-                <label class="flex items-center gap-3 text-[var(--color-text-primary)] text-sm cursor-pointer mt-2">
-                  <input type="checkbox" id="appt-reminder" class="w-4 h-4 accent-[#ffb88c]">
+                <textarea id="appt-notes" placeholder="Pre-appointment notes..." rows="2" class="w-full btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2"></textarea>
+                <label class="flex items-center gap-3 text-text-primary text-sm cursor-pointer mt-2">
+                  <input type="checkbox" id="appt-reminder" class="w-4 h-4 accent-accent-primary">
                   Set Reminder Notification
                 </label>
               </div>
               <div class="flex gap-3 mt-8">
-                <button id="appt-cancel" class="flex-1 py-3.5 rounded-xl border border-[#7f2f5d]/50 text-[var(--color-text-secondary)] font-bold uppercase text-xs tracking-widest hover:bg-white/5 transition-colors">Cancel</button>
-                <button id="appt-save" class="flex-1 py-3.5 rounded-xl bg-gradient-to-r from-[#7f2f5d] to-[#ca5229] text-[var(--color-text-primary)] font-bold uppercase text-xs tracking-widest shadow-lg shadow-[#ca5229]/20 active:scale-95 transition-transform">Save</button>
+                <button id="appt-cancel" class="flex-1 py-3.5 rounded-xl text-text-secondary font-bold uppercase text-xs tracking-widest transition-colors btn-neumorphic">Cancel</button>
+                <button id="appt-save" class="flex-1 py-3.5 rounded-xl btn-neumorphic-primary font-bold uppercase text-xs tracking-widest".replace(/s+/g, ' ').trim()>Save</button>
               </div>
             </div>
           </div>

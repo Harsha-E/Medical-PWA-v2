@@ -22,24 +22,14 @@ export default class AdminView {
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-danger)" stroke-width="1.5" class="mb-6"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           <h2 class="text-2xl font-display italic mb-2">Access Denied</h2>
           <p class="text-xs text-muted">Administrator privilege required.</p>
-          <button onclick="history.back()" class="btn-primary mt-8 px-8">Go Back</button>
+          <button onclick="history.back()" class="btn-primary mt-8 px-8 btn-neumorphic">Go Back</button>
         </div>`;
       return this.container;
     }
 
     this.container.innerHTML = `
-      <header class="view-header">
-        <button class="back-btn" onclick="history.back()">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-        </button>
-        <div class="flex flex-col items-center">
-          <span class="text-xs text-muted uppercase tracking-widest leading-none">Super-User Console</span>
-          <h1 class="text-lg font-display mt-1 leading-none">Admin Portal</h1>
-        </div>
-        <div style="width:44px"></div>
-      </header>
-
-      <main class="scroll-area px-6 pt-28 pb-12">
+      <main class="scroll-area pt-[112px] pb-12" style="padding-left:0; padding-right:0;">
+<div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
         <div class="grid grid-cols-2 gap-4 mb-10">
           <div class="clay-glass-panel p-5">
             <span class="text-xs font-bold text-muted uppercase tracking-widest block mb-2">Total Users</span>
@@ -57,7 +47,7 @@ export default class AdminView {
             <p class="text-xs text-muted italic">Loading...</p>
           </div>
         </section>
-      </main>
+      </div></main>
     `;
 
     this.loadData();
@@ -92,7 +82,7 @@ export default class AdminView {
       }).join('');
     } catch (e) {
       console.error(e);
-      this.container.querySelector('#user-list').innerHTML = `<p class="text-xs text-red-500">Access Denied: ${e.message}</p>`;
+      this.container.querySelector('#user-list').innerHTML = `<p class="text-xs text-danger">Access Denied: ${e.message}</p>`;
     }
   }
 }

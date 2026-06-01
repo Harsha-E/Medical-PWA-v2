@@ -1,10 +1,12 @@
 /**
  * @fileoverview Local Client-Side Notification Engine.
  * Architecture: ES6 Module, Zero-Dependency.
- * Paradigm: Offline-first push notifications using native browser APIs and polling.
+ * Paradigm: Offline-first push notifications using native browser APIs, polling,
+ * and adaptive timing learned from user interaction histories.
  */
 
 import state from '../core/state.js';
+import NotificationProfile from './NotificationProfile.js';
 
 class NotificationEngine {
   constructor() {
@@ -20,6 +22,9 @@ class NotificationEngine {
     /** @type {number|null} setInterval handle for background sync loop */
     this._pollInterval = null;
 
+    // Instantiate smart timing profile
+    this.profile = new NotificationProfile();
+
     // Check existing permissions on boot without prompting
     if ('Notification' in window) {
       this._permission = Notification.permission;
@@ -28,7 +33,6 @@ class NotificationEngine {
 
   /**
    * Requests system-level notification permissions from the user.
-   * Gracefully handles unsupported browsers without throwing.
    * @returns {Promise<boolean>} True if permission was granted.
    */
   async requestPermission() {
@@ -53,12 +57,9 @@ class NotificationEngine {
    * @returns {Promise<void>}
    */
   async scheduleAllDoses(medications = []) {
-    if (!medications || medications.length === 0) return;
-
     this._clearAll();
     
     let scheduledCount = 0;
-    
     for (const medication of medications) {
       const count = this._scheduleMedication(medication);
       scheduledCount += count;
@@ -66,7 +67,6 @@ class NotificationEngine {
 
     // Schedule midnight reset job to calculate tomorrow's doses
     this._scheduleMidnightReset(medications);
-
   }
 
   /**
@@ -85,10 +85,15 @@ class NotificationEngine {
     const now = new Date();
 
     for (const timeStr of times) {
-      const [hours, minutes] = timeStr.split(':').map(Number);
+      let [hours, minutes] = timeStr.split(':').map(Number);
       
+      // Smart notification timing:
+      // Adjust delivery hour to the user's learned peak opening times
+      const category = hours < 12 ? 'morning' : 'evening';
+      const optimalHour = this.profile.getOptimalHour(category, hours);
+
       const targetTime = new Date();
-      targetTime.setHours(hours, minutes, 0, 0);
+      targetTime.setHours(optimalHour, minutes, 0, 0);
 
       const msUntilDose = targetTime.getTime() - now.getTime();
       const jobId = `${medication.id}_${timeStr}`;
@@ -96,7 +101,7 @@ class NotificationEngine {
       // Only schedule if time is in the future
       if (msUntilDose > 0) {
         const timeoutId = setTimeout(() => {
-          this._fireDoseReminder(medication, timeStr);
+          this._fireDoseReminder(medication, timeStr, category);
         }, msUntilDose);
 
         this._scheduledJobs.set(jobId, timeoutId);
@@ -132,7 +137,7 @@ class NotificationEngine {
    * Triggers the native OS notification banner.
    * @private
    */
-  _fireDoseReminder(medication, timeStr) {
+  _fireDoseReminder(medication, timeStr, category = 'default') {
     const jobId = `${medication.id}_${timeStr}`;
     
     // Mark as fired to prevent polling loop from triggering it again
@@ -142,16 +147,23 @@ class NotificationEngine {
     if (this._permission !== 'granted') return;
 
     try {
-      const notification = new Notification(`💊 Time for ${medication.name || medication.genericName}`, {
-        body: `Scheduled dose: ${medication.dosage || 'Prescribed dose'}.\nTap to log it.`,
+      // Soft notifications: helpful, not demanding
+      const title = `✓ Time for your ${category} medicine`;
+      const body = `Take ${medication.name || 'your medicine'} (${medication.dosage || 'Prescribed dose'}) to support your health progress.`;
+
+      const notification = new Notification(title, {
+        body: body,
         icon: './assets/icons/icon-192.png',
         badge: './assets/icons/badge-72.png',
         tag: `dose_${medication.id}`,
-        requireInteraction: true, // Keep on screen until acknowledged
-        data: { medicationId: medication.id, scheduledAt: new Date().toISOString() }
+        requireInteraction: true,
+        data: { medicationId: medication.id, scheduledAt: new Date().toISOString(), category }
       });
 
       notification.onclick = () => {
+        // Record interaction in NotificationProfile
+        this.profile.recordInteraction(category, 'open');
+        
         window.focus();
         window.location.hash = '#/dashboard';
         notification.close();
@@ -163,8 +175,7 @@ class NotificationEngine {
   }
 
   /**
-   * A redundancy loop. Browsers often throttle `setTimeout` for background tabs.
-   * This loop runs every 60 seconds to catch any missed doses and fire them.
+   * A redundancy loop. Runs every 60 seconds to catch drifted alarms.
    * @param {Object[]} medications 
    */
   startPollingScheduler(medications = []) {
@@ -181,22 +192,24 @@ class NotificationEngine {
         for (const timeStr of times) {
           const [hours, minutes] = timeStr.split(':').map(Number);
           
+          const category = hours < 12 ? 'morning' : 'evening';
+          const optimalHour = this.profile.getOptimalHour(category, hours);
+
           const targetTime = new Date();
-          targetTime.setHours(hours, minutes, 0, 0);
+          targetTime.setHours(optimalHour, minutes, 0, 0);
           
           const targetMs = targetTime.getTime();
           const jobId = `${medication.id}_${timeStr}`;
 
-          // If the dose was due in the last 120 seconds AND hasn't been fired yet
           if (currentTime >= targetMs && (currentTime - targetMs) <= 120000) {
             if (!this._firedDoses.has(jobId)) {
               console.warn(`[NotificationEngine] Caught drifted alarm via polling for ${jobId}`);
-              this._fireDoseReminder(medication, timeStr);
+              this._fireDoseReminder(medication, timeStr, category);
             }
           }
         }
       }
-    }, 60000); // 60 seconds
+    }, 60000);
   }
 
   /**
@@ -210,7 +223,7 @@ class NotificationEngine {
   }
 
   /**
-   * Wipes all pending timers. Used when medications are deleted/updated.
+   * Wipes all pending timers.
    * @private
    */
   _clearAll() {
@@ -227,21 +240,7 @@ class NotificationEngine {
   getScheduledCount() {
     return this._scheduledJobs.size;
   }
-
-  /**
-   * Developer method to verify OS-level notification permissions are working.
-   */
-  sendTestNotification() {
-    if (this._permission !== 'granted') {
-      console.warn('[NotificationEngine] Cannot test: Permission not granted.');
-      return;
-    }
-    
-    new Notification('MedCare is working!', {
-      body: 'Notifications are correctly configured on this device.',
-      icon: './assets/icons/icon-192.png'
-    });
-  }
 }
 
 export const notificationEngine = new NotificationEngine();
+export default notificationEngine;

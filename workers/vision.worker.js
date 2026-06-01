@@ -119,9 +119,15 @@ self.onmessage = async (e) => {
                 _tesseractReady = true;
             }
 
-            const { data: { text, confidence } } = await ocrWorker.recognize(finalCleanedBlob);
+            const { data: { text, confidence, words } } = await ocrWorker.recognize(finalCleanedBlob);
             const rawText = text.trim();
             
+            const regions = (words || []).map(w => ({
+                text: w.text,
+                confidence: w.confidence,
+                bbox: w.bbox
+            }));
+
             if (!rawText) {
                 self.postMessage({ type: 'PIPELINE_ERROR', error: 'NO_TEXT' });
                 return;
@@ -172,7 +178,8 @@ self.onmessage = async (e) => {
                     dosages,
                     frequencies,
                     quantities,
-                    croppedBlob 
+                    croppedBlob,
+                    regions
                 } 
             });
         } catch (err) {

@@ -39,16 +39,16 @@ export default class GlassNavbar {
 
     if (isAuthLayout) {
       this.root.innerHTML = `
-        <nav id="glass-nav" class="bottom-6 md:bottom-auto md:top-6 fixed z-[9999] left-1/2 -translate-x-1/2 w-[95%] max-w-2xl px-2 md:px-6 py-3 rounded-full flex justify-between items-center bg-[#0a0407]/60 backdrop-blur-xl border border-[#7f2f5d]/50 shadow-[0_8px_32px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,217,181,0.15)] transition-all duration-300">
+        <nav id="glass-nav" class="bottom-6 md:bottom-auto md:top-6 fixed z-[9999] left-1/2 -translate-x-1/2 w-[95%] max-w-2xl px-2 md:px-6 py-3 rounded-full flex justify-between items-center backdrop-blur-xl border transition-all duration-300" style="background: var(--color-nav-bg); border-color: var(--color-nav-border); box-shadow: 0 8px 32px var(--color-card-shadow), inset 0 1px 1px rgba(255,255,255,0.08); opacity: 0.85;">
           ${this.getAuthenticatedMenu(hash)}
         </nav>
       `;
     } else {
       this.root.innerHTML = `
-        <nav id="glass-nav" class="${positionClass} left-1/2 -translate-x-1/2 w-[90%] sm:w-[95%] max-w-5xl h-14 md:h-16 flex items-center justify-between px-2 md:px-3 bg-[#0a0407]/40 backdrop-blur-2xl md:backdrop-blur-3xl border border-[#7f2f5d]/30 rounded-full z-[9000] shadow-[0_8px_32px_0_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,217,181,0.1)] transition-all duration-700 ease-pill-glide select-none pointer-events-auto">
+        <nav id="glass-nav" class="${positionClass} left-1/2 -translate-x-1/2 w-[90%] sm:w-[95%] max-w-5xl h-14 md:h-16 flex items-center justify-between px-2 md:px-3 backdrop-blur-2xl md:backdrop-blur-3xl border rounded-full z-[9000] transition-all duration-700 ease-pill-glide select-none pointer-events-auto" style="background: var(--color-nav-bg); border-color: var(--color-nav-border); box-shadow: 0 8px 32px var(--color-card-shadow), inset 0 1px 1px rgba(255,255,255,0.08); opacity: 0.85;">
           <a href="#/landing" class="flex items-center gap-2 md:gap-3 pl-3 md:pl-4 mr-auto hover:opacity-80 transition-opacity">
-            <svg class="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="#ffd9b5" stroke-width="2"><path d="M11 2a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2H2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h5a2 2 0 0 1 2 2v5a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-5a2 2 0 0 1 2-2h5a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-5a2 2 0 0 1-2-2V4a2 2 0 0 0-2-2h-4Z"></path></svg>
-            <span class="font-display text-lg tracking-tight text-white font-medium block mt-[2px]">MedCheck</span>
+            <svg class="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><path d="M11 2a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2H2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h5a2 2 0 0 1 2 2v5a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-5a2 2 0 0 1 2-2h5a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-5a2 2 0 0 1-2-2V4a2 2 0 0 0-2-2h-4Z"></path></svg>
+            <span class="font-display text-lg tracking-tight font-medium block mt-[2px]" style="color: var(--color-text-primary);">MedCheck</span>
           </a>
           ${this.getPublicMenu()}
         </nav>
@@ -60,11 +60,11 @@ export default class GlassNavbar {
   getPublicMenu() {
     return `
       <div class="flex items-center gap-2 md:gap-3 pr-1">
-        <a href="#/login" class="flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 rounded-full text-xs md:text-xs font-mono tracking-widest text-gray-400 hover:text-white hover:bg-white/5 transition-all uppercase">
+        <a href="#/login" class="flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 rounded-full text-xs md:text-xs font-mono tracking-widest hover:bg-white/5 transition-all uppercase" style="color: var(--color-text-secondary);">
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
             <span class="hidden sm:block">Portal</span>
         </a>
-        <a href="#/register" class="flex items-center gap-2 px-4 md:px-6 py-2 md:py-2.5 rounded-full bg-linear-to-r from-[#7f2f5d]/80 to-[#4a1532]/80 border border-[#ffb88c]/30 text-[#ffd9b5] text-xs md:text-xs font-mono uppercase tracking-widest hover:brightness-125 transition-all">
+        <a href="#/register" class="flex items-center gap-2 px-4 md:px-6 py-2 md:py-2.5 rounded-full border text-xs md:text-xs font-mono uppercase tracking-widest hover:brightness-125 transition-all" style="background: linear-gradient(to right, var(--color-primary-dark), var(--color-secondary)); border-color: var(--color-border); color: var(--color-primary-light);">
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
             <span class="hidden sm:block">Initialize</span>
         </a>
@@ -106,19 +106,14 @@ export default class GlassNavbar {
       const isActive = hash === item.href || hash.startsWith(item.href + '/');
 
       // Setup dynamic CSS variables based on active state
-      const defaultActiveColor = 'text-[#ffd9b5]';
-      const defaultBaseColor = 'text-gray-400';
-      const defaultGlow = 'shadow-lg md:shadow-[0_0_20px_rgba(255,217,181,0.15)]';
-
       const textColor = isActive 
-        ? (item.activeColor || defaultActiveColor) 
-        : (item.baseColor || defaultBaseColor);
+        ? 'style="color: var(--color-primary);"' 
+        : 'style="color: var(--color-text-secondary);"';
 
-      const glowCSS = isActive ? (item.glow || defaultGlow) : 'hover:bg-white/5 hover:text-gray-200';
-      const activeBg = isActive ? 'bg-white/5' : 'bg-transparent';
+      const activeBg = isActive ? 'is-active' : '';
 
       return `
-        <a href="${item.href}" class="nav-item flex items-center justify-center md:justify-start px-2 md:px-4 py-2 md:py-3 rounded-[1.25rem] md:rounded-full relative transition-all duration-300 w-12 md:w-auto overflow-hidden group ${glowCSS} ${activeBg} ${textColor}">
+        <a href="${item.href}" class="nav-item flex items-center justify-center md:justify-start px-2 md:px-4 py-2 md:py-3 rounded-[1.25rem] md:rounded-full relative transition-all duration-300 w-12 md:w-auto overflow-hidden group ${activeBg}" ${textColor}>
           <div class="relative z-10 flex items-center transition-transform ${isActive ? 'scale-110 md:scale-100' : ''}">
             ${item.icon}
             <span class="hidden md:block text-xs font-bold uppercase tracking-widest ml-2 truncate">${item.label}</span>
@@ -138,12 +133,12 @@ export default class GlassNavbar {
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-6';
     modal.innerHTML = `
-      <div class="bg-[#1a0a12] border border-[#7f2f5d] p-8 rounded-3xl max-w-sm w-full shadow-2xl text-center">
-        <h3 class="text-lg font-display text-white mb-2">Terminate Session?</h3>
-        <p class="text-gray-400 text-xs font-mono mb-6 uppercase tracking-widest">Protocol access will be revoked.</p>
+      <div class="border p-8 rounded-3xl max-w-sm w-full shadow-2xl text-center" style="background: var(--color-surface-elevated); border-color: var(--color-border);">
+        <h3 class="text-lg font-display mb-2" style="color: var(--color-text-primary);">Terminate Session?</h3>
+        <p class="text-xs font-mono mb-6 uppercase tracking-widest" style="color: var(--color-text-secondary);">Protocol access will be revoked.</p>
         <div class="flex gap-3">
-          <button id="cancel-logout" class="flex-1 py-3 rounded-xl border border-white/10 text-white text-xs uppercase font-bold tracking-widest hover:bg-white/5">Cancel</button>
-          <button id="confirm-logout" class="flex-1 py-3 rounded-xl bg-red-900/50 border border-red-500/30 text-red-200 text-xs uppercase font-bold tracking-widest hover:bg-red-900/80">Terminate</button>
+          <button id="cancel-logout" class="flex-1 py-3 rounded-xl text-xs uppercase font-bold tracking-widest btn-neumorphic" style="border-color: var(--color-border); color: var(--color-text-primary);">Cancel</button>
+          <button id="confirm-logout" class="flex-1 py-3 rounded-xl bg-red-900/50 text-red-200 text-xs uppercase font-bold tracking-widest btn-neumorphic">Terminate</button>
         </div>
       </div>
     `;

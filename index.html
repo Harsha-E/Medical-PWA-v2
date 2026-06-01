@@ -30,7 +30,8 @@
   <!-- ── PWA manifest ──────────────────────────────────────────────────── -->
   <link rel="icon" type="image/jpeg" id="favicon-link" />
   <link rel="manifest" id="manifest-link" />
-  <meta name="theme-color" content="#1a0a12" />
+  <meta name="theme-color" content="#1a0a12" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#faf7f4" media="(prefers-color-scheme: light)">
   <script>
     const BASE_PATH = window.location.hostname === 'harsha-e.github.io' ? '/Medical-PWA-v2' : '';
     document.getElementById('favicon-link').href = `${BASE_PATH}/assets/logo.webp`;
@@ -64,9 +65,18 @@
       "appId":             "REPLACE_WITH_YOUR_APP_ID"
     }
   </script>
+  
+  <!-- Synchronously apply theme before paint to prevent FOUC -->
+  <script>
+    try {
+      if (localStorage.getItem('medcare-theme') === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    } catch (e) {}
+  </script>
 </head>
 
-<body class="bg-[var(--color-surface-elevated)] text-gray-100 overflow-hidden w-screen h-screen selection:bg-[#7f2f5d] selection:text-[var(--color-text-primary)]">
+<body class="text-gray-100 overflow-hidden w-screen h-screen selection:bg-[#7f2f5d] selection:text-white" style="background-color: var(--color-surface);">
 
   <!-- ── Global Animated Blobs ─────────────────────────────────────────── -->
   <style>
@@ -82,15 +92,15 @@
     .animation-delay-2000 { animation-delay: -5s; }
     .animation-delay-4000 { animation-delay: -10s; }
   </style>
-  <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#050203]">
+  <div id="blob-bg" class="fixed inset-0 z-0 pointer-events-none overflow-hidden transition-colors duration-700" style="background-color: var(--color-surface);">
       <!-- Lava Blob 1 -->
-      <div class="animate-blob absolute top-[-10%] left-[-10%] w-[70vw] h-[70vw] rounded-full bg-gradient-to-br from-[#ca5229]/30 to-[#7f2f5d]/50 mix-blend-screen filter blur-[80px]"></div>
+      <div class="animate-blob absolute top-[-10%] left-[-10%] w-[70vw] h-[70vw] rounded-full filter blur-[100px] opacity-60" style="background-color: var(--color-primary);"></div>
       
       <!-- Lava Blob 2 -->
-      <div class="animate-blob animation-delay-2000 absolute top-[40%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-tr from-[#7f2f5d]/40 to-[#ffb88c]/20 mix-blend-screen filter blur-[90px]"></div>
+      <div class="animate-blob animation-delay-2000 absolute top-[40%] right-[-10%] w-[60vw] h-[60vw] rounded-full filter blur-[120px] opacity-60" style="background-color: var(--color-primary);"></div>
       
       <!-- Lava Blob 3 -->
-      <div class="animate-blob animation-delay-4000 absolute bottom-[-10%] left-[20%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-t from-[#ca5229]/20 to-transparent mix-blend-screen filter blur-[70px]"></div>
+      <div class="animate-blob animation-delay-4000 absolute bottom-[-10%] left-[20%] w-[50vw] h-[50vw] rounded-full filter blur-[90px] opacity-60" style="background-color: var(--color-primary);"></div>
   </div>
 
   <!-- ── Splash screen ─────────────────────────────────────────────────── -->
@@ -101,13 +111,14 @@
   -->
   <div
     id="splash-screen"
-    class="fixed inset-0 z-[9999] bg-[var(--color-surface-elevated)] flex flex-col items-center justify-center transition-opacity duration-1000"
+    class="fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-opacity duration-1000"
+    style="background-color: var(--color-surface)"
   >
     <div class="relative w-12 h-12 mb-8">
-      <div class="absolute inset-0 border-t-2 border-transparent border-t-[#ffd9b5] rounded-full animate-spin"></div>
-      <div class="absolute inset-2 border-b-2 border-transparent border-b-[#7f2f5d] rounded-full animate-[spin_1.5s_linear_infinite_reverse]"></div>
+      <div class="absolute inset-0 border-t-2 border-transparent rounded-full animate-spin" style="border-top-color: var(--color-accent-bright);"></div>
+      <div class="absolute inset-2 border-b-2 border-transparent rounded-full animate-[spin_1.5s_linear_infinite_reverse]" style="border-bottom-color: var(--color-secondary);"></div>
     </div>
-    <p class="font-mono text-[10px] text-[#ffd9b5] tracking-[0.4em] animate-pulse uppercase">
+    <p class="font-mono text-[10px] tracking-[0.4em] animate-pulse uppercase" style="color: var(--color-accent-bright);">
       Initializing Core…
     </p>
   </div>
@@ -125,6 +136,7 @@
 
   <!-- ── Navigation root ───────────────────────────────────────────────── -->
   <!-- GlassNavbar mounts itself here so it always sits above the viewport -->
+  <div id="header-root"></div>
   <div id="navigation-root" class="fixed z-[9000]"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.4.7/peerjs.min.js" defer></script>

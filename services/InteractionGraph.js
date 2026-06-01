@@ -4,6 +4,11 @@
  * Paradigm: Offline-first adjacency list for drug-drug and drug-food interactions.
  */
 
+import { INDIAN_DRUG_DATASET } from '../data/indian-drug-dataset.js';
+import { AP_DRUG_DATASET } from '../datasets/regional/andhra-pradesh-brands.js';
+import { getMasterRegistry } from '../datasets/ayurvedic/ayush-dataset.js';
+import { resolveBrandAlias, BRAND_TO_GENERIC } from '../datasets/aliases/brand-aliases.js';
+
 class InteractionGraph {
   constructor() {
     /** @type {Map<string, Map<string, Object>>} Adjacency list of interactions */
@@ -140,6 +145,68 @@ class InteractionGraph {
   }
 
   /**
+   * Resolves a brand name to its generic active ingredient name.
+   * @private
+   * @param {string} drugName - Scanned brand name
+   * @returns {string} The normalized generic active ingredient name
+   */
+  _resolveToGeneric(drugName) {
+    if (!drugName) return '';
+    let clean = String(drugName).trim().toLowerCase();
+
+    // 1. Resolve spelling variations or aliases of brand names
+    const resolvedBrand = resolveBrandAlias(clean);
+    if (resolvedBrand) {
+      clean = resolvedBrand.toLowerCase();
+    }
+
+    // 2. Map official brand name to generic salt if mapped in our directory
+    if (BRAND_TO_GENERIC[clean]) {
+      return BRAND_TO_GENERIC[clean].toLowerCase();
+    }
+
+    // 3. Fallback: check if matches name or brands/aliases in global dataset
+    for (const record of INDIAN_DRUG_DATASET) {
+      if (record.name && record.name.toLowerCase() === clean) {
+        return record.name.toLowerCase();
+      }
+      const brands = record.brandNames || [];
+      if (brands.some(b => b.toLowerCase() === clean)) {
+        return record.name.toLowerCase();
+      }
+      const aliases = record.aliases || [];
+      if (aliases.some(a => a.toLowerCase() === clean)) {
+        return record.name.toLowerCase();
+      }
+    }
+
+    // 2. Check in regional AP brands dataset
+    for (const record of AP_DRUG_DATASET) {
+      if (record.name && record.name.toLowerCase() === clean) {
+        return record.genericName.toLowerCase();
+      }
+      const aliases = record.aliases || [];
+      if (aliases.some(a => a.toLowerCase() === clean)) {
+        return record.genericName.toLowerCase();
+      }
+    }
+
+    // 3. Check in AYUSH datasets
+    const ayushDataset = getMasterRegistry ? getMasterRegistry() : [];
+    for (const record of ayushDataset) {
+      if (record.name && record.name.toLowerCase() === clean) {
+        return record.name.toLowerCase();
+      }
+      const aliases = record.aliases || [];
+      if (aliases.some(a => a.toLowerCase() === clean)) {
+        return record.name.toLowerCase();
+      }
+    }
+
+    return clean;
+  }
+
+  /**
    * Evaluates an entire list of medications for any cross-interactions.
    * @param {string[]|Object[]} drugList - Array of drug names or medication objects.
    * @returns {Object[]} Array of found interactions.
@@ -147,11 +214,19 @@ class InteractionGraph {
   findInteractions(drugList = []) {
     if (!this._isReady || drugList.length < 2) return [];
 
-    const normalized = drugList.map((drug) =>
-      typeof drug === 'string'
-        ? { key: this._normalize(drug), label: drug, date: null }
-        : { key: this._normalize(drug.genericName || drug.name || drug.title), label: drug.name || drug.genericName || drug.title, date: drug.date || null }
-    );
+    const normalized = drugList.map((drug) => {
+      const rawName = typeof drug === 'string'
+        ? drug
+        : (drug.genericName || drug.name || drug.title);
+        
+      const genericName = this._resolveToGeneric(rawName);
+
+      return {
+        key: this._normalize(genericName),
+        label: rawName,
+        date: typeof drug === 'string' ? null : (drug.date || null)
+      };
+    });
     
     const seen = new Set();
     const interactions = [];

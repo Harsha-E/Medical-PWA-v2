@@ -16,6 +16,7 @@ import { nlpContext }       from './services/NLPContext.js';
 import { hapticEngine }   from './services/HapticEngine.js';
 import PwaInstallManager  from './services/PwaInstallManager.js';
 import GlassNavbar        from './components/navbar.js';
+import AppHeader        from './components/header.js';
 import ContextSwitcher    from './components/context-switcher.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
@@ -87,12 +88,52 @@ const HIDE_NAV_ROUTES = new Set([
 /** Routes where the WebGL liquid background is active. */
 const LIQUID_ROUTES = new Set(['#/', '#/landing', '#/login', '#/register']);
 
+// ─── Header Icons & Config ───────────────────────────────────────────────────
+
+const PLUS_ICON = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>`;
+const SCAN_ICON = `<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h2M21 7V5a2 2 0 00-2-2h-2M3 17v2a2 2 0 002 2h2M21 17v2a2 2 0 01-2 2h-2M9 9h6v6H9z"></path></svg>`;
+const CALENDAR_ICON = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
+const CHEVRON_ICON = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>`;
+
+const resolveMedNameFromHash = () => {
+  const urlParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
+  return urlParams.has('id') ? 'Medication Details' : 'Medication';
+};
+
+const resolvePeerNameFromState = () => state.currentPeer?.name || 'Remote Node';
+
+const getGreeting = () => {
+  const hour = new Date().getHours();
+  return hour < 12 ? 'Morning' : hour < 18 ? 'Afternoon' : 'Evening';
+};
+
+const HEADER_CONFIGS = {
+  '#/dashboard': { eyebrow: 'Dashboard', title: () => `Good ${getGreeting()}, ${state.user?.displayName?.split(' ')[0] || 'User'}`, actions: [{ id: 'add-med', icon: PLUS_ICON, href: '#/add-medication', label: 'Add medication', style: 'ghost' }] },
+  '#/medications': { eyebrow: null, title: 'Medications', actions: [{ id: 'scan', icon: SCAN_ICON, href: '#/scan', label: 'Scan prescription', style: 'ghost' }, { id: 'add-med', icon: PLUS_ICON, href: '#/add-medication', label: 'Add medication', style: 'accent' }] },
+  '#/add-medication': { back: true, title: () => window.location.hash.includes('/edit/') ? 'Edit Medication' : 'Add Medication' },
+  '#/medication-detail': { back: true, title: () => resolveMedNameFromHash(), actions: [] },
+  '#/interaction-checker': { back: '#/medications', title: 'Interaction Guard' },
+  '#/appointments': { eyebrow: 'Clinical Calendar', title: 'Appointments', actions: [{ id: 'calendar', icon: CALENDAR_ICON, href: '#/calendar', label: 'Full calendar', style: 'ghost' }, { id: 'add-appt', icon: PLUS_ICON, label: 'New appointment', style: 'accent' }] },
+  '#/calendar': { back: true, eyebrow: 'Health Progress', title: 'Calendar', actions: [{ id: 'toggle-view', icon: CHEVRON_ICON, label: 'Toggle view', style: 'ghost' }] },
+  '#/reports': { back: '#/dashboard', eyebrow: 'Health Progress', title: 'Health Reports', skeleton: false },
+  '#/medical-history': { back: true, title: 'Medical History', actions: [{ id: 'add-history', icon: PLUS_ICON, label: 'Add record', style: 'ghost' }] },
+  '#/family-profiles': { eyebrow: 'Social Graph', title: 'Network Nodes', actions: [{ id: 'add-family', icon: PLUS_ICON, label: 'Add family member', style: 'accent' }] },
+  '#/emergency': { eyebrow: 'Critical', title: 'Emergency Hub' },
+  '#/peer-hub': { eyebrow: 'P2P Network', title: 'The Handshake' },
+  '#/peer-dashboard': { back: true, eyebrow: 'Remote Node', title: () => resolvePeerNameFromState() },
+  '#/settings': { eyebrow: 'Configuration', title: 'System Profile' },
+  '#/admin': { back: true, eyebrow: 'Super-User Console', title: 'Admin Portal' },
+  '#/scan': { hidden: true },
+  '#/orchestrator': { title: 'Orchestrator' }
+};
+
 // ─── App ──────────────────────────────────────────────────────────────────────
 
 class App {
   constructor() {
     this.viewport = document.getElementById('app-viewport');
     this.router   = new Router(ROUTES, this.viewport);
+    this.appHeader = new AppHeader();
     this.glassNav = new GlassNavbar();
     this.contextSwitcher = new ContextSwitcher();
     this.ghostFluid = null; // Track WebGL instance
@@ -175,6 +216,16 @@ class App {
 
     // Inject Rose-Gold theme onto the viewport
     this.viewport.classList.add('theme-rose-gold');
+
+    // Handle view:ready event for skeleton and dynamic titles
+    document.addEventListener('view:ready', (e) => {
+      if (e.detail && e.detail.title) {
+        this.appHeader.setTitle(e.detail.title);
+      }
+      // Re-configure without skeleton when ready
+      const hashConfig = HEADER_CONFIGS[e.detail?.hash] || { hidden: true };
+      this.appHeader.configure({ ...hashConfig, skeleton: false });
+    });
 
     // 3. Attach Listeners
     let currentHash = window.location.hash || '#/';
@@ -284,6 +335,12 @@ class App {
     const showNav = !HIDE_NAV_ROUTES.has(hash);
     this.glassNav.setVisibility?.(showNav);
 
+    // ── AppHeader visibility ──
+    const headerConfig = HEADER_CONFIGS[hash] ?? { hidden: true };
+    // Show skeleton immediately for async views
+    const needsSkeleton = ['#/dashboard', '#/reports', '#/appointments'].includes(hash);
+    this.appHeader.configure({ ...headerConfig, skeleton: needsSkeleton });
+
     // ── Manage Pill Docking and Layout ──
     if (user && isComplete) {
       document.body.classList.add('auth-layout-active');
@@ -332,6 +389,20 @@ class App {
           return;
         }
       }
+    }
+
+    // ── Enforce global theme ──
+    const isUnauthFlow = ['#/', '#/landing', '#/login', '#/register', '#/splash'].includes(hash);
+    if (isUnauthFlow) {
+      document.documentElement.removeAttribute('data-theme');
+    } else {
+      try {
+        if (localStorage.getItem('medcare-theme') === 'light') {
+          document.documentElement.setAttribute('data-theme', 'light');
+        } else {
+          document.documentElement.removeAttribute('data-theme');
+        }
+      } catch(e) {}
     }
 
     // Guard passed — render the current hash

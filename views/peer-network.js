@@ -12,221 +12,146 @@ export default class PeerNetworkView {
     await mesh.init();
 
     this.container.innerHTML = `
-      <header class="view-header">
-        <div class="flex flex-col">
-          <span class="text-xs text-[#ffb88c]/70 uppercase font-bold tracking-widest leading-none">P2P Network</span>
-          <h1 class="text-xl font-display mt-1 text-[var(--color-text-primary)] leading-none">The Handshake</h1>
-        </div>
-      </header>
-
-      <main class="scroll-area px-6 pt-28 bg-transparent pb-24">
+      <main class="scroll-area pt-[112px] bg-transparent pb-24" style="padding-left:0; padding-right:0;">
+<div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
         
         <!-- Toggle Control -->
-        <div class="flex bg-[var(--color-surface-elevated)]/40 border border-[var(--color-border)] shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-2xl p-1 mb-8 backdrop-blur-xl">
-            <button id="toggle-scan" class="flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-xl bg-[#ca5229] text-[var(--color-text-primary)] shadow-lg shadow-[#ca5229]/20 transition-all">Scan</button>
-            <button id="toggle-share" class="flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-xl text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-all">Share</button>
+        <div class="flex bg-surface-elevated/40 border border-border shadow-[0_8px_32px_var(--color-card-shadow)] rounded-2xl p-1 mb-8 backdrop-blur-xl">
+            <button id="toggle-scan" class="flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-xl bg-primary text-text-primary transition-all btn-neumorphic">Scan</button>
+            <button id="toggle-share" class="flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-xl text-text-secondary hover:text-text-primary transition-all btn-neumorphic">Share</button>
         </div>
 
         <!-- P2P SCANNING / CONNECT (Card 1) -->
         <section id="scan-section" class="mb-10 block animate-fade-in">
-            <div class="clay-glass-panel p-8 text-center border-[var(--color-border)] shadow-[0_8px_32px_rgba(0,0,0,0.5)] bg-[var(--color-surface-elevated)]/40 backdrop-blur-xl relative overflow-hidden rounded-[2rem]">
-                <div class="w-16 h-16 bg-[#ca5229]/20 rounded-full flex items-center justify-center mb-6 border border-[#ca5229]/50 mx-auto">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ca5229" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
+            <div class="clay-glass-panel p-8 text-center border-border shadow-[0_8px_32px_var(--color-card-shadow)] bg-surface-elevated/40 backdrop-blur-xl relative overflow-hidden rounded-[2rem]">
+                <div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-6 border border-primary/50 mx-auto">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-primary" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
                 </div>
-                <h2 class="text-lg font-display text-[var(--color-text-primary)] mb-2">Connect to Peer</h2>
-                <p class="text-xs text-[#ffb88c]/70 font-mono mb-8">Enter a pairing code to establish a secure, localized connection with another device.</p>
+                <h2 class="text-lg font-display text-text-primary mb-2">Connect to Peer</h2>
+                <p class="text-xs text-accent-primary/70 font-mono mb-8">Enter a pairing code to establish a secure, localized connection with another device.</p>
                 
                 <div class="flex flex-col sm:flex-row items-center gap-3 w-full">
-                    <button id="start-scanner-btn" class="bg-gradient-to-r from-[#ca5229] to-[#7f2f5d] text-[var(--color-text-primary)] px-6 py-3 rounded-full font-bold uppercase tracking-widest text-xs active:scale-95 transition-transform shadow-[0_4px_16px_rgba(202,82,41,0.4)] flex items-center justify-center gap-2 w-full sm:w-auto shrink-0">
+                    <button id="start-scanner-btn" class="bg-gradient-to-r from-primary to-secondary text-text-primary px-6 py-3 rounded-full font-bold uppercase tracking-widest text-xs active:scale-95 transition-transform [0_4px_16px_var(--color-primary)] flex items-center justify-center gap-2 w-full sm:w-auto shrink-0 btn-neumorphic">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
                         Scan QR
                     </button>
-                    <div class="text-[10px] text-[var(--color-text-muted)] font-mono uppercase tracking-widest hidden sm:block">OR</div>
+                    <div class="text-[10px] text-text-muted font-mono uppercase tracking-widest hidden sm:block">OR</div>
                     <div class="flex flex-1 w-full gap-2">
-                        <input type="text" id="pairing-code" placeholder="Enter Pairing Code..." class="flex-1 min-w-0 bg-black/40 border border-[#7f2f5d]/50 rounded-full px-4 py-3 text-[var(--color-text-primary)] text-xs font-mono focus:outline-none focus:border-[#ffb88c]/50 transition-colors shadow-inner">
-                        <button id="connect-btn" class="bg-[var(--color-surface-elevated)] border border-[#ca5229]/50 text-[#ffb88c] px-5 py-3 rounded-full font-bold uppercase tracking-widest text-xs active:scale-95 transition-all shadow-lg hover:bg-[#ca5229]/10 shrink-0">Connect</button>
+                        <input type="text" id="pairing-code" placeholder="Enter Pairing Code..." class="flex-1 min-w-0 bg-overlay-bg border border-border rounded-full px-4 py-3 text-text-primary text-xs font-mono focus:outline-none focus:border-accent-primary/50 transition-colors shadow-inner">
+                        <button id="connect-btn" class="text-accent-primary px-5 py-3 rounded-full font-bold uppercase tracking-widest text-xs active:scale-95 transition-all shrink-0 btn-neumorphic">Connect</button>
                     </div>
                 </div>
                 <!-- Fullscreen Hover Scanner Modal -->
-                <div id="hover-scanner-modal" class="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
+                <div id="hover-scanner-modal" class="fixed inset-0 z-[99999] bg-overlay-bg backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
                     <div class="relative w-full max-w-sm aspect-square p-4">
                         <!-- Custom CSS Scanning Reticle overlay -->
                         <div class="absolute inset-0 z-10 pointer-events-none">
-                            <div class="absolute top-4 left-4 w-12 h-12 border-t-4 border-l-4 border-[#ca5229] rounded-tl-xl"></div>
-                            <div class="absolute top-4 right-4 w-12 h-12 border-t-4 border-r-4 border-[#ca5229] rounded-tr-xl"></div>
-                            <div class="absolute bottom-4 left-4 w-12 h-12 border-b-4 border-l-4 border-[#ca5229] rounded-bl-xl"></div>
-                            <div class="absolute bottom-4 right-4 w-12 h-12 border-b-4 border-r-4 border-[#ca5229] rounded-br-xl"></div>
-                            <div class="absolute top-1/2 left-4 right-4 h-0.5 bg-[#ca5229]/50 shadow-[0_0_10px_#ca5229] animate-[ping_3s_infinite]"></div>
+                            <div class="absolute top-4 left-4 w-12 h-12 border-t-4 border-l-4 border-primary rounded-tl-xl"></div>
+                            <div class="absolute top-4 right-4 w-12 h-12 border-t-4 border-r-4 border-primary rounded-tr-xl"></div>
+                            <div class="absolute bottom-4 left-4 w-12 h-12 border-b-4 border-l-4 border-primary rounded-bl-xl"></div>
+                            <div class="absolute bottom-4 right-4 w-12 h-12 border-b-4 border-r-4 border-primary rounded-br-xl"></div>
+                            <div class="absolute top-1/2 left-4 right-4 h-0.5 bg-primary/50 shadow-[0_0_10px_var(--color-primary)] animate-[ping_3s_infinite]"></div>
                         </div>
                         <!-- The html5-qrcode reader injects the video here -->
-                        <div id="reader" class="w-full h-full rounded-2xl overflow-hidden bg-black/50 shadow-[0_0_50px_rgba(202,82,41,0.2)]"></div>
+                        <div id="reader" class="w-full h-full rounded-2xl overflow-hidden bg-overlay-bg shadow-[0_0_50px_var(--color-primary)]"></div>
                     </div>
-                    <button id="close-scanner-btn" class="mt-8 px-8 py-3 bg-white/10 hover:bg-white/20 text-[var(--color-text-primary)] rounded-xl font-bold uppercase tracking-widest text-xs border border-[var(--color-border)] transition-all active:scale-95">Cancel</button>
+                    <button id="close-scanner-btn" class="mt-8 px-8 py-3 text-text-primary rounded-xl font-bold uppercase tracking-widest text-xs transition-all active:scale-95 btn-neumorphic">Cancel</button>
                 </div>
             </div>
         </section>
 
         <!-- QR DETAILS (Card 2) -->
         <section id="share-section" class="mb-12 hidden animate-fade-in">
-            <div class="clay-glass-panel p-8 text-center border-[var(--color-border)] shadow-[0_8px_32px_rgba(0,0,0,0.5)] relative overflow-hidden bg-[var(--color-surface-elevated)]/40 backdrop-blur-xl rounded-[2rem]">
-                <h2 class="text-lg font-display text-[var(--color-text-primary)] mb-2">My Pairing QR</h2>
-                <p class="text-xs text-[#ffb88c]/70 font-mono mb-6">Scan this code to establish a peer-to-peer connection with ${displayName}</p>
+            <div class="clay-glass-panel p-8 text-center border-border shadow-[0_8px_32px_var(--color-card-shadow)] relative overflow-hidden bg-surface-elevated/40 backdrop-blur-xl rounded-[2rem]">
+                <h2 class="text-lg font-display text-text-primary mb-2">My Pairing QR</h2>
+                <p class="text-xs text-accent-primary/70 font-mono mb-6">Scan this code to establish a peer-to-peer connection with ${displayName}</p>
                 
                 <div id="qr-container" class="bg-transparent p-4 inline-block relative z-10 min-h-[200px] min-w-[200px] flex items-center justify-center">
-                    <div id="qr-loader" class="clay-loader"></div>
+                    <div id="qr-loader" class="flex space-x-2 justify-center items-center h-full">
+                        <div class="w-3 h-3 bg-primary rounded-full animate-bounce"></div>
+                        <div class="w-3 h-3 bg-primary rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                        <div class="w-3 h-3 bg-primary rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                    </div>
                 </div>
-                <p id="peer-id-display" class="text-xs text-[var(--color-text-primary)] font-mono mt-6 tracking-[0.2em] uppercase font-bold cursor-pointer hover:text-[#ffb88c] active:scale-95 transition-all select-none" title="Click to copy">Code: ${mesh.peerId || 'AWAITING_ID'}</p>
+                <p id="peer-id-display" class="text-xs text-text-primary font-mono mt-6 tracking-[0.2em] uppercase font-bold cursor-pointer hover:text-accent-primary active:scale-95 transition-all select-none" title="Click to copy">Code: ${mesh.peerId || 'AWAITING_ID'}</p>
             </div>
         </section>
 
         <!-- The Roster: Connected peers -->
         <section>
             <div class="flex justify-between items-center mb-6 px-1">
-                <h3 class="text-xs font-bold text-[#ffb88c]/80 tracking-[0.2em] uppercase">The Roster</h3>
-                <span class="text-xs text-[#00ff7f] font-mono border border-[#00ff7f]/30 bg-[#00ff7f]/10 px-2 py-0.5 rounded uppercase tracking-widest">Live</span>
+                <h3 class="text-xs font-bold text-accent-primary/80 tracking-[0.2em] uppercase">The Roster</h3>
+                <span class="text-xs text-success font-mono border border-success/30 bg-success/10 px-2 py-0.5 rounded uppercase tracking-widest">Live</span>
             </div>
             
             <div id="roster-container" class="space-y-4">
                 <!-- Peer nodes will be injected here -->
-                <div class="text-center py-10 border border-dashed border-[var(--color-border)] bg-[var(--color-surface-elevated)]/40 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-3xl opacity-50">
-                    <p class="text-xs text-[var(--color-text-primary)] font-mono uppercase tracking-widest">No Active Connections</p>
+                <div class="text-center py-10 border border-dashed border-border bg-surface-elevated/40 backdrop-blur-xl shadow-[0_8px_32px_var(--color-card-shadow)] rounded-3xl opacity-50">
+                    <p class="text-xs text-text-primary font-mono uppercase tracking-widest">No Active Connections</p>
                 </div>
             </div>
         </section>
         
         <!-- Gatekeeper Modal (Hidden by default) -->
-        <div id="gatekeeper-modal" class="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md hidden items-center justify-center p-6 opacity-0 transition-opacity duration-300">
-            <div class="bg-[var(--color-surface-elevated)]/60 backdrop-blur-2xl border border-[var(--color-border)] rounded-[32px] p-8 max-w-sm w-full shadow-[0_8px_32px_rgba(0,0,0,0.7)] transform scale-95 transition-transform duration-300" id="gatekeeper-content">
-                <div class="w-16 h-16 bg-[#ca5229]/20 rounded-full flex items-center justify-center mb-6 border border-[#ca5229]/50 mx-auto">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ca5229" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <div id="gatekeeper-modal" class="fixed inset-0 z-[9999] bg-overlay-bg backdrop-blur-md hidden items-center justify-center p-6 opacity-0 transition-opacity duration-300">
+            <div class="bg-surface-elevated/60 backdrop-blur-2xl border border-border rounded-[32px] p-8 max-w-sm w-full shadow-[0_8px_32px_var(--color-card-shadow)] transform scale-95 transition-transform duration-300" id="gatekeeper-content">
+                <div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-6 border border-primary/50 mx-auto">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-primary" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                 </div>
-                <h2 class="text-2xl font-display text-[var(--color-text-primary)] text-center mb-2">Connection Request</h2>
-                <p class="text-xs text-[#ffb88c]/80 text-center font-mono mb-8" id="gatekeeper-peer-name">Unknown Device is requesting access.</p>
+                <h2 class="text-2xl font-display text-text-primary text-center mb-2">Connection Request</h2>
+                <p class="text-xs text-accent-primary/80 text-center font-mono mb-8" id="gatekeeper-peer-name">Unknown Device is requesting access.</p>
                 
                 <div class="space-y-3 mb-8">
-                    <label class="flex items-center gap-3 p-4 border border-[#7f2f5d]/50 rounded-xl bg-white/5 cursor-pointer">
-                        <input type="radio" name="permissions" value="read-only" checked class="accent-[#ca5229]">
+                    <label class="flex items-center gap-3 p-4 border border-border rounded-xl bg-surface-deep cursor-pointer">
+                        <input type="radio" name="permissions" value="read-only" checked class="accent-primary">
                         <div>
-                            <p class="text-sm font-bold text-[var(--color-text-primary)]">Read-Only</p>
-                            <p class="text-[10px] text-[var(--color-text-secondary)] font-mono mt-1">Peer can view your compliance data.</p>
+                            <p class="text-sm font-bold text-text-primary">Read-Only</p>
+                            <p class="text-[10px] text-text-secondary font-mono mt-1">Peer can view your compliance data.</p>
                         </div>
                     </label>
-                    <label class="flex items-center gap-3 p-4 border border-[#7f2f5d]/50 rounded-xl bg-white/5 cursor-pointer">
-                        <input type="radio" name="permissions" value="request-write" class="accent-[#ca5229]">
+                    <label class="flex items-center gap-3 p-4 border border-border rounded-xl bg-surface-deep cursor-pointer">
+                        <input type="radio" name="permissions" value="request-write" class="accent-primary">
                         <div>
-                            <p class="text-sm font-bold text-[var(--color-text-primary)]">Request Write Access</p>
-                            <p class="text-[10px] text-[var(--color-text-secondary)] font-mono mt-1">Peer can view your data, and you request permission to edit theirs.</p>
+                            <p class="text-sm font-bold text-text-primary">Request Write Access</p>
+                            <p class="text-[10px] text-text-secondary font-mono mt-1">Peer can view your data, and you request permission to edit theirs.</p>
                         </div>
                     </label>
                 </div>
 
                 <div class="flex flex-col sm:flex-row gap-3">
-                    <button id="gatekeeper-deny" class="flex-1 py-4 border border-[#7f2f5d]/50 text-[var(--color-text-secondary)] font-bold uppercase text-xs tracking-widest rounded-xl hover:bg-white/5 transition-colors">Deny</button>
-                    <button id="gatekeeper-approve" class="flex-1 py-4 bg-gradient-to-r from-[#7f2f5d] to-[#ca5229] text-[var(--color-text-primary)] font-bold uppercase text-xs tracking-widest rounded-xl shadow-lg shadow-[#ca5229]/20 active:scale-95 transition-transform">Authorize</button>
+                    <button id="gatekeeper-deny" class="flex-1 py-4 text-text-secondary font-bold uppercase text-xs tracking-widest rounded-xl transition-colors btn-neumorphic">Deny</button>
+                    <button id="gatekeeper-approve" class="flex-1 py-4 btn-neumorphic-primary font-bold uppercase text-xs tracking-widest rounded-xl".replace(/s+/g, ' ').trim()>Authorize</button>
                 </div>
             </div>
         </div>
 
-      </main>
+      </div></main>
 
       <!-- Write Access Request Modal -->
-      <div id="write-request-modal" class="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md hidden items-center justify-center p-6 opacity-0 transition-opacity duration-300">
-          <div class="bg-[var(--color-surface-elevated)]/60 backdrop-blur-2xl border border-[#ca5229]/50 rounded-[32px] p-8 max-w-sm w-full shadow-[0_8px_32px_rgba(202,82,41,0.3)] transform scale-95 transition-transform duration-300" id="write-request-content">
-              <div class="w-16 h-16 bg-[#ca5229]/20 rounded-full flex items-center justify-center mb-6 border border-[#ca5229]/50 mx-auto">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ca5229" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      <div id="write-request-modal" class="fixed inset-0 z-[9999] bg-overlay-bg backdrop-blur-md hidden items-center justify-center p-6 opacity-0 transition-opacity duration-300">
+          <div class="bg-surface-elevated/60 backdrop-blur-2xl border border-primary/50 rounded-[32px] p-8 max-w-sm w-full shadow-[0_8px_32px_var(--color-primary)] transform scale-95 transition-transform duration-300" id="write-request-content">
+              <div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-6 border border-primary/50 mx-auto">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-primary" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
               </div>
-              <h2 class="text-2xl font-display text-[var(--color-text-primary)] text-center mb-2">Edit Access Requested</h2>
-              <p class="text-xs text-[#ffb88c]/80 text-center font-mono mb-8" id="write-request-peer-name">Unknown Device wants permission to modify your compliance data.</p>
+              <h2 class="text-2xl font-display text-text-primary text-center mb-2">Edit Access Requested</h2>
+              <p class="text-xs text-accent-primary/80 text-center font-mono mb-8" id="write-request-peer-name">Unknown Device wants permission to modify your compliance data.</p>
               
               <div class="flex flex-col sm:flex-row gap-3">
-                  <button id="write-request-deny" class="flex-1 py-4 border border-[#7f2f5d]/50 text-[var(--color-text-secondary)] font-bold uppercase text-xs tracking-widest rounded-xl hover:bg-white/5 transition-colors">Deny</button>
-                  <button id="write-request-approve" class="flex-1 py-4 bg-gradient-to-r from-[#7f2f5d] to-[#ca5229] text-[var(--color-text-primary)] font-bold uppercase text-xs tracking-widest rounded-xl shadow-lg shadow-[#ca5229]/20 active:scale-95 transition-transform">Grant</button>
+                  <button id="write-request-deny" class="flex-1 py-4 text-text-secondary font-bold uppercase text-xs tracking-widest rounded-xl transition-colors btn-neumorphic">Deny</button>
+                  <button id="write-request-approve" class="flex-1 py-4 btn-neumorphic-primary font-bold uppercase text-xs tracking-widest rounded-xl".replace(/s+/g, ' ').trim()>Grant</button>
               </div>
           </div>
       </div>
 
       <style>
-        .view-header { position: fixed; top: 0; left: 0; right: 0; height: 80px; backdrop-filter: blur(24px); display: flex; align-items: center; z-index: 100; }
         .clay-glass-panel { backdrop-filter: blur(12px); border-radius: var(--radius-lg); }
-        .loader {
-          width: 112px;
-          height: 112px;
-          position: relative;
-        }
 
-        .box1,
-        .box2,
-        .box3 {
-          border: 16px solid #ca5229;
-          box-sizing: border-box;
-          position: absolute;
-          display: block;
-        }
-
-        .box1 {
-          width: 112px;
-          height: 48px;
-          margin-top: 64px;
-          margin-left: 0px;
-          animation: abox1 4s 1s forwards ease-in-out infinite;
-        }
-
-        .box2 {
-          width: 48px;
-          height: 48px;
-          margin-top: 0px;
-          margin-left: 0px;
-          animation: abox2 4s 1s forwards ease-in-out infinite;
-        }
-
-        .box3 {
-          width: 48px;
-          height: 48px;
-          margin-top: 0px;
-          margin-left: 64px;
-          animation: abox3 4s 1s forwards ease-in-out infinite;
-        }
-
-        @keyframes abox1 {
-          0% { width: 112px; height: 48px; margin-top: 64px; margin-left: 0px; }
-          12.5% { width: 48px; height: 48px; margin-top: 64px; margin-left: 0px; }
-          25% { width: 48px; height: 48px; margin-top: 64px; margin-left: 0px; }
-          37.5% { width: 48px; height: 48px; margin-top: 64px; margin-left: 0px; }
-          50% { width: 48px; height: 48px; margin-top: 64px; margin-left: 0px; }
-          62.5% { width: 48px; height: 48px; margin-top: 64px; margin-left: 0px; }
-          75% { width: 48px; height: 112px; margin-top: 0px; margin-left: 0px; }
-          87.5% { width: 48px; height: 48px; margin-top: 0px; margin-left: 0px; }
-          100% { width: 48px; height: 48px; margin-top: 0px; margin-left: 0px; }
-        }
-
-        @keyframes abox2 {
-          0% { width: 48px; height: 48px; margin-top: 0px; margin-left: 0px; }
-          12.5% { width: 48px; height: 48px; margin-top: 0px; margin-left: 0px; }
-          25% { width: 48px; height: 48px; margin-top: 0px; margin-left: 0px; }
-          37.5% { width: 48px; height: 48px; margin-top: 0px; margin-left: 0px; }
-          50% { width: 112px; height: 48px; margin-top: 0px; margin-left: 0px; }
-          62.5% { width: 48px; height: 48px; margin-top: 0px; margin-left: 64px; }
-          75% { width: 48px; height: 48px; margin-top: 0px; margin-left: 64px; }
-          87.5% { width: 48px; height: 48px; margin-top: 0px; margin-left: 64px; }
-          100% { width: 48px; height: 48px; margin-top: 0px; margin-left: 64px; }
-        }
-
-        @keyframes abox3 {
-          0% { width: 48px; height: 48px; margin-top: 0px; margin-left: 64px; }
-          12.5% { width: 48px; height: 48px; margin-top: 0px; margin-left: 64px; }
-          25% { width: 48px; height: 112px; margin-top: 0px; margin-left: 64px; }
-          37.5% { width: 48px; height: 48px; margin-top: 64px; margin-left: 64px; }
-          50% { width: 48px; height: 48px; margin-top: 64px; margin-left: 64px; }
-          62.5% { width: 48px; height: 48px; margin-top: 64px; margin-left: 64px; }
-          75% { width: 48px; height: 48px; margin-top: 64px; margin-left: 64px; }
-          87.5% { width: 48px; height: 48px; margin-top: 64px; margin-left: 64px; }
-          100% { width: 112px; height: 48px; margin-top: 64px; margin-left: 0px; }
-        }
     `;
 
     this.attachListeners(mesh);
     this.generateQR(mesh.peerId);
     this.updateRoster(mesh);
+    document.dispatchEvent(new CustomEvent('view:ready', { detail: { hash: '#/peer-hub' } }));
     
     // Auto-Connect from Deep Link
     const hashUrl = window.location.hash;
@@ -254,8 +179,7 @@ export default class PeerNetworkView {
             window.dispatchEvent(new CustomEvent('medcare:peer-request', { detail: { peerId: firstPendingId } }));
         }
     }, 500);
-    
-    // Cleanup scanner on navigation
+    // Cleanup scanner on navigation
     window.addEventListener('hashchange', () => {
         if (this.html5QrcodeScanner) {
             this.html5QrcodeScanner.stop().catch(()=>{});
@@ -269,7 +193,7 @@ export default class PeerNetworkView {
   generateQR(peerId) {
     const container = this.container.querySelector('#qr-container');
     if (!peerId) {
-      container.innerHTML = '<p class="text-xs text-red-500 uppercase tracking-widest font-bold">Network Offline</p>';
+      container.innerHTML = '<p class="text-xs text-danger uppercase tracking-widest font-bold">Network Offline</p>';
       return;
     }
 
@@ -278,13 +202,13 @@ export default class PeerNetworkView {
     QRCode.toDataURL(deepLink, {
       width: 200,
       margin: 1,
-      color: { dark: '#1a0a12', light: '#ffffff' }
+      color: { dark: '#000000', light: '#ffffff' }
     }, (err, url) => {
       if (err) {
         console.error('QR Generate Error:', err);
         return;
       }
-      container.innerHTML = `<img src="${url}" alt="Pairing QR Code" class="rounded-xl animate-fade-in-up" />`;
+      container.innerHTML = `<img src="${url}" alt="Pairing QR Code" class="shadow-[0_0_30px_var(--color-primary)] border-4 border-surface-deep bg-white p-2" style="border-radius: 0px; animation: float 4s ease-in-out infinite;" />`;
     });
   }
 
@@ -301,7 +225,7 @@ export default class PeerNetworkView {
     if (startScannerBtn && hoverModal && closeScannerBtn) {
         startScannerBtn.addEventListener('click', async () => {
             if (typeof Html5Qrcode === 'undefined') {
-                alert('Scanner library is loading. Please try again in a few seconds.');
+                await appAlert('Scanner library is loading. Please try again in a few seconds.', 'Loading');
                 return;
             }
             
@@ -336,7 +260,7 @@ export default class PeerNetworkView {
                 console.error("Camera start failed:", err);
                 hoverModal.classList.add('opacity-0');
                 setTimeout(() => hoverModal.classList.add('hidden'), 300);
-                alert("Camera Access Denied or Unavailable.");
+                await appAlert('Camera Access Denied or Unavailable.', 'Camera Error');
             }
         });
 
@@ -352,10 +276,10 @@ export default class PeerNetworkView {
 
     if (scanBtn && shareBtn) {
       scanBtn.addEventListener('click', () => {
-        scanBtn.classList.add('bg-[#ca5229]', 'text-[var(--color-text-primary)]', 'shadow-lg', 'shadow-[#ca5229]/20');
-        scanBtn.classList.remove('text-[var(--color-text-secondary)]', 'hover:text-[var(--color-text-primary)]');
-        shareBtn.classList.add('text-[var(--color-text-secondary)]', 'hover:text-[var(--color-text-primary)]');
-        shareBtn.classList.remove('bg-[#ca5229]', 'text-[var(--color-text-primary)]', 'shadow-lg', 'shadow-[#ca5229]/20');
+        scanBtn.classList.add('bg-primary', 'text-text-primary', 'shadow-lg', 'shadow-primary/20');
+        scanBtn.classList.remove('text-text-secondary', 'hover:text-text-primary');
+        shareBtn.classList.add('text-text-secondary', 'hover:text-text-primary');
+        shareBtn.classList.remove('bg-primary', 'text-text-primary', 'shadow-lg', 'shadow-primary/20');
         scanSection.classList.remove('hidden');
         scanSection.classList.add('block');
         shareSection.classList.add('hidden');
@@ -363,10 +287,10 @@ export default class PeerNetworkView {
       });
 
       shareBtn.addEventListener('click', () => {
-        shareBtn.classList.add('bg-[#ca5229]', 'text-[var(--color-text-primary)]', 'shadow-lg', 'shadow-[#ca5229]/20');
-        shareBtn.classList.remove('text-[var(--color-text-secondary)]', 'hover:text-[var(--color-text-primary)]');
-        scanBtn.classList.add('text-[var(--color-text-secondary)]', 'hover:text-[var(--color-text-primary)]');
-        scanBtn.classList.remove('bg-[#ca5229]', 'text-[var(--color-text-primary)]', 'shadow-lg', 'shadow-[#ca5229]/20');
+        shareBtn.classList.add('bg-primary', 'text-text-primary', 'shadow-lg', 'shadow-primary/20');
+        shareBtn.classList.remove('text-text-secondary', 'hover:text-text-primary');
+        scanBtn.classList.add('text-text-secondary', 'hover:text-text-primary');
+        scanBtn.classList.remove('bg-primary', 'text-text-primary', 'shadow-lg', 'shadow-primary/20');
         shareSection.classList.remove('hidden');
         shareSection.classList.add('block');
         scanSection.classList.add('hidden');
@@ -398,12 +322,12 @@ export default class PeerNetworkView {
                     await navigator.clipboard.writeText(mesh.peerId);
                     const originalText = `Code: ${mesh.peerId}`;
                     peerIdDisplay.textContent = 'COPIED!';
-                    peerIdDisplay.classList.add('text-[#00ff7f]');
-                    peerIdDisplay.classList.remove('text-[var(--color-text-primary)]');
+                    peerIdDisplay.classList.add('text-success');
+                    peerIdDisplay.classList.remove('text-text-primary');
                     setTimeout(() => {
                         peerIdDisplay.textContent = originalText;
-                        peerIdDisplay.classList.remove('text-[#00ff7f]');
-                        peerIdDisplay.classList.add('text-[var(--color-text-primary)]');
+                        peerIdDisplay.classList.remove('text-success');
+                        peerIdDisplay.classList.add('text-text-primary');
                     }, 2000);
                 } catch (err) {
                     console.error('Clipboard write failed:', err);
@@ -508,12 +432,12 @@ export default class PeerNetworkView {
         }, 300);
     };
 
-    this.container.querySelector('#write-request-approve').addEventListener('click', () => {
+    this.container.querySelector('#write-request-approve').addEventListener('click', async () => {
         if(requestingWritePeerId) {
             mesh.sendSignal(requestingWritePeerId, 'grant-write-access');
             const conn = mesh._connections.get(requestingWritePeerId);
             if (conn) conn.hasWriteAccess = true;
-            alert('Write access granted.');
+            await appAlert('Write access granted.', 'Success');
         }
         closeWriteModal();
     });
@@ -525,8 +449,8 @@ export default class PeerNetworkView {
         closeWriteModal();
     });
 
-    window.addEventListener('medcare:write-granted', (e) => {
-        alert('Your request for write access was GRANTED by the peer.');
+    window.addEventListener('medcare:write-granted', async (e) => {
+        await appAlert('Your request for write access was GRANTED by the peer.', 'Access Granted');
         const conn = mesh._connections.get(e.detail.peerId);
         if (conn) conn.hasWriteAccess = true;
     });
@@ -545,7 +469,7 @@ export default class PeerNetworkView {
 
         // 1. Name Match Logic from Onboarding
         if (peerPhone && emergencyPhone && peerPhone === emergencyPhone) {
-            if (confirm(`This peer's phone number matches your emergency contact. Do you want to name this connection '${emergencyName}'?`)) {
+            if (await appConfirm(`This peer's phone number matches your emergency contact. Do you want to name this connection '${emergencyName}'?`, 'Emergency Contact Match')) {
                 const conn = mesh._connections.get(peerId);
                 if (conn) {
                     conn.metadata.displayName = emergencyName;
@@ -556,7 +480,7 @@ export default class PeerNetworkView {
         }
 
         // 2. SOS Prompt
-        if (confirm(`Do you want to add ${peerName} to your SOS/Family Responders list?`)) {
+        if (await appConfirm(`Do you want to add ${peerName} to your SOS/Family Responders list?`, 'Add to SOS')) {
             if (!state.userProfile.profile.familyMembers) {
                 state.userProfile.profile.familyMembers = [];
             }
@@ -584,7 +508,7 @@ export default class PeerNetworkView {
     // Listen for connection drops natively
     window.addEventListener('medcare:peer-dropped', (e) => {
         this.updateRoster(mesh);
-        alert(`Connection with node ${e.detail.peerId.substring(0,6)}... dropped: ${e.detail.message}`);
+        appAlert(`Connection with node ${e.detail.peerId.substring(0,6)}... dropped: ${e.detail.message}`, 'Connection Dropped');
     });
   }
 
@@ -594,8 +518,8 @@ export default class PeerNetworkView {
       
       if (peers.length === 0) {
           rosterEl.innerHTML = `
-              <div class="text-center py-10 border border-dashed border-[var(--color-border)] bg-[var(--color-surface-elevated)]/40 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-3xl opacity-50">
-                  <p class="text-xs text-[var(--color-text-primary)] font-mono uppercase tracking-widest">No Active Connections</p>
+              <div class="text-center py-10 border border-dashed border-border bg-surface-elevated/40 backdrop-blur-xl shadow-[0_8px_32px_var(--color-card-shadow)] rounded-3xl opacity-50">
+                  <p class="text-xs text-text-primary font-mono uppercase tracking-widest">No Active Connections</p>
               </div>
           `;
           return;
@@ -606,15 +530,15 @@ export default class PeerNetworkView {
           return `
           <div class="clay-glass-panel p-4 flex justify-between items-center">
               <div class="flex items-center gap-4">
-                  <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#00ff7f]/20 to-[#1a0a12] border border-[#00ff7f]/40 flex items-center justify-center text-[#00ff7f]">
+                  <div class="w-10 h-10 rounded-full bg-gradient-to-br from-success/20 to-surface-elevated border border-success/40 flex items-center justify-center text-success">
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
                   </div>
                   <div>
-                      <p class="font-bold text-sm text-[var(--color-text-primary)]">${pName}</p>
-                      <p class="text-[10px] text-[#00ff7f]/70 font-mono tracking-widest uppercase">${pid.substring(0,8)}...</p>
+                      <p class="font-bold text-sm text-text-primary">${pName}</p>
+                      <p class="text-[10px] text-success/70 font-mono tracking-widest uppercase">${pid.substring(0,8)}...</p>
                   </div>
               </div>
-              <button data-drop-pid="${pid}" class="bg-[var(--color-surface-elevated)] border border-red-500/30 text-red-400 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-widest active:scale-90 transition-transform hover:bg-red-900/20">Drop</button>
+              <button data-drop-pid="${pid}" class="text-danger px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-widest active:scale-90 transition-transform btn-neumorphic">Drop</button>
           </div>
       `}).join('');
 

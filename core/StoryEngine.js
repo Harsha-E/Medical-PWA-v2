@@ -12,17 +12,25 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.164.0/build/three.module.js';
 
 /* ── Palette ─────────────────────────────────────────── */
-const PALETTE = {
-  primary: new THREE.Color('#f26b3c'),
-  dark:    new THREE.Color('#7a3520'),
-  peach:   new THREE.Color('#ffb88c'),
-  wine:    new THREE.Color('#7f1e40'),
-  white:   new THREE.Color('#ffffff'),
-  cyan:    new THREE.Color('#38bdf8'),
-  gold:    new THREE.Color('#f59e0b'),
-  red:     new THREE.Color('#ef4444'),
-  green:   new THREE.Color('#10b981'),
+const getVar = (name, fallback) => {
+  if (typeof document === 'undefined') return fallback;
+  const val = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return val ? val : fallback;
 };
+
+// We create a function to fetch the latest palette every time engine boots
+const getPalette = () => ({
+  primary: new THREE.Color(getVar('--color-primary', '#ffb88c')),
+  dark:    new THREE.Color(getVar('--color-primary-dark', '#ca5229')),
+  peach:   new THREE.Color(getVar('--color-accent-bright', '#ffd9b5')),
+  wine:    new THREE.Color(getVar('--color-secondary', '#7f2f5d')),
+  white:   new THREE.Color(getVar('--color-text-primary', '#ffffff')),
+  cyan:    new THREE.Color('#38bdf8'),
+  gold:    new THREE.Color(getVar('--color-warning', '#f59e0b')),
+  red:     new THREE.Color(getVar('--color-danger', '#ef4444')),
+  green:   new THREE.Color(getVar('--color-success', '#10b981')),
+});
+let PALETTE = getPalette();
 
 /* ── Phase Data ──────────────────────────────────────── */
 const PHASES = [
@@ -85,6 +93,7 @@ export default class StoryEngine {
 
   mount() {
     if (document.getElementById('se-root')) return;
+    PALETTE = getPalette();
     
     this.buildDOM();
     this.initWebGL();

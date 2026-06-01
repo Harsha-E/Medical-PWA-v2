@@ -1,9 +1,6 @@
-/**
- * @fileoverview Interactive Compliance Calendar View
- * Dynamically reconstructs historical schedules to calculate adherence.
- */
 import db from '../core/db.js';
 import state from '../core/state.js';
+import app from '../app.js';
 
 export default class CalendarView {
   constructor() {
@@ -79,7 +76,7 @@ export default class CalendarView {
     const todayStr = new Date().toISOString().split('T')[0];
 
     let gridHTML = `<div class="grid grid-cols-7 gap-2 mb-2 text-center">
-      ${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => `<div class="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest pb-2">${d}</div>`).join('')}
+      ${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => `<div class="text-xs font-bold text-text-muted uppercase tracking-widest pb-2">${d}</div>`).join('')}
     </div><div class="grid grid-cols-7 gap-2 lg:gap-3">`;
 
     for (let i = 0; i < firstDayOfMonth; i++) {
@@ -91,7 +88,7 @@ export default class CalendarView {
       const isToday = dateStr === todayStr;
       const stats = this.getAdherenceStats(dateStr);
       
-      let ringClass = 'border-[#7f2f5d]/20'; 
+      let ringClass = 'border-border'; 
       let bgIcon = '';
       
       if (stats.status !== 'empty' && stats.status !== 'future') {
@@ -107,7 +104,7 @@ export default class CalendarView {
         } else {
           const isPartial = stats.status === 'partial';
           ringClass = `border-transparent ${isPartial ? 'bg-amber-500/5' : 'bg-red-500/5'}`;
-          const colorClass = isPartial ? 'text-amber-500/90' : 'text-red-500/90';
+          const colorClass = isPartial ? 'text-amber-500/90' : 'text-danger/90';
           
           const r = (range) => (Math.random() * range) - (range / 2);
           const rot = r(50); 
@@ -127,10 +124,10 @@ export default class CalendarView {
       const handStyle = `transform: rotate(${numRot}deg) translate(${numTx}px, ${numTy}px); font-family: 'Segoe Print', 'Bradley Hand', 'Chalkboard SE', 'Comic Sans MS', cursive;`;
 
       gridHTML += `
-        <div class="calendar-day aspect-square rounded-full bg-[var(--color-surface-elevated)]/40 backdrop-blur-md border-2 ${ringClass} flex flex-col items-center justify-center relative cursor-pointer hover:bg-white/5 transition-all ${isToday && ringClass.includes('7f2f') ? 'bg-[#7f2f5d]/30' : ''}" data-date="${dateStr}">
+        <div class="calendar-day aspect-square rounded-full bg-surface-elevated/40 backdrop-blur-md border-2 ${ringClass} flex flex-col items-center justify-center relative cursor-pointer hover:bg-white/5 transition-all ${isToday && ringClass.includes('7f2f') ? 'bg-secondary/30' : ''}" data-date="${dateStr}">
           ${bgIcon}
-          <span class="text-base relative z-10 ${isToday ? 'text-[#ffb88c] font-bold' : (stats.status === 'optimal') ? 'text-green-400 font-bold' : 'text-gray-300'}" style="${handStyle}">${day}</span>
-          ${isToday ? `<div class="absolute -bottom-1 w-2 h-2 bg-[#ffb88c] rounded-full animate-pulse shadow-[0_0_8px_#ffb88c] z-10"></div>` : ''}
+          <span class="text-base relative z-10 ${isToday ? 'text-accent-primary font-bold' : (stats.status === 'optimal') ? 'text-success font-bold' : 'text-text-secondary'}" style="${handStyle}">${day}</span>
+          ${isToday ? `<div class="absolute -bottom-1 w-2 h-2 bg-accent-primary rounded-full animate-pulse shadow-[0_0_8px_var(--color-accent-primary)] z-10"></div>` : ''}
         </div>
       `;
     }
@@ -159,11 +156,11 @@ export default class CalendarView {
       }
 
       const adherence = monthExpected > 0 ? Math.round((monthTaken / monthExpected) * 100) : 0;
-      let ringColor = 'border-[#7f2f5d]/30 text-[var(--color-text-secondary)]';
+      let ringColor = 'border-border text-text-secondary';
       if (monthExpected > 0) {
-        if (adherence >= 90) ringColor = 'border-green-500/50 text-green-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]';
+        if (adherence >= 90) ringColor = 'border-green-500/50 text-success shadow-[0_0_15px_rgba(16,185,129,0.2)]';
         else if (adherence >= 50) ringColor = 'border-amber-500/50 text-amber-400';
-        else ringColor = 'border-red-500/50 text-red-400';
+        else ringColor = 'border-red-500/50 text-danger';
       }
 
       // Add the handwritten aesthetic to the zoomed-out year view as well
@@ -171,8 +168,8 @@ export default class CalendarView {
       const handStyle = `transform: rotate(${rot}deg); font-family: 'Segoe Print', 'Bradley Hand', 'Chalkboard SE', 'Comic Sans MS', cursive;`;
 
       gridHTML += `
-        <div class="month-selector aspect-square rounded-[2rem] bg-[var(--color-surface-elevated)]/40 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] border-2 ${ringColor} flex flex-col items-center justify-center cursor-pointer hover:bg-white/5 transition-all group" data-month="${m}">
-          <span class="text-base tracking-widest group-hover:text-[var(--color-text-primary)] transition-colors" style="${handStyle}">${months[m]}</span>
+        <div class="month-selector aspect-square rounded-[2rem] bg-surface-elevated/40 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] border-2 ${ringColor} flex flex-col items-center justify-center cursor-pointer hover:bg-white/5 transition-all group" data-month="${m}">
+          <span class="text-base tracking-widest group-hover:text-text-primary transition-colors" style="${handStyle}">${months[m]}</span>
           <span class="text-[12px] mt-1 opacity-80" style="${handStyle}">${monthExpected > 0 ? `${adherence}%` : '---'}</span>
         </div>
       `;
@@ -184,50 +181,36 @@ export default class CalendarView {
 
   renderBaseLayout(title, gridHTML) {
     this.container.innerHTML = `
-      <header class="view-header">
-        <button onclick="window.history.back()" class="flex items-center gap-2 text-[#ffb88c] hover:brightness-125 transition-all">
-          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-          <span class="hidden md:inline text-sm font-bold uppercase tracking-widest">Back</span>
-        </button>
-        <div class="flex flex-col items-center cursor-pointer group" id="toggle-view-btn">
-          <span class="text-xs text-[var(--color-text-secondary)] uppercase tracking-widest leading-none group-hover:text-[#ffb88c] transition-colors">Compliance</span>
-          <h2 class="text-lg font-bold text-[var(--color-text-primary)] tracking-tight mt-1 group-hover:text-[#ffb88c] transition-colors flex items-center gap-2">
-            ${title}
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="${this.viewMode === 'year' ? 'rotate-180' : ''} transition-transform"><path d="M6 9l6 6 6-6"/></svg>
-          </h2>
-        </div>
-        <div class="w-16"></div>
-      </header>
-
-      <main class="flex-1 px-6 pb-28 max-w-xl mx-auto w-full flex flex-col">
-        <div class="flex items-center justify-between bg-[var(--color-surface-elevated)]/40 backdrop-blur-xl border border-[var(--color-border)] rounded-3xl p-4 mb-8 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
-          <button id="prev-period" class="w-10 h-10 rounded-2xl bg-[var(--color-surface)] border border-[#7f2f5d]/50 flex items-center justify-center text-[#ffb88c] active:scale-95 transition-all">
+      <main class="scroll-area flex-1 pt-[112px] pb-28 max-w-xl mx-auto w-full flex flex-col" style="padding-left:0; padding-right:0;">
+<div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
+        <div class="flex items-center justify-between bg-surface-elevated/40 backdrop-blur-xl border border-border rounded-3xl p-4 mb-8 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+          <button id="prev-period" class="w-10 h-10 rounded-2xl flex items-center justify-center text-accent-primary active:scale-95 transition-all btn-neumorphic">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
           </button>
-          <h3 class="text-base font-bold text-[var(--color-text-primary)] uppercase tracking-widest">${title}</h3>
-          <button id="next-period" class="w-10 h-10 rounded-2xl bg-[var(--color-surface)] border border-[#7f2f5d]/50 flex items-center justify-center text-[#ffb88c] active:scale-95 transition-all">
+          <h3 class="text-base font-bold text-text-primary uppercase tracking-widest">${title}</h3>
+          <button id="next-period" class="w-10 h-10 rounded-2xl flex items-center justify-center text-accent-primary active:scale-95 transition-all btn-neumorphic">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
           </button>
         </div>
 
-        <div id="calendar-swipe-zone" class="bg-[var(--color-surface-elevated)]/40 backdrop-blur-xl border border-[var(--color-border)] rounded-[2rem] p-4 lg:p-6 flex-1 shadow-[0_8px_32px_rgba(0,0,0,0.5)] relative overflow-hidden">
+        <div id="calendar-swipe-zone" class="bg-surface-elevated/40 backdrop-blur-xl border border-border rounded-[2rem] p-4 lg:p-6 flex-1 shadow-[0_8px_32px_rgba(0,0,0,0.5)] relative overflow-hidden">
           ${gridHTML}
         </div>
 
         ${this.viewMode === 'month' ? `
           <div class="mt-8 flex justify-center gap-5 px-2">
-            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-full bg-green-500/20 border border-green-500 flex items-center justify-center"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg></div><span class="text-xs font-bold text-[var(--color-text-secondary)] uppercase tracking-widest">Optimal</span></div>
-            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-full border border-amber-500 shadow-[0_0_5px_rgba(245,158,11,0.5)]"></div><span class="text-xs font-bold text-[var(--color-text-secondary)] uppercase tracking-widest">Partial</span></div>
-            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-full border border-red-500 shadow-[0_0_5px_rgba(239,68,68,0.5)]"></div><span class="text-xs font-bold text-[var(--color-text-secondary)] uppercase tracking-widest">Missed</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-full bg-green-500/20 border border-green-500 flex items-center justify-center"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg></div><span class="text-xs font-bold text-text-secondary uppercase tracking-widest">Optimal</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-full border border-amber-500 shadow-[0_0_5px_rgba(245,158,11,0.5)]"></div><span class="text-xs font-bold text-text-secondary uppercase tracking-widest">Partial</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-full border border-red-500 shadow-[0_0_5px_rgba(239,68,68,0.5)]"></div><span class="text-xs font-bold text-text-secondary uppercase tracking-widest">Missed</span></div>
           </div>
         ` : ''}
-      </main>
+      </div></main>
 
-      <div id="day-modal" class="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 flex items-end justify-center">
-        <div id="day-modal-sheet" class="w-full max-w-xl bg-[var(--color-surface-elevated)]/60 backdrop-blur-2xl border-t border-[var(--color-border)] rounded-t-[2rem] p-6 pb-24 shadow-[0_8px_32px_rgba(0,0,0,0.7)] transform translate-y-full transition-transform duration-300 max-h-[85vh] flex flex-col">
+      <div id="day-modal" class="fixed inset-0 z-[9999] bg-overlay-bg backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 flex items-end justify-center">
+        <div id="day-modal-sheet" class="w-full max-w-xl bg-surface-elevated/60 backdrop-blur-2xl border-t border-border rounded-t-[2rem] p-6 pb-24 shadow-[0_8px_32px_rgba(0,0,0,0.7)] transform translate-y-full transition-transform duration-300 max-h-[85vh] flex flex-col">
           <div class="flex justify-between items-center mb-6">
-            <h3 id="day-modal-title" class="text-lg font-bold text-[var(--color-text-primary)] tracking-tight"></h3>
-            <button id="close-modal-btn" class="w-8 h-8 rounded-full bg-[var(--color-surface)] border border-[#7f2f5d]/50 flex items-center justify-center text-[var(--color-text-secondary)] active:scale-90 transition-transform">
+            <h3 id="day-modal-title" class="text-lg font-bold text-text-primary tracking-tight"></h3>
+            <button id="close-modal-btn" class="w-8 h-8 rounded-full flex items-center justify-center text-text-secondary active:scale-90 transition-transform btn-neumorphic">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           </div>
@@ -236,6 +219,7 @@ export default class CalendarView {
       </div>
     `;
 
+    document.dispatchEvent(new CustomEvent('view:ready', { detail: { hash: '#/calendar', title: title } }));
     this.attachListeners();
   }
 
@@ -330,11 +314,14 @@ export default class CalendarView {
       }, { passive: true });
     }
 
-    // View Toggle
-    this.container.querySelector('#toggle-view-btn')?.addEventListener('click', () => {
-      this.viewMode = this.viewMode === 'month' ? 'year' : 'month';
-      this.updateUI();
-    });
+    // View Toggle via AppHeader
+    if (!this._toggleBound) {
+      app.appHeader.on('toggle-view', () => {
+        this.viewMode = this.viewMode === 'month' ? 'year' : 'month';
+        this.updateUI();
+      });
+      this._toggleBound = true;
+    }
 
     // Day Detail Clicks
     this.container.querySelectorAll('.calendar-day').forEach(el => {
@@ -368,7 +355,7 @@ export default class CalendarView {
     const list = this.container.querySelector('#day-modal-list');
 
     const dateObj = new Date(dateStr + 'T12:00:00');
-    title.innerHTML = `${dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })} <span class="ml-2 px-2 py-1 bg-[#7f2f5d]/20 text-[#ffb88c] text-xs rounded-lg border border-[#7f2f5d]/40 uppercase tracking-widest align-middle">Editor</span>`;
+    title.innerHTML = `${dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })} <span class="ml-2 px-2 py-1 bg-secondary/20 text-accent-primary text-xs rounded-lg border border-border uppercase tracking-widest align-middle">Editor</span>`;
 
     const dayDoses = this.allDoses.filter(d => d.takenAt && d.takenAt.startsWith(dateStr));
     const takenSlots = new Set(dayDoses.filter(d => d.status === 'taken').map(d => `${d.medicationId}-${d.scheduledTime}`));
@@ -387,22 +374,22 @@ export default class CalendarView {
     }).sort((a,b) => a.time.localeCompare(b.time));
 
     if (schedule.length === 0) {
-      list.innerHTML = '<div class="py-12 text-center border border-dashed border-[#7f2f5d]/30 rounded-3xl"><p class="text-xs text-[var(--color-text-muted)] uppercase tracking-widest font-bold">No protocol logged</p></div>';
+      list.innerHTML = '<div class="py-12 text-center border border-dashed border-border rounded-3xl"><p class="text-xs text-text-muted uppercase tracking-widest font-bold">No protocol logged</p></div>';
     } else {
       // UPGRADED HAPTIC TOGGLE UI
       list.innerHTML = schedule.map(dose => `
-        <div class="flex justify-between items-center bg-[var(--color-surface)]/80 border ${dose.taken ? 'border-green-500/30' : 'border-[#7f2f5d]/30'} rounded-2xl p-4 transition-all duration-300">
+        <div class="flex justify-between items-center bg-surface/80 border ${dose.taken ? 'border-green-500/30' : 'border-border'} rounded-2xl p-4 transition-all duration-300">
           <div>
-            <span class="text-xs font-bold ${dose.taken ? 'text-green-400' : 'text-[var(--color-text-muted)]'} uppercase tracking-widest transition-colors duration-300">${dose.time}</span>
-            <h4 class="text-sm font-bold ${dose.taken ? 'text-[var(--color-text-primary)]' : 'text-[var(--color-text-secondary)]'} mt-0.5 transition-colors duration-300">${dose.name} <span class="text-xs text-gray-600 font-normal ml-1 tracking-widest">${dose.dosage}</span></h4>
+            <span class="text-xs font-bold ${dose.taken ? 'text-success' : 'text-text-muted'} uppercase tracking-widest transition-colors duration-300">${dose.time}</span>
+            <h4 class="text-sm font-bold ${dose.taken ? 'text-text-primary' : 'text-text-secondary'} mt-0.5 transition-colors duration-300">${dose.name} <span class="text-xs text-gray-600 font-normal ml-1 tracking-widest">${dose.dosage}</span></h4>
           </div>
           
           <div class="relative inline-flex items-center cursor-pointer toggle-historical-dose group" data-id="${dose.id}" data-time="${dose.time}" data-date="${dateStr}" data-action="${dose.taken ? 'unmark' : 'mark'}">
             <div class="w-14 h-8 rounded-full transition-colors duration-300 ease-in-out relative flex items-center shadow-inner ${dose.taken ? 'bg-green-500/20 border-green-500/50' : 'bg-red-500/10 border-red-500/30'} border">
               <div class="w-6 h-6 rounded-full absolute transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] flex items-center justify-center shadow-md ${dose.taken ? 'translate-x-7 bg-green-500' : 'translate-x-1 bg-red-500/80'}">
                  ${dose.taken 
-                   ? `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0a0407" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>` 
-                   : `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1a0a12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`
+                   ? `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--color-surface)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>` 
+                   : `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--color-card-bg)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`
                  }
               </div>
             </div>

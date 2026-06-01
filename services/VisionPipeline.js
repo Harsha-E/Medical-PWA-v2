@@ -58,7 +58,9 @@
         constructor() {
             this.isReady = true;
             this.isProcessing = false;
+            this.activeSessionId = null;
             this._worker = new Worker(new URL('../workers/vision.worker.js', import.meta.url), { type: 'module' });
+            this._matcherWorker = new Worker(new URL('../workers/matcher.worker.js', import.meta.url), { type: 'module' });
         }
 
         async processFrame(sourceElement, scale = 0.5, isSingleFrame = false) {
@@ -84,29 +86,53 @@
                     this._worker.addEventListener('message', handler);
                 });
 
-                this.isProcessing = false;
-                if (!workerResult) return null;
+                if (!workerResult) {
+                    this.isProcessing = false;
+                    return null;
+                }
 
                 if (workerResult.error) {
+                    this.isProcessing = false;
                     return { state: 'ERROR', error: workerResult.error };
                 }
 
-                if (workerResult.confirmedDrugs && workerResult.confirmedDrugs.length > 0) {
-                    return {
-                        state: 'VERIFYING',
-                        bestMatch: workerResult.confirmedDrugs[0],
-                        rawText: workerResult.rawText,
-                        confidence: workerResult.confidence,
-                        unresolvedCandidates: workerResult.unresolvedCandidates,
-                        dosage: workerResult.dosages && workerResult.dosages[0] ? workerResult.dosages[0].value : null,
-                        unit: workerResult.dosages && workerResult.dosages[0] ? workerResult.dosages[0].unit : null,
-                        quantity: workerResult.quantities && workerResult.quantities[0] ? workerResult.quantities[0].value : null,
-                        croppedBlob: workerResult.croppedBlob,
-                        bbox: null
+                // Send the OCR data to the matcher worker
+                const matchResult = await new Promise((resolve) => {
+                    const handler = (e) => {
+                        if (e.data.type === 'IDENTIFICATION_COMPLETE') {
+                            this._matcherWorker.removeEventListener('message', handler);
+                            resolve(e.data.result);
+                        } else if (e.data.type === 'ERROR') {
+                            this._matcherWorker.removeEventListener('message', handler);
+                            resolve({ state: 'ERROR', error: e.data.error });
+                        }
                     };
-                } else {
-                    return { state: 'HUNTING', bestMatch: null, confidence: workerResult.confidence, unresolvedCandidates: workerResult.unresolvedCandidates };
-                }
+                    this._matcherWorker.addEventListener('message', handler);
+                    this._matcherWorker.postMessage({
+                        type: 'IDENTIFY_MEDICINE',
+                        payload: {
+                            rawText: workerResult.rawText,
+                            confidence: workerResult.confidence,
+                            regions: workerResult.regions || [],
+                            sessionId: this.activeSessionId || 'default-session'
+                        }
+                    });
+                });
+
+                this.isProcessing = false;
+
+                if (!matchResult) return null;
+
+                // Propagate dosage, quantity, and cropped image metadata into final output
+                return {
+                    ...matchResult,
+                    dosage: workerResult.dosages && workerResult.dosages[0] ? workerResult.dosages[0].value : null,
+                    unit: workerResult.dosages && workerResult.dosages[0] ? workerResult.dosages[0].unit : null,
+                    quantity: workerResult.quantities && workerResult.quantities[0] ? workerResult.quantities[0].value : null,
+                    croppedBlob: workerResult.croppedBlob,
+                    bbox: matchResult.bbox || null
+                };
+
             } catch (e) {
                 console.error(e);
                 this.isProcessing = false;
@@ -114,9 +140,30 @@
             }
         }
 
+        recordCorrection(sessionId, finalDrugs, isUserCorrection, rawOcrText = '', regions = []) {
+            if (this._matcherWorker) {
+                this._matcherWorker.postMessage({
+                    type: 'RECORD_CORRECTION',
+                    payload: { sessionId, finalDrugs, isUserCorrection, rawOcrText, regions }
+                });
+            }
+        }
+
+        recordFailure(sessionId, failureType) {
+            if (this._matcherWorker) {
+                this._matcherWorker.postMessage({
+                    type: 'RECORD_FAILURE',
+                    payload: { sessionId, failureType }
+                });
+            }
+        }
+
         clearMemory() {
             if (this._worker) {
                 this._worker.postMessage({ type: 'CLEAR_MEMORY' });
+            }
+            if (this._matcherWorker) {
+                this._matcherWorker.postMessage({ type: 'CLEAR' });
             }
         }
     }

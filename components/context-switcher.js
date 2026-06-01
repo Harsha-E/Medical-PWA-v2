@@ -14,9 +14,9 @@ export default class ContextSwitcher {
 
     // Create the sticky return bar
     this.returnBar = document.createElement('div');
-    this.returnBar.className = 'peer-return-bar fixed top-0 left-0 right-0 h-20 bg-gradient-to-r from-[#ca5229] to-[#7f2f5d] z-[10000] hidden items-center px-6 shadow-xl shadow-[#ca5229]/20 transform -translate-y-full transition-transform duration-500';
+    this.returnBar.className = 'peer-return-bar fixed top-0 left-0 right-0 h-20 bg-gradient-to-r from-primary to-secondary z-[10000] hidden items-center px-6 shadow-xl shadow-primary/20 transform -translate-y-full transition-transform duration-500';
     this.returnBar.innerHTML = `
-      <button id="exit-peer-context" class="bg-white/20 text-white rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-white/30 transition-colors backdrop-blur-md border border-white/20">
+      <button id="exit-peer-context" class="bg-white/20 text-white rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-widest flex items-center gap-2 transition-colors backdrop-blur-md btn-neumorphic">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         Return to My Profile
       </button>
