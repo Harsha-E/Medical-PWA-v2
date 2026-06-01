@@ -5,7 +5,6 @@ coverage/
 .DS_Store
 *.log
 .env*
-core/env.js
 !.env.example
 firebase-applet-config.json
 .aider*
