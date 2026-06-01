@@ -4,6 +4,9 @@
  * from the main UI thread to prevent layout junk and frame drops during live camera feeds.
  */
 
+// 🚀 CRITICAL FIX: Polyfill localStorage BEFORE importing modules
+import './storage-polyfill.js';
+
 import MedicineIdentifier from '../services/ai/MedicineIdentifier.js';
 
 let identifier = null;

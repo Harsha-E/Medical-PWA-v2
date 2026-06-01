@@ -55,6 +55,8 @@ export default class MedicineMatcher {
       ],
       threshold: 0.35,
       distance: 100,
+      ignoreFieldNorm: true,
+      ignoreLocation: true,
       includeScore: true
     });
   }
@@ -299,11 +301,20 @@ export default class MedicineMatcher {
     }
 
     // --- STAGE 2: Fuzzy Match via Fuse.js ---
-    const searchTerms = [
+    let searchTerms = [
       matchQuery.brand,
-      matchQuery.generic,
-      matchQuery.rawText
-    ].filter(Boolean);
+      matchQuery.generic
+    ];
+    
+    // Break the raw OCR block into words so Fuse.js can match individual chunks
+    if (matchQuery.rawText) {
+       const words = matchQuery.rawText.split(/\s+/).filter(w => w.length >= 4);
+       searchTerms = searchTerms.concat(words);
+       // Add the full text as a fallback
+       searchTerms.push(matchQuery.rawText);
+    }
+    
+    searchTerms = searchTerms.filter(Boolean);
 
     for (const term of searchTerms) {
       const fuseResults = this.fuse.search(term);

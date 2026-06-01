@@ -51,14 +51,8 @@ export default class MultiFrameFusion {
     const rawText = ocrOutput.rawText.trim();
     if (rawText.length === 0) return false;
 
-    // 2. Statistical Outlier Detection (check if this frame deviates drastically from rolling average)
-    if (this.buffer.length >= 5) {
-      const avgLen = this.buffer.reduce((sum, f) => sum + f.rawText.length, 0) / this.buffer.length;
-      // If the length of text is less than 20% or more than 500% of rolling average, it might be a blur outlier
-      if (rawText.length < avgLen * 0.2 || rawText.length > avgLen * 5.0) {
-        return false;
-      }
-    }
+    // 2. Outlier Detection Block Removed: Small, confident text frames should never be rejected
+    // purely because previous frames contained a large amount of text.
 
     const frame = {
       rawText,

@@ -61,18 +61,42 @@
             this.activeSessionId = null;
             this._worker = new Worker(new URL('../workers/vision.worker.js', import.meta.url), { type: 'module' });
             this._matcherWorker = new Worker(new URL('../workers/matcher.worker.js', import.meta.url), { type: 'module' });
+            this._preprocessWorker = new Worker(URL.createObjectURL(new Blob([PREPROCESS_WORKER_CODE], { type: 'application/javascript' })));
         }
 
         async processFrame(sourceElement, scale = 0.5, isSingleFrame = false) {
+            console.log("[DEBUG] PROCESS FRAME started. isProcessing=", this.isProcessing, "isReady=", this.isReady);
             if (this.isProcessing || !this.isReady) return null;
             this.isProcessing = true;
 
             try {
-                const bitmap = await createImageBitmap(sourceElement);
-                this._worker.postMessage({ type: 'PROCESS_FRAME', bitmap }, [bitmap]);
+                const canvas = document.createElement('canvas');
+                const sw = sourceElement.videoWidth || sourceElement.naturalWidth || sourceElement.width;
+                const sh = sourceElement.videoHeight || sourceElement.naturalHeight || sourceElement.height;
+                const targetW = Math.floor(sw * scale);
+                const targetH = Math.floor(sh * scale);
+                canvas.width = targetW;
+                canvas.height = targetH;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(sourceElement, 0, 0, targetW, targetH);
+                const imageData = ctx.getImageData(0, 0, targetW, targetH);
+
+                const preprocessedData = await new Promise((resolve) => {
+                    const handler = (e) => {
+                        this._preprocessWorker.removeEventListener('message', handler);
+                        resolve(e.data.imageData);
+                    };
+                    this._preprocessWorker.addEventListener('message', handler);
+                    this._preprocessWorker.postMessage({ imageData, width: targetW, height: targetH }, [imageData.data.buffer]);
+                });
+
+                const bitmap = await createImageBitmap(preprocessedData);
+                console.log("[DEBUG] SENDING TO OCR WORKER");
+                this._worker.postMessage({ type: 'PROCESS_FRAME', bitmap, isSingleFrame }, [bitmap]);
                 
                 const workerResult = await new Promise((resolve) => {
                     const handler = (e) => {
+                        console.log("[DEBUG] OCR WORKER RESPONDED with type:", e.data.type);
                         if (e.data.type === 'PIPELINE_COMPLETE') {
                             this._worker.removeEventListener('message', handler);
                             resolve(e.data.result);
@@ -97,6 +121,12 @@
                 }
 
                 // Send the OCR data to the matcher worker
+                const rawText = workerResult.rawText || '';
+                const dosageRegex = /(?:take\s+)?(\d+(?:\.\d+)?)\s*(mg|mcg|g|ml|tablet|capsule)/gi;
+                const dosages = [...rawText.matchAll(dosageRegex)].map(m => ({ value: m[1], unit: m[2] }));
+                const quantRegex = /(?:qty|quantity|no\.|#)?\s*(\d+)\s*(?:x\s*\d+)?\s*(tablets?|capsules?|strips?|packs?|bottles?|tubes?)/gi;
+                const quantities = [...rawText.matchAll(quantRegex)].map(m => ({ value: m[1], unit: m[2] }));
+
                 const matchResult = await new Promise((resolve) => {
                     const handler = (e) => {
                         if (e.data.type === 'IDENTIFICATION_COMPLETE') {
@@ -111,7 +141,7 @@
                     this._matcherWorker.postMessage({
                         type: 'IDENTIFY_MEDICINE',
                         payload: {
-                            rawText: workerResult.rawText,
+                            rawText: rawText,
                             confidence: workerResult.confidence,
                             regions: workerResult.regions || [],
                             sessionId: this.activeSessionId || 'default-session'
@@ -126,9 +156,9 @@
                 // Propagate dosage, quantity, and cropped image metadata into final output
                 return {
                     ...matchResult,
-                    dosage: workerResult.dosages && workerResult.dosages[0] ? workerResult.dosages[0].value : null,
-                    unit: workerResult.dosages && workerResult.dosages[0] ? workerResult.dosages[0].unit : null,
-                    quantity: workerResult.quantities && workerResult.quantities[0] ? workerResult.quantities[0].value : null,
+                    dosage: dosages && dosages[0] ? dosages[0].value : null,
+                    unit: dosages && dosages[0] ? dosages[0].unit : null,
+                    quantity: quantities && quantities[0] ? quantities[0].value : null,
                     croppedBlob: workerResult.croppedBlob,
                     bbox: matchResult.bbox || null
                 };

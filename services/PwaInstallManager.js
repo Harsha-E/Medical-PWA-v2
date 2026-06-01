@@ -186,15 +186,6 @@ export default class PwaInstallManager {
       e.stopPropagation();
       if (hapticEngine) hapticEngine.triggerHaptic(30);
       
-      if (actionBtn && actionBtn.textContent.trim() === 'Update') {
-        if (this._waitingServiceWorker) {
-            this._waitingServiceWorker.postMessage({ type: 'SKIP_WAITING' });
-            actionBtn.textContent = 'Updating...';
-            setTimeout(() => window.location.reload(), 1000);
-        }
-        return;
-      }
-      
       if (actionBtn && actionBtn.textContent.trim() === 'Open App') {
         return;
       }
@@ -211,34 +202,6 @@ export default class PwaInstallManager {
       this._hideBanner();
     });
 
-    this._listenForUpdates();
-  }
-
-  _listenForUpdates() {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.ready.then(reg => {
-        reg.addEventListener('updatefound', () => {
-          const newWorker = reg.installing;
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              this._waitingServiceWorker = newWorker;
-              this._showUpdateBanner();
-            }
-          });
-        });
-      });
-    }
-  }
-
-  _showUpdateBanner() {
-    if (!this.bannerEl) this._createBanner();
-    this._showBanner('New Version Available');
-    const btn = this.bannerEl.querySelector('#pwa-action-btn');
-    if (btn) {
-      btn.textContent = 'Update App';
-      btn.classList.add('bg-amber-500/20', 'text-amber-400', 'border-amber-500/50');
-      btn.classList.remove('text-[#ffb88c]', 'border-[#ffb88c]/20');
-    }
   }
 
   async install() {

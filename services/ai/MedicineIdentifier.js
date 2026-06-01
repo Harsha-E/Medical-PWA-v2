@@ -73,10 +73,17 @@ export default class MedicineIdentifier {
   identifyMedicine(frameOcrOutput) {
     try {
       const sessionId = frameOcrOutput?.sessionId || 'default-session';
+      
+      if (!this._boostCache) this._boostCache = new Map();
+      if (this._currentSessionId !== sessionId) {
+          this._boostCache.clear();
+          this._currentSessionId = sessionId;
+      }
 
-      if (!frameOcrOutput || typeof frameOcrOutput.rawText !== 'string' || frameOcrOutput.rawText.trim().length === 0) {
+      // BUG FIX: Reject garbage text immediately. A medicine label will always yield more than 4 characters.
+      if (!frameOcrOutput || typeof frameOcrOutput.rawText !== 'string' || frameOcrOutput.rawText.trim().length < 4) {
         this.accuracyTracker.recordFailure(sessionId, 'NO_TEXT');
-        return { success: false, bestMatch: null, confidence: 0, state: 'UNKNOWN', rawText: '' };
+        return { success: false, bestMatch: null, confidence: 0, state: 'HUNTING', rawText: '' };
       }
 
       // Step 0.1: Check for learned user corrections
@@ -141,21 +148,21 @@ export default class MedicineIdentifier {
         sessionBoost = foundInMemory.count * 10;
       }
 
-      // Check for long-term recognition history boost (recency + frequency)
-      let historyBoost = this.recognitionHistory.getBoost(record.name);
-      if (record.brandNames) {
-        for (const brand of record.brandNames) {
-          historyBoost = Math.max(historyBoost, this.recognitionHistory.getBoost(brand));
+      // Fetch or Calculate long-term and household boosts using a lightweight per-session cache
+      const cacheKey = record.id || record.name;
+      if (!this._boostCache.has(cacheKey)) {
+        let hBoost = this.recognitionHistory.getBoost(record.name);
+        let hhBoost = this.householdRegistry.getBoost(record.name);
+        if (record.brandNames) {
+          for (const brand of record.brandNames) {
+            hBoost = Math.max(hBoost, this.recognitionHistory.getBoost(brand));
+            hhBoost = Math.max(hhBoost, this.householdRegistry.getBoost(brand));
+          }
         }
+        this._boostCache.set(cacheKey, { historyBoost: hBoost, householdBoost: hhBoost });
       }
-
-      // Check for household medicine registry boost (+8 points)
-      let householdBoost = this.householdRegistry.getBoost(record.name);
-      if (record.brandNames) {
-        for (const brand of record.brandNames) {
-          householdBoost = Math.max(householdBoost, this.householdRegistry.getBoost(brand));
-        }
-      }
+      
+      const { historyBoost, householdBoost } = this._boostCache.get(cacheKey);
 
       // Check for packaging signature matches
       let packagingSignatureMatched = false;
@@ -176,7 +183,9 @@ export default class MedicineIdentifier {
       if (regions.length > 0 && record) {
         const searchTerms = [
           record.name.toLowerCase(),
-          ...(record.brandNames ? record.brandNames.map(b => b.toLowerCase()) : [])
+          ...(record.brandNames ? record.brandNames.map(b => b.toLowerCase()) : []),
+          ...(record.ocrVariants ? record.ocrVariants.map(v => v.toLowerCase()) : []),
+          ...(record.aliases ? record.aliases.map(a => a.toLowerCase()) : [])
         ];
         const bestRegion = regions.find(r => 
           r.text && searchTerms.some(term => 
@@ -401,5 +410,10 @@ ${(diag.recommendations || []).map(r => `* ${r}`).join('\n') || '* Scanning stab
   clear() {
     this.fusion.clear();
     this.sessionMemory.clear();
+    // BUG FIX: Clear consistency baseline and region rankers
+    if (this.stripPatternAnalyzer && typeof this.stripPatternAnalyzer.reset === 'function') {
+        this.stripPatternAnalyzer.reset();
+    }
+    if (this._boostCache) this._boostCache.clear();
   }
 }

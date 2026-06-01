@@ -5,6 +5,7 @@
  */
 
 import { db } from './firebase.js';
+import localDb from './db.js';
 import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 class State {
@@ -103,9 +104,20 @@ class State {
       }
     } catch (err) {
       console.warn('[State] Circuit breaker tripped. Booting in local offline-first mode:', err.message);
-      // Fail-safe: Assume a valid user profile cache to keep the app functional offline
-      this.userProfile = { onboardingComplete: true, isOfflineFallback: true };
-      this.isAdmin = false;
+      try {
+        const localProfiles = await localDb.userProfile.toArray();
+        if (localProfiles && localProfiles.length > 0) {
+          this.userProfile = localProfiles[localProfiles.length - 1];
+          this.isAdmin = this.userProfile.role === 'admin';
+        } else {
+          this.userProfile = { onboardingComplete: true, isOfflineFallback: true };
+          this.isAdmin = false;
+        }
+      } catch (localErr) {
+        console.error('[State] Local DB read failed during fallback:', localErr);
+        this.userProfile = { onboardingComplete: true, isOfflineFallback: true };
+        this.isAdmin = false;
+      }
     }
 
     this._notify();

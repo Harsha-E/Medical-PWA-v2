@@ -3,11 +3,22 @@ export class StripConsistencyEngine {
     this.baselineFeatures = null;
   }
 
+  // BUG FIX: Add missing memory reset
+  reset() {
+    this.baselineFeatures = null;
+  }
+
   setBaseline(frameData) {
     this.baselineFeatures = this._extractFeatures(frameData);
   }
 
-  checkConsistency(frameData) {
+  // ADDED: facingMode parameter to understand the physical context
+  checkConsistency(frameData, facingMode = 'environment') {
+    // 🚀 ZERO-LAG BYPASS: If using front camera, people move. Ignore consistency to save battery/CPU.
+    if (facingMode === 'user') {
+        return { consistent: true };
+    }
+
     if (!this.baselineFeatures) {
       this.setBaseline(frameData);
       return { consistent: true };

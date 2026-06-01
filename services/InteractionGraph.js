@@ -244,20 +244,7 @@ class InteractionGraph {
         
         seen.add(pairKey);
 
-        // TEMPORAL DECAY LOGIC
         let finalSeverity = interaction.severity;
-        const d1 = normalized[i].date ? new Date(normalized[i].date).getTime() : now;
-        const d2 = normalized[j].date ? new Date(normalized[j].date).getTime() : now;
-        const oldestDate = Math.min(d1, d2);
-        
-        if (oldestDate < now) {
-            const daysOld = Math.floor((now - oldestDate) / (1000 * 3600 * 24));
-            if (daysOld > 14) {
-                if (finalSeverity === 'severe') finalSeverity = 'moderate';
-                else if (finalSeverity === 'moderate') finalSeverity = 'mild';
-                else finalSeverity = 'safe';
-            }
-        }
         
         if (finalSeverity === 'safe') continue;
 

@@ -37,6 +37,23 @@ db.version(4).stores({
   appointments: '++id, date, time, title, provider, userId'
 });
 
+// ─── Schema Version 5 (Clinical Context Expansion) ────────────────────────────
+db.version(5).stores({
+  medications:  '++id, name, dosage, frequency, startDate, endDate, notes, active, userId, category, patientFriendlyUse',
+  doses:        '++id, medicationId, takenAt, skipped, userId',
+  history:      '++id, type, date, title, provider, userId',
+  family:       '++id, relationship, name, bloodGroup, userId',
+  appointments: '++id, date, time, title, provider, userId',
+  prescriptions: '++id, imageBlob, rawText, date, doctorName, userId',
+  reminders:     '++id, medicationId, time, isActive, userId'
+}).upgrade(tx => {
+    // Automatically migrate old v4 records to have empty strings for new fields
+    return tx.table('medications').toCollection().modify(med => {
+        med.category = med.category || 'Uncategorized';
+        med.patientFriendlyUse = med.patientFriendlyUse || 'No usage details available.';
+    });
+});
+
 if (import.meta.env?.DEV) {
   db.open().then(() => {
     console.debug('[DB] MedCareDB open. Tables:', db.tables.map(t => t.name));

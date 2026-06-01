@@ -1,20 +1,13 @@
+/**
+ * @fileoverview Pure Vision Extraction Worker
+ * strictly handles Mediapipe Cropping and Tesseract OCR.
+ * Matching is delegated to matcher.worker.js.
+ */
 import { FilesetResolver, ObjectDetector } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/vision_bundle.mjs';
 import { createWorker } from 'https://esm.sh/tesseract.js@5';
-import Fuse from 'https://esm.sh/fuse.js@7.0.0';
-import { drugDataset } from '../data/indian-drug-dataset.js';
-
-const fuse = new Fuse(drugDataset, {
-    keys: ['name', 'brandName'],
-    threshold: 0.15,
-    distance: 200,
-    useExtendedSearch: false,
-    includeScore: true
-});
 
 let _detectorReady = false;
 let detector = null;
-let vision = null;
-
 let _tesseractReady = false;
 let ocrWorker = null;
 
@@ -24,167 +17,127 @@ self.onmessage = async (e) => {
         if (ocrWorker) { await ocrWorker.terminate(); ocrWorker = null; _tesseractReady = false; }
         return;
     }
+
     if (e.data.type === 'PROCESS_FRAME') {
         try {
             const bitmap = e.data.bitmap;
+            const isSingleFrame = e.data.isSingleFrame || false;
             
-            // 1. MEDIAPIPE BOUNDARY DETECTION
+            // 1. Hardware-Accelerated Bounding Box (Mediapipe)
             if (!_detectorReady) {
                 try {
-                    vision = await FilesetResolver.forVisionTasks('/vendor/mediapipe/wasm');
+                    const vision = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm');
                     detector = await ObjectDetector.createFromOptions(vision, {
-                        baseOptions: { modelAssetPath: '/vendor/mediapipe/efficientdet_lite0.tflite', delegate: 'GPU' },
+                        baseOptions: { modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float16/1/efficientdet_lite0.tflite', delegate: 'GPU' },
                         scoreThreshold: 0.5,
                         maxResults: 1
                     });
                     _detectorReady = true;
                 } catch (mlErr) {
-                    console.warn('[VisionWorker] Missing TFLite model or ML failed, bypassing Mediapipe fallback:', mlErr);
-                    _detectorReady = false;
+                    console.warn('[VisionWorker] Mediapipe init failed, defaulting to full-frame OCR.');
                 }
             }
 
-            const detections = detector.detect(bitmap);
-            let croppedBlob;
-            
+            let baseCanvas;
             if (_detectorReady && detector) {
                 const detections = detector.detect(bitmap);
-                if (detections && detections.detections && detections.detections.length > 0) {
-                    const bbox = detections.detections[0].boundingBox;
-                    const oc = new OffscreenCanvas(bbox.width, bbox.height);
-                    const ctx = oc.getContext('2d');
-                    ctx.drawImage(bitmap, bbox.originX, bbox.originY, bbox.width, bbox.height, 0, 0, bbox.width, bbox.height);
-                    croppedBlob = await oc.convertToBlob({ type: 'image/png' });
+                if (detections?.detections?.length > 0) {
+                    // BUG FIX: Filter out human faces/bodies from the generic object detector
+                    const validDetections = detections.detections.filter(d => {
+                        const category = d.categories[0]?.categoryName?.toLowerCase();
+                        return category !== 'person' && category !== 'face';
+                    });
+
+                    if (validDetections.length > 0) {
+                        const bbox = validDetections[0].boundingBox;
+                        // BUG FIX: Prevent Tesseract crashing on impossibly small bounding boxes (e.g. 2x36)
+                        if (bbox.width >= 20 && bbox.height >= 20) {
+                            baseCanvas = new OffscreenCanvas(bbox.width, bbox.height);
+                            const ctx = baseCanvas.getContext('2d');
+                            ctx.drawImage(bitmap, bbox.originX, bbox.originY, bbox.width, bbox.height, 0, 0, bbox.width, bbox.height);
+                        }
+                    }
                 }
             }
             
-            if (!croppedBlob) {
-                const oc = new OffscreenCanvas(bitmap.width, bitmap.height);
-                const ctx = oc.getContext('2d');
+            // Fallback: Use entire frame if no bounding box found
+            if (!baseCanvas) {
+                baseCanvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+                const ctx = baseCanvas.getContext('2d');
                 ctx.drawImage(bitmap, 0, 0);
-                croppedBlob = await oc.convertToBlob({ type: 'image/png' });
             }
 
-            // 2. JS-NATIVE BRADLEY-ROTH ADAPTIVE THRESHOLDING (Fallback for missing OpenCV)
-            let finalCleanedBlob;
-            {
-                const srcBlob = croppedBlob || bitmap;
-                const imgBitmap = await createImageBitmap(srcBlob);
-                const w = imgBitmap.width;
-                const h = imgBitmap.height;
-                const oc = new OffscreenCanvas(w, h);
-                const ctx = oc.getContext('2d');
-                ctx.drawImage(imgBitmap, 0, 0);
+            const getRotatedBlob = async (angle) => {
+                if (angle === 0) return await baseCanvas.convertToBlob({ type: 'image/png' });
                 
-                const imageData = ctx.getImageData(0, 0, w, h);
-                const data = imageData.data;
-                const s = Math.max(w, h) / 16 | 0;
-                const t = 15;
-                const intImg = new Int32Array(w * h);
+                // Use a diagonal-sized canvas to prevent corner clipping during rotation
+                const diag = Math.ceil(Math.sqrt(baseCanvas.width**2 + baseCanvas.height**2));
+                const rCanvas = new OffscreenCanvas(diag, diag);
+                const ctx = rCanvas.getContext('2d');
                 
-                for (let i = 0; i < w; i++) {
-                    let sum = 0;
-                    for (let j = 0; j < h; j++) {
-                        let idx = (j * w + i) * 4;
-                        let val = (data[idx] + data[idx+1] + data[idx+2]) / 3;
-                        sum += val;
-                        intImg[j * w + i] = (i === 0 ? sum : intImg[j * w + i - 1] + sum);
-                    }
-                }
+                ctx.translate(diag/2, diag/2);
+                ctx.rotate(angle * Math.PI / 180);
+                ctx.drawImage(baseCanvas, -baseCanvas.width/2, -baseCanvas.height/2);
                 
-                for (let i = 0; i < w; i++) {
-                    for (let j = 0; j < h; j++) {
-                        const x1 = Math.max(i - s, 0);
-                        const y1 = Math.max(j - s, 0);
-                        const x2 = Math.min(i + s, w - 1);
-                        const y2 = Math.min(j + s, h - 1);
-                        const count = (x2 - x1) * (y2 - y1);
-                        const sum = intImg[y2 * w + x2] - intImg[y1 * w + x2] - intImg[y2 * w + x1] + intImg[y1 * w + x1];
-                        
-                        let idx = (j * w + i) * 4;
-                        let val = (data[idx] + data[idx+1] + data[idx+2]) / 3;
-                        let res = val * count < sum * (100 - t) / 100 ? 0 : 255;
-                        data[idx] = data[idx+1] = data[idx+2] = res;
-                    }
-                }
-                ctx.putImageData(imageData, 0, 0);
-                finalCleanedBlob = await oc.convertToBlob({ type: 'image/png' });
-            }
+                return await rCanvas.convertToBlob({ type: 'image/png' });
+            };
 
-            // 3. TESSERACT.JS OCR
+            // 2. Optical Character Recognition (Tesseract)
             if (!_tesseractReady) {
                 ocrWorker = await createWorker('eng', 1, {
-                    logger: (m) => { if (m.status === 'recognizing text') self.postMessage({ type: 'OCR_PROGRESS', progress: m.progress }); }
+                    logger: (m) => {
+                        if (m.status === 'recognizing text') self.postMessage({ type: 'PIPELINE_STAGE', stage: 'OCR Extraction' });
+                    }
                 });
                 _tesseractReady = true;
             }
 
-            const { data: { text, confidence, words } } = await ocrWorker.recognize(finalCleanedBlob);
-            const rawText = text.trim();
-            
-            const regions = (words || []).map(w => ({
-                text: w.text,
-                confidence: w.confidence,
-                bbox: w.bbox
-            }));
-
-            if (!rawText) {
-                self.postMessage({ type: 'PIPELINE_ERROR', error: 'NO_TEXT' });
-                return;
+            // Generate angles from 0 to 180 in 15-degree increments.
+            // (Tesseract naturally handles +/- 7 degrees of skew, so 15-degree steps 
+            // perfectly covers literally every possible degree without duplicating work).
+            let angles = [];
+            if (isSingleFrame) {
+                angles = [0, 90, 180, 270]; // Manual captures can be oriented portrait or landscape
+            } else {
+                for (let i = 0; i <= 180; i += 15) {
+                    angles.push(i);
+                }
             }
+            let bestResult = null;
+            let finalBlob = null;
 
-            // 4. NER REGEX PIPELINE
-            self.postMessage({ type: 'PIPELINE_STAGE', stage: 'Extracting Dosage' });
-            const dosageRegex = /(?:take\s+)?(\d+(?:\.\d+)?)\s*(mg|mcg|g|ml|tablet|capsule)/gi;
-            const dosages = [...rawText.matchAll(dosageRegex)].map(m => ({ value: m[1], unit: m[2] }));
-
-            self.postMessage({ type: 'PIPELINE_STAGE', stage: 'Extracting Frequency' });
-            const freqRegex = /\b(BID|TID|QID|OD|twice\s+a\s+day|once\s+daily|every\s+\d+\s+hours?)\b/gi;
-            const frequencies = [...rawText.matchAll(freqRegex)].map(m => m[1]);
-
-            self.postMessage({ type: 'PIPELINE_STAGE', stage: 'Extracting Quantification' });
-            const quantRegex = /(?:qty|quantity|no\.|#)?\s*(\d+)\s*(?:x\s*\d+)?\s*(tablets?|capsules?|strips?|packs?|bottles?|tubes?)/gi;
-            const quantities = [...rawText.matchAll(quantRegex)].map(m => ({ value: m[1], unit: m[2] }));
-
-            let maskedText = rawText.replace(dosageRegex, '').replace(freqRegex, '').replace(quantRegex, '');
-
-            self.postMessage({ type: 'PIPELINE_STAGE', stage: 'Extracting Identification via Fuse.js' });
-            const candidates = maskedText
-                .split(/[\n\r,;.]+/)
-                .map(s => s.trim())
-                .filter(s => s.length > 3);
-
-            const confirmedDrugs = [];
-            const unresolvedCandidates = [];
-
-            for (const candidate of candidates) {
-                const results = fuse.search(candidate);
-                if (results.length > 0) {
-                    if (results[0].score <= 0.15) {
-                        confirmedDrugs.push(results[0].item);
-                    } else if (results[0].score <= 0.4) {
-                        unresolvedCandidates.push(candidate);
-                    }
+            for (const angle of angles) {
+                const processBlob = await getRotatedBlob(angle);
+                const { data } = await ocrWorker.recognize(processBlob);
+                
+                if (!bestResult || data.confidence > bestResult.confidence) {
+                    bestResult = data;
+                    finalBlob = processBlob;
+                }
+                
+                // Break early if we find a confident text string (Performance Friendly)
+                if (data.confidence > 60 && data.text.trim().length > 3) {
+                    break;
                 }
             }
 
+            const { text, confidence, lines } = bestResult;
+            
+            // Map regions for spatial analysis
+            const regions = lines.map(line => ({
+                text: line.text.trim(),
+                confidence: line.confidence,
+                bbox: line.bbox 
+            }));
+
+            // Pass strictly formatted data to the main thread
             self.postMessage({ 
                 type: 'PIPELINE_COMPLETE', 
-                result: { 
-                    rawText, 
-                    confirmedDrugs,
-                    unresolvedCandidates,
-                    confidence,
-                    dosages,
-                    frequencies,
-                    quantities,
-                    croppedBlob,
-                    regions
-                } 
+                result: { rawText: text.trim(), confidence, regions, croppedBlob: finalBlob } 
             });
-        } catch (err) {
-            console.error('[VisionWorker] Pipeline Error:', err);
-            self.postMessage({ type: 'PIPELINE_ERROR', error: err.message });
+
+        } catch (error) {
+            self.postMessage({ type: 'PIPELINE_ERROR', error: error.message });
         }
     }
 };

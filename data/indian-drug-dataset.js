@@ -5,45 +5,29 @@ export const INDIAN_DRUG_DATASET = [
   {
     "id": "paracetamol",
     "name": "Paracetamol",
-    "brandNames": [
-      "Paracetamol XL",
-      "NuParacetamol",
-      "Paracetamol Plus"
-    ],
-    "aliases": [
-      "Paracetamol generic",
-      "Paracetamol XL",
-      "NuParacetamol",
-      "Paracetamol Plus"
-    ],
-    "ocrVariants": [
-      "Paracetam0I",
-      "Paracctarnol",
-      "Paraeetamol"
-    ],
+    "brandNames": ["Crocin", "Dolo 650", "Calpol"],
+    "aliases": ["Acetaminophen", "Paracetamol generic"],
+    "ocrVariants": ["Paracetam0I", "Paracctarnol", "Paraeetamol"],
+    
+    // --- NEW: Clinical Usage Data ---
     "category": "Analgesic / Antipyretic",
-    "schedule": "H",
-    "dosageForms": [
-      "Tablet",
-      "Capsule",
-      "Syrup"
+    "patientFriendlyUse": "Used to safely reduce fever and relieve mild to moderate pain like headaches or body aches.",
+    "indications": [
+      "Treatment of mild to moderate pain (headache, toothache, osteoarthritis)",
+      "Reduction of fever (antipyretic)"
     ],
-    "commonDoses": [
-      "10mg",
-      "20mg",
-      "500mg"
-    ],
+    "mechanismOfAction": "Inhibits prostaglandin synthesis primarily in the central nervous system.",
+    
+    "schedule": "OTC", // Over the counter
+    "dosageForms": ["Tablet", "Capsule", "Syrup", "IV Infusion"],
+    "commonDoses": ["500mg", "650mg", "1000mg"],
     "unit": "mg",
     "contraindications": [
-      "Severe Hepatic Impairment",
-      "Hypersensitivity"
+      "Severe Hepatic Impairment (Liver failure)",
+      "Hypersensitivity to Paracetamol"
     ],
-    "manufacturer": [
-      "Cipla",
-      "Sun Pharma",
-      "Dr. Reddy's",
-      "Lupin"
-    ]
+    "sideEffects": ["Nausea", "Liver toxicity at high doses", "Skin rash"],
+    "manufacturer": ["GSK", "Micro Labs", "Apex"]
   },
   {
     "id": "ibuprofen",
@@ -17525,45 +17509,25 @@ export const INDIAN_DRUG_DATASET = [
   {
     "id": "amoxicillin--clavulanic-acid",
     "name": "Amoxicillin + Clavulanic Acid",
-    "brandNames": [
-      "Amoxicillin + Clavulanic Acid XL",
-      "NuAmoxicillin + Clavulanic Acid",
-      "Amoxicillin + Clavulanic Acid Plus"
+    "brandNames": ["Augmentin", "Clavam", "Moxikind-CV"],
+    "ocrVariants": ["Am0xiciIIin + CIavuIanic Acid", "Amoxyclav"],
+    
+    // --- NEW: Clinical Usage Data ---
+    "category": "Broad-Spectrum Antibiotic Combo",
+    "patientFriendlyUse": "A strong antibiotic used to treat bacterial infections in the lungs, ears, sinuses, or skin.",
+    "indications": [
+      "Lower respiratory tract infections",
+      "Otitis media (Ear infections)",
+      "Skin and soft tissue infections"
     ],
-    "aliases": [
-      "Amoxicillin + Clavulanic Acid generic",
-      "Amoxicillin + Clavulanic Acid XL",
-      "NuAmoxicillin + Clavulanic Acid",
-      "Amoxicillin + Clavulanic Acid Plus"
-    ],
-    "ocrVariants": [
-      "Am0xiciIIin + CIavuIanic Acid",
-      "Arnoxicillin + Clavulanic Acid",
-      "Amoxlelllln + Clavulanle Aeld"
-    ],
-    "category": "Antibiotic Combo",
+    "mechanismOfAction": "Amoxicillin kills bacteria by destroying the cell wall. Clavulanic acid protects amoxicillin from being broken down by bacterial enzymes.",
+    
     "schedule": "H",
-    "dosageForms": [
-      "Tablet",
-      "Capsule",
-      "Syrup"
-    ],
-    "commonDoses": [
-      "10mg",
-      "20mg",
-      "500mg"
-    ],
-    "unit": "mg",
-    "contraindications": [
-      "Severe Hepatic Impairment",
-      "Hypersensitivity"
-    ],
-    "manufacturer": [
-      "Cipla",
-      "Sun Pharma",
-      "Dr. Reddy's",
-      "Lupin"
-    ]
+    "dosageForms": ["Tablet", "Syrup", "Injection"],
+    "commonDoses": ["375mg", "625mg", "1000mg"],
+    "contraindications": ["Penicillin allergy", "History of jaundice with this drug"],
+    "sideEffects": ["Diarrhea", "Upset stomach", "Yeast infections"],
+    "manufacturer": ["GSK", "Alkem", "Mankind"]
   },
   {
     "id": "amoxicillin--sulbactam",

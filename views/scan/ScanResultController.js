@@ -41,6 +41,17 @@ export default class ScanResultController {
       this.view._resultSched.style.background = `${sched.color}22`;
     }
 
+    const useContainer = this.view.container.querySelector('#sv-result-clinical-use');
+    const useText = this.view.container.querySelector('#sv-result-use-text');
+    if (useContainer && useText) {
+      if (drug.patientFriendlyUse) {
+        useContainer.style.display = 'flex';
+        useText.textContent = drug.patientFriendlyUse;
+      } else {
+        useContainer.style.display = 'none';
+      }
+    }
+
     if (this.view._resultDosRow) {
       this.view._resultDosRow.innerHTML = '';
       if (data.dosage) {
@@ -87,10 +98,12 @@ export default class ScanResultController {
    * @returns {Promise<void>}
    */
   async handleResultAdd() {
+    const bestMatch = this.view.currentResults?.bestMatch || null;
     const ocrResult = {
       rawText: this.view.currentResults?.rawText || '',
-      matchedDrugs: this.view.currentResults?.bestMatch ? [this.view.currentResults.bestMatch.name] : [],
-      capturedImageBlob: this.view.currentResults?.croppedBlob ?? null
+      matchedDrugs: bestMatch ? [bestMatch.name] : [],
+      capturedImageBlob: this.view.currentResults?.croppedBlob ?? null,
+      drugInfo: bestMatch ? { [bestMatch.name]: bestMatch } : {}
     };
 
     const conf = this.view.currentResults?.confidence || 100;
@@ -151,6 +164,7 @@ export default class ScanResultController {
       for (const drugName of ocrResult.matchedDrugs) {
         const exists = await db.medications.where('name').equalsIgnoreCase(drugName).first();
         if (!exists) {
+          const info = ocrResult.drugInfo ? ocrResult.drugInfo[drugName] : null;
           await db.medications.add({
             userId: userId,
             name: drugName,
@@ -159,7 +173,9 @@ export default class ScanResultController {
             startDate: new Date().toISOString().split('T')[0],
             endDate: null,
             notes: 'Auto-detected via OCR scan',
-            active: true
+            active: true,
+            category: info?.category || 'Uncategorized',
+            patientFriendlyUse: info?.patientFriendlyUse || 'No usage details available.'
           });
         }
       }

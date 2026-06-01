@@ -92,10 +92,18 @@ export default class ScanCameraController {
       this.showProcessingOverlay('Importing Image…', 'Analyzing high-res photo');
 
       if (this.view._captureCanvas) {
-        this.view._captureCanvas.width = img.width;
-        this.view._captureCanvas.height = img.height;
+        const MAX_DIM = 1280;
+        let w = img.width;
+        let h = img.height;
+        if (w > MAX_DIM || h > MAX_DIM) {
+          const ratio = Math.min(MAX_DIM / w, MAX_DIM / h);
+          w = Math.floor(w * ratio);
+          h = Math.floor(h * ratio);
+        }
+        this.view._captureCanvas.width = w;
+        this.view._captureCanvas.height = h;
         const ctx = this.view._captureCanvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
+        ctx.drawImage(img, 0, 0, w, h);
       }
 
       await this.runGalleryPipeline();
