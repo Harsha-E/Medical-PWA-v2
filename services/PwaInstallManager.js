@@ -161,7 +161,7 @@ export default class PwaInstallManager {
           </div>
         </div>
         <div class="flex items-center gap-2">
-          <button id="pwa-not-now-btn" class="text-gray-400 hover:text-white px-2 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wide transition-colors focus:outline-none">
+          <button id="pwa-not-now-btn" class="hidden sm:block text-gray-400 hover:text-white px-2 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wide transition-colors focus:outline-none">
             Not Now
           </button>
           <button id="pwa-action-btn" class="bg-[#ffb88c]/10 text-[#ffb88c] px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide hover:bg-[#ffb88c]/20 transition-colors border border-[#ffb88c]/20 focus:outline-none whitespace-nowrap cursor-pointer">
