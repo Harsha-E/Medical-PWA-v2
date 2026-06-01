@@ -35,7 +35,7 @@ export default class InstallView {
     }
 
     this.container = document.createElement('div');
-    this.container.className = 'min-h-[100dvh] w-full flex flex-col relative z-10 text-text-primary font-sans pointer-events-none transition-opacity duration-500';
+    this.container.className = 'force-dark-theme bg-[#0a040f] min-h-[100dvh] w-full flex flex-col relative z-10 text-text-primary font-sans pointer-events-none transition-opacity duration-500';
 
     this.container.innerHTML = `
       <style>
