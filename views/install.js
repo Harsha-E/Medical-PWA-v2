@@ -130,7 +130,7 @@ export default class InstallView {
       </style>
 
       <canvas id="install-canvas" class="absolute inset-0 w-full h-full z-0 pointer-events-none"></canvas>
-      <div class="absolute inset-0 backdrop-blur-[80px] bg-surface-deep/40 z-10 pointer-events-none"></div>
+      <div class="absolute inset-0 backdrop-blur-[80px] bg-[#0a040f]/40 z-10 pointer-events-none"></div>
       
       <div class="min-h-[100dvh] w-full flex flex-col relative z-20 text-text-primary font-sans pointer-events-none">
         <main class="flex-1 flex flex-col items-center justify-center text-center relative overflow-hidden pointer-events-auto" style="padding-left:0; padding-right:0;">
@@ -255,7 +255,7 @@ export default class InstallView {
     const h = this.canvas.height / (window.devicePixelRatio || 1);
 
     this.ctx.globalCompositeOperation = 'source-over';
-    this.ctx.fillStyle = 'var(--color-surface-deep)';
+    this.ctx.fillStyle = '#0a040f';
     this.ctx.fillRect(0, 0, w, h);
 
     const dx = (this.mouse.x - w / 2) * 0.05;
