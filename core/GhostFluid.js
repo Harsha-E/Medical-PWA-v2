@@ -3,7 +3,7 @@
  * Three.js via CDN ESM — no bundler required.
  */
 
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.164.0/build/three.module.js';
+import * as THREE from 'https://esm.sh/three';
 
 export default class GhostFluid {
   constructor() {

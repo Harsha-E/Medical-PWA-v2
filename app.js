@@ -337,6 +337,9 @@ class App {
         window.location.hash = '#/install';
         return;
       }
+      // Force render install view and bypass auth checks
+      this.router.handleRoute();
+      return;
     }
 
     if (!user) {

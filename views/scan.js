@@ -69,7 +69,7 @@ export default class ScanView {
     this._cacheElements();
     
     // Initialize WebGL Particle Rendering
-    import('three').then((THREE) => {
+    import('https://esm.sh/three').then((THREE) => {
         const scene = new THREE.Scene();
         // Setup ThreeJS camera and renderer over sv-viewport
         // Since we are moving quickly, we'll just initialize the renderer logical state

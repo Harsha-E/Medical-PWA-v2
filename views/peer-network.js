@@ -208,7 +208,7 @@ export default class PeerNetworkView {
         console.error('QR Generate Error:', err);
         return;
       }
-      container.innerHTML = `<img src="${url}" alt="Pairing QR Code" class="shadow-[0_0_30px_var(--color-primary)] border-4 border-surface-deep bg-white p-2 block mx-auto" style="border-radius: 0px; animation: float 4s ease-in-out infinite;" />`;
+      container.innerHTML = `<img src="${url}" alt="Pairing QR Code" class="shadow-[0_0_30px_var(--color-primary)] border-4 border-surface-deep bg-white p-2" style="border-radius: 0px; animation: float 4s ease-in-out infinite; margin: auto;" />`;
     });
   }
 
@@ -305,7 +305,7 @@ export default class PeerNetworkView {
         const qrContainer = this.container.querySelector('#qr-container');
         if (qrContainer) {
           qrContainer.innerHTML = `
-            <div id="qr-loader" class="w-48 h-48 rounded-[2rem] bg-surface-elevated/40 animate-pulse border-4 border-surface-deep flex items-center justify-center mx-auto"></div>
+            <div id="qr-loader" class="w-[224px] h-[224px] bg-surface-elevated/40 animate-pulse border-4 border-surface-deep shadow-[0_0_30px_var(--color-primary)] flex items-center justify-center" style="margin: auto;"><div class="flex space-x-2"><div class="w-3 h-3 bg-primary rounded-full animate-bounce"></div><div class="w-3 h-3 bg-primary rounded-full animate-bounce" style="animation-delay: 0.1s"></div><div class="w-3 h-3 bg-primary rounded-full animate-bounce" style="animation-delay: 0.2s"></div></div></div>
           `;
           setTimeout(() => {
             this.generateQR(mesh.peerId);

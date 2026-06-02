@@ -2,6 +2,7 @@ import state from '../core/state.js';
 import db from '../core/db.js';
 import { APP_VERSION } from '../core/config.js';
 import { showToast, appAlert, appConfirm, appPrompt } from '../core/ui.js';
+import { explainabilityMode } from '../visualization/ExplainabilityMode.js';
 export default class SettingsView {
   async render() {
     this.container = document.createElement('div');

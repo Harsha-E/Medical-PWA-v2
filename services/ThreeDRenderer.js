@@ -5,9 +5,11 @@
  * Requires: Three.js (global `THREE` object) loaded via CDN in index.html.
  */
 
+import * as THREE from 'https://esm.sh/three';
+
 class ThreeDRenderer {
   constructor() {
-    this._isSupported = typeof window !== 'undefined' && 'THREE' in window;
+    this._isSupported = typeof window !== 'undefined';
     
     this._scene = null;
     this._camera = null;

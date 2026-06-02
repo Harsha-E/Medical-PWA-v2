@@ -9,7 +9,7 @@
  * Phase crossfade: alpha lerp speed 0.14/frame.
  */
 
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.164.0/build/three.module.js';
+import * as THREE from 'https://esm.sh/three';
 
 /* ── Palette ─────────────────────────────────────────── */
 const getVar = (name, fallback) => {
