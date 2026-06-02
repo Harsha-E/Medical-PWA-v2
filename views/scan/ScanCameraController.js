@@ -27,13 +27,13 @@ export default class ScanCameraController {
               this.view._statusText.textContent = 'LOCKED';
               this.view._statusText.style.color = 'var(--frosted-mint)';
               // Trigger Particle Convergence Field
-              import('../visualization/ParticleLockRenderer.js').then(({ particleLockRenderer }) => {
+              import('../../visualization/ParticleLockRenderer.js').then(({ particleLockRenderer }) => {
                   particleLockRenderer.setTarget(stateObj.boundingBox);
               });
           } else {
               this.view._statusText.textContent = 'SEARCHING';
               this.view._statusText.style.color = 'white';
-              import('../visualization/ParticleLockRenderer.js').then(({ particleLockRenderer }) => {
+              import('../../visualization/ParticleLockRenderer.js').then(({ particleLockRenderer }) => {
                   particleLockRenderer.clearTarget();
               });
           }

@@ -18,6 +18,8 @@ import { coverageVisualizer } from '../visualization/CoverageVisualizer.js';
 import { ocrVisualizer } from '../visualization/OCRVisualizer.js';
 import { explainabilityMode } from '../visualization/ExplainabilityMode.js';
 import { liveEvidencePipeline } from '../visualization/LiveEvidencePipeline.js';
+import VisionPipeline from '../services/VisionPipeline.js';
+import { ScanSessionManager } from '../services/vision/ScanSessionManager.js';
 
 export default class ScanView {
   constructor() {
@@ -31,6 +33,8 @@ export default class ScanView {
     
     // Vision Engines (MIOS Architecture)
     this.coordinator = scannerCoordinator;
+    this.pipeline = new VisionPipeline();
+    this.sessionManager = new ScanSessionManager();
     
     // Hardware State
     this.facingMode        = 'environment';
