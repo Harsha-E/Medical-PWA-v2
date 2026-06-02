@@ -18,29 +18,32 @@ export default class ScanCameraController {
    */
   async startCamera() {
     try {
-      if (this.view.stream) {
-        this.view.stream.getTracks().forEach(t => t.stop());
-      }
-      this.view.stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: this.view.facingMode }, width: { ideal: 1280 }, height: { ideal: 720 } },
-        audio: false
+      const success = await this.view.coordinator.startScanner(this.view._video, (stateObj) => {
+          // Callback from ScannerCoordinator
+          if (stateObj.state === 'error') {
+              this.view._statusText.textContent = 'CAMERA ERROR';
+              this.view._statusText.style.color = '#ef4444';
+          } else if (stateObj.state === 'locked' && stateObj.boundingBox) {
+              this.view._statusText.textContent = 'LOCKED';
+              this.view._statusText.style.color = 'var(--frosted-mint)';
+              // Trigger Particle Convergence Field
+              import('../visualization/ParticleLockRenderer.js').then(({ particleLockRenderer }) => {
+                  particleLockRenderer.setTarget(stateObj.boundingBox);
+              });
+          } else {
+              this.view._statusText.textContent = 'SEARCHING';
+              this.view._statusText.style.color = 'white';
+              import('../visualization/ParticleLockRenderer.js').then(({ particleLockRenderer }) => {
+                  particleLockRenderer.clearTarget();
+              });
+          }
       });
       
-      const tracks = this.view.stream.getVideoTracks();
-      if (tracks.length > 0) {
-        this.view.videoTrack = tracks[0];
-      }
-      
-      if (this.view._video) {
-        this.view._video.srcObject = this.view.stream;
+      if (success) {
+          this.view.cameraReady = true;
       }
     } catch (err) {
-      console.warn('Camera connection blocked:', err);
-      this.view._statusText.textContent = 'CAMERA BLOCKED';
-      this.view._statusText.style.color = '#ef4444';
-      if (this.view._camErrorOverlay) {
-        this.view._camErrorOverlay.style.display = 'flex';
-      }
+      console.warn('Camera connection error:', err);
     }
   }
 

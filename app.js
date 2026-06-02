@@ -19,6 +19,7 @@ import GlassNavbar        from './components/navbar.js';
 import AppHeader        from './components/header.js';
 import ContextSwitcher    from './components/context-switcher.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { datasetSyncManager } from './datasets/sync/DatasetSyncManager.js';
 
 // ─── View imports ─────────────────────────────────────────────────────────────
 import SplashView           from './views/splash.js';
@@ -117,14 +118,14 @@ const HEADER_CONFIGS = {
   '#/calendar': { back: true, eyebrow: 'Health Progress', title: 'Calendar', actions: [{ id: 'toggle-view', icon: CHEVRON_ICON, label: 'Toggle view', style: 'ghost' }] },
   '#/reports': { back: '#/dashboard', eyebrow: 'Health Progress', title: 'Health Reports', skeleton: false },
   '#/medical-history': { back: true, title: 'Medical History', actions: [{ id: 'add-history', icon: PLUS_ICON, label: 'Add record', style: 'ghost' }] },
-  '#/family-profiles': { eyebrow: 'Social Graph', title: 'Network Nodes', actions: [{ id: 'add-family', icon: PLUS_ICON, label: 'Add family member', style: 'accent' }] },
-  '#/emergency': { eyebrow: 'Critical', title: 'Emergency Hub' },
+  '#/family-profiles': { back: true, eyebrow: 'Social Graph', title: 'Network Nodes', actions: [{ id: 'add-family', icon: PLUS_ICON, label: 'Add family member', style: 'accent' }] },
+  '#/emergency': { back: true, eyebrow: 'Critical', title: 'Emergency Hub' },
   '#/peer-hub': { eyebrow: 'P2P Network', title: 'The Handshake' },
   '#/peer-dashboard': { back: true, eyebrow: 'Remote Node', title: () => resolvePeerNameFromState() },
   '#/settings': { eyebrow: 'Configuration', title: 'System Profile' },
   '#/admin': { back: true, eyebrow: 'Super-User Console', title: 'Admin Portal' },
   '#/scan': { hidden: true },
-  '#/orchestrator': { title: 'Orchestrator' }
+  '#/orchestrator': { back: true, title: 'Orchestrator' }
 };
 
 // ─── App ──────────────────────────────────────────────────────────────────────
@@ -173,10 +174,13 @@ class App {
     (async () => {
       try {
         await interactionGraph.initialize();
-        // Fetch the drug index manually to hydrate the NLP context
         const indexRes = await fetch('./data/drug-index.json');
         const drugIndex = JSON.parse(JSON.stringify(await indexRes.json()));
         await nlpContext.hydrate(drugIndex);
+
+        // MIOS: Synchronize Medicine Knowledge Graph on startup
+        console.log('[App] Synchronizing Medicine Knowledge Graph...');
+        await datasetSyncManager.syncAll();
       } catch (err) {
         console.error('Failed to boot clinical engines:', err);
       }

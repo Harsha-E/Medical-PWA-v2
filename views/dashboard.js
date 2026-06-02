@@ -4,12 +4,16 @@ import { escapeHTML } from '../core/utils.js';
 import { getFirestore, doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import ReportStorageManager from '../services/reports/ReportStorageManager.js';
 import ReportParser from '../services/reports/ReportParser.js';
-import WalkthroughManager from '../services/onboarding/WalkthroughManager.js';
-import ContextualHelpSystem from '../services/onboarding/ContextualHelpSystem.js';
+import WalkthroughEngine from '../experience/WalkthroughEngine.js';
 import FeatureDiscoveryEngine from '../services/onboarding/FeatureDiscoveryEngine.js';
+import { guidanceEngine } from '../experience/GuidanceEngine.js';
+import { visualLanguageEngine } from '../experience/VisualLanguageEngine.js';
+import { clayComponentSystem } from '../experience/ClayComponentSystem.js';
 
 export default class DashboardView {
   async render() {
+    visualLanguageEngine.applyTheme();
+    
     this.container = document.createElement('div');
     this.container.className = 'w-full h-full flex flex-col overflow-hidden';
 
@@ -17,11 +21,8 @@ export default class DashboardView {
     this.container.innerHTML = this._getSkeletonUI();
 
     // Setup inactivity monitor
-    this.helpSystem = new ContextualHelpSystem();
     this._resetInactivityTimerBound = () => {
-      this.helpSystem.monitorInactivity('dashboard', (tip) => {
-        this._showNotification(tip, 'info');
-      });
+      guidanceEngine.monitorInactivity('dashboard');
     };
 
     // Trigger independent async loads
@@ -349,9 +350,8 @@ export default class DashboardView {
               ${schedule.length > 0 ? schedule.map(dose => `
                 <div class="flex items-center justify-between p-4 bg-surface/50 border ${dose.taken ? 'border-success/30 bg-success/5' : 'border-border'} rounded-2xl transition-all duration-300 ${dose.taken ? 'opacity-70' : ''}">
                   <div class="flex items-center gap-4">
-                    <div class="checkbox-container w-6 h-6 rounded-lg border-2 flex items-center justify-center cursor-pointer transition-all ${dose.taken ? 'bg-success border-success text-white' : 'border-border hover:border-accent-primary bg-surface'}" 
-                         data-med-id="${dose.id}" data-time="${dose.time}" data-taken="${dose.taken}">
-                      ${dose.taken ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>` : ''}
+                    <div class="checkbox-container cursor-pointer" data-med-id="${dose.id}" data-time="${dose.time}" data-taken="${dose.taken}">
+                      ${clayComponentSystem.renderOrb(dose.dosageUnit?.toLowerCase() === 'ml' ? 'drop' : 'pill', dose.taken ? 'completed' : 'active').outerHTML}
                     </div>
                     <div>
                       <p class="text-sm font-bold text-text-primary ${dose.taken ? 'line-through text-text-muted' : ''}">${escapeHTML(dose.name)}</p>
