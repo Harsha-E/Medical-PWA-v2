@@ -12,10 +12,10 @@ export class ScannerCoordinator {
     /**
      * Initializes the camera without continuous background scanning
      */
-    async startScanner(videoElement, onStateChange) {
+    async startScanner(videoElement, onStateChange, facingMode = 'environment') {
         try {
             this.cameraStream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } } 
+                video: { facingMode: facingMode, width: { ideal: 1920 }, height: { ideal: 1080 } } 
             });
             videoElement.srcObject = this.cameraStream;
             this.isActive = true;

@@ -69,6 +69,17 @@ export default class ScanView {
       <video id="sc-video" autoplay playsinline muted style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: none !important;"></video>
       <canvas id="sc-canvas" style="display: none;"></canvas>
 
+      <!-- Permission Overlay -->
+      <div id="permission-overlay" style="display: none; position: absolute; inset: 0; background: rgba(10, 15, 25, 0.95); backdrop-filter: blur(20px); z-index: 999; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 32px;">
+        <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(255,107,53,0.1); border: 1px solid rgba(255,107,53,0.3); display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ff6b35" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </div>
+        <h2 style="color: white; font-size: 24px; font-weight: 800; margin-bottom: 16px; letter-spacing: -0.02em;">Camera Access Needed</h2>
+        <p style="color: rgba(255,255,255,0.7); font-size: 15px; font-weight: 500; line-height: 1.6; max-width: 280px; margin-bottom: 32px;">MedCare requires your camera to scan medicine packaging securely on-device.</p>
+        <button id="btn-request-cam" class="glass-btn" style="padding: 16px 32px; border-radius: 100px; color: white; font-weight: 700; font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; width: auto; height: auto;">Allow Camera</button>
+        <p style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 24px;">If you've previously denied access, you may need to enable it in your browser settings.</p>
+      </div>
+
       <!-- Hand Warning UI Screamer -->
       <div id="hand-warning" style="display: none; position: absolute; inset: 0; background: rgba(220, 38, 38, 0.9); z-index: 100; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 24px;">
         <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" style="margin-bottom: 16px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
@@ -118,6 +129,8 @@ export default class ScanView {
     this._btnSwitch = this.container.querySelector('#sc-switch');
     this._btnTorch = this.container.querySelector('#sc-torch');
     this._handWarning = this.container.querySelector('#hand-warning');
+    this._permissionOverlay = this.container.querySelector('#permission-overlay');
+    this._btnRequestCam = this.container.querySelector('#btn-request-cam');
   }
 
   _attachListeners() {
@@ -126,16 +139,21 @@ export default class ScanView {
     this._galleryInput.onchange = (e) => this._captureFromGallery(e);
     this._btnSwitch.onclick = () => this._switchCamera();
     this._btnTorch.onclick = () => this._toggleTorch();
+    this._btnRequestCam.onclick = () => this._startCamera();
   }
 
   async _startCamera() {
     try {
-      await scannerCoordinator.startScanner(this._video, () => {});
+      this._permissionOverlay.style.display = 'none';
+      const success = await scannerCoordinator.startScanner(this._video, () => {}, this.facingMode);
+      if (!success) throw new Error('Camera access denied or unavailable');
+      
       this.stream = scannerCoordinator.cameraStream;
       this.videoTrack = this.stream.getVideoTracks()[0];
       if (!this.handLandmarker) this._initMediaPipe();
     } catch (err) {
       console.warn('Camera connection error:', err);
+      this._permissionOverlay.style.display = 'flex';
     }
   }
 
