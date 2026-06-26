@@ -5,6 +5,7 @@
 import { scannerCoordinator } from '../scanner/ScannerCoordinator.js';
 import { FilesetResolver, HandLandmarker } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/vision_bundle.mjs';
 import VisionPipeline from '../services/VisionPipeline.js';
+import ConfirmationGate from '../components/ConfirmationGate.js';
 
 export default class ScanView {
   constructor() {
@@ -295,7 +296,17 @@ export default class ScanView {
               explainabilityDetails: matchResult.explainabilityDetails,
               diagnosticReport: matchResult.diagnosticReport
             };
-            this.showConfirmationModal(payload);
+            
+            ConfirmationGate.show(
+                payload,
+                (confirmedPayload) => {
+                    sessionStorage.setItem('medcheck_scanned_data', JSON.stringify(confirmedPayload));
+                    window.location.hash = '#/add-medication';
+                },
+                (rejectedPayload) => {
+                    window.location.hash = '#/add-medication?manual=true';
+                }
+            );
         } else {
             this.show3DTutorialPopup(blob);
         }
@@ -344,7 +355,17 @@ export default class ScanView {
               explainabilityDetails: matchResult.explainabilityDetails,
               diagnosticReport: matchResult.diagnosticReport
             };
-            this.showConfirmationModal(payload);
+            
+            ConfirmationGate.show(
+                payload,
+                (confirmedPayload) => {
+                    sessionStorage.setItem('medcheck_scanned_data', JSON.stringify(confirmedPayload));
+                    window.location.hash = '#/add-medication';
+                },
+                (rejectedPayload) => {
+                    window.location.hash = '#/add-medication?manual=true';
+                }
+            );
         } else {
             this.showGalleryErrorPopup();
         }

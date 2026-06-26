@@ -5,7 +5,7 @@ export const INDIAN_DRUG_DATASET = [
   {
     "id": "paracetamol",
     "name": "Paracetamol",
-    "brandNames": ["Crocin", "Dolo 650", "Calpol"],
+    "brandNames": ["Crocin", "Dolo 650", "Calpol", "Fepanil"],
     "aliases": ["Acetaminophen", "Paracetamol generic"],
     "ocrVariants": ["Paracetam0I", "Paracctarnol", "Paraeetamol"],
     

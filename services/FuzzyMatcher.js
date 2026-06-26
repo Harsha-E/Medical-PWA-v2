@@ -53,11 +53,11 @@ export default class FuzzyMatcher {
         if (!aiPayload || !dataset || dataset.length === 0) return null;
         
         // Extract features from OCR payload
-        const ocrBrand = (aiPayload.brandName || aiPayload.medicationName || aiPayload.name || "").toLowerCase().trim();
-        const ocrGeneric = (aiPayload.genericName || "").toLowerCase().trim();
-        const ocrDosage = (aiPayload.dosage || aiPayload.strength || "").toLowerCase().trim();
-        const ocrForm = (aiPayload.form || aiPayload.dosageForm || "").toLowerCase().trim();
-        const ocrManufacturer = (aiPayload.manufacturer || "").toLowerCase().trim();
+        const ocrBrand = String(aiPayload.brandName || aiPayload.medicationName || aiPayload.name || "").toLowerCase().trim();
+        const ocrGeneric = String(aiPayload.genericName || "").toLowerCase().trim();
+        const ocrDosage = String(aiPayload.dosage || aiPayload.strength || "").toLowerCase().trim();
+        const ocrForm = String(aiPayload.form || aiPayload.dosageForm || "").toLowerCase().trim();
+        const ocrManufacturer = String(aiPayload.manufacturer || "").toLowerCase().trim();
 
         let bestMatch = null;
         let highestScore = 0;
@@ -133,6 +133,20 @@ export default class FuzzyMatcher {
                     return m.toLowerCase().includes(ocrManufacturer) || ocrManufacturer.includes(m.toLowerCase()) || this.getSimilarity(ocrManufacturer, m.toLowerCase()) > 0.7;
                 });
                 if (matchesMfg) score += 15;
+            }
+
+            // 5. The Compound Penalty (-40 points)
+            // If OCR is a single generic (no plus/and) but the dataset drug is a compound, heavily penalize it.
+            if (ocrGeneric) {
+                const isOcrSingle = !ocrGeneric.includes('+') && !ocrGeneric.includes('&') && !ocrGeneric.includes(' and ');
+                const dbGeneric = (drug.genericName || "").toLowerCase();
+                const isDbCompound = dbGeneric.includes('+') || dbGeneric.includes('&') || dbGeneric.includes(' and ');
+                
+                if (isOcrSingle && isDbCompound && dbGeneric.includes(ocrGeneric)) {
+                    // It matched part of the compound, but it's fundamentally a different drug profile
+                    console.log(`[FuzzyMatcher] Applying Compound Steal Penalty (-40) for ${drug.name || drug.genericName}`);
+                    score -= 40;
+                }
             }
 
             // Check if this is the new best
