@@ -49,7 +49,7 @@ Return ONLY a pure JSON object in this exact format, with no markdown formatting
         const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
             headers: {
-                'Authorization': 'Bearer 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',
+                'Authorization': 'Bearer YOUR_GROQ_API_KEY_HERE',
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(payload)
