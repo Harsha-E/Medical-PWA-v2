@@ -78,34 +78,14 @@
                         
                         const graph = new MedicineKnowledgeGraph();
 
-                        if (brandToMatch) {
-                            console.log("[Graph Search] Attempting to match brand string:", brandToMatch);
-                            const matches = await graph.queryNode(brandToMatch);
-                            if (matches && matches.length > 0) {
-                                bestMatch = matches[0];
-                            }
-                        }
-
-                        // Fallback 1: If the specific brand isn't mapped, try to match the active ingredient / generic name
-                        if (!bestMatch && genericToMatch) {
-                            console.log("[Graph Search] Brand failed. Attempting to match Generic Name:", genericToMatch);
-                            const genericMatches = await graph.queryNode(genericToMatch);
-                            if (genericMatches && genericMatches.length > 0) {
-                                bestMatch = genericMatches[0];
-                            }
-                        }
-
-                        // Fallback 2: Multi-Feature Fuzzy Matching to correct Groq hallucination errors
-                        if (!bestMatch) {
-                            console.log("[Graph Search] Standard lookups failed. Deploying Advanced Fuzzy Matcher...");
-                            const fullDataset = await graph.db.medicine_knowledge.toArray();
-                            
-                            // Pass the entire AI payload for contextual scoring (dosage, mfg, form, array fields)
-                            bestMatch = FuzzyMatcher.resolveComplexPayload(result, fullDataset);
-                            
-                            if (bestMatch) {
-                                console.log("[Fuzzy Matcher] Successfully snapped hallucination to:", bestMatch.name || bestMatch.genericName);
-                            }
+                        console.log("[VisionPipeline] Bypassing legacy search. Deploying Advanced Fuzzy Matcher...");
+                        const fullDataset = await graph.db.medicine_knowledge.toArray();
+                        
+                        // Pass the entire AI payload for contextual scoring (dosage, mfg, form, array fields)
+                        bestMatch = FuzzyMatcher.resolveComplexPayload(result, fullDataset);
+                        
+                        if (bestMatch) {
+                            console.log("[Fuzzy Matcher] Successfully matched payload to:", bestMatch.name || bestMatch.genericName);
                         }
 
                         // Failsafe: Construct a raw payload if the local knowledge graph is missing the drug entirely
