@@ -120,24 +120,38 @@ export default class Scan3DView {
         await new Promise(r => setTimeout(r, 200));
       };
 
-      await updatePhaseLabel('Isolating Object...', 'Object-Centric Segmentation');
-      await yieldToMain();
+      const isGalleryUpload = sessionStorage.getItem('medcare_is_gallery_upload') === 'true';
 
-      const updateProgress = (progressData) => {
-          if (!phaseLabel) return;
-          if (progressData.status === 'initiate') {
-              phaseLabel.nextElementSibling.textContent = 'Downloading Vision Engine...';
-          } else if (progressData.status === 'progress') {
-              const progress = Math.round(progressData.progress);
-              phaseLabel.nextElementSibling.textContent = `Downloading Vision Engine... ${progress}%`;
-          } else if (progressData.status === 'done') {
-              phaseLabel.nextElementSibling.textContent = 'Vision Engine Ready';
-          }
-      };
+      let croppedBlob = originalBlob;
 
-      await yieldToMain();
-      // 2. Extract Object Bounding Box
-      const { croppedBlob, bbox } = await ObjectSegmenter.extract(originalBlob, updateProgress);
+      if (!isGalleryUpload) {
+          await updatePhaseLabel('Isolating Object...', 'Object-Centric Segmentation');
+          await yieldToMain();
+
+          const updateProgress = (progressData) => {
+              if (!phaseLabel) return;
+              const isCached = localStorage.getItem('vision_engine_cached') === 'true';
+              
+              if (progressData.status === 'initiate') {
+                  phaseLabel.nextElementSibling.textContent = isCached ? 'Loading Vision Engine...' : 'Downloading Vision Engine...';
+              } else if (progressData.status === 'progress') {
+                  if (!isCached) {
+                      const progress = Math.round(progressData.progress);
+                      phaseLabel.nextElementSibling.textContent = `Downloading Vision Engine... ${progress}%`;
+                  }
+              } else if (progressData.status === 'done') {
+                  localStorage.setItem('vision_engine_cached', 'true');
+                  phaseLabel.nextElementSibling.textContent = 'Vision Engine Ready';
+              }
+          };
+
+          await yieldToMain();
+          // 2. Extract Object Bounding Box
+          const extraction = await ObjectSegmenter.extract(originalBlob, updateProgress);
+          croppedBlob = extraction.croppedBlob;
+      } else {
+          console.log("VISION: Gallery Upload detected. Skipping Object Segmentation.");
+      }
       
       // Live Segmentation Reveal: Redraw canvas with transparent object
       const transparentImg = new Image();
@@ -155,11 +169,10 @@ export default class Scan3DView {
           laserLine.className = 'scanner-laser';
       }
 
-      await updatePhaseLabel('Extracting Medical Data...', 'AI depth estimation active');
+      await updatePhaseLabel('Extracting Medical Data...', isGalleryUpload ? 'Analyzing 2D Image' : 'AI depth estimation active');
       await yieldToMain();
 
       // 3. Initialize 3D Depth Estimator (On the Cropped Object)
-      const isGalleryUpload = sessionStorage.getItem('medcare_is_gallery_upload') === 'true';
       let depthData = null;
       let projectionImg = new Image();
 
