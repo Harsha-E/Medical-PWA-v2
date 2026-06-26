@@ -129,7 +129,8 @@ export default class InstallView {
         .panel-breathe { animation: breathe 6s ease-in-out infinite; }
       </style>
 
-      <canvas id="install-canvas" class="absolute inset-0 w-full h-full z-0 pointer-events-none"></canvas>
+      <video id="install-bg-video" loop muted playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; opacity: 0; transition: opacity 1.5s ease-in-out;" src="assets/animation/Cluttered_nightstand_with_neon_l…_202606270021.mp4"></video>
+      <canvas id="install-canvas" class="absolute inset-0 w-full h-full z-0 pointer-events-none" style="display: none;"></canvas>
       <div class="absolute inset-0 backdrop-blur-[80px] bg-[#0a040f]/40 z-10 pointer-events-none"></div>
       
       <div class="min-h-[100dvh] w-full flex flex-col relative z-20 text-text-primary font-sans pointer-events-none">
@@ -165,6 +166,14 @@ export default class InstallView {
         </div></main>
       </div>
     `;
+
+    const bgVideo = this.container.querySelector('#install-bg-video');
+    if (bgVideo) {
+      bgVideo.addEventListener('loadeddata', () => {
+        bgVideo.style.opacity = '1';
+        bgVideo.play().catch(e => console.error("Video autoplay prevented:", e));
+      });
+    }
 
     this.canvas = this.container.querySelector('#install-canvas');
     this.ctx = this.canvas.getContext ? this.canvas.getContext('2d') : null;
