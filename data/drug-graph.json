@@ -2553,6 +2553,26 @@
   ],
   "edges": [
     {
+      "source": "itraconazole",
+      "target": "budesonide",
+      "severity": "SEVERE",
+      "mechanism": "Itraconazole is a strong CYP3A4 inhibitor that significantly decreases the metabolism of budesonide, increasing systemic corticosteroid exposure and the risk of adrenal suppression.",
+      "clinicalEffect": "Adrenal suppression, hypercortisolism",
+      "management": "Avoid concurrent use if possible. If unavoidable, monitor for signs of systemic corticosteroid toxicity and consider reducing the budesonide dose.",
+      "onsetTime": "Delayed",
+      "references": ["FDA Prescribing Information"]
+    },
+    {
+      "source": "itraconazole",
+      "target": "formoterol--budesonide",
+      "severity": "SEVERE",
+      "mechanism": "Itraconazole is a strong CYP3A4 inhibitor that significantly decreases the metabolism of budesonide (a component of Symbicort), increasing systemic corticosteroid exposure and the risk of adrenal suppression.",
+      "clinicalEffect": "Adrenal suppression, hypercortisolism",
+      "management": "Avoid concurrent use if possible. If unavoidable, monitor for signs of systemic corticosteroid toxicity and consider reducing the budesonide dose.",
+      "onsetTime": "Delayed",
+      "references": ["FDA Prescribing Information"]
+    },
+    {
       "source": "ibuprofen",
       "target": "warfarin",
       "severity": "MAJOR",
