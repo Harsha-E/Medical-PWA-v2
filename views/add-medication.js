@@ -130,25 +130,28 @@ export default class AddMedicationView {
         activeMeds: ['atorvastatin']
       };
 
-      const targetDrug = this.medData.genericName || this.medData.name || 'itraconazole';
-      const warnings = await engine.analyze(targetDrug, mockPatientProfile);
+      const targetDrug = this.medData.genericName || this.medData.name;
       
-      if (warnings && warnings.length > 0) {
-        const warningsHtml = warnings.map(w => 
-          `<div class="mb-2"><strong class="uppercase text-[10px] tracking-wider">${w.type} (${w.severity}):</strong> ${w.message}</div>`
-        ).join('');
+      if (targetDrug) {
+        const warnings = await engine.analyze(targetDrug, mockPatientProfile);
+        
+        if (warnings && warnings.length > 0) {
+          const warningsHtml = warnings.map(w => 
+            `<div class="mb-2"><strong class="uppercase text-[10px] tracking-wider">${w.type} (${w.severity}):</strong> ${w.message}</div>`
+          ).join('');
 
-        warningBannerHtml = `
-          <div class="mb-6 p-5 rounded-3xl bg-red-950/40 border border-red-500/30 backdrop-blur-xl animate-[pulseWarning_2s_infinite]" style="box-shadow: inset 4px 4px 10px rgba(0,0,0,0.5), inset -4px -4px 10px rgba(255, 100, 100, 0.1), 0 0 20px rgba(239, 68, 68, 0.3);">
-            <div class="flex items-center gap-3 mb-3">
-              <span class="text-red-400 text-xl">⚠️</span>
-              <h4 class="text-red-200 font-bold tracking-wide text-xs">CLINICAL WARNING DETECTED</h4>
+          warningBannerHtml = `
+            <div class="mb-6 p-5 rounded-3xl bg-red-950/40 border border-red-500/30 backdrop-blur-xl animate-[pulseWarning_2s_infinite]" style="box-shadow: inset 4px 4px 10px rgba(0,0,0,0.5), inset -4px -4px 10px rgba(255, 100, 100, 0.1), 0 0 20px rgba(239, 68, 68, 0.3);">
+              <div class="flex items-center gap-3 mb-3">
+                <span class="text-red-400 text-xl">⚠️</span>
+                <h4 class="text-red-200 font-bold tracking-wide text-xs">CLINICAL WARNING DETECTED</h4>
+              </div>
+              <div class="text-sm text-red-200/80">
+                ${warningsHtml}
+              </div>
             </div>
-            <div class="text-sm text-red-200/80">
-              ${warningsHtml}
-            </div>
-          </div>
-        `;
+          `;
+        }
       }
     } catch (e) {
       console.error('[AddMedication] InteractionEngine execution failed:', e);
