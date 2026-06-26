@@ -48,14 +48,18 @@ export default class MedicationDetailView {
         </section>
 
         <!-- Section 2: Action Bar -->
-        <section class="mb-8 flex gap-4">
-          <button onclick="window.location.hash='#/interactions?add=${id}'" class="flex-1 /40 backdrop-blur-md text-accent-primary rounded-2xl py-4 px-2 text-xs font-bold uppercase tracking-widest active:scale-95 transition-all text-center flex flex-col items-center justify-center gap-2 [0_8px_32px_rgba(0,0,0,0.3)] btn-neumorphic">
+        <section class="mb-8 grid grid-cols-3 gap-3">
+          <button onclick="window.location.hash='#/interaction-checker?add=${id}'" class="bg-surface-elevated/40 backdrop-blur-md text-accent-primary rounded-2xl py-3 px-2 text-[10px] sm:text-xs font-bold uppercase tracking-widest active:scale-95 transition-all text-center flex flex-col items-center justify-center gap-2 shadow-[0_8px_32px_rgba(0,0,0,0.3)] btn-neumorphic">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            Check Interactions
+            Interactions
           </button>
-          <button onclick="window.location.hash='#/add-medication?id=${id}'" class="flex-1 bg-secondary/20 text-text-primary rounded-2xl py-4 px-2 text-xs font-bold uppercase tracking-widest active:scale-95 transition-all text-center flex flex-col items-center justify-center gap-2 btn-neumorphic">
+          <button onclick="window.location.hash='#/add-medication?id=${id}'" class="bg-secondary/20 text-text-primary rounded-2xl py-3 px-2 text-[10px] sm:text-xs font-bold uppercase tracking-widest active:scale-95 transition-all text-center flex flex-col items-center justify-center gap-2 btn-neumorphic">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-            Edit Details
+            Edit
+          </button>
+          <button id="btn-remove-med" class="bg-red-900/20 text-red-400 rounded-2xl py-3 px-2 text-[10px] sm:text-xs font-bold uppercase tracking-widest active:scale-95 transition-all text-center flex flex-col items-center justify-center gap-2 btn-neumorphic">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Remove
           </button>
         </section>
 
@@ -91,6 +95,21 @@ export default class MedicationDetailView {
         </section>
       </div></main>
     `;
+
+    const btnRemove = this.container.querySelector('#btn-remove-med');
+    if (btnRemove) {
+      btnRemove.addEventListener('click', async () => {
+        if (confirm(`Are you sure you want to completely remove ${med.name}?`)) {
+          try {
+            await db.medications.delete(id);
+            window.location.hash = '#/medications';
+          } catch (e) {
+            console.error('Failed to delete medication:', e);
+            alert('Failed to remove medication.');
+          }
+        }
+      });
+    }
 
     document.dispatchEvent(new CustomEvent('view:ready', { detail: { hash: '#/medication-detail', title: med.name } }));
     return this.container;
