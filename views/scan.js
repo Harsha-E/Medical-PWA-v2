@@ -331,19 +331,34 @@ export default class ScanView {
             spinner = document.createElement('div');
             spinner.id = 'fast-scan-spinner';
             spinner.style.cssText = `
-                position: fixed; inset: 0; z-index: 99999;
-                background: rgba(15, 20, 30, 0.85); backdrop-filter: blur(10px);
-                display: flex; flex-direction: column; justify-content: center; align-items: center;
-                color: var(--color-text-primary, #fff); font-family: system-ui, sans-serif;
+                position: absolute; inset: 0; z-index: 99999;
+                background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px);
+                font-family: system-ui, sans-serif;
             `;
             spinner.innerHTML = `
-                <div style="width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.1); border-top-color: #1e90ff; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;"></div>
-                <h3 id="spinner-text" style="margin: 0; font-weight: 600; font-size: 1.2rem;">${text}</h3>
+              <style>
+                @keyframes pulseGlowLoader {
+                  0% { box-shadow: 0 0 10px rgba(30,144,255,0.2); }
+                  50% { box-shadow: 0 0 30px rgba(30,144,255,0.5); }
+                  100% { box-shadow: 0 0 10px rgba(30,144,255,0.2); }
+                }
+                @keyframes spinFast { to { transform: rotate(360deg); } }
+              </style>
+              <div class="glass-card" style="position: absolute; bottom: max(env(safe-area-inset-bottom), 140px); left: 24px; right: 24px; padding: 24px; background: rgba(10, 15, 25, 0.7); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; display: flex; align-items: center; gap: 20px; animation: pulseGlowLoader 3s infinite;">
+                <div style="position: relative; width: 40px; height: 40px;">
+                  <div style="position: absolute; inset: 0; border: 3px solid transparent; border-top-color: #1e90ff; border-radius: 50%; animation: spinFast 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;"></div>
+                  <svg style="position:absolute; inset:0; margin:auto;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                </div>
+                <div style="display: flex; flex-direction: column;">
+                  <div id="spinner-text" style="font-weight: 700; color: white; font-size: 16px; letter-spacing: 0.05em;">${text}</div>
+                  <div style="font-weight: 500; color: #94a3b8; font-size: 12px; margin-top: 4px;">Smart AI Capture</div>
+                </div>
+              </div>
             `;
             document.body.appendChild(spinner);
         } else {
             spinner.querySelector('#spinner-text').innerText = text;
-            spinner.style.display = 'flex';
+            spinner.style.display = 'block';
         }
   }
 

@@ -104,7 +104,7 @@
                         resolve({
                             state: bestMatch ? 'SUCCESS' : 'NEEDS_REVIEW',
                             confidence: 1.0,
-                            name: nameToMatch || 'Unknown',
+                            name: brandToMatch || genericToMatch || 'Unknown',
                             dosage: result.strengthPerUnit || (bestMatch ? bestMatch.strength : ''),
                             manufacturer: result.manufacturer || (bestMatch ? bestMatch.manufacturer : ''),
                             quantity: result.totalQuantityCount || null,
