@@ -819,10 +819,12 @@ a {
 }
 
 body {
-  position: fixed;
+  position: relative;
   width: 100%;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Allow scrolling ONLY within designated scroll containers */

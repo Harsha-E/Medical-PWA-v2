@@ -48,6 +48,8 @@ import AppointmentsView     from './views/appointments.js';
 
 import CalendarView         from './views/calendar.js';
 import OrchestratorView     from './views/orchestrator.js';
+import FamilyTreeView       from './views/family-tree.js';
+import MedicalTimelineView  from './views/timeline.js';
 
 // ─── Route map ────────────────────────────────────────────────────────────────
 // Defined before the App class so it is in scope for the constructor.
@@ -60,6 +62,8 @@ const ROUTES = {
   '#/install': InstallView,
   '#/onboarding': OnboardingView,
   '#/dashboard': DashboardView,
+  '#/family-tree': FamilyTreeView,
+  '#/timeline': MedicalTimelineView,
   '#/medications': MedicationsView,
   '#/add-medication': AddMedicationView,
   '#/interaction-checker': InteractionCheckerView,

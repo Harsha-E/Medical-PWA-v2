@@ -3,6 +3,7 @@
      * Pushes camera frames to the Python Intelligence Layer and parses responses.
      */
     import { MedicineKnowledgeGraph } from '../intelligence/MedicineKnowledgeGraph.js';
+    import FuzzyMatcher from './FuzzyMatcher.js';
 
     export default class VisionPipeline {
         constructor() {
@@ -85,12 +86,32 @@
                             }
                         }
 
-                        // Fallback: If the specific brand isn't mapped, try to match the active ingredient / generic name
+                        // Fallback 1: If the specific brand isn't mapped, try to match the active ingredient / generic name
                         if (!bestMatch && genericToMatch) {
                             console.log("[Graph Search] Brand failed. Attempting to match Generic Name:", genericToMatch);
                             const genericMatches = await graph.queryNode(genericToMatch);
                             if (genericMatches && genericMatches.length > 0) {
                                 bestMatch = genericMatches[0];
+                            }
+                        }
+
+                        // Fallback 2: Levenshtein Fuzzy Matching to correct Groq hallucination errors
+                        if (!bestMatch) {
+                            console.log("[Graph Search] Standard lookups failed. Deploying Fuzzy Matcher...");
+                            const fullDataset = await graph.db.medicine_knowledge.toArray();
+                            
+                            // Try fuzzy matching the brand first
+                            if (brandToMatch) {
+                                bestMatch = FuzzyMatcher.resolveOCR(brandToMatch, fullDataset);
+                            }
+                            
+                            // If still no match, fuzzy match the generic
+                            if (!bestMatch && genericToMatch) {
+                                bestMatch = FuzzyMatcher.resolveOCR(genericToMatch, fullDataset);
+                            }
+                            
+                            if (bestMatch) {
+                                console.log("[Fuzzy Matcher] Successfully snapped hallucination to:", bestMatch.name || bestMatch.genericName);
                             }
                         }
 
