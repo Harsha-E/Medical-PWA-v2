@@ -4,6 +4,7 @@
  */
 import { scannerCoordinator } from '../scanner/ScannerCoordinator.js';
 import { FilesetResolver, HandLandmarker } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/vision_bundle.mjs';
+import VisionPipeline from '../services/VisionPipeline.js';
 
 export default class ScanView {
   constructor() {
@@ -224,10 +225,44 @@ export default class ScanView {
     // Draw cropped video frame
     ctx.drawImage(this._video, startX, startY, cropSize, cropSize, 0, 0, cropSize, cropSize);
     
-    // Convert to Blob for routing
+    // Convert to Blob for routing fallback
     const blob = await new Promise(r => this._canvas.toBlob(r, 'image/jpeg', 0.85));
     sessionStorage.setItem('medcare_is_gallery_upload', 'false');
-    this._routeTo3D(blob);
+
+    this.showProcessingSpinner("Analyzing 2D Frame...");
+
+    try {
+        const pipeline = new VisionPipeline();
+        const matchResult = await pipeline.processFrame(this._canvas, 1.0, true);
+        this.hideProcessingSpinner();
+
+        if (matchResult && matchResult.bestMatch) {
+            const payload = {
+              name: matchResult.bestMatch.name || matchResult.bestMatch.brandName || matchResult.bestMatch.genericName,
+              dosage: matchResult.bestMatch.dosage,
+              form: matchResult.bestMatch.form,
+              totalQuantity: matchResult.bestMatch.totalQuantity || matchResult.quantity,
+              isAsNeeded: matchResult.bestMatch.isAsNeeded,
+              confidence: matchResult.confidence,
+              depthEngineFailed: false,
+              schedule: matchResult.bestMatch.schedule,
+              brandName: matchResult.bestMatch.brandName,
+              genericName: matchResult.bestMatch.genericName,
+              manufacturer: matchResult.bestMatch.manufacturer,
+              therapeuticCategory: matchResult.bestMatch.therapeuticCategory,
+              alternativeBrands: matchResult.bestMatch.alternativeBrands ? matchResult.bestMatch.alternativeBrands.join(', ') : '',
+              explainabilityDetails: matchResult.explainabilityDetails,
+              diagnosticReport: matchResult.diagnosticReport
+            };
+            this.showConfirmationModal(payload);
+        } else {
+            this.show3DTutorialPopup(blob);
+        }
+    } catch (e) {
+        console.error("[ScanView] 2D Scan failed:", e);
+        this.hideProcessingSpinner();
+        this.show3DTutorialPopup(blob);
+    }
   }
 
   async _captureFromGallery(e) {
@@ -235,7 +270,48 @@ export default class ScanView {
     if (!file) return;
     const blob = file;
     sessionStorage.setItem('medcare_is_gallery_upload', 'true');
-    this._routeTo3D(blob);
+
+    this.showProcessingSpinner("Analyzing 2D Image...");
+
+    try {
+        const img = new Image();
+        await new Promise((res, rej) => { 
+            img.onload = res; 
+            img.onerror = rej; 
+            img.src = URL.createObjectURL(blob); 
+        });
+
+        const pipeline = new VisionPipeline();
+        const matchResult = await pipeline.processFrame(img, 1.0, true);
+        this.hideProcessingSpinner();
+
+        if (matchResult && matchResult.bestMatch) {
+            const payload = {
+              name: matchResult.bestMatch.name || matchResult.bestMatch.brandName || matchResult.bestMatch.genericName,
+              dosage: matchResult.bestMatch.dosage,
+              form: matchResult.bestMatch.form,
+              totalQuantity: matchResult.bestMatch.totalQuantity || matchResult.quantity,
+              isAsNeeded: matchResult.bestMatch.isAsNeeded,
+              confidence: matchResult.confidence,
+              depthEngineFailed: false,
+              schedule: matchResult.bestMatch.schedule,
+              brandName: matchResult.bestMatch.brandName,
+              genericName: matchResult.bestMatch.genericName,
+              manufacturer: matchResult.bestMatch.manufacturer,
+              therapeuticCategory: matchResult.bestMatch.therapeuticCategory,
+              alternativeBrands: matchResult.bestMatch.alternativeBrands ? matchResult.bestMatch.alternativeBrands.join(', ') : '',
+              explainabilityDetails: matchResult.explainabilityDetails,
+              diagnosticReport: matchResult.diagnosticReport
+            };
+            this.showConfirmationModal(payload);
+        } else {
+            this.showGalleryErrorPopup();
+        }
+    } catch (error) {
+        console.error("[ScanView] Gallery Scan failed:", error);
+        this.hideProcessingSpinner();
+        this.showGalleryErrorPopup();
+    }
   }
 
   _routeTo3D(blob) {
@@ -247,6 +323,182 @@ export default class ScanView {
       console.error('Failed to create object URL for routing:', e);
       alert('Failed to process image. Please try again.');
     }
+  }
+
+  showProcessingSpinner(text) {
+        let spinner = document.getElementById('fast-scan-spinner');
+        if (!spinner) {
+            spinner = document.createElement('div');
+            spinner.id = 'fast-scan-spinner';
+            spinner.style.cssText = `
+                position: fixed; inset: 0; z-index: 99999;
+                background: rgba(15, 20, 30, 0.85); backdrop-filter: blur(10px);
+                display: flex; flex-direction: column; justify-content: center; align-items: center;
+                color: var(--color-text-primary, #fff); font-family: system-ui, sans-serif;
+            `;
+            spinner.innerHTML = `
+                <div style="width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.1); border-top-color: #1e90ff; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;"></div>
+                <h3 id="spinner-text" style="margin: 0; font-weight: 600; font-size: 1.2rem;">${text}</h3>
+            `;
+            document.body.appendChild(spinner);
+        } else {
+            spinner.querySelector('#spinner-text').innerText = text;
+            spinner.style.display = 'flex';
+        }
+  }
+
+  hideProcessingSpinner() {
+        const spinner = document.getElementById('fast-scan-spinner');
+        if (spinner) spinner.style.display = 'none';
+  }
+
+  show3DTutorialPopup(blob) {
+        const modalOverlay = document.createElement('div');
+        modalOverlay.style.cssText = `
+            position: fixed; inset: 0; z-index: 999999; 
+            background: rgba(15, 20, 30, 0.85); backdrop-filter: blur(15px);
+            display: flex; justify-content: center; align-items: center;
+            padding: 20px; font-family: system-ui, -apple-system, sans-serif;
+            opacity: 0; transition: opacity 0.3s ease;
+        `;
+
+        modalOverlay.innerHTML = `
+            <div class="clay-panel" style="width: 100%; max-width: 400px; padding: 32px; text-align: center; display: flex; flex-direction: column; gap: 24px; transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); background: #2a3149; border-radius: 28px; box-shadow: 10px 10px 20px rgba(15,20,30,0.6), inset 4px 4px 8px rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05);">
+                
+                <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(255, 165, 0, 0.15); color: #ffa500; display: flex; justify-content: center; align-items: center; font-size: 36px; margin: 0 auto; box-shadow: inset 2px 2px 10px rgba(0,0,0,0.2);">
+                    🔄
+                </div>
+                
+                <div>
+                    <h2 style="color: #fff; margin: 0 0 8px 0; font-size: 1.4rem; font-weight: 800;">2D Scan Failed</h2>
+                    <p style="color: #a4b0be; margin: 0; font-size: 0.95rem; font-weight: 500; line-height: 1.5;">We need more angles to identify this medication. Please hold your phone perpendicular and sweep 180 degrees around the bottle.</p>
+                </div>
+                
+                <div style="display: flex; gap: 16px; margin-top: 8px;">
+                    <button id="btn-cancel-3d" style="flex: 1; background: #353b50; color: #a4b0be; padding: 16px; border-radius: 20px; border: none; font-weight: bold; cursor: pointer;">Cancel</button>
+                    <button id="btn-start-3d" style="flex: 1.5; background: linear-gradient(135deg, #1e90ff, #0984e3); color: white; padding: 16px; border-radius: 20px; border: none; font-weight: bold; box-shadow: 0 10px 20px rgba(30,144,255,0.4); cursor: pointer;">Start 3D Sweep</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modalOverlay);
+
+        requestAnimationFrame(() => {
+            modalOverlay.style.opacity = '1';
+            modalOverlay.querySelector('.clay-panel').style.transform = 'translateY(0)';
+        });
+
+        modalOverlay.querySelector('#btn-start-3d').onclick = () => {
+            modalOverlay.style.opacity = '0';
+            setTimeout(() => {
+                modalOverlay.remove();
+                this._routeTo3D(blob);
+            }, 300);
+        };
+
+        modalOverlay.querySelector('#btn-cancel-3d').onclick = () => {
+            modalOverlay.style.opacity = '0';
+            setTimeout(() => {
+                modalOverlay.remove();
+            }, 300);
+        };
+  }
+
+  showGalleryErrorPopup() {
+        const modalOverlay = document.createElement('div');
+        modalOverlay.style.cssText = `
+            position: fixed; inset: 0; z-index: 999999; 
+            background: rgba(15, 20, 30, 0.85); backdrop-filter: blur(15px);
+            display: flex; justify-content: center; align-items: center;
+            padding: 20px; font-family: system-ui, -apple-system, sans-serif;
+            opacity: 0; transition: opacity 0.3s ease;
+        `;
+
+        modalOverlay.innerHTML = `
+            <div class="clay-panel" style="width: 100%; max-width: 400px; padding: 32px; text-align: center; display: flex; flex-direction: column; gap: 24px; transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); background: #2a3149; border-radius: 28px; box-shadow: 10px 10px 20px rgba(15,20,30,0.6), inset 4px 4px 8px rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05);">
+                <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(255, 71, 87, 0.15); color: #ff4757; display: flex; justify-content: center; align-items: center; font-size: 36px; margin: 0 auto; box-shadow: inset 2px 2px 10px rgba(0,0,0,0.2);">
+                    ⚠️
+                </div>
+                <div>
+                    <h2 style="color: #fff; margin: 0 0 8px 0; font-size: 1.4rem; font-weight: 800;">Medication Not Found</h2>
+                    <p style="color: #a4b0be; margin: 0; font-size: 0.95rem; font-weight: 500; line-height: 1.5;">We couldn't confidently read the label from that image. Please ensure the image is bright, clear, and the label is fully visible.</p>
+                </div>
+                <button id="btn-close-error" style="width: 100%; background: linear-gradient(135deg, #1e90ff, #0984e3); color: white; padding: 16px; border-radius: 20px; border: none; font-weight: bold; box-shadow: 0 10px 20px rgba(30,144,255,0.4); margin-top: 8px; cursor: pointer;">Try Again</button>
+            </div>
+        `;
+
+        document.body.appendChild(modalOverlay);
+
+        requestAnimationFrame(() => {
+            modalOverlay.style.opacity = '1';
+            modalOverlay.querySelector('.clay-panel').style.transform = 'translateY(0)';
+        });
+
+        modalOverlay.querySelector('#btn-close-error').onclick = () => {
+            modalOverlay.style.opacity = '0';
+            setTimeout(() => {
+                modalOverlay.remove();
+            }, 300);
+        };
+  }
+
+  showConfirmationModal(payload) {
+        const brandName = payload.brandName || payload.name || "Unknown Medication";
+        const rawDosage = payload.dosage?.rawText || payload.dosage || "Dosage not detected";
+        const dosageForm = payload.form || "Unknown form";
+        
+        const modalOverlay = document.createElement('div');
+        modalOverlay.id = 'clay-confirmation-modal';
+        modalOverlay.style.cssText = `
+            position: fixed; inset: 0; z-index: 999999; 
+            background: rgba(15, 20, 30, 0.85); backdrop-filter: blur(15px);
+            display: flex; justify-content: center; align-items: center;
+            padding: 20px; font-family: system-ui, -apple-system, sans-serif;
+            opacity: 0; transition: opacity 0.3s ease;
+        `;
+
+        modalOverlay.innerHTML = `
+            <div class="clay-panel" style="width: 100%; max-width: 400px; padding: 32px; text-align: center; display: flex; flex-direction: column; gap: 24px; transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); background: #2a3149; border-radius: 28px; box-shadow: 10px 10px 20px rgba(15,20,30,0.6), inset 4px 4px 8px rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05);">
+                <div style="width: 72px; height: 72px; border-radius: 50%; background: rgba(30, 144, 255, 0.15); color: #1e90ff; display: flex; justify-content: center; align-items: center; font-size: 32px; margin: 0 auto; box-shadow: inset 2px 2px 10px rgba(0,0,0,0.2);">💊</div>
+                <div>
+                    <h2 style="color: #fff; margin: 0 0 8px 0; font-size: 1.5rem; font-weight: 800;">Medication Detected</h2>
+                    <p style="color: #a4b0be; margin: 0; font-size: 0.95rem; font-weight: 500;">Please verify before saving.</p>
+                </div>
+                <div style="background: rgba(0, 0, 0, 0.2); border-radius: 20px; padding: 20px; text-align: left; box-shadow: inset 4px 4px 8px rgba(0,0,0,0.4), inset -4px -4px 8px rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.02);">
+                    <div style="color: #1e90ff; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px;">Brand Name</div>
+                    <div style="color: white; font-size: 1.35rem; font-weight: 700; margin-bottom: 16px;">${brandName}</div>
+                    <div style="color: #1e90ff; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px;">Dosage & Form</div>
+                    <div style="color: white; font-size: 1.1rem; font-weight: 500;">${rawDosage} • ${dosageForm}</div>
+                </div>
+                <div style="display: flex; gap: 16px; margin-top: 8px;">
+                    <button id="btn-rescan" style="flex: 1; background: #353b50; color: #a4b0be; padding: 16px; border-radius: 20px; border: none; font-weight: bold; cursor: pointer;">↺ Rescan</button>
+                    <button id="btn-confirm" style="flex: 1.5; background: linear-gradient(135deg, #1e90ff, #0984e3); color: white; padding: 16px; border-radius: 20px; border: none; font-weight: bold; box-shadow: 0 10px 20px rgba(30,144,255,0.4); cursor: pointer;">Confirm ✓</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modalOverlay);
+
+        requestAnimationFrame(() => {
+            modalOverlay.style.opacity = '1';
+            modalOverlay.querySelector('.clay-panel').style.transform = 'translateY(0)';
+        });
+
+        modalOverlay.querySelector('#btn-confirm').onclick = () => {
+            modalOverlay.style.opacity = '0';
+            setTimeout(() => {
+                modalOverlay.remove();
+                sessionStorage.setItem('medcheck_pending_scan', JSON.stringify(payload));
+                window.location.hash = '#/add-medication';
+            }, 300);
+        };
+
+        modalOverlay.querySelector('#btn-rescan').onclick = () => {
+            modalOverlay.style.opacity = '0';
+            setTimeout(() => {
+                modalOverlay.remove();
+            }, 300);
+        };
   }
 
   destroy() {
