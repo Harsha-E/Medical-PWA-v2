@@ -9,7 +9,6 @@ import { StripSceneOrchestrator } from '../services/reconstruction/StripSceneOrc
 import { StripFlatProjector } from '../services/reconstruction/StripFlatProjector.js';
 import { ObjectSegmenter } from '../services/vision/ObjectSegmenter.js';
 import VisionPipeline from '../services/VisionPipeline.js';
-import CanvasEditor from '../services/CanvasEditor.js';
 
 export default class Scan3DView {
   constructor() {
@@ -210,25 +209,8 @@ export default class Scan3DView {
       // 5. OCR Process
       await yieldToMain();
       
-      await updatePhaseLabel('Refining Cutout...', 'Manual touch-up active');
-      const refinedImage = await new Promise((resolve) => {
-          const modal = document.createElement('div');
-          modal.style.position = 'absolute';
-          modal.style.top = '0'; modal.style.left = '0'; modal.style.width = '100%'; modal.style.height = '100%';
-          modal.style.zIndex = '9999';
-          modal.style.background = 'rgba(0,0,0,0.9)';
-          document.body.appendChild(modal);
-
-          new CanvasEditor(modal, dataUrl, projectionImg.src, (finalEditedBase64) => {
-              document.body.removeChild(modal);
-              const img = new Image();
-              img.onload = () => resolve(img);
-              img.src = finalEditedBase64;
-          });
-      });
-
       await updatePhaseLabel('Analyzing Text...', 'Querying Intelligence Mesh');
-      const matchResult = await this.pipeline.processFrame(refinedImage, 1.0, true);
+      const matchResult = await this.pipeline.processFrame(projectionImg, 1.0, true);
       
       if (matchResult && matchResult.bestMatch) {
           // Success! Save results and navigate to add-medication
