@@ -30,13 +30,19 @@ export class Router {
   async handleRoute() {
     const rawHash = window.location.hash || '#/landing';
     
+    // Failsafe: Reset the lock to prevent permanent deadlock during transitions
+    window.medcareAlertLock = false;
+    
     // 1. Strip out any trailing query string parameters (?id=... or ?name=...)
     let baseRoute = rawHash.split('?')[0];
     
-    // 2. Normalize trailing subpath variables (e.g., '#/edit/24' becomes '#/edit')
-    const segments = baseRoute.split('/');
-    if (segments.length > 2) {
-      baseRoute = `#/${segments[1]}`;
+    // 2. Normalize trailing subpath variables only if the route is NOT explicitly defined.
+    // E.g., if '#/scan/3d' is defined in this.routes, do not truncate it to '#/scan'.
+    if (!this.routes[baseRoute]) {
+      const segments = baseRoute.split('/');
+      if (segments.length > 2) {
+        baseRoute = `#/${segments[1]}`;
+      }
     }
     
 

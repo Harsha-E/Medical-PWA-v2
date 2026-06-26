@@ -31,7 +31,7 @@ export default class MedicationsView {
       this.container.innerHTML = `
         <div class="max-w-7xl mx-auto w-full px-4 md:px-6 pt-[112px] pb-28">
 
-          <a href="${activeMeds.length >= 2 ? '#/interaction-checker' : 'javascript:void(0)'}" class="block mb-6 ${activeMeds.length >= 2 ? 'bg-amber-900/20 border-amber-500/30 hover:bg-amber-900/30' : 'bg-surface-elevated/40 backdrop-blur-xl border-border opacity-60 cursor-not-allowed'} border rounded-2xl p-4 flex items-center justify-between transition-colors shadow-[0_8px_32px_rgba(0,0,0,0.5)]" ${activeMeds.length < 2 ? 'onclick="alert(\\\'Add at least 2 medications to check interactions.\\\')"' : ''}>
+          <a href="${activeMeds.length >= 2 ? '#/interaction-checker' : 'javascript:void(0)'}" class="block mb-6 ${activeMeds.length >= 2 ? 'bg-amber-900/20 border-amber-500/30 hover:bg-amber-900/30' : 'bg-surface-elevated/40 backdrop-blur-xl border-border opacity-60 cursor-not-allowed'} border rounded-2xl p-4 flex items-center justify-between transition-colors shadow-[0_8px_32px_rgba(0,0,0,0.5)]" ${activeMeds.length < 2 ? 'onclick="alert(&quot;Add at least 2 medications to check interactions.&quot;)"' : ''}>
             <div class="flex items-center gap-3">
               <div class="w-10 h-10 rounded-full ${activeMeds.length >= 2 ? 'bg-amber-500/20 text-amber-400' : 'bg-gray-800 text-text-muted'} flex items-center justify-center">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>

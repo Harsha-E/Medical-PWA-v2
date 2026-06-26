@@ -1,5 +1,6 @@
 import state from '../core/state.js';
 import db from '../core/db.js';
+import PeerMesh from '../services/PeerMesh.js';
 
 export default class EmergencyView {
   async render() {
@@ -102,7 +103,33 @@ export default class EmergencyView {
                 `).join('')}
             </div>
         </section>
+        <!-- Hydra Pool Mesh Network -->
+        <section class="mb-12">
+            <h3 class="text-xs font-bold text-primary mb-4 tracking-[0.2em] px-1 uppercase">Hydra Pool Mesh</h3>
+            <div class="clay-glass-panel p-6 flex flex-col items-center bg-surface-deep border-border shadow-xl">
+                <div class="w-full flex justify-between items-center mb-4">
+                    <p class="font-bold text-sm text-text-primary">Peer Connection</p>
+                    <span id="hydra-status-badge" class="px-3 py-1 text-[10px] uppercase tracking-widest rounded-full bg-surface-elevated border border-border text-text-muted">Offline</span>
+                </div>
+                <div id="hydra-qr-container" class="bg-white p-2 rounded-2xl mb-4 w-[200px] h-[200px] flex items-center justify-center">
+                    <svg class="animate-spin text-surface" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                </div>
+                <button id="hydra-help-btn" class="text-xs text-accent-primary/80 underline tracking-wider uppercase font-medium">How does this work?</button>
+            </div>
+        </section>
+
       </div></main>
+
+      <!-- Onboarding Overlay -->
+      <div id="hydra-onboarding-overlay" class="fixed inset-0 z-[9999] bg-surface/90 backdrop-blur-md flex items-center justify-center p-6 transition-opacity duration-300 opacity-0 pointer-events-none">
+          <div class="clay-glass-panel p-8 max-w-sm w-full">
+              <h2 class="text-lg font-bold text-primary mb-4">Hydra Pool Mesh</h2>
+              <p class="text-sm text-text-secondary mb-6 leading-relaxed">
+                  Scan this QR code from a family member's device to establish a secure, decentralized data bridge. Changes made to medical profiles will automatically sync without a central server.
+              </p>
+              <button id="close-help-btn" class="w-full btn-primary-specter py-3 text-xs rounded-full bg-white text-black font-bold uppercase tracking-widest">Acknowledge</button>
+          </div>
+      </div>
 
       <style>
         .clay-glass-panel { backdrop-filter: blur(12px); border-radius: var(--radius-lg); }
@@ -115,6 +142,76 @@ export default class EmergencyView {
 
   attachListeners() {
     this.container.querySelector('#sos-btn').addEventListener('click', () => this.dispatchSOS());
+    this.container.querySelector('#hydra-help-btn').addEventListener('click', () => {
+        const overlay = this.container.querySelector('#hydra-onboarding-overlay');
+        overlay.classList.remove('opacity-0', 'pointer-events-none');
+    });
+    this.container.querySelector('#close-help-btn').addEventListener('click', () => {
+        const overlay = this.container.querySelector('#hydra-onboarding-overlay');
+        overlay.classList.add('opacity-0', 'pointer-events-none');
+    });
+
+    // Mesh Events
+    this._handlePeerConnected = () => {
+        const badge = this.container.querySelector('#hydra-status-badge');
+        if (badge) {
+            badge.textContent = 'Connected';
+            badge.className = 'px-3 py-1 text-[10px] uppercase tracking-widest rounded-full bg-success/20 border border-success text-success';
+        }
+    };
+    this._handlePeerDisconnected = () => {
+        const badge = this.container.querySelector('#hydra-status-badge');
+        if (badge) {
+            badge.textContent = 'Offline';
+            badge.className = 'px-3 py-1 text-[10px] uppercase tracking-widest rounded-full bg-surface-elevated border border-border text-text-muted';
+        }
+    };
+    this._handlePeerRequest = () => {
+        const badge = this.container.querySelector('#hydra-status-badge');
+        if (badge) {
+            badge.textContent = 'Connecting...';
+            badge.className = 'px-3 py-1 text-[10px] uppercase tracking-widest rounded-full bg-warning/20 border border-warning text-warning';
+        }
+    };
+
+    window.addEventListener('medcare:peer-connected', this._handlePeerConnected);
+    window.addEventListener('medcare:peer-disconnected', this._handlePeerDisconnected);
+    window.addEventListener('medcare:peer-request', this._handlePeerRequest);
+
+    this.initMesh();
+  }
+
+  async initMesh() {
+    try {
+        if (!window.QRCode) {
+            await new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.min.js';
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+
+        const mesh = PeerMesh.getInstance();
+        await mesh.init();
+
+        const qrContainer = this.container.querySelector('#hydra-qr-container');
+        qrContainer.innerHTML = ''; // clear loader
+
+        if (mesh.peerId) {
+            const qrUri = `medcare://peer-connect?id=${mesh.peerId}`; 
+            const canvas = document.createElement('canvas');
+            window.QRCode.toCanvas(canvas, qrUri, { width: 200, color: { dark: '#000000', light: '#ffffff' }, margin: 2 }, (error) => {
+                if (!error) qrContainer.appendChild(canvas);
+                else console.error('QR Error:', error);
+            });
+        } else {
+            qrContainer.innerHTML = '<span class="text-xs text-danger text-center px-4">Failed to acquire Peer ID. Please check your network connection.</span>';
+        }
+    } catch (e) {
+        console.error('Mesh Init Error:', e);
+    }
   }
 
   async dispatchSOS() {
@@ -205,6 +302,8 @@ export default class EmergencyView {
 
   destroy() {
     // Cleanup
+    window.removeEventListener('medcare:peer-connected', this._handlePeerConnected);
+    window.removeEventListener('medcare:peer-disconnected', this._handlePeerDisconnected);
+    window.removeEventListener('medcare:peer-request', this._handlePeerRequest);
   }
 }
-

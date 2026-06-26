@@ -39,6 +39,7 @@ self.onmessage = async (e) => {
             }
 
             let baseCanvas;
+            let aspectRatio = 1.0;
             if (_detectorReady && detector) {
                 const detections = detector.detect(bitmap);
                 if (detections?.detections?.length > 0) {
@@ -50,11 +51,12 @@ self.onmessage = async (e) => {
 
                     if (validDetections.length > 0) {
                         const bbox = validDetections[0].boundingBox;
-                        // BUG FIX: Prevent Tesseract crashing on impossibly small bounding boxes (e.g. 2x36)
+                        // BUG FIX: Prevent Tesseract crashing on impossibly small bounding boxes
                         if (bbox.width >= 20 && bbox.height >= 20) {
                             baseCanvas = new OffscreenCanvas(bbox.width, bbox.height);
                             const ctx = baseCanvas.getContext('2d');
                             ctx.drawImage(bitmap, bbox.originX, bbox.originY, bbox.width, bbox.height, 0, 0, bbox.width, bbox.height);
+                            aspectRatio = bbox.height / bbox.width;
                         }
                     }
                 }
@@ -93,11 +95,9 @@ self.onmessage = async (e) => {
             }
 
             // Generate angles from 0 to 180 in 15-degree increments.
-            // (Tesseract naturally handles +/- 7 degrees of skew, so 15-degree steps 
-            // perfectly covers literally every possible degree without duplicating work).
             let angles = [];
             if (isSingleFrame) {
-                angles = [0, 90, 180, 270]; // Manual captures can be oriented portrait or landscape
+                angles = [0, 90, 180, 270]; 
             } else {
                 for (let i = 0; i <= 180; i += 15) {
                     angles.push(i);
@@ -105,6 +105,10 @@ self.onmessage = async (e) => {
             }
             let bestResult = null;
             let finalBlob = null;
+
+            // PSM Mode Logic
+            const psmMode = aspectRatio < 0.15 ? '7' : '6'; // 7 = SINGLE_LINE, 6 = SINGLE_BLOCK
+            await ocrWorker.setParameters({ tessedit_pageseg_mode: psmMode });
 
             for (const angle of angles) {
                 const processBlob = await getRotatedBlob(angle);
@@ -118,6 +122,16 @@ self.onmessage = async (e) => {
                 // Break early if we find a confident text string (Performance Friendly)
                 if (data.confidence > 60 && data.text.trim().length > 3) {
                     break;
+                }
+            }
+
+            // Secondary Pass on 180-rotated image if first pass confidence < 55
+            if (bestResult && bestResult.confidence < 55) {
+                const secondaryBlob = await getRotatedBlob(180);
+                const { data: secondData } = await ocrWorker.recognize(secondaryBlob);
+                if (secondData.confidence > bestResult.confidence) {
+                    bestResult = secondData;
+                    finalBlob = secondaryBlob;
                 }
             }
 

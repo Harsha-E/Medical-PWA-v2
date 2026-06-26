@@ -15,8 +15,8 @@ export class EvidenceReasoner {
      */
     ingestScannerEvidence(cvData) {
         this.scannerEvidence.push(cvData);
-        // Retain only latest 5 frames of evidence for smoothing
-        if (this.scannerEvidence.length > 5) {
+        // Retain only latest 8 frames of evidence for temporal smoothing
+        if (this.scannerEvidence.length > 8) {
             this.scannerEvidence.shift();
         }
     }
@@ -78,8 +78,22 @@ export class EvidenceReasoner {
             };
         });
 
+        // Check for low confidence state
+        let finalStatus = 'SUCCESS';
+        let reasoning = '';
+        if (this.scannerEvidence.length >= 8 && avgCvScore < 0.65) {
+            finalStatus = 'LOW_CONFIDENCE';
+            reasoning = 'Consensus < 65% after 8 frames. OCR tokens are ambiguous or obscured.';
+        }
+
         // Sort descending by confidence
-        return candidateScores.sort((a, b) => b.confidence - a.confidence);
+        const sortedScores = candidateScores.sort((a, b) => b.confidence - a.confidence);
+        
+        return {
+            status: finalStatus,
+            reasoning: reasoning,
+            candidates: sortedScores
+        };
     }
 
     reset() {

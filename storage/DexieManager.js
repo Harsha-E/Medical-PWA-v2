@@ -8,11 +8,12 @@ export class DexieManager {
 
     initSchema() {
         // Define schema
-        this.db.version(1).stores({
+        this.db.version(2).stores({
             medicine_knowledge: 'id, name, genericName, manufacturer, therapeuticCategory, *commonOcrErrors, *alternativeBrands, *regionalAvailability',
             packaging_reference: 'id, medicineId, blisterLayout',
             scan_history: '++id, userId, timestamp, identifiedMedId',
-            scan_recordings: 'id, timestamp, failureType'
+            scan_recordings: 'id, timestamp, failureType',
+            scan_cache: 'id'
         });
     }
 

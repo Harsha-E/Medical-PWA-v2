@@ -175,11 +175,16 @@ export default class MedicineMatcher {
     if (query.brand) {
       const brandLower = query.brand.toLowerCase();
       const brands = drugRecord.brandNames || (drugRecord.brandName ? [drugRecord.brandName] : []);
+      
+      let isExactBrandMatch = false;
       const bestBrandSim = brands.reduce((max, b) => {
         const sim = this._getStringSimilarity(brandLower, b.toLowerCase());
+        if (sim >= 0.95) isExactBrandMatch = true; // Exact or near-exact match
         return Math.max(max, sim);
       }, 0);
-      score += (bestBrandSim * 100) * WEIGHTS.brand;
+      
+      const BRAND_BOOST = isExactBrandMatch ? 2.5 : 1.0;
+      score += (bestBrandSim * 100) * WEIGHTS.brand * BRAND_BOOST;
     }
 
     // 2. Generic Ingredient Score

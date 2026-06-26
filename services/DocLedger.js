@@ -27,7 +27,7 @@ export default class DocLedger {
      */
     async ingestDocument(file, metadata = {}) {
         try {
-            const userId = state.get('user').uid;
+            const userId = state.user?.uid;
             if (!userId) throw new Error('User not authenticated.');
 
             const arrayBuffer = await file.arrayBuffer();
@@ -61,7 +61,7 @@ export default class DocLedger {
      */
     async search(query) {
         try {
-            const userId = state.get('user').uid;
+            const userId = state.user?.uid;
             if (!userId) return [];
 
             const records = await db.history.where('userId').equals(userId).toArray();

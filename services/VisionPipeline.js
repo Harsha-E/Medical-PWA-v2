@@ -1,199 +1,130 @@
     /**
-     * @fileoverview VisionPipeline — Optimized for Temporal Memory & High-Accuracy Extraction
+     * @fileoverview VisionPipeline — MIOS API Orchestrator
+     * Pushes camera frames to the Python Intelligence Layer and parses responses.
      */
-
-
-    const PREPROCESS_WORKER_CODE = `
-    function bradleyRoth(data, width, height) {
-      const S = Math.floor(width / 8);
-      const s2 = Math.floor(S / 2);
-      const t = 0.15;
-      const integral = new Uint32Array(width * height);
-
-      for (let i = 0; i < width; i++) {
-        let sum = 0;
-        for (let j = 0; j < height; j++) {
-          const idx = (j * width + i) * 4;
-          const gray = (data[idx] * 299 + data[idx+1] * 587 + data[idx+2] * 114) / 1000;
-          sum += gray;
-          integral[j * width + i] = (i === 0) ? sum : integral[j * width + i - 1] + sum;
-        }
-      }
-
-      for (let i = 0; i < width; i++) {
-        for (let j = 0; j < height; j++) {
-          const x1 = Math.max(i - s2, 0);
-          const x2 = Math.min(i + s2, width - 1);
-          const y1 = Math.max(j - s2, 0);
-          const y2 = Math.min(j + s2, height - 1);
-          const count = (x2 - x1 + 1) * (y2 - y1 + 1);
-          
-          const sum = integral[y2 * width + x2] 
-                    - (x1 > 0 ? integral[y2 * width + x1 - 1] : 0) 
-                    - (y1 > 0 ? integral[(y1 - 1) * width + x2] : 0) 
-                    + (x1 > 0 && y1 > 0 ? integral[(y1 - 1) * width + x1 - 1] : 0);
-
-          const idx = (j * width + i) * 4;
-          const gray = (data[idx] * 299 + data[idx+1] * 587 + data[idx+2] * 114) / 1000;
-
-          if (gray * count < sum * (1.0 - t)) {
-            data[idx] = data[idx+1] = data[idx+2] = 0;
-          } else {
-            data[idx] = data[idx+1] = data[idx+2] = 255;
-          }
-          data[idx+3] = 255;
-        }
-      }
-      return data;
-    }
-
-    onmessage = (e) => {
-      const { imageData, width, height } = e.data;
-      bradleyRoth(imageData.data, width, height);
-      postMessage({ imageData }, [imageData.data.buffer]);
-    };
-    `;
+    import { MedicineKnowledgeGraph } from '../intelligence/MedicineKnowledgeGraph.js';
 
     export default class VisionPipeline {
         constructor() {
             this.isReady = true;
             this.isProcessing = false;
             this.activeSessionId = null;
-            this._worker = new Worker(new URL('../workers/vision.worker.js', import.meta.url), { type: 'module' });
-            this._matcherWorker = new Worker(new URL('../workers/matcher.worker.js', import.meta.url), { type: 'module' });
-            this._preprocessWorker = new Worker(URL.createObjectURL(new Blob([PREPROCESS_WORKER_CODE], { type: 'application/javascript' })));
+            this.apiUrl = 'http://localhost:8000/api/intelligence/analyze';
         }
 
-        async processFrame(sourceElement, scale = 0.5, isSingleFrame = false) {
-            console.log("[DEBUG] PROCESS FRAME started. isProcessing=", this.isProcessing, "isReady=", this.isReady);
+        async processFrame(sourceElement, scale = 0.75, isSingleFrame = false) {
+            console.log("[VisionPipeline] Sending frame to background Web Worker for Groq OCR...");
             if (this.isProcessing || !this.isReady) return null;
             this.isProcessing = true;
 
             try {
-                const canvas = document.createElement('canvas');
-                const sw = sourceElement.videoWidth || sourceElement.naturalWidth || sourceElement.width;
-                const sh = sourceElement.videoHeight || sourceElement.naturalHeight || sourceElement.height;
-                const targetW = Math.floor(sw * scale);
-                const targetH = Math.floor(sh * scale);
-                canvas.width = targetW;
-                canvas.height = targetH;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(sourceElement, 0, 0, targetW, targetH);
-                const imageData = ctx.getImageData(0, 0, targetW, targetH);
-
-                const preprocessedData = await new Promise((resolve) => {
-                    const handler = (e) => {
-                        this._preprocessWorker.removeEventListener('message', handler);
-                        resolve(e.data.imageData);
-                    };
-                    this._preprocessWorker.addEventListener('message', handler);
-                    this._preprocessWorker.postMessage({ imageData, width: targetW, height: targetH }, [imageData.data.buffer]);
-                });
-
-                const bitmap = await createImageBitmap(preprocessedData);
-                console.log("[DEBUG] SENDING TO OCR WORKER");
-                this._worker.postMessage({ type: 'PROCESS_FRAME', bitmap, isSingleFrame }, [bitmap]);
-                
-                const workerResult = await new Promise((resolve) => {
-                    const handler = (e) => {
-                        console.log("[DEBUG] OCR WORKER RESPONDED with type:", e.data.type);
-                        if (e.data.type === 'PIPELINE_COMPLETE') {
-                            this._worker.removeEventListener('message', handler);
-                            resolve(e.data.result);
-                        } else if (e.data.type === 'PIPELINE_ERROR') {
-                            this._worker.removeEventListener('message', handler);
-                            resolve({ error: e.data.error });
-                        } else if (e.data.type === 'PIPELINE_STAGE') {
-                            window.dispatchEvent(new CustomEvent('scan:pipeline-stage', { detail: e.data.stage }));
-                        }
-                    };
-                    this._worker.addEventListener('message', handler);
-                });
-
-                if (!workerResult) {
-                    this.isProcessing = false;
-                    return null;
-                }
-
-                if (workerResult.error) {
-                    this.isProcessing = false;
-                    return { state: 'ERROR', error: workerResult.error };
-                }
-
-                // Send the OCR data to the matcher worker
-                const rawText = workerResult.rawText || '';
-                const dosageRegex = /(?:take\s+)?(\d+(?:\.\d+)?)\s*(mg|mcg|g|ml|tablet|capsule)/gi;
-                const dosages = [...rawText.matchAll(dosageRegex)].map(m => ({ value: m[1], unit: m[2] }));
-                const quantRegex = /(?:qty|quantity|no\.|#)?\s*(\d+)\s*(?:x\s*\d+)?\s*(tablets?|capsules?|strips?|packs?|bottles?|tubes?)/gi;
-                const quantities = [...rawText.matchAll(quantRegex)].map(m => ({ value: m[1], unit: m[2] }));
-
-                const matchResult = await new Promise((resolve) => {
-                    const handler = (e) => {
-                        if (e.data.type === 'IDENTIFICATION_COMPLETE') {
-                            this._matcherWorker.removeEventListener('message', handler);
-                            resolve(e.data.result);
-                        } else if (e.data.type === 'ERROR') {
-                            this._matcherWorker.removeEventListener('message', handler);
-                            resolve({ state: 'ERROR', error: e.data.error });
-                        }
-                    };
-                    this._matcherWorker.addEventListener('message', handler);
-                    this._matcherWorker.postMessage({
-                        type: 'IDENTIFY_MEDICINE',
-                        payload: {
-                            rawText: rawText,
-                            confidence: workerResult.confidence,
-                            regions: workerResult.regions || [],
-                            sessionId: this.activeSessionId || 'default-session'
-                        }
-                    });
-                });
-
-                this.isProcessing = false;
-
-                if (!matchResult) return null;
-
-                // Propagate dosage, quantity, and cropped image metadata into final output
-                return {
-                    ...matchResult,
-                    dosage: dosages && dosages[0] ? dosages[0].value : null,
-                    unit: dosages && dosages[0] ? dosages[0].unit : null,
-                    quantity: quantities && quantities[0] ? quantities[0].value : null,
-                    croppedBlob: workerResult.croppedBlob,
-                    bbox: matchResult.bbox || null
-                };
-
+                return await Promise.race([
+                    this._executePipeline(sourceElement, scale, isSingleFrame),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('Pipeline Watchdog Timeout')), 45000))
+                ]);
             } catch (e) {
-                console.error(e);
+                console.error("[VisionPipeline] Error or Timeout:", e);
                 this.isProcessing = false;
                 return null;
             }
         }
 
-        recordCorrection(sessionId, finalDrugs, isUserCorrection, rawOcrText = '', regions = []) {
-            if (this._matcherWorker) {
-                this._matcherWorker.postMessage({
-                    type: 'RECORD_CORRECTION',
-                    payload: { sessionId, finalDrugs, isUserCorrection, rawOcrText, regions }
+        async _executePipeline(sourceElement, scale, isSingleFrame) {
+            try {
+                // 1. Crop & Extract frame to Data URI
+                const canvas = document.createElement('canvas');
+                const sw = sourceElement.videoWidth || sourceElement.naturalWidth || sourceElement.width;
+                const sh = sourceElement.videoHeight || sourceElement.naturalHeight || sourceElement.height;
+                
+                const cropSize = Math.min(sw, sh) * 0.8;
+                const startX = (sw - cropSize) / 2;
+                const startY = (sh - cropSize) / 2;
+
+                const targetSize = Math.floor(cropSize * scale);
+                canvas.width = targetSize;
+                canvas.height = targetSize;
+                const ctx = canvas.getContext('2d');
+                
+                ctx.drawImage(sourceElement, startX, startY, cropSize, cropSize, 0, 0, targetSize, targetSize);
+
+                const base64Image = canvas.toDataURL('image/jpeg', 0.85);
+
+                window.dispatchEvent(new CustomEvent('scan:pipeline-stage', { detail: 'Local Worker Analysis' }));
+
+                return await new Promise((resolve, reject) => {
+                    // The ?v= timestamp physically blocks the browser from caching the old worker
+                    const worker = new Worker(`./services/visionWorker.js?v=${Date.now()}`, { type: 'module' });
+                    
+                    worker.onmessage = async (e) => {
+                        this.isProcessing = false;
+                        worker.terminate();
+                        
+                        console.group("[Vision Pipeline Execution]");
+                        
+                        const result = e.data;
+                        if (result.error) {
+                            reject(new Error(result.error));
+                            return;
+                        }
+
+                        let bestMatch = null;
+                        const nameToMatch = result.medicationName || result.brandName;
+                        if (nameToMatch) {
+                            console.log("[Graph Search] Attempting to match string:", nameToMatch);
+                            
+                            const yieldToMain = () => new Promise(r => setTimeout(r, 0));
+                            await yieldToMain();
+                            
+                            const graph = new MedicineKnowledgeGraph();
+                            const matches = await graph.queryNode(nameToMatch);
+                            if (matches && matches.length > 0) {
+                                bestMatch = matches[0];
+                            }
+                            console.log("[Graph Search] Match Result:", bestMatch || "FAILED - No match found");
+                        }
+                        console.groupEnd();
+
+                        // Map to legacy expected format
+                        resolve({
+                            state: bestMatch ? 'SUCCESS' : 'NEEDS_REVIEW',
+                            confidence: 1.0,
+                            name: nameToMatch || 'Unknown',
+                            dosage: result.strengthPerUnit || (bestMatch ? bestMatch.strength : ''),
+                            manufacturer: result.manufacturer || (bestMatch ? bestMatch.manufacturer : ''),
+                            quantity: result.totalQuantityCount || null,
+                            unit: '', 
+                            bbox: null,
+                            bestMatch: bestMatch
+                        });
+                    };
+
+                    worker.onerror = (error) => {
+                        console.error('[VisionPipeline][Crash] Worker encountered an internal error:', error.message);
+                        this.isProcessing = false;
+                        worker.terminate();
+                        reject(new Error(error.message || 'Worker initialization failed'));
+                    };
+
+                    worker.postMessage({ image_url: base64Image });
                 });
+                
+            } catch (error) {
+                console.error('[VisionPipeline][Crash] Failed to reach local orchestrator:', error);
+                this.isProcessing = false;
+                window.dispatchEvent(new CustomEvent('scan:pipeline-error', { detail: error.message }));
+                throw error;
             }
+        }
+
+        recordCorrection(sessionId, finalDrugs, isUserCorrection, rawOcrText = '', regions = []) {
+            console.log("[VisionPipeline] recordCorrection sent to Telemetry endpoint (Not Implemented)");
         }
 
         recordFailure(sessionId, failureType) {
-            if (this._matcherWorker) {
-                this._matcherWorker.postMessage({
-                    type: 'RECORD_FAILURE',
-                    payload: { sessionId, failureType }
-                });
-            }
+            console.log("[VisionPipeline] recordFailure sent to Telemetry endpoint (Not Implemented)");
         }
 
         clearMemory() {
-            if (this._worker) {
-                this._worker.postMessage({ type: 'CLEAR_MEMORY' });
-            }
-            if (this._matcherWorker) {
-                this._matcherWorker.postMessage({ type: 'CLEAR' });
-            }
+            console.log("[VisionPipeline] clearMemory invoked.");
         }
     }

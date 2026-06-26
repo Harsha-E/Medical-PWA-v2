@@ -127,6 +127,24 @@ export class DatasetSyncManager {
                 tabletColor: 'yellow',
                 imprintCodes: ['PAN40'],
                 marketStatus: 'Active'
+            },
+            {
+                id: 'brand-symbicort',
+                name: 'Symbicort',
+                genericName: 'Budesonide + Formoterol',
+                manufacturer: 'AstraZeneca',
+                strength: '160mcg + 4.5mcg',
+                dosageForm: 'inhaler',
+                prescriptionStatus: 'Rx',
+                therapeuticCategory: 'Bronchodilator, Corticosteroid',
+                commonOcrErrors: ['SYMBIC0RT', 'SYMBICORT', '5YMBICORT'],
+                regionalAvailability: ['Pan India'],
+                andhraDistribution: ['All major chains'],
+                alternativeBrands: ['brand-foracort'],
+                tabletShape: 'inhaler',
+                tabletColor: 'red/white',
+                imprintCodes: [],
+                marketStatus: 'Active'
             }
         ];
 

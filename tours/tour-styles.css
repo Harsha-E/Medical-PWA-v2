@@ -1,0 +1,166 @@
+/* ─── TOUR MANAGER STYLES ────────────────────────────────────────────────── */
+
+:root {
+  --tm-bg: rgba(26, 10, 18, 0.95);
+  --tm-border: rgba(255, 184, 140, 0.3);
+  --tm-text: #ffffff;
+  --tm-text-muted: #cbd5e1;
+  --tm-primary: #10b981;
+  --tm-primary-hover: #059669;
+  --tm-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+  --tm-radius: 16px;
+}
+
+.tm-tooltip {
+  width: 280px;
+  max-width: calc(100vw - 32px);
+  filter: drop-shadow(var(--tm-shadow));
+}
+
+.tm-tooltip-inner {
+  background: var(--tm-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--tm-border);
+  border-radius: var(--tm-radius);
+  padding: 16px 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.tm-tooltip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.tm-step-counter {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--tm-primary);
+  text-transform: uppercase;
+}
+
+.tm-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--tm-text-muted);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.tm-close-btn:hover {
+  color: var(--tm-text);
+}
+
+.tm-title {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--tm-text);
+}
+
+.tm-description {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--tm-text-muted);
+}
+
+.tm-progress-bar {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.tm-progress-fill {
+  height: 100%;
+  background: var(--tm-primary);
+  transition: width 0.3s ease;
+}
+
+.tm-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tm-btn {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+
+.tm-btn-ghost {
+  background: transparent;
+  color: var(--tm-text-muted);
+}
+
+.tm-btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--tm-text);
+}
+
+.tm-btn-primary {
+  background: var(--tm-primary);
+  color: #fff;
+  flex: 1;
+}
+
+.tm-btn-primary:hover {
+  background: var(--tm-primary-hover);
+}
+
+/* Tooltip Arrow */
+.tm-arrow {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: var(--tm-bg);
+  border: 1px solid var(--tm-border);
+  transform: rotate(45deg);
+  z-index: 1;
+}
+
+.tm-arrow-bottom {
+  top: -8px;
+  left: calc(50% - 8px);
+  border-bottom: none;
+  border-right: none;
+}
+
+.tm-arrow-top {
+  bottom: -8px;
+  left: calc(50% - 8px);
+  border-top: none;
+  border-left: none;
+}
+
+.tm-arrow-right {
+  left: -8px;
+  top: calc(50% - 8px);
+  border-top: none;
+  border-right: none;
+}
+
+.tm-arrow-left {
+  right: -8px;
+  top: calc(50% - 8px);
+  border-bottom: none;
+  border-left: none;
+}
+
+.tm-arrow-center {
+  display: none;
+}

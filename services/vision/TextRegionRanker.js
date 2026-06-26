@@ -97,18 +97,51 @@ export default class TextRegionRanker {
     }
 
     // 6. Repetition check (Strips repeat brand names)
-    // If word contains duplicates, e.g. "DOLO DOLO" or "PAN PAN"
-    const words = text.split(/\s+/);
-    if (words.length > 1) {
-      const uniqueWords = new Set(words.map(w => w.toLowerCase()));
-      if (uniqueWords.size < words.length) {
-        score += 0.15; // Repetitive words indicate a strip pattern
+    // 1. Font Size Approximation (Height of bounding box)
+    let fontSizeScore = 0;
+    if (region.bbox && region.bbox.y1 && region.bbox.y0) {
+      const height = region.bbox.y1 - region.bbox.y0;
+      fontSizeScore = Math.min(height / 100, 1.0); // Normalize assuming 100px is very large font
+    }
+
+    // 2. Region Centrality
+    let centralityScore = 0.5; // Default if no bbox
+    if (region.bbox && context.frameWidth && context.frameHeight) {
+      const cx = (region.bbox.x0 + region.bbox.x1) / 2;
+      const cy = (region.bbox.y0 + region.bbox.y1) / 2;
+      const frameCx = context.frameWidth / 2;
+      const frameCy = context.frameHeight / 2;
+      
+      const dx = (cx - frameCx) / frameCx;
+      const dy = (cy - frameCy) / frameCy;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      // Closer to 0 dist = score 1.0. Max dist is sqrt(2) ~ 1.414
+      centralityScore = Math.max(0, 1.0 - (dist / 1.414));
+    }
+
+    // 3. Drug Name Fuzzy Hit
+    let fuzzyHitScore = 0;
+    // Check against context known drug names if available, or just use string heuristics
+    if (context.knownBrandNames && context.knownBrandNames.length > 0) {
+      for (const brand of context.knownBrandNames) {
+         if (text.toLowerCase().includes(brand.toLowerCase())) {
+            fuzzyHitScore = 1.0;
+            break;
+         }
+      }
+    } else {
+      // Fallback heuristics if no explicit list provided
+      if (text.length >= 4 && text.length <= 15 && text.match(/[A-Z]/)) {
+         fuzzyHitScore = 0.6; // Plausible drug name
       }
     }
 
-    // 7. OCR Confidence scaling
+    // Apply the PRD Formula: (font_size × 0.3) + (drug_name_fuzzy_hit × 0.5) + (region_centrality × 0.2)
+    score = (fontSizeScore * 0.3) + (fuzzyHitScore * 0.5) + (centralityScore * 0.2);
+
+    // Confidence scaling
     const confidenceWeight = typeof region.confidence === 'number' ? region.confidence / 100 : 0.8;
-    score *= (0.5 + 0.5 * confidenceWeight); // Scale score by confidence but don't zero it completely
+    score *= (0.5 + 0.5 * confidenceWeight);
 
     return Math.max(0, parseFloat(score.toFixed(3)));
   }
@@ -116,7 +149,7 @@ export default class TextRegionRanker {
   /**
    * Sorts and filters OCR regions, prioritizing candidates most likely to be medicine names.
    * @param {OcrRegion[]} regions - Unstructured list of OCR blocks
-   * @param {Object} [context] - Context options
+   * @param {Object} [context] - Context options (frameWidth, frameHeight, knownBrandNames)
    * @returns {RankedRegion[]} Sorted list of regions with scores
    */
   rank(regions, context = {}) {
@@ -124,29 +157,13 @@ export default class TextRegionRanker {
       throw new Error('[TextRegionRanker] Invalid input: regions must be an array.');
     }
 
-    // Pre-calculate context details if not provided
-    const computedContext = {
-      knownDosages: context.knownDosages || [],
-      knownManufacturers: context.knownManufacturers || []
-    };
-
-    if (!context.knownDosages) {
-      // Scan all text to extract possible dosages for context
-      const dosageRegex = /\b\d+(?:\.\d+)?\s*(?:mg|mcg|ml|g)\b/gi;
-      for (const r of regions) {
-        const matches = r.text.match(dosageRegex);
-        if (matches) computedContext.knownDosages.push(...matches);
-      }
-    }
-
     return regions
       .map(region => ({
         region,
-        score: this.calculateRegionScore(region, computedContext)
+        score: this.calculateRegionScore(region, context)
       }))
-      // Filter out completely non-relevant noise (score of 0)
-      .filter(item => item.score > 0.05)
-      // Sort highest score first
+      .filter(item => item.score > 0.1) // Minimum threshold to drop pure noise
       .sort((a, b) => b.score - a.score);
   }
 }
+

@@ -7,6 +7,9 @@
 import db from '../../core/db.js';
 import state from '../../core/state.js';
 import { interactionGraph } from '../../services/InteractionGraph.js';
+import { StripDepthEstimator } from '../../services/reconstruction/StripDepthEstimator.js';
+import { StripMeshBuilder } from '../../services/reconstruction/StripMeshBuilder.js';
+import { StripSceneOrchestrator } from '../../services/reconstruction/StripSceneOrchestrator.js';
 
 const SCHEDULE_INFO = {
   'H': { color: '#ef4444' },
@@ -34,7 +37,18 @@ export default class ScanResultController {
     const drug = data.bestMatch;
     const sched = SCHEDULE_INFO[drug.schedule] || SCHEDULE_INFO['OTC'];
 
-    if (this.view._resultName) this.view._resultName.textContent = drug.name;
+    // 1. Hierarchy Fix: Ensure Brand Name is primary, Generic is secondary
+    const bName = (drug.brandNames && drug.brandNames[0]) || drug.brandName;
+    const gName = drug.genericName || drug.name;
+    
+    if (this.view._resultName) {
+      if (bName && bName.toLowerCase() !== gName.toLowerCase()) {
+        this.view._resultName.innerHTML = `${bName} <div style="font-size: 14px; color: #a1a1aa; margin-top: 4px; font-weight: 500;">${gName}</div>`;
+      } else {
+        this.view._resultName.textContent = gName;
+      }
+    }
+
     if (this.view._resultSched) {
       this.view._resultSched.textContent = drug.schedule || 'OTC';
       this.view._resultSched.style.color = sched.color;
@@ -61,7 +75,9 @@ export default class ScanResultController {
         this.view._resultDosRow.innerHTML += `<div style="padding: 6px 12px; border-radius: 20px; background: rgba(16,185,129,0.12); color: #10b981; font-size: 12px; font-family: monospace;">📦 QTY: ${data.quantity}</div>`;
       }
 
-      // Add Visual Explainability Checklist
+      // Removed inline 3D reconstruction viewport because it now renders full-screen behind the result sheet!
+
+      // Add Visual Explainability Checklist with Dropdown Reasoning
       if (data.explainabilityDetails && data.explainabilityDetails.length > 0) {
         const explContainer = document.createElement('div');
         explContainer.style.cssText = `
@@ -69,14 +85,22 @@ export default class ScanResultController {
           padding-top: 15px; display: flex; flex-direction: column; gap: 8px;
         `;
         explContainer.innerHTML = `
-          <h4 style="font-size: 10px; font-weight: bold; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.05em;">Verification Details</h4>
-          <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="const l = this.nextElementSibling; l.style.display = l.style.display==='none'?'flex':'none';">
+            <h4 style="font-size: 10px; font-weight: bold; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.05em; margin:0;">Why this result?</h4>
+            <span style="color: rgba(255,255,255,0.4); font-size: 10px;">▼</span>
+          </div>
+          <ul style="list-style: none; margin: 0; padding: 0; display: none; flex-direction: column; gap: 5px;">
             ${data.explainabilityDetails.map(expl => `
               <li style="font-size: 11px; color: #10b981; display: flex; align-items: center; gap: 6px;">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                 <span>${expl}</span>
               </li>
             `).join('')}
+            ${data.diagnosticReport?.reasoning ? `
+              <li style="font-size: 11px; color: #f43f5e; margin-top: 4px; padding-top: 4px; border-top: 1px dashed rgba(255,255,255,0.1);">
+                ⚠ <strong>LOW CONFIDENCE:</strong> ${data.diagnosticReport.reasoning}
+              </li>
+            ` : ''}
           </ul>
         `;
         this.view._resultDosRow.appendChild(explContainer);
@@ -130,7 +154,7 @@ export default class ScanResultController {
     );
 
     if (finalDrugs.length > 0) {
-       const activeMeds = await db.medications.filter(m => m.active && m.userId === state.get('user')?.uid).toArray();
+       const activeMeds = await db.medications.filter(m => m.active && m.userId === state.user?.uid).toArray();
        const drugList = [...activeMeds.map(m => m.name), ...finalDrugs];
        
        await interactionGraph.initialize();
@@ -147,44 +171,35 @@ export default class ScanResultController {
   }
 
   async navigateToAdd(ocrResult) {
-    try {
-      const userId = state.get('user').uid;
-      if (!userId) throw new Error('User not authenticated.');
+    // Navigate directly to the Add Medication view with the extracted data in the URL
+    // so the user can review and set schedules/frequencies.
+    
+    const primaryDrug = ocrResult.matchedDrugs?.[0];
+    const rawName = primaryDrug || '';
+    
+    // We can also extract dosage & unit if they were passed in ocrResult
+    const dosage = ocrResult.dosage || '';
+    const unit = ocrResult.unit || 'mg';
 
-      const record = {
-        userId: userId,
-        rawText: ocrResult.rawText || '',
-        imageBlob: ocrResult.capturedImageBlob ?? null,
-        date: new Date().toISOString().split('T')[0],
-        doctorName: null
-      };
-
-      const prescriptionId = await db.prescriptions.add(record);
-
-      for (const drugName of ocrResult.matchedDrugs) {
-        const exists = await db.medications.where('name').equalsIgnoreCase(drugName).first();
-        if (!exists) {
-          const info = ocrResult.drugInfo ? ocrResult.drugInfo[drugName] : null;
-          await db.medications.add({
-            userId: userId,
-            name: drugName,
-            dosage: null,
-            frequency: null,
-            startDate: new Date().toISOString().split('T')[0],
-            endDate: null,
-            notes: 'Auto-detected via OCR scan',
-            active: true,
-            category: info?.category || 'Uncategorized',
-            patientFriendlyUse: info?.patientFriendlyUse || 'No usage details available.'
-          });
-        }
-      }
-    } catch (err) {
-      console.error('[ScanResultController] Failed to save medication regimen:', err);
+    // Save the cropped image to sessionStorage so it can be previewed or saved later
+    if (ocrResult.capturedImageBlob) {
+        try {
+            // Blob to Data URL for session storage
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                sessionStorage.setItem('medcare_scanned_image', reader.result);
+            };
+            reader.readAsDataURL(ocrResult.capturedImageBlob);
+        } catch(e) {}
     }
 
+    const params = new URLSearchParams();
+    if (rawName) params.append('name', rawName);
+    if (dosage) params.append('dosage', dosage);
+    if (unit) params.append('unit', unit);
+    
     this.view.destroy();
-    window.location.hash = '#/medications';
+    window.location.hash = `#/add-medication?${params.toString()}`;
   }
 
   /**

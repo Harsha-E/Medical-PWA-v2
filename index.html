@@ -20,11 +20,21 @@
   <!-- ── HTML5 QR Code Scanner ─────────────────────────────────────────── -->
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
+  <!-- ── PeerJS (Distributed Knowledge Mesh) ───────────────────────────── -->
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+
   <script>
+    const basePath = window.location.hostname === 'harsha-e.github.io' ? '/Medical-PWA-v2' : '';
+    
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = (window.location.hostname === 'harsha-e.github.io' ? '/Medical-PWA-v2' : '') + '/style.css';
+    link.href = basePath + '/style.css';
     document.head.appendChild(link);
+
+    const tourLink = document.createElement('link');
+    tourLink.rel = 'stylesheet';
+    tourLink.href = basePath + '/tours/tour-styles.css';
+    document.head.appendChild(tourLink);
   </script>
 
   <!-- ── PWA manifest ──────────────────────────────────────────────────── -->
@@ -66,14 +76,7 @@
     }
   </script>
   
-  <!-- Synchronously apply theme before paint to prevent FOUC -->
-  <script>
-    try {
-      if (localStorage.getItem('medcare-theme') === 'light') {
-        document.documentElement.setAttribute('data-theme', 'light');
-      }
-    } catch (e) {}
-  </script>
+
 </head>
 
 <body class="text-gray-100 overflow-hidden w-screen h-screen selection:bg-[#7f2f5d] selection:text-white" style="background-color: var(--color-surface);">
@@ -114,11 +117,14 @@
     class="fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-opacity duration-1000"
     style="background-color: var(--color-surface)"
   >
-    <div class="relative w-12 h-12 mb-8">
-      <div class="absolute inset-0 border-t-2 border-transparent rounded-full animate-spin" style="border-top-color: var(--color-accent-bright);"></div>
+    <div class="relative w-16 h-16 mb-8 flex items-center justify-center">
+      <svg class="animate-spin absolute inset-0 w-full h-full text-accent-bright" style="color: var(--color-accent-bright);" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
       <div class="absolute inset-2 border-b-2 border-transparent rounded-full animate-[spin_1.5s_linear_infinite_reverse]" style="border-bottom-color: var(--color-secondary);"></div>
     </div>
-    <p class="font-mono text-[10px] tracking-[0.4em] animate-pulse uppercase" style="color: var(--color-accent-bright);">
+    <p class="font-mono text-[12px] tracking-[0.5em] animate-pulse uppercase" style="color: var(--color-accent-bright); text-shadow: 0 0 10px rgba(16,185,129,0.5);">
       Initializing Core…
     </p>
   </div>
@@ -131,7 +137,6 @@
   <main
     id="app-viewport"
     class="relative z-10 w-full h-[100dvh] max-h-[100dvh] opacity-0 transition-opacity duration-1000 grid"
-    style="padding-top: max(0rem, env(safe-area-inset-top)); padding-bottom: max(5rem, env(safe-area-inset-bottom));"
   ></main>
 
   <!-- ── Navigation root ───────────────────────────────────────────────── -->
@@ -139,10 +144,16 @@
   <div id="header-root"></div>
   <div id="navigation-root" class="fixed z-[9000]"></div>
 
+  <!-- ── Global Theme Toggle removed and moved to Settings ───────────────────────────────────────────── -->
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.4.7/peerjs.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js" defer></script>
+  <script type="module">
+    import { pipeline, env, AutoModel, AutoProcessor, RawImage } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers';
+    window.transformers = { pipeline, env, AutoModel, AutoProcessor, RawImage };
+  </script>
   <!-- ── Entry point ───────────────────────────────────────────────────── -->
   <script>
     const script = document.createElement('script');

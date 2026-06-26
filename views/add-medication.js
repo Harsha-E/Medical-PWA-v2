@@ -72,16 +72,55 @@ export default class AddMedicationView {
       } catch (e) {}
     }
 
+    // 5. Hydrate from Vision Scan Payload (if coming directly from 3D Scanner)
+    const scanPayloadJson = sessionStorage.getItem('medcheck_pending_scan');
+    if (scanPayloadJson) {
+      try {
+        const scanPayload = JSON.parse(scanPayloadJson);
+        if (scanPayload.name || scanPayload.brandName || scanPayload.genericName) {
+            this.medData.name = scanPayload.name || scanPayload.brandName || scanPayload.genericName;
+        }
+        if (scanPayload.dosage && typeof scanPayload.dosage === 'object') {
+          if (scanPayload.dosage.parsed && scanPayload.dosage.parsed.amount) {
+            const parsedUnit = (scanPayload.dosage.parsed.unit || '').toLowerCase();
+            const unitAliases = { 'μg': 'mcg', 'ug': 'mcg', 'micrograms': 'mcg', 'milligrams': 'mg' };
+            this.medData.dosageUnit = unitAliases[parsedUnit] || scanPayload.dosage.parsed.unit;
+            this.medData.dosage = scanPayload.dosage.parsed.amount;
+          } else if (scanPayload.dosage.rawText) {
+            this.medData.dosage = scanPayload.dosage.rawText;
+          }
+        } else if (scanPayload.dosageAmount) {
+            this.medData.dosage = scanPayload.dosageAmount;
+            if (scanPayload.dosageUnit) this.medData.dosageUnit = scanPayload.dosageUnit;
+        } else if (scanPayload.dosage) {
+            this.medData.dosage = scanPayload.dosage;
+            if (scanPayload.unit) this.medData.dosageUnit = scanPayload.unit;
+        }
+        if (scanPayload.quantity) this.medData.totalQuantity = scanPayload.quantity;
+        if (scanPayload.totalQuantity) this.medData.totalQuantity = scanPayload.totalQuantity;
+        if (scanPayload.form) this.medData.category = scanPayload.form;
+        if (scanPayload.isAsNeeded) this.medData.frequency = 'As needed';
+        if (scanPayload.genericName) this.medData.genericName = scanPayload.genericName;
+        if (scanPayload.manufacturer) this.medData.manufacturer = scanPayload.manufacturer;
+        if (scanPayload.therapeuticCategory) this.medData.therapeuticCategory = scanPayload.therapeuticCategory;
+        if (scanPayload.alternativeBrands) this.medData.alternativeBrands = scanPayload.alternativeBrands;
+        // Clean up the storage so it doesn't persistently hijack the form on reload
+        sessionStorage.removeItem('medcheck_pending_scan');
+      } catch (e) {
+        console.error('[AddMedication] Failed to parse scan payload:', e);
+      }
+    }
+
     this.container.innerHTML = `
-      <main class="flex-1 overflow-y-auto pt-[112px] pb-28" style="padding-left:0; padding-right:0;">
-<div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
+      <main class="flex-1 pt-[112px] pb-6" style="padding-left:0; padding-right:0; height: 100vh; overflow-y: auto;">
+        <div class="px-6 w-full max-w-7xl mx-auto flex flex-col">
         <div class="clay-glass-panel p-6 mb-8 clay-glass-panel rounded-[2rem]">
           <h3 class="form-label mb-6">Medication Details</h3>
           <div class="form-group">
             <label for="m-name" class="form-label">Name</label>
             <input type="text" id="m-name" autocomplete="off" class="form-input" value="${this.medData.name || ''}" placeholder="e.g. Atorvastatin">
           </div>
-          <div class="grid grid-cols-2 gap-4 mt-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-6">
             <div class="form-group">
               <label for="m-start" class="form-label">Start Date</label>
               <input type="date" id="m-start" class="form-input [color-scheme:dark]" value="${this.medData.startDate || new Date().toISOString().split('T')[0]}">
@@ -91,19 +130,20 @@ export default class AddMedicationView {
               <input type="date" id="m-end" class="form-input [color-scheme:dark]" value="${this.medData.endDate || ''}">
             </div>
           </div>
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-2 gap-5 mt-4">
             <div class="form-group">
               <label for="m-dosage" class="form-label">Dosage</label>
               <input type="text" id="m-dosage" autocomplete="off" class="form-input" value="${this.medData.dosage || ''}" placeholder="20">
             </div>
             <div class="form-group">
               <label for="m-unit" class="form-label">Unit</label>
-              <select id="m-unit" autocomplete="off" class="form-select">
-                ${['mg','g','kg','mcg','ml','L','units','drops','patches','puffs','sprays'].map(u => `<option value="${u}" ${this.medData.dosageUnit===u?'selected':''}>${u}</option>`).join('')}
-              </select>
+              <input type="text" list="dosage-units" id="m-unit" autocomplete="off" class="form-input" value="${this.medData.dosageUnit || ''}" placeholder="mg">
+              <datalist id="dosage-units">
+                ${['mg','g','kg','mcg','ml','L','units','drops','patches','puffs','sprays'].map(u => `<option value="${u}">`).join('')}
+              </datalist>
             </div>
           </div>
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-4">
             <div class="form-group">
               <label for="m-total" class="form-label">Total Quantity</label>
               <input type="number" id="m-total" autocomplete="off" class="form-input" value="${this.medData.totalQuantity || ''}" placeholder="e.g. 30">
@@ -116,8 +156,32 @@ export default class AddMedicationView {
           <div class="form-group">
             <label for="m-category" class="form-label">Form</label>
             <select id="m-category" autocomplete="off" class="form-select">
-              ${['Tablet','Capsule','Liquid','Injection','Patch','Other'].map(c => `<option value="${c}" ${this.medData.category===c?'selected':''}>${c}</option>`).join('')}
+              ${['Tablet','Capsule','Liquid','Injection','Patch','Inhaler','Spray','Other'].map(c => `<option value="${c}" ${this.medData.category===c?'selected':''}>${c}</option>`).join('')}
             </select>
+          </div>
+        </div>
+
+        <div class="clay-glass-panel p-6 mb-8 clay-glass-panel rounded-[2rem]">
+          <h3 class="form-label mb-6">Database Insights</h3>
+          <div class="grid grid-cols-1 gap-5">
+            <div class="form-group">
+              <label for="m-generic" class="form-label">Generic Name</label>
+              <input type="text" id="m-generic" autocomplete="off" class="form-input text-sm" value="${this.medData.genericName || ''}" placeholder="e.g. Budesonide">
+            </div>
+            <div class="form-group">
+              <label for="m-thera" class="form-label">Therapeutic Category</label>
+              <input type="text" id="m-thera" autocomplete="off" class="form-input text-sm" value="${this.medData.therapeuticCategory || ''}">
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-2">
+              <div class="form-group">
+                <label for="m-manuf" class="form-label">Manufacturer</label>
+                <input type="text" id="m-manuf" autocomplete="off" class="form-input text-sm" value="${this.medData.manufacturer || ''}">
+              </div>
+              <div class="form-group">
+                <label for="m-alt" class="form-label">Alternative Brands</label>
+                <input type="text" id="m-alt" autocomplete="off" class="form-input text-sm" value="${this.medData.alternativeBrands || ''}">
+              </div>
+            </div>
           </div>
         </div>
 
@@ -214,6 +278,10 @@ export default class AddMedicationView {
       refillThreshold: this.container.querySelector('#m-threshold')?.value || '5',
       category: this.container.querySelector('#m-category')?.value || 'Tablet',
       frequency: this.container.querySelector('#m-freq')?.value || 'Once daily',
+      genericName: this.container.querySelector('#m-generic')?.value || '',
+      manufacturer: this.container.querySelector('#m-manuf')?.value || '',
+      therapeuticCategory: this.container.querySelector('#m-thera')?.value || '',
+      alternativeBrands: this.container.querySelector('#m-alt')?.value || '',
       times: Array.from(this.container.querySelectorAll('#time-slots-container input[type="time"]')).map(el => el.value),
       notes: this.container.querySelector('#m-notes')?.value || ''
     };

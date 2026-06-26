@@ -64,7 +64,7 @@ export default class SyncBridge {
      */
     async _flushToDb(peerId, data) {
         try {
-            const localUserId = state.get('user').uid;
+            const localUserId = state.user?.uid;
             if (!localUserId) throw new Error('User not authenticated.');
 
             await db.family.where('userId').equals(localUserId).modify(data);

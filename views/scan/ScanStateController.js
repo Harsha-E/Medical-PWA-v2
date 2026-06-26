@@ -1,23 +1,21 @@
 /**
  * @fileoverview Scan State Controller
- * Manages scanner state machines (IDLE, HUNTING, LOCKING, VERIFYING, RESULT),
- * state transitions, and auto-lock processes.
+ * Manages the 13-state architecture (7 core states + 6 failure sub-states)
+ * and handles transitions and side-effects.
  */
 
+import { dexieManager } from '../../storage/DexieManager.js';
+
 export default class ScanStateController {
-  /**
-   * @param {Object} view - The main ScanView context
-   */
   constructor(view) {
     this.view = view;
   }
 
   /**
-   * Safe setter for Scanner state transitions.
-   * @param {'IDLE'|'HUNTING'|'LOCKING'|'VERIFYING'|'RESULT'} newState
-   * @returns {void}
+   * Sets the core state.
+   * Core States: IDLE, SEARCHING, LOCKING, TRACKING, RECOVERING, VALIDATING, IDENTIFIED, FAILED
    */
-  setState(newState) {
+  setState(newState, failureReason = null) {
     if (this.view.state === newState) return;
     this.view.state = newState;
 
@@ -27,56 +25,73 @@ export default class ScanStateController {
           this.view._statusText.textContent = 'SYSTEM IDLE';
           this.view._statusText.style.color = '#ffffff';
           break;
-        case 'HUNTING':
-          this.view._statusText.textContent = 'HUNTING FOR MATCH';
-          this.view._statusText.style.color = '#ffb88c';
+        case 'SEARCHING':
+          this.view._statusText.textContent = 'SEARCHING...';
+          this.view._statusText.style.color = '#ffffff';
           break;
         case 'LOCKING':
           this.view._statusText.textContent = 'ACQUIRING LOCK';
-          this.view._statusText.style.color = '#10b981';
+          this.view._statusText.style.color = '#fbbf24'; // Amber
           break;
-        case 'VERIFYING':
-          this.view._statusText.textContent = 'VERIFYING DATA';
-          this.view._statusText.style.color = '#3b82f6';
+        case 'TRACKING':
+          this.view._statusText.textContent = 'TRACKING STRIP';
+          this.view._statusText.style.color = '#60a5fa'; // Blue
           break;
-        case 'RESULT':
-          this.view._statusText.textContent = 'LOCKED';
-          this.view._statusText.style.color = '#10b981';
-          this.triggerAutoLock();
+        case 'RECOVERING':
+          this.view._statusText.textContent = 'STRIP LOST. RECOVERING...';
+          this.view._statusText.style.color = '#f43f5e'; // Rose
+          break;
+        case 'VALIDATING':
+          this.view._statusText.textContent = 'VALIDATING MATCH';
+          this.view._statusText.style.color = '#a78bfa'; // Purple
+          break;
+        case 'IDENTIFIED':
+          this.view._statusText.textContent = 'IDENTIFIED';
+          this.view._statusText.style.color = '#10b981'; // Emerald
+          
           if (this.view.currentResults) {
-            const cacheObj = { ...this.view.currentResults, croppedBlob: null };
-            sessionStorage.setItem('medcare_scan_cache', JSON.stringify(cacheObj));
+            dexieManager.getDB().then(db => {
+               db.scan_cache.put({ id: 'latest_scan', ...this.view.currentResults });
+            });
           }
+          
+          this.triggerAutoLock();
+          break;
+        case 'FAILED':
+          this.view._statusText.textContent = `FAILED: ${failureReason || 'UNKNOWN'}`;
+          this.view._statusText.style.color = '#ef4444'; // Red
           break;
       }
     }
   }
 
   /**
-   * Auto-lock event: triggers haptic vibration, spawns particles, and opens bottom sheet.
-   * @returns {void}
+   * Auto-lock event triggered when IDENTIFIED.
    */
   triggerAutoLock() {
     this.view.isAutoLocked = true;
     if (this.view._video) this.view._video.pause();
 
-    // Trigger device vibration
-    if (navigator.vibrate) {
-      navigator.vibrate([30, 50, 30]);
+    // Trigger device vibration safely
+    if (navigator.vibrate && navigator.userActivation && navigator.userActivation.hasBeenActive) {
+      try {
+        navigator.vibrate([30, 50, 30]);
+      } catch (e) {
+        // Ignore if blocked
+      }
     }
 
     if (this.view._autoCenter) {
       this.view._autoCenter.style.animation = 'pulseRing 1s ease-out forwards';
     }
     if (this.view._confText) {
-      this.view._confText.textContent = 'LOCKED';
+      this.view._confText.textContent = '100%';
     }
 
     const vpRect = this.view.container.getBoundingClientRect();
     const cx = vpRect.width / 2;
     const cy = vpRect.height / 2;
 
-    // Emit locked particle explosion
     for (let i = 0; i < 3; i++) {
       setTimeout(() => {
         this.view.overlay.emitTargetedParticleCloud(cx, cy, 100);

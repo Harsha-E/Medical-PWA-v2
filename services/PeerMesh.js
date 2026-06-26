@@ -67,6 +67,9 @@ export default class PeerMesh {
                     }
                 }
             });
+
+            // Unify Family Members into the P2P Mesh
+            this.syncFamilyNetwork();
             
         } catch (err) {
             console.error('[PeerMesh] Initialization failed:', err);
@@ -180,6 +183,27 @@ export default class PeerMesh {
         this._connections.set(targetId, conn);
         this._openDataChannel(conn);
         return conn;
+    }
+
+    /**
+     * Architecture Consolidation: Automatically unifies the active "Hydra Pool" 
+     * mesh network with the "Family Member" graph sync.
+     */
+    syncFamilyNetwork() {
+        if (!state.userProfile || !state.userProfile.family) return;
+        
+        console.log('[PeerMesh] Synchronizing family members into the mesh...');
+        for (const member of state.userProfile.family) {
+            if (member.deviceId && member.deviceId !== this.peerId) {
+                try {
+                    if (!this._connections.has(member.deviceId)) {
+                        this.connectToPeer(member.deviceId);
+                    }
+                } catch (e) {
+                    console.warn(`[PeerMesh] Failed to sync family member ${member.name}:`, e);
+                }
+            }
+        }
     }
 
     /**

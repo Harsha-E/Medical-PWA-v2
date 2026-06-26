@@ -20,6 +20,7 @@ import AppHeader        from './components/header.js';
 import ContextSwitcher    from './components/context-switcher.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { datasetSyncManager } from './datasets/sync/DatasetSyncManager.js';
+import PeerMeshV2 from './services/PeerMeshV2.js';
 
 // ─── View imports ─────────────────────────────────────────────────────────────
 import SplashView           from './views/splash.js';
@@ -34,6 +35,8 @@ import MedicationDetailView from './views/medication-detail.js';
 import AddMedicationView    from './views/add-medication.js';
 import InteractionCheckerView from './views/interaction-checker.js';
 import ScanView             from './views/scan.js';
+import Scan3DView           from './views/scan-3d.js';
+import ScanResultView       from './views/scan-result.js';
 import ReportsView          from './views/reports.js';
 import SettingsView         from './views/settings.js';
 import MedicalHistoryView   from './views/medical-history.js';
@@ -61,6 +64,8 @@ const ROUTES = {
   '#/add-medication': AddMedicationView,
   '#/interaction-checker': InteractionCheckerView,
   '#/scan': ScanView,
+  '#/scan/3d': Scan3DView,
+  '#/scan/result': ScanResultView,
   '#/reports': ReportsView,
   '#/settings': SettingsView,
   '#/medical-history': MedicalHistoryView,
@@ -81,7 +86,7 @@ const PUBLIC_ROUTES = new Set(['#/', '#/landing', '#/splash', '#/login', '#/regi
 /** Routes where the navbar should be hidden. */
 const HIDE_NAV_ROUTES = new Set([
   '#/onboarding', '#/splash', '#/install', 
-  '#/add-medication', '#/medication-detail', '#/scan', 
+  '#/add-medication', '#/medication-detail', '#/scan', '#/scan/3d', '#/scan/result',
   '#/interaction-checker', '#/medical-history', 
   '#/family-profiles', '#/reports', '#/emergency'
 ]);
@@ -125,6 +130,8 @@ const HEADER_CONFIGS = {
   '#/settings': { eyebrow: 'Configuration', title: 'System Profile' },
   '#/admin': { back: true, eyebrow: 'Super-User Console', title: 'Admin Portal' },
   '#/scan': { hidden: true },
+  '#/scan/3d': { hidden: true },
+  '#/scan/result': { hidden: true },
   '#/orchestrator': { back: true, title: 'Orchestrator' }
 };
 
@@ -173,6 +180,25 @@ class App {
     // 1. Initialize Clinical Engines in the background (Non-blocking)
     (async () => {
       try {
+        // Unlock Router on Pipeline Error
+        window.addEventListener('scan:pipeline-error', (e) => {
+            console.warn(`[App][Router] Pipeline failed, unlocking scanner state. Reason: ${e.detail}`);
+            window.medcareAlertLock = false;
+            window.isScanning = false;
+            
+            // Remove freezing classes from document body if present
+            document.body.classList.remove('pointer-events-none');
+        });
+
+        // Fallback for unhandled rejections that might be pipeline related
+        window.addEventListener('unhandledrejection', (event) => {
+            if (event.reason && event.reason.message && event.reason.message.includes('Pipeline')) {
+                console.warn('[App][Router] Unhandled pipeline rejection: Forcing router unlock.');
+                window.medcareAlertLock = false;
+                window.isScanning = false;
+                document.body.classList.remove('pointer-events-none');
+            }
+        });
         await interactionGraph.initialize();
         const indexRes = await fetch('./data/drug-index.json');
         const drugIndex = JSON.parse(JSON.stringify(await indexRes.json()));
@@ -181,6 +207,12 @@ class App {
         // MIOS: Synchronize Medicine Knowledge Graph on startup
         console.log('[App] Synchronizing Medicine Knowledge Graph...');
         await datasetSyncManager.syncAll();
+
+        // Initialize PeerMesh Sandbox background sync
+        window.familyMesh = new PeerMeshV2((incomingData) => {
+            console.log("Family member updated their medicine cabinet!", incomingData);
+            // This will later be wired into IndexedDB or KnowledgeGraph
+        });
       } catch (err) {
         console.error('Failed to boot clinical engines:', err);
       }
@@ -366,14 +398,7 @@ class App {
       }
     }
 
-    // ── Enforce global theme ──
-    try {
-      if (localStorage.getItem('medcare-theme') === 'light') {
-        document.documentElement.setAttribute('data-theme', 'light');
-      } else {
-        document.documentElement.removeAttribute('data-theme');
-      }
-    } catch(e) {}
+
 
     // Guard passed — render the current hash
     this.router.handleRoute();

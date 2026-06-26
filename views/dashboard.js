@@ -20,9 +20,9 @@ export default class DashboardView {
     // Instantly return skeleton structure to router without blocking
     this.container.innerHTML = this._getSkeletonUI();
 
-    // Setup inactivity monitor
+    // Setup inactivity monitor (Disabled during scan)
     this._resetInactivityTimerBound = () => {
-      guidanceEngine.monitorInactivity('dashboard');
+      // guidanceEngine.monitorInactivity('dashboard');
     };
 
     // Trigger independent async loads
@@ -615,7 +615,7 @@ export default class DashboardView {
 
   _showDiscoveryTip(featureName, message) {
     const tip = document.createElement('div');
-    tip.className = 'fixed bottom-24 right-6 max-w-sm bg-gradient-to-br from-accent-soft/40 to-secondary/15 border border-accent-primary/40 rounded-3xl p-5 shadow-[0_10px_35px_rgba(0,0,0,0.5)] z-[9999] backdrop-blur-xl animate-[slideUpFade_0.3s_ease-out] flex gap-3';
+    tip.className = 'fixed bottom-24 left-1/2 -translate-x-1/2 w-[calc(100%-3rem)] max-w-sm bg-gradient-to-br from-accent-soft/40 to-secondary/15 border border-accent-primary/40 rounded-3xl p-5 shadow-[0_10px_35px_rgba(0,0,0,0.5)] z-[9999] backdrop-blur-xl animate-[slideUpFade_0.3s_ease-out] flex gap-3';
     tip.innerHTML = `
       <div class="w-8 h-8 rounded-full bg-accent-primary/20 flex items-center justify-center text-accent-primary shrink-0 mt-0.5 animate-bounce">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h2M21 7V5a2 2 0 00-2-2h-2M3 17v2a2 2 0 002 2h2M21 17v2a2 2 0 01-2 2h-2M9 9h6v6H9z"></path></svg>

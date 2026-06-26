@@ -57,25 +57,6 @@ export default class SettingsView {
 
 
         
-        <section class="mb-10">
-          <h3 class="text-xs text-uppercase font-bold text-accent-primary/70 mb-4 tracking-[0.2em] px-1">Appearance</h3>
-          <div class="clay-glass-panel border border-border bg-surface/40 backdrop-blur-xl shadow-[0_8px_32px_var(--color-card-shadow)] rounded-2xl">
-            <div class="settings-row text-text-primary border-none" style="flex-direction: column; align-items: flex-start; gap: 12px;">
-              <span class="text-sm font-medium">Theme Preference</span>
-              <div class="w-full relative" id="theme-dropdown-container">
-                <button id="theme-dropdown-btn" class="w-full px-4 py-3 bg-surface-deep border border-border rounded-xl flex items-center justify-between text-sm hover:border-accent-primary/50 transition-colors">
-                  <span id="theme-dropdown-label">System Default</span>
-                  <svg class="w-4 h-4 text-text-secondary transition-transform duration-200" id="theme-dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                </button>
-                <div id="theme-dropdown-menu" class="hidden w-full mt-2 bg-surface-elevated backdrop-blur-xl border border-border rounded-xl shadow-xl overflow-hidden transition-all duration-200">
-                  <button class="theme-option w-full text-left px-4 py-3 text-sm text-text-primary hover:bg-accent-soft hover:text-primary transition-colors" data-value="system">System Default</button>
-                  <button class="theme-option w-full text-left px-4 py-3 text-sm text-text-primary hover:bg-accent-soft hover:text-primary transition-colors" data-value="light">Light (Gold & Orange)</button>
-                  <button class="theme-option w-full text-left px-4 py-3 text-sm text-text-primary hover:bg-accent-soft hover:text-primary transition-colors" data-value="dark">Dark (Sunset Obsidian)</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
 
         <section class="mb-10">
           <h3 class="text-xs text-uppercase font-bold text-accent-primary/70 mb-4 tracking-[0.2em] px-1">Data Architecture</h3>
@@ -122,11 +103,6 @@ export default class SettingsView {
       const isActive = localStorage.getItem(`setting-${setting}`) === 'true';
       t.classList.toggle('active', isActive);
     });
-
-    const currentPref = state.themePref || 'system';
-    const labelMap = { 'system': 'System Default', 'light': 'Light (Gold & Orange)', 'dark': 'Dark (Specter)' };
-    const labelEl = this.container.querySelector('#theme-dropdown-label');
-    if (labelEl) labelEl.textContent = labelMap[currentPref] || 'System Default';
   }
 
   attachListeners() {
@@ -313,43 +289,6 @@ export default class SettingsView {
         }
     });
 
-    const dropdownBtn = this.container.querySelector('#theme-dropdown-btn');
-    const dropdownMenu = this.container.querySelector('#theme-dropdown-menu');
-    const dropdownIcon = this.container.querySelector('#theme-dropdown-icon');
-    
-    if (dropdownBtn && dropdownMenu) {
-      dropdownBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const isOpen = !dropdownMenu.classList.contains('hidden');
-        if (isOpen) {
-          dropdownMenu.classList.add('hidden');
-          dropdownIcon.style.transform = 'rotate(0deg)';
-        } else {
-          dropdownMenu.classList.remove('hidden');
-          dropdownIcon.style.transform = 'rotate(180deg)';
-        }
-      });
-
-      this.container.querySelectorAll('.theme-option').forEach(opt => {
-        opt.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const value = opt.dataset.value;
-          state.setThemePreference(value);
-          const labelMap = { 'system': 'System Default', 'light': 'Light (Gold & Orange)', 'dark': 'Dark (Specter)' };
-          this.container.querySelector('#theme-dropdown-label').textContent = labelMap[value] || 'System Default';
-          dropdownMenu.classList.add('hidden');
-          dropdownIcon.style.transform = 'rotate(0deg)';
-        });
-      });
-
-      // Close dropdown when clicking outside
-      document.addEventListener('click', (e) => {
-        if (!this.container.querySelector('#theme-dropdown-container')?.contains(e.target)) {
-          dropdownMenu.classList.add('hidden');
-          dropdownIcon.style.transform = 'rotate(0deg)';
-        }
-      });
-    }
 
     this.container.querySelectorAll('.toggle:not(#theme-toggle)').forEach(t => {
       t.onclick = async () => {

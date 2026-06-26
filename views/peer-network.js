@@ -66,7 +66,7 @@ export default class PeerNetworkView {
                 <h2 class="text-lg font-display text-text-primary mb-2">My Pairing QR</h2>
                 <p class="text-xs text-accent-primary/70 font-mono mb-6">Scan this code to establish a peer-to-peer connection with ${displayName}</p>
                 
-                <div id="qr-container" class="bg-transparent p-4 flex w-full relative z-10 min-h-[200px] justify-center items-center mx-auto">
+                <div id="qr-container" class="bg-transparent p-4 grid place-items-center w-full relative z-10 min-h-[200px] mx-auto">
                     <div id="qr-loader" class="flex space-x-2 justify-center items-center h-full">
                         <div class="w-3 h-3 bg-primary rounded-full animate-bounce"></div>
                         <div class="w-3 h-3 bg-primary rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
@@ -208,7 +208,7 @@ export default class PeerNetworkView {
         console.error('QR Generate Error:', err);
         return;
       }
-      container.innerHTML = `<img src="${url}" alt="Pairing QR Code" class="shadow-[0_0_30px_var(--color-primary)] border-4 border-surface-deep bg-white p-2" style="border-radius: 0px; animation: float 4s ease-in-out infinite; margin: auto;" />`;
+      container.innerHTML = `<img src="${url}" alt="Pairing QR Code" class="border-4 border-surface-deep bg-white p-2" style="border-radius: 0px; margin: auto; display: block; max-width: 100%; max-height: 100%; animation: clay-pulse 3s infinite alternate ease-in-out;" />`;
     });
   }
 
