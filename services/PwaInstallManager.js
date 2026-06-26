@@ -42,8 +42,27 @@ export default class PwaInstallManager {
     }
     window.addEventListener('beforeinstallprompt', handlePrompt);
 
+    // If we know it's installed from a previous session, show the Open App banner on the install route
+    if (localStorage.getItem('pwa_installed') === 'true' && !this._isStandalone()) {
+      setTimeout(() => {
+        const btn = this.bannerEl?.querySelector('#pwa-action-btn');
+        if (btn) {
+          btn.textContent = 'Open App';
+          btn.classList.add('bg-[#10b981]/20', 'text-[#10b981]', 'border-[#10b981]/50');
+          btn.classList.remove('text-[#ffb88c]', 'border-[#ffb88c]/20', 'opacity-70', 'cursor-not-allowed');
+        }
+        const textNode = this.bannerEl?.querySelector('#pwa-banner-text');
+        if (textNode) textNode.textContent = 'Ready on Homescreen';
+        
+        if (window.location.hash.startsWith('#/install')) {
+          this._showBanner('Ready on Homescreen');
+        }
+      }, 500);
+    }
+
     // Handle post-installation platform routing cleanly
     window.addEventListener('appinstalled', () => {
+      localStorage.setItem('pwa_installed', 'true');
       const btn = this.bannerEl?.querySelector('#pwa-action-btn');
       if (btn) {
         btn.textContent = 'Open App';
@@ -187,6 +206,8 @@ export default class PwaInstallManager {
       if (hapticEngine) hapticEngine.triggerHaptic(30);
       
       if (actionBtn && actionBtn.textContent.trim() === 'Open App') {
+        // Attempt to launch the standalone WebAPK or iOS PWA via direct navigation
+        window.open(window.location.origin + window.location.pathname, '_blank');
         return;
       }
 
