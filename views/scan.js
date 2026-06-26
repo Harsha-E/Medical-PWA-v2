@@ -459,6 +459,7 @@ export default class ScanView {
 
   showConfirmationModal(payload) {
         const brandName = payload.brandName || payload.name || "Unknown Medication";
+        const genericName = payload.genericName || "Unknown Generic";
         const rawDosage = payload.dosage?.rawText || payload.dosage || "Dosage not detected";
         const dosageForm = payload.form || "Unknown form";
         
@@ -466,28 +467,38 @@ export default class ScanView {
         modalOverlay.id = 'clay-confirmation-modal';
         modalOverlay.style.cssText = `
             position: fixed; inset: 0; z-index: 999999; 
-            background: rgba(15, 20, 30, 0.85); backdrop-filter: blur(15px);
+            background: rgba(10, 4, 7, 0.85); backdrop-filter: blur(15px);
             display: flex; justify-content: center; align-items: center;
-            padding: 20px; font-family: system-ui, -apple-system, sans-serif;
+            padding: 20px; font-family: var(--font-body);
             opacity: 0; transition: opacity 0.3s ease;
         `;
 
         modalOverlay.innerHTML = `
-            <div class="clay-panel" style="width: 100%; max-width: 400px; padding: 32px; text-align: center; display: flex; flex-direction: column; gap: 24px; transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); background: #2a3149; border-radius: 28px; box-shadow: 10px 10px 20px rgba(15,20,30,0.6), inset 4px 4px 8px rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05);">
-                <div style="width: 72px; height: 72px; border-radius: 50%; background: rgba(30, 144, 255, 0.15); color: #1e90ff; display: flex; justify-content: center; align-items: center; font-size: 32px; margin: 0 auto; box-shadow: inset 2px 2px 10px rgba(0,0,0,0.2);">💊</div>
+            <div class="clay-glass-panel" style="width: 100%; max-width: 400px; padding: 32px; text-align: center; display: flex; flex-direction: column; gap: 24px; transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);">
+                <div style="width: 72px; height: 72px; border-radius: 50%; background: var(--color-accent-soft); color: var(--color-primary); display: flex; justify-content: center; align-items: center; font-size: 32px; margin: 0 auto; box-shadow: inset 2px 2px 10px rgba(0,0,0,0.2);">💊</div>
                 <div>
-                    <h2 style="color: #fff; margin: 0 0 8px 0; font-size: 1.5rem; font-weight: 800;">Medication Detected</h2>
-                    <p style="color: #a4b0be; margin: 0; font-size: 0.95rem; font-weight: 500;">Please verify before saving.</p>
+                    <h2 style="color: var(--color-text-primary); margin: 0 0 8px 0; font-size: 1.5rem; font-weight: 800;">Medication Detected</h2>
+                    <p style="color: var(--color-text-secondary); margin: 0; font-size: 0.95rem; font-weight: 500;">Please verify before saving.</p>
                 </div>
-                <div style="background: rgba(0, 0, 0, 0.2); border-radius: 20px; padding: 20px; text-align: left; box-shadow: inset 4px 4px 8px rgba(0,0,0,0.4), inset -4px -4px 8px rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.02);">
-                    <div style="color: #1e90ff; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px;">Brand Name</div>
-                    <div style="color: white; font-size: 1.35rem; font-weight: 700; margin-bottom: 16px;">${brandName}</div>
-                    <div style="color: #1e90ff; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px;">Dosage & Form</div>
-                    <div style="color: white; font-size: 1.1rem; font-weight: 500;">${rawDosage} • ${dosageForm}</div>
+                <div style="background: var(--color-surface); border-radius: 20px; padding: 20px; text-align: left; box-shadow: inset 4px 4px 8px rgba(0,0,0,0.2), inset -4px -4px 8px rgba(255,255,255,0.02); border: 1px solid var(--color-border);">
+                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                        <div>
+                            <div style="color: var(--color-primary); font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px;">Brand Name</div>
+                            <div style="color: var(--color-text-primary); font-size: 1.35rem; font-weight: 700; line-height: 1.2;">${brandName}</div>
+                        </div>
+                        <div>
+                            <div style="color: var(--color-primary); font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px;">Generic Name</div>
+                            <div style="color: var(--color-text-secondary); font-size: 1.1rem; font-weight: 500; line-height: 1.2;">${genericName}</div>
+                        </div>
+                        <div>
+                            <div style="color: var(--color-primary); font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px;">Dosage & Form</div>
+                            <div style="color: var(--color-text-secondary); font-size: 1.1rem; font-weight: 500;">${rawDosage} • ${dosageForm}</div>
+                        </div>
+                    </div>
                 </div>
                 <div style="display: flex; gap: 16px; margin-top: 8px;">
-                    <button id="btn-rescan" style="flex: 1; background: #353b50; color: #a4b0be; padding: 16px; border-radius: 20px; border: none; font-weight: bold; cursor: pointer;">↺ Rescan</button>
-                    <button id="btn-confirm" style="flex: 1.5; background: linear-gradient(135deg, #1e90ff, #0984e3); color: white; padding: 16px; border-radius: 20px; border: none; font-weight: bold; box-shadow: 0 10px 20px rgba(30,144,255,0.4); cursor: pointer;">Confirm ✓</button>
+                    <button id="btn-rescan" style="flex: 1; background: var(--color-surface); color: var(--color-text-secondary); padding: 16px; border-radius: 20px; border: 1px solid var(--color-border); font-weight: bold; cursor: pointer;">↺ Rescan</button>
+                    <button id="btn-confirm" style="flex: 1.5; background: var(--color-primary); color: var(--color-surface); padding: 16px; border-radius: 20px; border: none; font-weight: bold; box-shadow: 0 8px 16px rgba(255, 184, 140, 0.2); cursor: pointer;">Confirm ✓</button>
                 </div>
             </div>
         `;
