@@ -24,7 +24,7 @@ export default class FuzzyMatcher {
     }
 
     /**
-     * Finds the closest matching drug in the dataset, tolerating up to 3 typos.
+     * Finds the closest matching drug in the dataset, tolerating typos and OCR cutoffs (substrings).
      */
     static resolveOCR(ocrText, dataset) {
         if (!ocrText || !dataset) return null;
@@ -35,20 +35,42 @@ export default class FuzzyMatcher {
 
         // Iterate through massive dataset
         for (const drug of dataset) {
-            const dbName = drug.genericName ? drug.genericName.toLowerCase() : (drug.name ? drug.name.toLowerCase() : "");
-            if(!dbName) continue;
-            
-            const distance = this.getDistance(target, dbName);
-            
-            // Allow up to 3 character mistakes (e.g. 5YMBICORT -> symbicort)
-            if (distance < lowestDistance && distance <= 3) {
-                lowestDistance = distance;
-                bestMatch = drug;
+            // Check all possible naming fields
+            const possibleNames = [
+                drug.name ? drug.name.toLowerCase() : "",
+                drug.brandName ? drug.brandName.toLowerCase() : "",
+                drug.genericName ? drug.genericName.toLowerCase() : ""
+            ].filter(Boolean);
+
+            for (const dbName of possibleNames) {
+                // 1. Substring Match (e.g., OCR sees "APEN", Database has "MEGAPEN")
+                // Only allow this if the OCR text is reasonably long (>= 4 chars) to prevent random false positives
+                if (target.length >= 4 && dbName.includes(target)) {
+                    // Treat direct substring as a perfect match if nothing better is found
+                    if (0 < lowestDistance) {
+                        lowestDistance = 0;
+                        bestMatch = drug;
+                    }
+                    break; 
+                }
+
+                // 2. Standard Levenshtein Distance
+                const distance = this.getDistance(target, dbName);
+                
+                // Allow up to 3 character mistakes (e.g. 5YMBICORT -> symbicort)
+                // Or allow 4 mistakes if the word is very long
+                const maxAllowedDistance = target.length > 7 ? 4 : 3;
+
+                if (distance < lowestDistance && distance <= maxAllowedDistance) {
+                    lowestDistance = distance;
+                    bestMatch = drug;
+                }
+                
+                if (lowestDistance === 0) break; // Perfect match found
             }
-            
-            if (lowestDistance === 0) break; // Perfect match found, stop searching
+            if (lowestDistance === 0) break; // Stop outer loop
         }
 
-        return bestMatch; // Returns the exact 100% accurate database object
+        return bestMatch; // Returns the exact database object
     }
 }
