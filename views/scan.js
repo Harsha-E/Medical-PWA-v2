@@ -66,7 +66,7 @@ export default class ScanView {
       </style>
 
       <!-- Fullscreen Video -->
-      <video id="sc-video" autoplay playsinline muted style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;"></video>
+      <video id="sc-video" autoplay playsinline muted style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: none !important;"></video>
       <canvas id="sc-canvas" style="display: none;"></canvas>
 
       <!-- Hand Warning UI Screamer -->
