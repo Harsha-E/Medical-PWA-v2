@@ -227,7 +227,7 @@ export default class Scan3DView {
       
       if (matchResult && matchResult.bestMatch) {
           // Success! Save results and navigate to add-medication
-          sessionStorage.setItem('medcheck_pending_scan', JSON.stringify({
+          const payload = {
               name: matchResult.bestMatch.name || matchResult.bestMatch.brandName || matchResult.bestMatch.genericName,
               dosage: matchResult.bestMatch.dosage,
               form: matchResult.bestMatch.form,
@@ -243,10 +243,10 @@ export default class Scan3DView {
               alternativeBrands: matchResult.bestMatch.alternativeBrands ? matchResult.bestMatch.alternativeBrands.join(', ') : '',
               explainabilityDetails: matchResult.explainabilityDetails,
               diagnosticReport: matchResult.diagnosticReport
-          }));
+          };
 
-          await updatePhaseLabel('Match Found!', 'Redirecting...');
-          setTimeout(() => { window.location.hash = '#/add-medication'; }, 800);
+          await updatePhaseLabel('Match Found!', 'Verifying Data...');
+          this.showConfirmationModal(payload);
       } else {
           // Failed to find medicine
           await updatePhaseLabel('Scan Failed', 'Try Again');
@@ -263,6 +263,89 @@ export default class Scan3DView {
       }
       setTimeout(() => { window.location.hash = '#/scan'; }, 2000);
     }
+  }
+
+  showConfirmationModal(payload) {
+        // 1. Create the absolute frosted-glass overlay
+        const modalOverlay = document.createElement('div');
+        modalOverlay.id = 'clay-confirmation-modal';
+        modalOverlay.style.cssText = `
+            position: fixed; inset: 0; z-index: 999999; 
+            background: rgba(15, 20, 30, 0.85); backdrop-filter: blur(15px);
+            display: flex; justify-content: center; align-items: center;
+            padding: 20px; font-family: system-ui, -apple-system, sans-serif;
+            opacity: 0; transition: opacity 0.3s ease;
+        `;
+
+        // Safely extract the dual-schema data
+        const brandName = payload.brandName || payload.name || "Unknown Medication";
+        const rawDosage = payload.dosage?.rawText || payload.dosage || "Dosage not detected";
+        const dosageForm = payload.form || "Unknown form";
+
+        // 2. Build the Claymorphic Card
+        modalOverlay.innerHTML = `
+            <div class="clay-panel" style="width: 100%; max-width: 400px; padding: 32px; text-align: center; display: flex; flex-direction: column; gap: 24px; transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);">
+                
+                <!-- Icon Header -->
+                <div style="width: 72px; height: 72px; border-radius: 50%; background: rgba(30, 144, 255, 0.15); color: #1e90ff; display: flex; justify-content: center; align-items: center; font-size: 32px; margin: 0 auto; box-shadow: inset 2px 2px 10px rgba(0,0,0,0.2);">
+                    💊
+                </div>
+                
+                <div>
+                    <h2 style="color: var(--clay-text-primary); margin: 0 0 8px 0; font-size: 1.5rem; font-weight: 800;">Medication Detected</h2>
+                    <p style="color: var(--clay-text-secondary); margin: 0; font-size: 0.95rem; font-weight: 500;">Please verify before saving.</p>
+                </div>
+                
+                <!-- Data Display Box (Inner Claymorphism) -->
+                <div style="background: rgba(0, 0, 0, 0.2); border-radius: 20px; padding: 20px; text-align: left; box-shadow: inset 4px 4px 8px rgba(0,0,0,0.4), inset -4px -4px 8px rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.02);">
+                    
+                    <div style="color: #1e90ff; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px;">Brand Name</div>
+                    <div style="color: white; font-size: 1.35rem; font-weight: 700; margin-bottom: 16px;">${brandName}</div>
+                    
+                    <div style="color: #1e90ff; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px;">Dosage & Form</div>
+                    <div style="color: white; font-size: 1.1rem; font-weight: 500;">${rawDosage} • ${dosageForm}</div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="display: flex; gap: 16px; margin-top: 8px;">
+                    <button id="btn-rescan" class="clay-btn" style="flex: 1; background: #353b50; color: #a4b0be;">
+                        ↺ Rescan
+                    </button>
+                    <button id="btn-confirm" class="clay-btn clay-btn-primary" style="flex: 1.5;">
+                        Confirm ✓
+                    </button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modalOverlay);
+
+        // Animate in
+        requestAnimationFrame(() => {
+            modalOverlay.style.opacity = '1';
+            modalOverlay.querySelector('.clay-panel').style.transform = 'translateY(0)';
+        });
+
+        // CONFIRM: Route to hydration screen
+        modalOverlay.querySelector('#btn-confirm').onclick = () => {
+            modalOverlay.style.opacity = '0';
+            setTimeout(() => {
+                modalOverlay.remove();
+                sessionStorage.setItem('medcheck_pending_scan', JSON.stringify(payload));
+                window.location.hash = '#/add-medication';
+            }, 300);
+        };
+
+        // RESCAN: Clear data and restart the local WebGPU/Camera loop
+        modalOverlay.querySelector('#btn-rescan').onclick = () => {
+            modalOverlay.style.opacity = '0';
+            setTimeout(() => {
+                modalOverlay.remove();
+                console.log("[Scanner] User rejected AI match. Resuming WebGPU pipeline...");
+                window.location.hash = '#/'; 
+                setTimeout(() => { window.location.hash = '#/scan'; }, 50); // Bounce routing to force camera refresh
+            }, 300);
+        };
   }
 
   destroy() {
