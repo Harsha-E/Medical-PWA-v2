@@ -526,7 +526,7 @@ export default class PeerNetworkView {
       }
 
       rosterEl.innerHTML = peers.map(([pid, conn]) => {
-          const pName = conn.metadata?.displayName || 'Peer Node';
+          const pName = conn?.metadata?.displayName || 'Peer Node';
           return `
           <div class="clay-glass-panel p-4 flex justify-between items-center">
               <div class="flex items-center gap-4">
