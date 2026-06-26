@@ -60,6 +60,11 @@ export default class PeerMeshV2 {
             if (this.onSyncReceived) {
                 // Trigger the local database update
                 this.onSyncReceived(payload);
+
+                // Dispatch global event for UI visual data pulses
+                window.dispatchEvent(new CustomEvent('peermesh:data-received', {
+                    detail: { from: conn.peer, payload: payload }
+                }));
             }
         });
 
@@ -82,6 +87,11 @@ export default class PeerMeshV2 {
             if (conn.open) {
                 conn.send(payload);
                 sentCount++;
+                
+                // Dispatch global event for UI visual data pulses
+                window.dispatchEvent(new CustomEvent('peermesh:data-sent', {
+                    detail: { to: peerId, payload: payload }
+                }));
             }
         });
         

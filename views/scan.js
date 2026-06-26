@@ -249,6 +249,29 @@ export default class ScanView {
 
     this.showProcessingSpinner("Analyzing 2D Frame...");
 
+    // 1. Check for QR Code (Family Pairing)
+    if ('BarcodeDetector' in window) {
+        try {
+            const detector = new BarcodeDetector({ formats: ['qr_code'] });
+            const barcodes = await detector.detect(this._canvas);
+            if (barcodes.length > 0) {
+                const qrVal = barcodes[0].rawValue;
+                if (qrVal.startsWith('medcare://peer/')) {
+                    const peerId = qrVal.replace('medcare://peer/', '');
+                    if (window.familyMesh) {
+                        console.log("[ScanView] Intercepted PeerJS QR Code. Connecting to:", peerId);
+                        window.familyMesh.connectToFamilyMember(peerId);
+                        window.location.hash = '#/family-tree';
+                    }
+                    this.hideProcessingSpinner();
+                    return; // Stop OCR pipeline
+                }
+            }
+        } catch (e) { console.error('[ScanView] Native QR detection failed', e); }
+    }
+
+    // 2. OCR Medicine Extraction
+
     try {
         const pipeline = new VisionPipeline();
         const matchResult = await pipeline.processFrame(this._canvas, 1.0, true);
