@@ -11,23 +11,24 @@ self.onmessage = async (e) => {
         console.log("[Groq Worker] Sending payload...");
 
         const promptText = `You are a medical OCR extraction engine. Analyze this image of a medicine package.
-Identify the primary brand name. 
-CRITICAL: Heavily isolate the primary brand name (e.g., "Symbicort" or "Pan") without any dosages, strengths, suffixes, or forms (e.g. no "160mcg", "Turbuhaler", "40", etc).
+Identify the primary brand name AND the generic/chemical name. 
+CRITICAL: Heavily isolate the primary brand name (e.g., "Symbicort", "Pan", "Itratuf") and the generic/active ingredient (e.g., "Itraconazole", "Pantoprazole"). Check for manufacturer/company names as well (e.g., Alkem). If a company name is found, carefully rescan the text to ensure you capture the actual medicine generic name.
 
 Return ONLY a pure JSON object in this exact format, with no markdown formatting or extra text:
 {
-  "brandName": "isolated brand name here",
+  "brandName": "isolated brand name here (if missing, use the generic name)",
+  "genericName": "isolated generic/chemical name here (critical for database matching)",
   "dosage": {
-    "rawText": "exactly what is printed on label, e.g., '160/4.5 μg'",
+    "rawText": "exactly what is printed on label, e.g., '160/4.5 μg' or '100 mg'",
     "parsed": {
-      "amount": "pure number or ratio string e.g., '160/4.5'",
+      "amount": "pure number or ratio string e.g., '160/4.5' or '100'",
       "unit": "translate greek symbols like μg to mcg, e.g., 'mcg', 'mg', 'g', 'ml'"
     }
   },
   "form": "e.g., Tablet, Inhaler, Liquid, Capsule",
   "totalQuantity": "integer only (look explicitly for 'Doses', 'Puffs', 'Metered actuations', or 'Tablets' on the label and extract JUST the number, e.g. 60 or 120)",
   "isAsNeeded": true or false (boolean, true if PRN / 'as needed' is indicated),
-  "manufacturer": "any manufacturer found"
+  "manufacturer": "any manufacturer found (e.g. ALKEM)"
 }`;
 
         const payload = {

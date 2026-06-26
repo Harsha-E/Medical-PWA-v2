@@ -72,20 +72,32 @@
                         }
 
                         let bestMatch = null;
-                        const nameToMatch = result.medicationName || result.brandName;
-                        if (nameToMatch) {
-                            console.log("[Graph Search] Attempting to match string:", nameToMatch);
-                            
-                            const yieldToMain = () => new Promise(r => setTimeout(r, 0));
-                            await yieldToMain();
-                            
-                            const graph = new MedicineKnowledgeGraph();
-                            const matches = await graph.queryNode(nameToMatch);
+                        const brandToMatch = result.medicationName || result.brandName;
+                        const genericToMatch = result.genericName;
+                        
+                        const yieldToMain = () => new Promise(r => setTimeout(r, 0));
+                        await yieldToMain();
+                        
+                        const graph = new MedicineKnowledgeGraph();
+
+                        if (brandToMatch) {
+                            console.log("[Graph Search] Attempting to match brand string:", brandToMatch);
+                            const matches = await graph.queryNode(brandToMatch);
                             if (matches && matches.length > 0) {
                                 bestMatch = matches[0];
                             }
-                            console.log("[Graph Search] Match Result:", bestMatch || "FAILED - No match found");
                         }
+
+                        // Fallback: If the specific brand isn't mapped, try to match the active ingredient / generic name
+                        if (!bestMatch && genericToMatch) {
+                            console.log("[Graph Search] Brand failed. Attempting to match Generic Name:", genericToMatch);
+                            const genericMatches = await graph.queryNode(genericToMatch);
+                            if (genericMatches && genericMatches.length > 0) {
+                                bestMatch = genericMatches[0];
+                            }
+                        }
+
+                        console.log("[Graph Search] Match Result:", bestMatch || "FAILED - No match found");
                         console.groupEnd();
 
                         // Map to legacy expected format
