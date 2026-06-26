@@ -40,25 +40,23 @@ export default class PwaInstallManager {
     if (window.deferredInstallPrompt) {
       handlePrompt(window.deferredInstallPrompt);
     }
-    window.addEventListener('beforeinstallprompt', handlePrompt);
-
-    const forceOpenAppBanner = () => {
+    const forceInstalledBanner = () => {
       const btn = this.bannerEl?.querySelector('#pwa-action-btn');
       if (btn) {
-        btn.textContent = 'Open App';
-        btn.classList.add('bg-[#10b981]/20', 'text-[#10b981]', 'border-[#10b981]/50');
-        btn.classList.remove('text-[#ffb88c]', 'border-[#ffb88c]/20', 'opacity-70', 'cursor-not-allowed');
+        btn.textContent = 'Installed';
+        btn.classList.add('bg-[#10b981]/20', 'text-[#10b981]', 'border-[#10b981]/50', 'opacity-70', 'cursor-not-allowed');
+        btn.classList.remove('text-[#ffb88c]', 'border-[#ffb88c]/20', 'cursor-pointer');
       }
       const textNode = this.bannerEl?.querySelector('#pwa-banner-text');
       if (textNode) textNode.textContent = 'Ready on Homescreen';
     };
 
-    // If we know it's installed from a previous session, show the Open App banner on the install route
+    // If we know it's installed from a previous session, show the Installed banner on the install route
     if (!this._isStandalone() && (localStorage.getItem('pwa_installed') === 'true' || window.location.hash.startsWith('#/install'))) {
       setTimeout(() => {
         if (!this.deferredPrompt) {
           localStorage.setItem('pwa_installed', 'true');
-          forceOpenAppBanner();
+          forceInstalledBanner();
         }
         
         if (window.location.hash.startsWith('#/install')) {
@@ -70,33 +68,25 @@ export default class PwaInstallManager {
     // Handle post-installation platform routing cleanly
     window.addEventListener('appinstalled', () => {
       localStorage.setItem('pwa_installed', 'true');
-      const btn = this.bannerEl?.querySelector('#pwa-action-btn');
-      if (btn) {
-        btn.textContent = 'Open App';
-        btn.classList.add('bg-[#10b981]/20', 'text-[#10b981]', 'border-[#10b981]/50');
-        btn.classList.remove('text-[#ffb88c]', 'border-[#ffb88c]/20', 'opacity-70', 'cursor-not-allowed');
-      }
+      forceInstalledBanner();
       
-      const textNode = this.bannerEl?.querySelector('#pwa-banner-text');
-      if (textNode) textNode.textContent = 'Ready on Homescreen';
-      
-      // Enforce visibility restriction for "Open App" state
+      // Enforce visibility restriction for "Installed" state
       if (!window.location.hash.startsWith('#/install')) {
         this._hideBanner();
       }
     });
 
-    // Listen to route changes to strictly control "Open App" banner visibility
+    // Listen to route changes to strictly control "Installed" banner visibility
     window.addEventListener('hashchange', () => {
       const btn = this.bannerEl?.querySelector('#pwa-action-btn');
       if (window.location.hash.startsWith('#/install')) {
         if (!this.deferredPrompt) {
           localStorage.setItem('pwa_installed', 'true');
-          forceOpenAppBanner();
+          forceInstalledBanner();
         }
         this._showBanner(this.deferredPrompt ? 'Tap to Install' : 'Ready on Homescreen');
       } else {
-        if (btn && btn.textContent === 'Open App') {
+        if (btn && btn.textContent === 'Installed') {
           this._hideBanner();
         }
       }
@@ -216,9 +206,7 @@ export default class PwaInstallManager {
       e.stopPropagation();
       if (hapticEngine) hapticEngine.triggerHaptic(30);
       
-      if (actionBtn && actionBtn.textContent.trim() === 'Open App') {
-        // Attempt to launch the standalone WebAPK or iOS PWA via direct navigation
-        window.open(window.location.origin + window.location.pathname, '_blank');
+      if (actionBtn && actionBtn.textContent.trim() === 'Installed') {
         return;
       }
 
