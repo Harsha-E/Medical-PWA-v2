@@ -112,7 +112,7 @@ export default class AddMedicationView {
     }
 
     this.container.innerHTML = `
-      <main class="flex-1 pt-[112px] pb-6" style="padding-left:0; padding-right:0; height: 100vh; overflow-y: auto;">
+      <main class="flex-1 pt-[112px] pb-24" style="padding-left:0; padding-right:0; height: 100%; overflow-y: auto; overflow-x: hidden;">
         <div class="px-6 w-full max-w-7xl mx-auto flex flex-col">
         <div class="clay-glass-panel p-6 mb-8 clay-glass-panel rounded-[2rem]">
           <h3 class="form-label mb-6">Medication Details</h3>

@@ -467,47 +467,72 @@ export default class ScanView {
         modalOverlay.id = 'clay-confirmation-modal';
         modalOverlay.style.cssText = `
             position: fixed; inset: 0; z-index: 999999; 
-            background: rgba(10, 4, 7, 0.85); backdrop-filter: blur(15px);
+            background: rgba(10, 4, 7, 0.7); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
             display: flex; justify-content: center; align-items: center;
-            padding: 20px; font-family: var(--font-body);
+            padding: 24px; font-family: var(--font-body);
             opacity: 0; transition: opacity 0.3s ease;
+            overflow-y: auto;
         `;
 
-        modalOverlay.innerHTML = `
-            <div class="clay-glass-panel" style="width: 100%; max-width: 400px; padding: 32px; text-align: center; display: flex; flex-direction: column; gap: 24px; transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);">
-                <div style="width: 72px; height: 72px; border-radius: 50%; background: var(--color-accent-soft); color: var(--color-primary); display: flex; justify-content: center; align-items: center; font-size: 32px; margin: 0 auto; box-shadow: inset 2px 2px 10px rgba(0,0,0,0.2);">💊</div>
+        // Add background blobs matching the dashboard theme
+        const blobBackground = `
+            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 0; pointer-events: none; overflow: hidden; opacity: 0.6;">
+                <div style="position: absolute; top: -10%; left: -20%; width: 70vw; height: 70vw; background: radial-gradient(circle, var(--color-primary-dark) 0%, transparent 70%); filter: blur(60px); border-radius: 50%; animation: pulse 8s infinite alternate;"></div>
+                <div style="position: absolute; bottom: -10%; right: -20%; width: 60vw; height: 60vw; background: radial-gradient(circle, var(--color-secondary) 0%, transparent 70%); filter: blur(60px); border-radius: 50%; animation: pulse 10s infinite alternate-reverse;"></div>
+            </div>
+        `;
+
+        modalOverlay.innerHTML = blobBackground + `
+            <div class="clay-glass-panel" style="position: relative; z-index: 1; width: 100%; max-width: 420px; padding: 36px 28px; text-align: center; display: flex; flex-direction: column; gap: 28px; transform: translateY(30px); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-height: 90vh; overflow-y: auto; overflow-x: hidden;">
+                <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--color-surface-elevated); color: var(--color-primary); display: flex; justify-content: center; align-items: center; font-size: 36px; margin: 0 auto; box-shadow: inset 4px 4px 10px rgba(0,0,0,0.3), inset -4px -4px 10px rgba(255,255,255,0.05), 0 8px 16px rgba(0,0,0,0.2); border: 1px solid var(--color-border);">💊</div>
+                
                 <div>
-                    <h2 style="color: var(--color-text-primary); margin: 0 0 8px 0; font-size: 1.5rem; font-weight: 800;">Medication Detected</h2>
-                    <p style="color: var(--color-text-secondary); margin: 0; font-size: 0.95rem; font-weight: 500;">Please verify before saving.</p>
+                    <h2 style="color: var(--color-text-primary); margin: 0 0 10px 0; font-size: clamp(1.4rem, 5vw, 1.7rem); font-weight: 800; letter-spacing: -0.02em;">Scan Successful</h2>
+                    <p style="color: var(--color-text-secondary); margin: 0; font-size: clamp(0.85rem, 3.5vw, 1rem); font-weight: 500; padding: 0 10px;">Please verify the extracted details below.</p>
                 </div>
-                <div style="background: var(--color-surface); border-radius: 20px; padding: 20px; text-align: left; box-shadow: inset 4px 4px 8px rgba(0,0,0,0.2), inset -4px -4px 8px rgba(255,255,255,0.02); border: 1px solid var(--color-border);">
-                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                
+                <div style="background: var(--color-surface); border-radius: 24px; padding: 24px; text-align: left; box-shadow: inset 4px 4px 12px rgba(0,0,0,0.4), inset -4px -4px 12px rgba(255,255,255,0.03); border: 1px solid var(--color-border);">
+                    <div style="display: flex; flex-direction: column; gap: 20px;">
                         <div>
-                            <div style="color: var(--color-primary); font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px;">Brand Name</div>
-                            <div style="color: var(--color-text-primary); font-size: 1.35rem; font-weight: 700; line-height: 1.2;">${brandName}</div>
+                            <div style="color: var(--color-primary); font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px;">Brand Name</div>
+                            <div style="color: var(--color-text-primary); font-size: clamp(1.2rem, 4vw, 1.4rem); font-weight: 700; line-height: 1.25;">${brandName}</div>
                         </div>
+                        <div style="height: 1px; background: var(--color-border); opacity: 0.5;"></div>
                         <div>
-                            <div style="color: var(--color-primary); font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px;">Generic Name</div>
-                            <div style="color: var(--color-text-secondary); font-size: 1.1rem; font-weight: 500; line-height: 1.2;">${genericName}</div>
+                            <div style="color: var(--color-primary); font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px;">Generic Name</div>
+                            <div style="color: var(--color-text-secondary); font-size: clamp(1rem, 3.5vw, 1.15rem); font-weight: 500; line-height: 1.3;">${genericName}</div>
                         </div>
+                        <div style="height: 1px; background: var(--color-border); opacity: 0.5;"></div>
                         <div>
-                            <div style="color: var(--color-primary); font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px;">Dosage & Form</div>
-                            <div style="color: var(--color-text-secondary); font-size: 1.1rem; font-weight: 500;">${rawDosage} • ${dosageForm}</div>
+                            <div style="color: var(--color-primary); font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px;">Dosage & Form</div>
+                            <div style="color: var(--color-text-secondary); font-size: clamp(1rem, 3.5vw, 1.15rem); font-weight: 500;">${rawDosage} • ${dosageForm}</div>
                         </div>
                     </div>
                 </div>
-                <div style="display: flex; gap: 16px; margin-top: 8px;">
-                    <button id="btn-rescan" style="flex: 1; background: var(--color-surface); color: var(--color-text-secondary); padding: 16px; border-radius: 20px; border: 1px solid var(--color-border); font-weight: bold; cursor: pointer;">↺ Rescan</button>
-                    <button id="btn-confirm" style="flex: 1.5; background: var(--color-primary); color: var(--color-surface); padding: 16px; border-radius: 20px; border: none; font-weight: bold; box-shadow: 0 8px 16px rgba(255, 184, 140, 0.2); cursor: pointer;">Confirm ✓</button>
+                
+                <div style="display: flex; gap: 16px; margin-top: 12px;">
+                    <button id="btn-rescan" style="flex: 1; background: var(--color-surface); color: var(--color-text-primary); padding: 16px; border-radius: 20px; border: 1px solid var(--color-border); font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: 1rem; transition: transform 0.2s;">Rescan</button>
+                    <button id="btn-confirm" style="flex: 1.2; background: var(--color-primary); color: var(--color-surface); padding: 16px; border-radius: 20px; border: none; font-weight: 800; box-shadow: 0 8px 20px var(--color-skeleton-glow1); cursor: pointer; font-size: 1rem; transition: transform 0.2s;">Confirm ✓</button>
                 </div>
             </div>
         `;
 
         document.body.appendChild(modalOverlay);
 
+        // Add simple touch feedback
+        const addTouchScale = (btn) => {
+            btn.addEventListener('mousedown', () => btn.style.transform = 'scale(0.95)');
+            btn.addEventListener('mouseup', () => btn.style.transform = 'scale(1)');
+            btn.addEventListener('touchstart', () => btn.style.transform = 'scale(0.95)');
+            btn.addEventListener('touchend', () => btn.style.transform = 'scale(1)');
+        };
+        addTouchScale(modalOverlay.querySelector('#btn-rescan'));
+        addTouchScale(modalOverlay.querySelector('#btn-confirm'));
+
         requestAnimationFrame(() => {
             modalOverlay.style.opacity = '1';
-            modalOverlay.querySelector('.clay-panel').style.transform = 'translateY(0)';
+            const panel = modalOverlay.querySelector('.clay-glass-panel');
+            if(panel) panel.style.transform = 'translateY(0)';
         });
 
         modalOverlay.querySelector('#btn-confirm').onclick = () => {
