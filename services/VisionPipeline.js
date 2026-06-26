@@ -95,20 +95,13 @@
                             }
                         }
 
-                        // Fallback 2: Levenshtein Fuzzy Matching to correct Groq hallucination errors
+                        // Fallback 2: Multi-Feature Fuzzy Matching to correct Groq hallucination errors
                         if (!bestMatch) {
-                            console.log("[Graph Search] Standard lookups failed. Deploying Fuzzy Matcher...");
+                            console.log("[Graph Search] Standard lookups failed. Deploying Advanced Fuzzy Matcher...");
                             const fullDataset = await graph.db.medicine_knowledge.toArray();
                             
-                            // Try fuzzy matching the brand first
-                            if (brandToMatch) {
-                                bestMatch = FuzzyMatcher.resolveOCR(brandToMatch, fullDataset);
-                            }
-                            
-                            // If still no match, fuzzy match the generic
-                            if (!bestMatch && genericToMatch) {
-                                bestMatch = FuzzyMatcher.resolveOCR(genericToMatch, fullDataset);
-                            }
+                            // Pass the entire AI payload for contextual scoring (dosage, mfg, form, array fields)
+                            bestMatch = FuzzyMatcher.resolveComplexPayload(result, fullDataset);
                             
                             if (bestMatch) {
                                 console.log("[Fuzzy Matcher] Successfully snapped hallucination to:", bestMatch.name || bestMatch.genericName);
