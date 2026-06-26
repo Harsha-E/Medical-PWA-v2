@@ -510,9 +510,9 @@ export default class ScanView {
                     </div>
                 </div>
                 
-                <div style="display: flex; gap: 16px; margin-top: 12px;">
-                    <button id="btn-rescan" style="flex: 1; background: var(--color-surface); color: var(--color-text-primary); padding: 16px; border-radius: 20px; border: 1px solid var(--color-border); font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: 1rem; transition: transform 0.2s;">Rescan</button>
-                    <button id="btn-confirm" style="flex: 1.2; background: var(--color-primary); color: var(--color-surface); padding: 16px; border-radius: 20px; border: none; font-weight: 800; box-shadow: 0 8px 20px var(--color-skeleton-glow1); cursor: pointer; font-size: 1rem; transition: transform 0.2s;">Confirm ✓</button>
+                <div style="display: flex; gap: 16px; margin-top: 12px; flex-wrap: nowrap;">
+                    <button id="btn-rescan" style="flex: 1; background: var(--color-surface); color: var(--color-text-primary); padding: 16px 8px; border-radius: 20px; border: 1px solid var(--color-border); font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: clamp(0.85rem, 3.5vw, 1rem); transition: transform 0.2s; white-space: nowrap; min-width: 0;">Rescan</button>
+                    <button id="btn-confirm" style="flex: 1.2; background: var(--color-primary); color: var(--color-surface); padding: 16px 8px; border-radius: 20px; border: none; font-weight: 800; box-shadow: 0 8px 20px var(--color-skeleton-glow1); cursor: pointer; font-size: clamp(0.85rem, 3.5vw, 1rem); transition: transform 0.2s; white-space: nowrap; min-width: 0;">Confirm ✓</button>
                 </div>
             </div>
         `;
