@@ -139,12 +139,26 @@ export class DatasetSyncManager {
                 therapeuticCategory: 'Bronchodilator, Corticosteroid',
                 commonOcrErrors: ['SYMBIC0RT', 'SYMBICORT', '5YMBICORT'],
                 regionalAvailability: ['Pan India'],
-                andhraDistribution: ['All major chains'],
+                andhraDistribution: ['Apollo Pharmacy AP', 'MedPlus Hyd/Vija'],
                 alternativeBrands: ['brand-foracort'],
-                tabletShape: 'inhaler',
+                tabletShape: 'inhaler device',
                 tabletColor: 'red/white',
                 imprintCodes: [],
                 marketStatus: 'Active'
+            },
+            {
+                id: 'brand-itratuf',
+                name: 'Itratuf',
+                genericName: 'Itraconazole',
+                manufacturer: 'Alkem Laboratories',
+                strength: '100mg',
+                dosageForm: 'capsule',
+                tabletColor: 'pink/white',
+                tabletShape: 'capsule',
+                therapeuticCategory: 'Antifungal',
+                prescriptionStatus: 'Rx',
+                regionalAvailability: ['Pan India'],
+                commonOcrErrors: ['ITRATUF', 'ltratuf', '1TRATUF', 'Itraconazole']
             }
         ];
 

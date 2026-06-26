@@ -97,17 +97,32 @@
                             }
                         }
 
+                        // Failsafe: Construct a raw payload if the local knowledge graph is missing the drug entirely
+                        if (!bestMatch) {
+                            console.log("[Graph Search] All local lookups failed. Constructing synthetic raw AI payload.");
+                            bestMatch = {
+                                name: brandToMatch || genericToMatch || 'Unknown Medicine',
+                                brandName: result.brandName,
+                                genericName: result.genericName,
+                                strength: result.strengthPerUnit || result.dosageAmount || '',
+                                manufacturer: result.manufacturer || result.companyName || '',
+                                dosageForm: result.form || '',
+                                totalQuantity: result.totalQuantityCount || null,
+                                isRawPayload: true
+                            };
+                        }
+
                         console.log("[Graph Search] Match Result:", bestMatch || "FAILED - No match found");
                         console.groupEnd();
 
                         // Map to legacy expected format
                         resolve({
-                            state: bestMatch ? 'SUCCESS' : 'NEEDS_REVIEW',
-                            confidence: 1.0,
-                            name: brandToMatch || genericToMatch || 'Unknown',
-                            dosage: result.strengthPerUnit || (bestMatch ? bestMatch.strength : ''),
-                            manufacturer: result.manufacturer || (bestMatch ? bestMatch.manufacturer : ''),
-                            quantity: result.totalQuantityCount || null,
+                            state: bestMatch && !bestMatch.isRawPayload ? 'SUCCESS' : 'NEEDS_REVIEW',
+                            confidence: bestMatch && !bestMatch.isRawPayload ? 1.0 : 0.6,
+                            name: bestMatch.name,
+                            dosage: bestMatch.strength,
+                            manufacturer: bestMatch.manufacturer,
+                            quantity: bestMatch.totalQuantity,
                             unit: '', 
                             bbox: null,
                             bestMatch: bestMatch
