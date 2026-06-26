@@ -1720,3 +1720,9 @@ textarea {
  } 
   
  
+@keyframes pulseWarning {
+  0% { box-shadow: inset 4px 4px 10px rgba(0,0,0,0.5), inset -4px -4px 10px rgba(255, 100, 100, 0.1), 0 0 15px rgba(239, 68, 68, 0.2); }
+  50% { box-shadow: inset 4px 4px 10px rgba(0,0,0,0.5), inset -4px -4px 10px rgba(255, 100, 100, 0.1), 0 0 35px rgba(239, 68, 68, 0.5); }
+  100% { box-shadow: inset 4px 4px 10px rgba(0,0,0,0.5), inset -4px -4px 10px rgba(255, 100, 100, 0.1), 0 0 15px rgba(239, 68, 68, 0.2); }
+}
+

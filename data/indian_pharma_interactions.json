@@ -1,0 +1,62 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "source": "Kaggle/Open-Pharma-IP",
+    "lastUpdated": "2026-06-26",
+    "description": "Enterprise interaction and contraindication dataset for Indian Pharmacopoeia drugs.",
+    "schema": "https://schema.medcheck.org/v1/interaction-model"
+  },
+  "data": [
+    {
+      "genericName": "itraconazole",
+      "interactsWith": [
+        {
+          "drug": "atorvastatin",
+          "severity": "High",
+          "warning": "Itraconazole is a strong CYP3A4 inhibitor, significantly increasing atorvastatin levels and the risk of severe muscle toxicity (myopathy/rhabdomyolysis)."
+        }
+      ],
+      "contraindications": [
+        {
+          "disease": "heart failure",
+          "severity": "Severe",
+          "warning": "Itraconazole has negative inotropic effects and can exacerbate or trigger congestive heart failure."
+        }
+      ]
+    },
+    {
+      "genericName": "paracetamol",
+      "interactsWith": [
+        {
+          "drug": "warfarin",
+          "severity": "Moderate",
+          "warning": "Prolonged daily use of paracetamol may increase the anticoagulant effect of warfarin."
+        }
+      ],
+      "contraindications": [
+        {
+          "disease": "severe hepatic impairment",
+          "severity": "Severe",
+          "warning": "Increased risk of severe hepatotoxicity."
+        }
+      ]
+    },
+    {
+      "genericName": "ibuprofen",
+      "interactsWith": [
+        {
+          "drug": "aspirin",
+          "severity": "Moderate",
+          "warning": "Ibuprofen may competitively inhibit the antiplatelet effect of low-dose aspirin."
+        }
+      ],
+      "contraindications": [
+        {
+          "disease": "peptic ulcer disease",
+          "severity": "Severe",
+          "warning": "Increased risk of gastrointestinal bleeding and mucosal damage."
+        }
+      ]
+    }
+  ]
+}

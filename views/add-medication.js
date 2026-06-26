@@ -5,6 +5,7 @@
 
 import db from '../core/db.js';
 import state from '../core/state.js';
+import InteractionEngine from '../services/InteractionEngine.js';
 import { collection, addDoc, doc, setDoc, getFirestore } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 export default class AddMedicationView {
@@ -118,9 +119,45 @@ export default class AddMedicationView {
       }
     }
 
+    // 6. Interaction Engine Initialization & Check
+    let warningBannerHtml = '';
+    try {
+      const engine = new InteractionEngine();
+      await engine.init('./data/indian_pharma_interactions.json');
+      
+      const mockPatientProfile = {
+        conditions: ['heart failure'],
+        activeMeds: ['atorvastatin']
+      };
+
+      const targetDrug = this.medData.genericName || this.medData.name || 'itraconazole';
+      const warnings = await engine.analyze(targetDrug, mockPatientProfile);
+      
+      if (warnings && warnings.length > 0) {
+        const warningsHtml = warnings.map(w => 
+          `<div class="mb-2"><strong class="uppercase text-[10px] tracking-wider">${w.type} (${w.severity}):</strong> ${w.message}</div>`
+        ).join('');
+
+        warningBannerHtml = `
+          <div class="mb-6 p-5 rounded-3xl bg-red-950/40 border border-red-500/30 backdrop-blur-xl animate-[pulseWarning_2s_infinite]" style="box-shadow: inset 4px 4px 10px rgba(0,0,0,0.5), inset -4px -4px 10px rgba(255, 100, 100, 0.1), 0 0 20px rgba(239, 68, 68, 0.3);">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="text-red-400 text-xl">⚠️</span>
+              <h4 class="text-red-200 font-bold tracking-wide text-xs">CLINICAL WARNING DETECTED</h4>
+            </div>
+            <div class="text-sm text-red-200/80">
+              ${warningsHtml}
+            </div>
+          </div>
+        `;
+      }
+    } catch (e) {
+      console.error('[AddMedication] InteractionEngine execution failed:', e);
+    }
+
     this.container.innerHTML = `
       <main class="flex-1 pt-[112px] pb-24" style="padding-left:0; padding-right:0; height: 100%; overflow-y: auto; overflow-x: hidden;">
         <div class="px-6 w-full max-w-7xl mx-auto flex flex-col">
+        ${warningBannerHtml}
         <div class="clay-glass-panel p-6 mb-8 clay-glass-panel rounded-[2rem]">
           <h3 class="form-label mb-6">Medication Details</h3>
           <div class="form-group">
