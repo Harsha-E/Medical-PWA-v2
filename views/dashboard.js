@@ -163,7 +163,7 @@ export default class DashboardView {
     let nextReminderHTML = '';
     if (nextDose) {
       nextReminderHTML = `
-        <div class="bg-gradient-to-br from-accent-soft/30 to-secondary/10 border border-accent-primary/30 rounded-3xl p-6 shadow-[0_8px_32px_var(--color-card-shadow)] relative overflow-hidden animate-fade-in group">
+        <div class="clay-glass-panel rounded-3xl p-6 relative overflow-hidden animate-fade-in group">
           <div class="absolute -right-8 -top-8 w-24 h-24 bg-accent-primary/10 rounded-full blur-2xl group-hover:bg-accent-primary/20 transition-all duration-500"></div>
           <div class="flex justify-between items-start relative z-10">
             <div>
@@ -179,7 +179,7 @@ export default class DashboardView {
       `;
     } else if (schedule.length > 0) {
       nextReminderHTML = `
-        <div class="bg-surface-elevated/20 border border-border/50 rounded-3xl p-6 shadow-[0_8px_32px_var(--color-card-shadow)] text-center animate-fade-in">
+        <div class="clay-glass-panel rounded-3xl p-6 text-center animate-fade-in">
           <div class="w-10 h-10 rounded-full bg-success/10 border border-success/30 flex items-center justify-center mx-auto mb-3 text-success">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
@@ -188,7 +188,7 @@ export default class DashboardView {
       `;
     } else {
       nextReminderHTML = `
-        <div class="bg-surface-elevated/20 border border-border/50 rounded-3xl p-6 shadow-[0_8px_32px_var(--color-card-shadow)] text-center animate-fade-in">
+        <div class="clay-glass-panel rounded-3xl p-6 text-center animate-fade-in">
           <div class="w-10 h-10 rounded-full bg-text-muted/10 border border-text-muted/20 flex items-center justify-center mx-auto mb-3 text-text-secondary">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
           </div>
@@ -333,7 +333,7 @@ export default class DashboardView {
         <div class="md:col-span-7 lg:col-span-8 flex flex-col gap-8">
           
           <!-- Today's Medicines Widget -->
-          <section id="dashboard-schedule-section" class="bg-surface-elevated/40 border border-border rounded-3xl p-6 shadow-[0_8px_32px_var(--color-card-shadow)] relative">
+          <section id="dashboard-schedule-section" class="clay-glass-panel rounded-3xl p-6 relative">
             <div class="flex items-center justify-between mb-6 pb-2 border-b border-border">
               <div>
                 <h2 class="text-xs text-accent-primary font-bold tracking-[0.2em] uppercase">Taking Medicines</h2>
@@ -375,7 +375,7 @@ export default class DashboardView {
 
           <!-- Monthly Health Follow-Up Widget -->
           <section id="dashboard-followup-section">
-            <div class="bg-surface-elevated/40 border border-border rounded-3xl p-6 shadow-[0_8px_32px_var(--color-card-shadow)]">
+            <div class="clay-glass-panel rounded-3xl p-6">
               <h3 class="text-xs font-bold text-text-secondary uppercase tracking-[0.2em] mb-4 pb-2 border-b border-border">Monthly Health Follow-Up</h3>
               <div class="space-y-4">
                 <!-- HbA1c row -->
@@ -419,7 +419,7 @@ export default class DashboardView {
           
           <!-- Health Progress (Streaks Replacement) Widget -->
           <section id="dashboard-progress-section">
-            <div class="bg-surface-elevated/40 border border-border rounded-3xl p-6 shadow-[0_8px_32px_var(--color-card-shadow)] overflow-hidden">
+            <div class="clay-glass-panel rounded-3xl p-6 overflow-hidden">
               <h3 class="text-xs font-bold text-text-secondary uppercase tracking-[0.2em] mb-5 pb-2 border-b border-border">Health Progress</h3>
               
               <div class="space-y-6">
@@ -455,7 +455,7 @@ export default class DashboardView {
 
           <!-- Family Updates Widget -->
           <section id="dashboard-family-section">
-            <div class="bg-surface-elevated/40 border border-border rounded-3xl p-6 shadow-[0_8px_32px_var(--color-card-shadow)]">
+            <div class="clay-glass-panel rounded-3xl p-6">
               <div class="flex items-center justify-between mb-4 pb-2 border-b border-border">
                 <h3 class="text-xs font-bold text-text-secondary uppercase tracking-[0.2em]">Family Updates</h3>
                 <a href="#/family-profiles" class="text-[10px] font-bold text-accent-primary uppercase tracking-widest hover:text-text-primary">Manage</a>
@@ -468,7 +468,7 @@ export default class DashboardView {
 
           <!-- Recent Health Reports Widget -->
           <section id="dashboard-recent-reports-section">
-            <div class="bg-surface-elevated/40 border border-border rounded-2xl p-4 flex items-center justify-between shadow-[0_8px_32px_var(--color-card-shadow)]">
+            <div class="clay-glass-panel rounded-2xl p-4 flex items-center justify-between">
               <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-secondary/15 border border-border flex items-center justify-center text-accent-primary">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>

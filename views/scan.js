@@ -467,7 +467,7 @@ export default class ScanView {
         modalOverlay.id = 'clay-confirmation-modal';
         modalOverlay.style.cssText = `
             position: fixed; inset: 0; z-index: 999999; 
-            background: rgba(10, 4, 7, 0.7); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            background: rgba(10, 4, 7, 0.95); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
             display: flex; justify-content: center; align-items: center;
             padding: 24px; font-family: var(--font-body);
             opacity: 0; transition: opacity 0.3s ease;
@@ -476,7 +476,7 @@ export default class ScanView {
 
         // Add background blobs matching the dashboard theme
         const blobBackground = `
-            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 0; pointer-events: none; overflow: hidden; opacity: 0.6;">
+            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 0; pointer-events: none; overflow: hidden; opacity: 0.4;">
                 <div style="position: absolute; top: -10%; left: -20%; width: 70vw; height: 70vw; background: radial-gradient(circle, var(--color-primary-dark) 0%, transparent 70%); filter: blur(60px); border-radius: 50%; animation: pulse 8s infinite alternate;"></div>
                 <div style="position: absolute; bottom: -10%; right: -20%; width: 60vw; height: 60vw; background: radial-gradient(circle, var(--color-secondary) 0%, transparent 70%); filter: blur(60px); border-radius: 50%; animation: pulse 10s infinite alternate-reverse;"></div>
             </div>
