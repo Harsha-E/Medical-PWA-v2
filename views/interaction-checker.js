@@ -26,7 +26,9 @@ export default class InteractionCheckerView {
       const activeMeds = rawMeds.filter(m => (m.userId === userId || !m.userId) && m.active !== false);
 
       // Create drug list names for graph evaluation
-      const currentDrugNames = activeMeds.map(m => m.name.trim());
+      const currentDrugNames = activeMeds
+        .map(m => (m.name || m.genericName || '').trim())
+        .filter(n => n.length > 0);
 
       // If a prospective test candidate exists, temporarily append it to evaluate cross-risk
       const evaluationList = [...currentDrugNames];

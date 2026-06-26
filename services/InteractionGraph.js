@@ -281,10 +281,13 @@ class InteractionGraph {
     // Determine which drugs have NO interactions
     summary.safe = drugList
       .map((drug) => (typeof drug === 'string' ? drug : drug.name || drug.genericName))
-      .filter((drugName) => !interactions.some((item) => 
-        item.drug1.toLowerCase() === drugName.toLowerCase() || 
-        item.drug2.toLowerCase() === drugName.toLowerCase()
-      ));
+      .filter((drugName) => {
+        if (!drugName) return false;
+        return !interactions.some((item) => 
+          item.drug1.toLowerCase() === drugName.toLowerCase() || 
+          item.drug2.toLowerCase() === drugName.toLowerCase()
+        );
+      });
 
     return summary;
   }
