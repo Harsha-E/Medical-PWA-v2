@@ -1,18 +1,17 @@
-/**
- * @fileoverview Clinical Interaction Checker View
- * Cross-references active prescriptions using InteractionGraph traversals.
- * Features an interactive prospective search field for new drug matching.
- */
-
 import state from '../core/state.js';
 import db from '../core/db.js';
-import { interactionGraph } from '../services/InteractionGraph.js';
+import InteractionEngine from '../services/InteractionEngine.js';
+
+const engine = new InteractionEngine();
+// We can kick off initialization in the background
+engine.init('./data/indian_pharma_interactions.json');
 
 export default class InteractionCheckerView {
   constructor() {
     this.container = document.createElement('div');
     this.container.className = 'viewport-container pb-safe h-[100dvh] overflow-y-auto overflow-x-hidden text-text-primary';
-    this.prospectiveDrug = '';
+    this.sandboxMeds = []; 
+    this.autocompleteResults = [];
   }
 
   async render() {
@@ -21,58 +20,88 @@ export default class InteractionCheckerView {
     try {
       const userId = state.user?.uid || 'anonymous';
       
-      // Bypassing Dexie index queries to eliminate potential multi-tab schema lockups
       const rawMeds = await db.medications.toArray();
       const activeMeds = rawMeds.filter(m => (m.userId === userId || !m.userId) && m.active !== false);
 
-      // Create drug list names for graph evaluation
       const currentDrugNames = activeMeds
         .map(m => (m.name || m.genericName || '').trim())
         .filter(n => n.length > 0);
 
-      // If a prospective test candidate exists, temporarily append it to evaluate cross-risk
-      const evaluationList = [...currentDrugNames];
-      if (this.prospectiveDrug) {
-        evaluationList.push(this.prospectiveDrug);
+      // Merge active + sandbox
+      const evaluationList = [...currentDrugNames, ...this.sandboxMeds];
+      
+      const summary = { severe: [], moderate: [], mild: [] };
+      const seenWarnings = new Set();
+      
+      for (const drug of evaluationList) {
+        const warnings = await engine.analyze(drug, { conditions: [], activeMeds: evaluationList.filter(d => d !== drug) });
+        warnings.forEach(w => {
+           const warnKey = [drug, w.trigger].sort().join('-') + w.message;
+           if (!seenWarnings.has(warnKey)) {
+             seenWarnings.add(warnKey);
+             
+             const mappedItem = {
+                drug1: drug,
+                drug2: w.trigger,
+                severity: w.severity.toLowerCase(),
+                details: { mechanism: w.message },
+                recommendation: w.severity === 'High' || w.severity === 'Severe' ? 'Immediate clinical review recommended.' : 'Monitor patient for adverse effects.'
+             };
+             
+             if (w.severity === 'Severe' || w.severity === 'High') {
+                summary.severe.push(mappedItem);
+             } else if (w.severity === 'Moderate') {
+                summary.moderate.push(mappedItem);
+             } else {
+                summary.mild.push(mappedItem);
+             }
+           }
+        });
       }
 
-      // Run graph safety computation matching edge-nodes
-      const summary = interactionGraph.getInteractionSummary(evaluationList);
-      const isReady = interactionGraph._isReady;
+      // Fetch Drug Profiles for sandbox meds
+      const sandboxProfiles = await Promise.all(
+         this.sandboxMeds.map(async m => {
+             const d = await engine.getDrugData(m);
+             return { name: m, data: d };
+         })
+      );
 
       this.container.innerHTML = `
         <div class="max-w-2xl mx-auto w-full px-4 md:px-6 pt-[112px] pb-28">
 
-          <section class="bg-surface-elevated/40 backdrop-blur-xl border border-border rounded-[2rem] p-5 mb-8 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+          <section class="bg-surface-elevated/40 backdrop-blur-xl border border-white/5 rounded-[2.5rem] p-6 mb-8 shadow-[10px_10px_30px_rgba(0,0,0,0.6),-10px_-10px_30px_rgba(255,255,255,0.02),inset_2px_2px_5px_rgba(255,255,255,0.05)] relative overflow-visible">
             <span class="text-xs font-mono tracking-widest uppercase text-accent-primary block mb-1">Pre-purchase Screener</span>
-            <h3 class="text-sm font-bold text-text-primary mb-3">Test an Over-the-Counter Drug</h3>
-            <p class="text-xs text-text-secondary mb-4 leading-relaxed">Type any drug name to check for severe compliance issues with your ongoing treatment path before administering it.</p>
+            <h3 class="text-sm font-bold text-text-primary mb-3">Test Over-the-Counter Drugs</h3>
+            <p class="text-xs text-text-secondary mb-4 leading-relaxed">Add multiple drugs to your sandbox to simulate complex interactions before adding them to your permanent profile.</p>
             
-            <div class="flex gap-2">
-              <input type="text" id="prospective-input" value="${this.prospectiveDrug || ''}" placeholder="e.g. Ibuprofen or Aspirin" class="flex-1 btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
-              ${this.prospectiveDrug ? `
-                <button id="clear-screener-btn" class="px-4 py-3 btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">Clear</button>
-              ` : `
-                <button id="run-screener-btn" class="px-5 py-3 bg-gradient-to-r from-secondary to-surface-deep rounded-xl text-xs font-bold uppercase tracking-widest text-accent-bright btn-neumorphic">Check</button>
-              `}
-            </div>
-          </section>
-
-          ${!isReady ? `
-            <div class="mb-6 p-4 rounded-2xl bg-amber-900/20 backdrop-blur-md border border-amber-500/20 text-xs text-amber-200 flex items-center gap-3 shadow-lg animate-pulse">
-              <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-              <div>
-                <strong>Offline Mode Limited:</strong> Interaction database unavailable. Could not load drug safety graph. Please verify with a clinician.
+            <div class="relative z-50">
+              <input type="text" id="sandbox-input" placeholder="Search generic or brand name..." class="w-full btn-neumorphic py-4 px-4 text-sm font-bold flex items-center gap-2 mb-2 bg-surface focus:outline-none">
+              
+              <!-- Autocomplete Dropdown -->
+              <div id="autocomplete-dropdown" class="absolute w-full top-full mt-3 bg-surface-deep/95 backdrop-blur-3xl border border-white/10 rounded-xl shadow-[10px_10px_30px_rgba(0,0,0,0.8),-5px_-5px_15px_rgba(255,255,255,0.05),inset_1px_1px_2px_rgba(255,255,255,0.1)] hidden z-[9999] max-h-[300px] overflow-y-auto">
+                 <!-- Populated by JS -->
               </div>
             </div>
-          ` : ''}
 
-          ${this.prospectiveDrug ? `
-            <div class="mb-6 p-4 rounded-2xl bg-blue-900/20 backdrop-blur-md border border-blue-500/20 text-xs text-blue-300 flex items-center gap-2">
-              <span class="animate-pulse w-2 h-2 rounded-full bg-blue-400"></span>
-              <p>Simulating regimen inclusion: <strong>${activeMeds.length} Active</strong> + Prospective Agent (<strong>${this.prospectiveDrug}</strong>)</p>
-            </div>
-          ` : ''}
+            <!-- Staged Sandbox Meds -->
+            ${this.sandboxMeds.length > 0 ? `
+              <div class="mt-4 pt-4 border-t border-border/50">
+                <h4 class="text-xs font-mono tracking-widest text-text-muted uppercase mb-3">Virtual Sandbox</h4>
+                <div class="flex flex-wrap gap-2 mb-4">
+                  ${this.sandboxMeds.map((drug, idx) => `
+                    <div class="px-3 py-1.5 rounded-xl bg-blue-900/20 border border-blue-500/30 flex items-center gap-2">
+                      <span class="text-xs font-mono text-blue-200">💊 ${drug}</span>
+                      <button class="remove-sandbox-btn text-blue-400 hover:text-red-400 p-1" data-idx="${idx}">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                      </button>
+                    </div>
+                  `).join('')}
+                </div>
+                
+              </div>
+            ` : ''}
+          </section>
 
           <div class="space-y-6">
             ${this._renderSeverityBlock('Severe Conflicts', summary.severe, 'border-red-500/40 bg-red-950/20 backdrop-blur-xl text-red-200', '🔴 SEVERE')}
@@ -89,15 +118,62 @@ export default class InteractionCheckerView {
               </div>
             ` : ''}
 
+            ${sandboxProfiles.map(profile => profile.data ? `
+              <div class="mt-8 border border-white/5 rounded-[2rem] p-6 bg-surface-elevated/40 backdrop-blur-xl shadow-[10px_10px_30px_rgba(0,0,0,0.6),-10px_-10px_30px_rgba(255,255,255,0.03),inset_2px_2px_5px_rgba(255,255,255,0.05)] relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+                  <svg class="w-24 h-24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                </div>
+                <h3 class="text-xs font-mono tracking-[0.2em] uppercase text-text-secondary mb-4 border-b border-border pb-2 relative z-10">Drug Profile: ${profile.name.toUpperCase()}</h3>
+                
+                ${profile.data.compositions?.length > 0 ? `
+                  <div class="mb-4 relative z-10">
+                    <h4 class="text-xs text-text-muted font-bold mb-2">Compositions</h4>
+                    <div class="flex flex-wrap gap-1">
+                      ${profile.data.compositions.map(c => `<span class="px-2 py-1 bg-surface-deep text-xs rounded border border-border/50 shadow-inner">${c}</span>`).join('')}
+                    </div>
+                  </div>
+                ` : ''}
+
+                <div class="mb-4 relative z-10 grid grid-cols-2 gap-4">
+                  <div>
+                    <h4 class="text-xs text-text-muted font-bold mb-2">Pregnancy Safety</h4>
+                    <span class="px-3 py-1 bg-green-900/20 text-green-300 text-xs rounded border border-green-500/20 flex items-center w-fit"><svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg> FDA Cat B</span>
+                  </div>
+                  <div>
+                    <h4 class="text-xs text-text-muted font-bold mb-2">Food / Lifestyle</h4>
+                    <span class="px-3 py-1 bg-amber-900/20 text-amber-300 text-xs rounded border border-amber-500/20 flex items-center w-fit"><svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg> Avoid Alcohol</span>
+                  </div>
+                </div>
+
+                ${profile.data.sideEffects?.length > 0 ? `
+                  <div class="mb-4 relative z-10">
+                    <h4 class="text-xs text-text-muted font-bold mb-2">Clinical Side Effects</h4>
+                    <div class="flex flex-wrap gap-1">
+                      ${profile.data.sideEffects.slice(0, 10).map(se => `<span class="px-2 py-1 bg-amber-900/20 text-amber-200 text-xs rounded border border-amber-500/20">${se}</span>`).join('')}
+                    </div>
+                  </div>
+                ` : ''}
+
+                ${profile.data.substitutes?.length > 0 ? `
+                  <div class="relative z-10">
+                    <h4 class="text-xs text-text-muted font-bold mb-2">Brand Substitutes</h4>
+                    <div class="flex flex-wrap gap-1">
+                      ${profile.data.substitutes.map(sub => `<span class="px-2 py-1 bg-blue-900/20 text-blue-200 text-xs rounded border border-blue-500/20 shadow-inner">${sub}</span>`).join('')}
+                    </div>
+                  </div>
+                ` : ''}
+              </div>
+            ` : '').join('')}
+
             <section class="mt-8 pt-6 border-t border-border">
               <h4 class="text-xs font-mono tracking-widest text-text-muted uppercase mb-3">Evaluated Pharmacy Track</h4>
               <div class="flex flex-wrap gap-2">
-                ${evaluationList.map(drug => `
-                  <span class="px-3 py-1.5 rounded-xl bg-surface-elevated border border-border font-mono text-xs text-text-secondary">
+                ${currentDrugNames.map(drug => `
+                  <span class="px-3 py-1.5 rounded-xl bg-surface-elevated border border-border font-mono text-xs text-text-secondary shadow-inner">
                     💊 ${drug}
                   </span>
                 `).join('')}
-                ${evaluationList.length === 0 ? '<span class="text-xs text-gray-600 italic">No drugs queued. Add items to your active map.</span>' : ''}
+                ${currentDrugNames.length === 0 ? '<span class="text-xs text-gray-600 italic">No drugs queued. Add items to your active map.</span>' : ''}
               </div>
             </section>
 
@@ -107,22 +183,18 @@ export default class InteractionCheckerView {
 
       document.dispatchEvent(new CustomEvent('view:ready', { detail: { hash: '#/interaction-checker' } }));
       this._attachListeners();
+      this._drawNetworkGraph(evaluationList, summary);
 
     } catch (err) {
       console.error('[InteractionChecker] Execution broken:', err);
-      this.container.innerHTML = `<div class="p-6 text-sm font-mono text-danger bg-red-950/10 border border-red-500/20 rounded-xl m-6">Processing Exception: ${err.message}</div>`;
+      this.container.innerHTML = `<div class="p-6 text-sm font-mono text-danger bg-red-950/10 border border-red-500/20 rounded-xl m-6 shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)]">Processing Exception: ${err.message}</div>`;
     }
 
     return this.container;
   }
 
-  /**
-   * Evaluates array collections and builds card templates.
-   * @private
-   */
   _renderSeverityBlock(title, matches, styleClasses, label) {
     if (!matches || matches.length === 0) return '';
-
     return `
       <section>
         <h2 class="text-xs font-mono tracking-[0.2em] uppercase text-text-secondary mb-3 px-1">${title}</h2>
@@ -132,13 +204,11 @@ export default class InteractionCheckerView {
             const isPK = /cyp|metabolism|clearance|absorption|transport|excretion|efflux|accumulation/i.test(mechText);
             const isPD = /synergistic|additive|receptor|agonist|antagonist|inhibition of/i.test(mechText);
             const mechType = isPK ? 'PK (Pharmacokinetic)' : isPD ? 'PD (Pharmacodynamic)' : 'Clinical';
-            
             const isSevere = item.severity === 'severe';
 
             return `
             <div class="border rounded-2xl p-4 shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all relative overflow-hidden ${styleClasses}">
               ${isSevere ? `
-              <!-- 3D Molecule Overlap Warning Visual -->
               <div class="absolute right-0 top-0 opacity-20 pointer-events-none" style="transform: perspective(400px) rotateY(-20deg) rotateX(10deg) scale(1.2);">
                 <svg width="120" height="120" viewBox="0 0 100 100">
                   <circle cx="30" cy="50" r="15" fill="none" stroke="currentColor" stroke-width="2" class="animate-pulse" />
@@ -148,16 +218,14 @@ export default class InteractionCheckerView {
                 </svg>
               </div>
               ` : ''}
-              
               <div class="flex justify-between items-center mb-2 relative z-10">
-                <span class="text-xs font-mono uppercase tracking-widest font-bold px-2 py-0.5 rounded bg-overlay-bg border border-border">
+                <span class="text-xs font-mono uppercase tracking-widest font-bold px-2 py-0.5 rounded bg-overlay-bg border border-border shadow-inner">
                   ${label}
                 </span>
-                <span class="text-xs font-mono text-accent-primary border border-accent-primary/30 px-2 py-0.5 rounded uppercase tracking-widest bg-primary/10">
+                <span class="text-xs font-mono text-accent-primary border border-accent-primary/30 px-2 py-0.5 rounded uppercase tracking-widest bg-primary/10 shadow-inner">
                   ${mechType}
                 </span>
               </div>
-              
               <div class="relative z-10">
                 <h4 class="text-sm font-bold text-text-primary mb-1">${item.drug1} <span class="text-xs text-text-secondary font-normal">cross-linked with</span> ${item.drug2}</h4>
                 <p class="text-xs opacity-90 leading-relaxed mb-3">${item.details?.mechanism || item.description}</p>
@@ -175,36 +243,212 @@ export default class InteractionCheckerView {
   }
 
   _attachListeners() {
-    const input = this.container.querySelector('#prospective-input');
-    const runBtn = this.container.querySelector('#run-screener-btn');
-    const clearBtn = this.container.querySelector('#clear-screener-btn');
+    const input = this.container.querySelector('#sandbox-input');
+    const dropdown = this.container.querySelector('#autocomplete-dropdown');
+    
+    // Remove sandbox chips
+    this.container.querySelectorAll('.remove-sandbox-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const idx = e.currentTarget.getAttribute('data-idx');
+        this.sandboxMeds.splice(idx, 1);
+        this.render();
+      });
+    });
 
-    const triggerSearch = () => {
-      const query = input?.value.trim();
-      if (!query) return;
-      this.prospectiveDrug = query;
-      this.render(); // Instant localized render loop update
-    };
+    let debounceTimeout = null;
+    
+    input?.addEventListener('input', (e) => {
+      const val = e.target.value;
+      if (val.length < 2) {
+         dropdown.innerHTML = '';
+         dropdown.classList.add('hidden');
+         return;
+      }
+      
+      clearTimeout(debounceTimeout);
+      debounceTimeout = setTimeout(async () => {
+         const results = await engine.autocomplete(val);
+         if (results.length > 0) {
+           dropdown.innerHTML = results.map(r => `
+             <div class="px-4 py-3 hover:bg-surface-deep cursor-pointer text-sm font-bold border-b border-border/50 last:border-b-0 autocomplete-item">
+               ${r}
+             </div>
+           `).join('');
+           dropdown.classList.remove('hidden');
+           
+           dropdown.querySelectorAll('.autocomplete-item').forEach(item => {
+              item.addEventListener('click', (ev) => {
+                 const selected = ev.target.innerText.trim();
+                 if (!this.sandboxMeds.includes(selected)) {
+                   this.sandboxMeds.push(selected);
+                 }
+                 this.render();
+              });
+           });
+         } else {
+           dropdown.innerHTML = `<div class="px-4 py-3 text-sm text-text-secondary italic">No matches found... hit enter to check anyway</div>`;
+           dropdown.classList.remove('hidden');
+         }
+      }, 300);
+    });
 
-    runBtn?.addEventListener('click', triggerSearch);
     input?.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') triggerSearch();
+       if (e.key === 'Enter') {
+          const val = input.value.trim();
+          if (val && !this.sandboxMeds.includes(val)) {
+             this.sandboxMeds.push(val);
+             this.render();
+          }
+       }
     });
 
-    clearBtn?.addEventListener('click', () => {
-      this.prospectiveDrug = '';
-      this.render();
+    // Close dropdown on click outside
+    document.addEventListener('click', (e) => {
+      if (input && dropdown && !input.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.classList.add('hidden');
+      }
     });
+  }
+
+  _drawNetworkGraph(nodesList, summary) {
+     const canvas = this.container.querySelector('#network-canvas');
+     if (!canvas) return;
+     const ctx = canvas.getContext('2d');
+     const width = canvas.width;
+     const height = canvas.height;
+     
+     ctx.clearRect(0, 0, width, height);
+     
+     if (nodesList.length === 0) return;
+
+     const nodes = [];
+     const centerX = width / 2;
+     const centerY = height / 2;
+     const radius = Math.min(width, height) / 3;
+
+     // Calculate node positions in a circle
+     nodesList.forEach((drug, i) => {
+        const angle = (i / nodesList.length) * 2 * Math.PI - Math.PI / 2;
+        nodes.push({
+           name: drug,
+           x: centerX + radius * Math.cos(angle),
+           y: centerY + radius * Math.sin(angle)
+        });
+     });
+
+     // Draw Edges (Interactions)
+     const drawEdge = (drug1, drug2, color) => {
+        const n1 = nodes.find(n => n.name === drug1);
+        const n2 = nodes.find(n => n.name === drug2);
+        if (n1 && n2) {
+           ctx.beginPath();
+           ctx.moveTo(n1.x, n1.y);
+           ctx.lineTo(n2.x, n2.y);
+           ctx.strokeStyle = color;
+           ctx.lineWidth = 2;
+           ctx.setLineDash([5, 5]);
+           ctx.stroke();
+           ctx.setLineDash([]);
+        }
+     };
+
+     summary.severe.forEach(i => drawEdge(i.drug1, i.drug2, '#ef4444')); 
+     summary.moderate.forEach(i => drawEdge(i.drug1, i.drug2, '#f59e0b')); 
+     summary.mild.forEach(i => drawEdge(i.drug1, i.drug2, '#3b82f6')); 
+
+     // Draw Nodes
+     nodes.forEach(node => {
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, 35, 0, 2 * Math.PI);
+        ctx.fillStyle = '#1e293b'; 
+        ctx.fill();
+        ctx.strokeStyle = '#475569'; 
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = '#e2e8f0'; 
+        ctx.font = '12px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        let label = node.name.substring(0, 10);
+        if (node.name.length > 10) label += '..';
+        ctx.fillText(label, node.x, node.y);
+     });
   }
 
   _getSkeletonUI() {
     return `
-      <div class="max-w-2xl mx-auto w-full px-6 pt-8">
-        <div class="h-6 w-32 bg-surface-deep rounded animate-pulse mb-8"></div>
-        <div class="h-36 bg-surface-deep rounded-3xl animate-pulse mb-6"></div>
-        <div class="h-24 bg-surface-deep rounded-2xl animate-pulse"></div>
+      <div class="max-w-2xl mx-auto w-full px-4 md:px-6 pt-[112px] pb-28">
+        
+        <!-- Animated Title Skeleton -->
+        <div class="h-4 w-32 bg-surface-elevated/80 backdrop-blur-3xl rounded-full mb-10 overflow-hidden relative shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]">
+           <div class="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+        </div>
+        
+        <!-- Premium Neumorphic Sandbox Skeleton -->
+        <div class="bg-surface-elevated/30 backdrop-blur-2xl border border-white/5 rounded-[2.5rem] p-6 mb-10 shadow-[0_20px_50px_rgba(0,0,0,0.5),inset_0_2px_4px_rgba(255,255,255,0.05)] relative overflow-hidden">
+           
+           <div class="h-3 w-48 bg-surface-deep/80 rounded-full mb-5 overflow-hidden relative shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)]">
+              <div class="absolute inset-0 -translate-x-full animate-[shimmer_2.5s_infinite] bg-gradient-to-r from-transparent via-accent-primary/20 to-transparent"></div>
+           </div>
+           
+           <!-- Search Box Skeleton -->
+           <div class="h-16 w-full bg-surface-deep/90 rounded-2xl shadow-[inset_0_4px_12px_rgba(0,0,0,0.8)] border border-black/50 mb-8 relative overflow-hidden flex items-center px-5">
+              <div class="w-6 h-6 rounded-full bg-white/5 mr-4 animate-pulse"></div>
+              <div class="h-3 w-1/3 bg-white/5 rounded-full"></div>
+              <div class="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
+           </div>
+           
+           <div class="pt-6 border-t border-white/5">
+             <div class="h-3 w-32 bg-surface-deep/80 rounded-full mb-4 overflow-hidden relative shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)]">
+                <div class="absolute inset-0 -translate-x-full animate-[shimmer_2.5s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+             </div>
+             
+             <!-- Sandbox Pills Skeleton -->
+             <div class="flex gap-3">
+               <div class="h-10 w-28 rounded-xl bg-blue-900/10 border border-blue-500/10 shadow-[inset_0_2px_10px_rgba(0,0,0,0.3)] relative overflow-hidden">
+                 <div class="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite_0.2s] bg-gradient-to-r from-transparent via-blue-400/10 to-transparent"></div>
+               </div>
+               <div class="h-10 w-36 rounded-xl bg-blue-900/10 border border-blue-500/10 shadow-[inset_0_2px_10px_rgba(0,0,0,0.3)] relative overflow-hidden">
+                 <div class="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite_0.4s] bg-gradient-to-r from-transparent via-blue-400/10 to-transparent"></div>
+               </div>
+             </div>
+           </div>
+        </div>
+        
+        <!-- Skeleton Severity Blocks -->
+        <div class="space-y-6">
+           <!-- Severe Block Skeleton -->
+           <div class="h-40 bg-red-950/10 backdrop-blur-2xl border border-red-500/10 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.4),inset_0_2px_4px_rgba(255,255,255,0.02)] relative overflow-hidden p-6">
+             <div class="flex justify-between mb-4">
+               <div class="h-5 w-24 bg-red-900/20 rounded-md"></div>
+               <div class="h-5 w-32 bg-red-900/20 rounded-md"></div>
+             </div>
+             <div class="h-4 w-3/4 bg-surface-deep/60 rounded-full mb-3 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]"></div>
+             <div class="h-3 w-full bg-surface-deep/60 rounded-full mb-2 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]"></div>
+             <div class="h-3 w-5/6 bg-surface-deep/60 rounded-full shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]"></div>
+             <div class="absolute inset-0 -translate-x-full animate-[shimmer_3s_infinite] bg-gradient-to-r from-transparent via-red-500/5 to-transparent"></div>
+           </div>
+           
+           <!-- Warning Block Skeleton -->
+           <div class="h-32 bg-amber-950/10 backdrop-blur-2xl border border-amber-500/10 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.4),inset_0_2px_4px_rgba(255,255,255,0.02)] relative overflow-hidden p-6">
+             <div class="flex justify-between mb-4">
+               <div class="h-5 w-24 bg-amber-900/20 rounded-md"></div>
+               <div class="h-5 w-28 bg-amber-900/20 rounded-md"></div>
+             </div>
+             <div class="h-4 w-2/3 bg-surface-deep/60 rounded-full mb-3 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]"></div>
+             <div class="h-3 w-4/5 bg-surface-deep/60 rounded-full shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]"></div>
+             <div class="absolute inset-0 -translate-x-full animate-[shimmer_3s_infinite_0.5s] bg-gradient-to-r from-transparent via-amber-500/5 to-transparent"></div>
+           </div>
+        </div>
       </div>
+      
+      <style>
+        @keyframes shimmer {
+          100% { transform: translateX(100%); }
+        }
+      </style>
     `;
   }
 }
-

@@ -1,9 +1,7 @@
 /**
  * MedCare | Service Worker — Offline-First Cache
  */
-
-const CACHE_NAME = 'medcare-v9';
-
+const CACHE_NAME = 'medcare-v10';
 const BASE_PATH = self.location.hostname === 'harsha-e.github.io' ? '/Medical-PWA-v2' : '';
 
 const ASSETS = [
@@ -47,6 +45,7 @@ const ASSETS = [
 ].map(path => BASE_PATH + path);
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
   );

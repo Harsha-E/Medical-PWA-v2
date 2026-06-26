@@ -28,12 +28,12 @@
     
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = basePath + '/style.css';
+    link.href = (basePath || '.') + '/style.css';
     document.head.appendChild(link);
 
     const tourLink = document.createElement('link');
     tourLink.rel = 'stylesheet';
-    tourLink.href = basePath + '/tours/tour-styles.css';
+    tourLink.href = (basePath || '.') + '/tours/tour-styles.css';
     document.head.appendChild(tourLink);
   </script>
 
@@ -112,21 +112,45 @@
     for fading this out once the app is ready. It is intentionally
     plain HTML so it appears before any script executes.
   -->
+  <style>
+    @keyframes splash-spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .anim-spin-slow {
+      animation: splash-spin 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+    .anim-spin-fast-reverse {
+      animation: splash-spin 2s linear infinite reverse;
+    }
+  </style>
   <div
     id="splash-screen"
-    class="fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-opacity duration-1000"
+    class="fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-opacity duration-1000 bg-surface text-text-primary"
     style="background-color: var(--color-surface)"
   >
-    <div class="relative w-16 h-16 mb-8 flex items-center justify-center">
-      <svg class="animate-spin absolute inset-0 w-full h-full text-accent-bright" style="color: var(--color-accent-bright);" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-      </svg>
-      <div class="absolute inset-2 border-b-2 border-transparent rounded-full animate-[spin_1.5s_linear_infinite_reverse]" style="border-bottom-color: var(--color-secondary);"></div>
+    <!-- Outer Neumorphic Dish -->
+    <div class="relative w-40 h-40 flex items-center justify-center rounded-full bg-surface-deep shadow-[10px_10px_30px_rgba(0,0,0,0.8),-10px_-10px_30px_rgba(255,255,255,0.05),inset_5px_5px_15px_rgba(0,0,0,0.5),inset_-5px_-5px_15px_rgba(255,255,255,0.02)] border border-white/5 mb-10 overflow-hidden before:absolute before:inset-0 before:rounded-full before:bg-gradient-to-br before:from-transparent before:to-black/30">
+      
+      <!-- Spinning Glowing Track -->
+      <div class="absolute w-32 h-32 rounded-full border border-transparent anim-spin-slow opacity-80" style="border-top-color: var(--color-accent-primary); border-left-color: var(--color-secondary); box-shadow: inset 0 4px 20px rgba(16,185,129,0.2);"></div>
+      <div class="absolute w-28 h-28 rounded-full border border-transparent anim-spin-fast-reverse opacity-60" style="border-bottom-color: var(--color-accent-bright); border-right-color: var(--color-primary);"></div>
+      
+      <!-- Inner Glass Core -->
+      <div class="relative w-24 h-24 rounded-full bg-surface/50 backdrop-blur-xl shadow-[0_10px_30px_rgba(0,0,0,0.8),inset_2px_2px_5px_rgba(255,255,255,0.1)] border border-white/10 flex items-center justify-center animate-pulse">
+        <svg class="w-10 h-10 text-accent-bright" style="filter: drop-shadow(0 0 10px var(--color-accent-bright));" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+        </svg>
+      </div>
     </div>
-    <p class="font-mono text-[12px] tracking-[0.5em] animate-pulse uppercase" style="color: var(--color-accent-bright); text-shadow: 0 0 10px rgba(16,185,129,0.5);">
-      Initializing Core…
-    </p>
+    
+    <!-- Text Elements -->
+    <div class="flex flex-col items-center gap-2">
+      <h1 class="font-bold text-lg tracking-[0.3em] uppercase text-text-primary drop-shadow-md">Med<span class="text-accent-primary">Check</span></h1>
+      <p class="font-mono text-[10px] tracking-[0.5em] animate-pulse uppercase text-accent-bright" style="text-shadow: 0 0 12px rgba(16,185,129,0.8);">
+        Initializing Core...
+      </p>
+    </div>
   </div>
 
   <!-- ── App viewport ──────────────────────────────────────────────────── -->
@@ -158,7 +182,7 @@
   <script>
     const script = document.createElement('script');
     script.type = 'module';
-    script.src = (window.location.hostname === 'harsha-e.github.io' ? '/Medical-PWA-v2' : '') + '/app.js';
+    script.src = (window.location.hostname === 'harsha-e.github.io' ? '/Medical-PWA-v2' : '.') + '/app.js';
     document.body.appendChild(script);
   </script>
 

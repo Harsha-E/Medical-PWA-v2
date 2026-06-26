@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/Harsha-E/Medical-PWA-v2#readme",
   "dependencies": {
-    "@huggingface/transformers": "^4.2.0"
+    "@huggingface/transformers": "^4.2.0",
+    "csv-parser": "^3.2.1"
   }
 }

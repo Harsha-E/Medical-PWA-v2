@@ -1,12 +1,4466 @@
 {
   "metadata": {
-    "version": "1.0.0",
-    "source": "Kaggle/Open-Pharma-IP",
+    "version": "2.0.0",
+    "source": "Kaggle Compilation",
     "lastUpdated": "2026-06-26",
-    "description": "Enterprise interaction and contraindication dataset for Indian Pharmacopoeia drugs.",
+    "description": "Enterprise interaction and contraindication dataset for Indian Pharmacopoeia and Ayurvedic drugs.",
     "schema": "https://schema.medcheck.org/v1/interaction-model"
   },
   "data": [
+    {
+      "genericName": "amino acids (5% w/v)",
+      "compositions": [
+        "Amino Acids (5% w/v)"
+      ],
+      "substitutes": [
+        "Albumed Infusion",
+        "Aminowel Infusion"
+      ],
+      "sideEffects": [
+        "Folic acid deficiency",
+        "Chills",
+        "Fever",
+        "Flushing (sense of warmth in the face",
+        "ears",
+        "neck and trunk)",
+        "Increased sweating",
+        "Metabolic disorder",
+        "Vomiting",
+        "Liver damage",
+        "Injection site reactions (pain",
+        "swelling",
+        "redness)"
+      ],
+      "interactsWith": [],
+      "contraindications": [
+        {
+          "disease": "severe hepatic impairment",
+          "severity": "Severe",
+          "warning": "High risk of severe liver toxicity."
+        }
+      ]
+    },
+    {
+      "genericName": "amino acids (na)",
+      "compositions": [
+        "Amino Acids (NA)"
+      ],
+      "substitutes": [
+        "Aminofusion Infusion",
+        "Kanzomin Infusion",
+        "GLUTAPEP INFUSION",
+        "Argihope Infusion",
+        "Lamino Hepa Injection",
+        "Lamino 10% Plus Injection"
+      ],
+      "sideEffects": [
+        "Folic acid deficiency",
+        "Chills",
+        "Fever",
+        "Flushing (sense of warmth in the face",
+        "ears",
+        "neck and trunk)",
+        "Increased sweating",
+        "Metabolic disorder",
+        "Vomiting",
+        "Liver damage",
+        "Injection site reactions (pain",
+        "swelling",
+        "redness)"
+      ],
+      "interactsWith": [],
+      "contraindications": [
+        {
+          "disease": "severe hepatic impairment",
+          "severity": "Severe",
+          "warning": "High risk of severe liver toxicity."
+        }
+      ]
+    },
+    {
+      "genericName": "amino acids (10% w/v)",
+      "compositions": [
+        "Amino Acids (10% w/v)"
+      ],
+      "substitutes": [
+        "Slash Plus 10% Infusion",
+        "Aminoven Infant Infusion"
+      ],
+      "sideEffects": [
+        "Folic acid deficiency",
+        "Chills",
+        "Fever",
+        "Flushing (sense of warmth in the face",
+        "ears",
+        "neck and trunk)",
+        "Increased sweating",
+        "Metabolic disorder",
+        "Vomiting",
+        "Liver damage",
+        "Injection site reactions (pain",
+        "swelling",
+        "redness)"
+      ],
+      "interactsWith": [],
+      "contraindications": [
+        {
+          "disease": "severe hepatic impairment",
+          "severity": "Severe",
+          "warning": "High risk of severe liver toxicity."
+        }
+      ]
+    },
+    {
+      "genericName": "amino acids (7% w/v)",
+      "compositions": [
+        "Amino Acids (7% w/v)"
+      ],
+      "substitutes": [
+        "Amino Trust Injection"
+      ],
+      "sideEffects": [
+        "Folic acid deficiency",
+        "Chills",
+        "Fever",
+        "Flushing (sense of warmth in the face",
+        "ears",
+        "neck and trunk)",
+        "Increased sweating",
+        "Metabolic disorder",
+        "Vomiting",
+        "Liver damage",
+        "Injection site reactions (pain",
+        "swelling",
+        "redness)"
+      ],
+      "interactsWith": [],
+      "contraindications": [
+        {
+          "disease": "severe hepatic impairment",
+          "severity": "Severe",
+          "warning": "High risk of severe liver toxicity."
+        }
+      ]
+    },
+    {
+      "genericName": "tacrolimus (1mg)",
+      "compositions": [
+        "Tacrolimus (1mg)"
+      ],
+      "substitutes": [
+        "Odventa 1mg Capsule PR",
+        "Tacrolim 1mg Capsule",
+        "Grafnos 1 Capsule",
+        "Tacmus 1mg Capsule",
+        "Pangraf 1 Capsule",
+        "Tacroren 1 Capsule",
+        "Taclicept 1mg Capsule",
+        "Tacimun 1mg Capsule",
+        "Tacloran 1 Capsule",
+        "Advagraf 1mg Capsule PR",
+        "Tacrotreat 1 Tablet"
+      ],
+      "sideEffects": [
+        "Diarrhea",
+        "Increased glucose level in blood",
+        "Increased thirst",
+        "Kidney damage",
+        "Liver damage",
+        "Nausea",
+        "Stomach pain",
+        "Application site reactions (burning",
+        "irritation",
+        "itching and redness)"
+      ],
+      "interactsWith": [],
+      "contraindications": [
+        {
+          "disease": "severe hepatic impairment",
+          "severity": "Severe",
+          "warning": "High risk of severe liver toxicity."
+        }
+      ]
+    },
+    {
+      "genericName": "amino acids (8% w/v)",
+      "compositions": [
+        "Amino Acids (8% w/v)"
+      ],
+      "substitutes": [
+        "Aminosteril Infusion",
+        "Lamino 8% Infusion",
+        "Aminosteril N Hepa Infusion"
+      ],
+      "sideEffects": [
+        "Folic acid deficiency",
+        "Chills",
+        "Fever",
+        "Flushing (sense of warmth in the face",
+        "ears",
+        "neck and trunk)",
+        "Increased sweating",
+        "Metabolic disorder",
+        "Vomiting",
+        "Liver damage",
+        "Injection site reactions (pain",
+        "swelling",
+        "redness)"
+      ],
+      "interactsWith": [],
+      "contraindications": [
+        {
+          "disease": "severe hepatic impairment",
+          "severity": "Severe",
+          "warning": "High risk of severe liver toxicity."
+        }
+      ]
+    },
+    {
+      "genericName": "tacrolimus (0.5mg)",
+      "compositions": [
+        "Tacrolimus (0.5mg)"
+      ],
+      "substitutes": [
+        "Odventa 0.5mg Capsule PR",
+        "Taclicept 0.5mg Capsule",
+        "Takfa 0.5 Capsule",
+        "Imunotac 0.5 Capsule",
+        "Olmis 0.5mg Capsule",
+        "Tacroren 0.5 Capsule",
+        "Tacrolim 0.5mg Capsule",
+        "Pangraf 0.5 Capsule",
+        "Crolimus 0.5mg Capsule",
+        "Alagraf 0.5 Capsule",
+        "Advagraf 0.5mg Capsule PR"
+      ],
+      "sideEffects": [
+        "Diarrhea",
+        "Increased glucose level in blood",
+        "Increased thirst",
+        "Kidney damage",
+        "Liver damage",
+        "Nausea",
+        "Stomach pain"
+      ],
+      "interactsWith": [],
+      "contraindications": [
+        {
+          "disease": "severe hepatic impairment",
+          "severity": "Severe",
+          "warning": "High risk of severe liver toxicity."
+        }
+      ]
+    },
+    {
+      "genericName": "tacrolimus (0.1% w/w)",
+      "compositions": [
+        "Tacrolimus (0.1% w/w)"
+      ],
+      "substitutes": [
+        "Tacmod Forte Ointment",
+        "Imograf Forte Ointment",
+        "Tacroz Forte XL Ointment",
+        "Tacvido Forte Ointment",
+        "Eczrid Forte Ointment",
+        "Takfa Forte Ointment",
+        "Tacrojon Cream",
+        "Tycomus 0.1% Cream",
+        "Taclic 0.1% Cream",
+        "Tacronid Cream",
+        "Tacromist 0.1% Cream",
+        "Hhmus 0.1% XL Ointment",
+        "Tacgo Forte 0.1% Ointment",
+        "Cutiac  Forte Cream",
+        "Tacmed Ointment",
+        "Tames Forte Ointment",
+        "Xerolimus Ointment",
+        "Triplibact 0.03% Cream",
+        "Loprolif 0.03% Cream",
+        "Tacnomus 0.03% Cream",
+        "Tacvido Ointment",
+        "Eczrid Ointment",
+        "Tacgo 0.03% Ointment",
+        "Takfa Ointment",
+        "Tecum 0.03% Ointment"
+      ],
+      "sideEffects": [
+        "Application site reactions (burning",
+        "irritation",
+        "itching and redness)",
+        "Diarrhea",
+        "Increased glucose level in blood",
+        "Increased thirst",
+        "Kidney damage",
+        "Liver damage",
+        "Nausea",
+        "Stomach pain"
+      ],
+      "interactsWith": [],
+      "contraindications": [
+        {
+          "disease": "severe hepatic impairment",
+          "severity": "Severe",
+          "warning": "High risk of severe liver toxicity."
+        }
+      ]
+    },
+    {
+      "genericName": "etoposide (100mg)",
+      "compositions": [
+        "Etoposide (100mg)"
+      ],
+      "substitutes": [
+        "Etoplast 100mg Injection",
+        "Etolon 100mg Injection",
+        "Bioposide 100mg Injection",
+        "Oncosid 100mg Injection",
+        "Etoglan 100mg Injection",
+        "Adside Injection",
+        "Chemosid 100mg Injection",
+        "Posid 100mg Capsule",
+        "Etoglob 100mg Capsule"
+      ],
+      "sideEffects": [
+        "Anemia (low number of red blood cells)",
+        "Decreased blood cells (red cells",
+        "white cells",
+        "and platelets)",
+        "Decreased white blood cell count",
+        "Diarrhea",
+        "Hair loss",
+        "Liver damage",
+        "Low blood platelets",
+        "Nausea",
+        "Rash",
+        "Stomatitis (Inflammation of the mouth)",
+        "Vomiting"
+      ],
+      "interactsWith": [],
+      "contraindications": [
+        {
+          "disease": "severe hepatic impairment",
+          "severity": "Severe",
+          "warning": "High risk of severe liver toxicity."
+        }
+      ]
+    },
+    {
+      "genericName": "tacrolimus (0.03% w/w)",
+      "compositions": [
+        "Tacrolimus (0.03% w/w)"
+      ],
+      "substitutes": [
+        "Tacvido Ointment",
+        "Eczrid Ointment",
+        "Tacgo 0.03% Ointment",
+        "Takfa Ointment",
+        "Tecum 0.03% Ointment",
+        "Tacliment Eye Ointment",
+        "IO-Limus Eye Ointment",
+        "Tacrefite LS Eye Ointment",
+        "Tacrogel Eye Ointment",
+        "Imograf Ointment",
+        "Entrak Soothe Eye Ointment",
+        "Triplibact 0.03% Cream",
+        "Tacronid Cream",
+        "Tacnomus 0.03% Cream",
+        "Loprolif 0.03% Cream"
+      ],
+      "sideEffects": [
+        "Application site reactions (burning",
+        "irritation",
+        "itching and redness)",
+        "Diarrhea",
+        "Increased glucose level in blood",
+        "Increased thirst",
+        "Kidney damage",
+        "Liver damage",
+        "Nausea",
+        "Stomach pain",
+        "Eye irritation",
+        "Burning sensation"
+      ],
+      "interactsWith": [],
+      "contraindications": [
+        {
+          "disease": "severe hepatic impairment",
+          "severity": "Severe",
+          "warning": "High risk of severe liver toxicity."
+        }
+      ]
+    },
+    {
+      "genericName": "tacrolimus (1% w/w)",
+      "compositions": [
+        "Tacrolimus (1% w/w)"
+      ],
+      "substitutes": [],
+      "sideEffects": [
+        "Application site reactions (burning",
+        "irritation",
+        "itching and redness)",
+        "Diarrhea",
+        "Increased glucose level in blood",
+        "Increased thirst",
+        "Kidney damage",
+        "Liver damage",
+        "Nausea",
+        "Stomach pain"
+      ],
+      "interactsWith": [],
+      "contraindications": [
+        {
+          "disease": "severe hepatic impairment",
+          "severity": "Severe",
+          "warning": "High risk of severe liver toxicity."
+        }
+      ]
+    },
+    {
+      "genericName": "tacrolimus (0.1%)",
+      "compositions": [
+        "Tacrolimus (0.1%)"
+      ],
+      "substitutes": [],
+      "sideEffects": [
+        "Eye irritation",
+        "Burning sensation",
+        "Diarrhea",
+        "Increased glucose level in blood",
+        "Increased thirst",
+        "Kidney damage",
+        "Liver damage",
+        "Nausea",
+        "Stomach pain"
+      ],
+      "interactsWith": [],
+      "contraindications": [
+        {
+          "disease": "severe hepatic impairment",
+          "severity": "Severe",
+          "warning": "High risk of severe liver toxicity."
+        }
+      ]
+    },
+    {
+      "genericName": "lapatinib (250mg)",
+      "compositions": [
+        "Lapatinib (250mg)"
+      ],
+      "substitutes": [
+        "Lapahope 250mg Tablet",
+        "Herduo Tablet",
+        "Bretolap Tablet",
+        "Libset Tablet",
+        "Lapatem 250mg Tablet",
+        "Combinib 250mg Tablet"
+      ],
+      "sideEffects": [
+        "Abdominal pain",
+        "Back pain",
+        "Breathing problems",
+        "Constipation",
+        "Cough",
+        "Diarrhea",
+        "Fatigue",
+        "Headache",
+        "Hot flashes",
+        "Increased bilirubin in the blood",
+        "Insomnia (difficulty in sleeping)",
+        "Joint pain",
+        "Liver damage",
+        "Loss of appetite",
+        "Mucosal inflammation",
+        "Nausea",
+        "Pain in extremities",
+        "Rash",
+        "Stomatitis (Inflammation of the mouth)",
+        "Vomiting",
+        "Weakness",
+        "Weight gain"
+      ],
+      "interactsWith": [],
+      "contraindications": [
+        {
+          "disease": "severe hepatic impairment",
+          "severity": "Severe",
+          "warning": "High risk of severe liver toxicity."
+        }
+      ]
+    },
+    {
+      "genericName": "tacrolimus (5mg)",
+      "compositions": [
+        "Tacrolimus (5mg)"
+      ],
+      "substitutes": [
+        "Tacrotaj 5mg Capsule",
+        "Tacloran 5mg Capsule",
+        "Tcoglob 5mg Capsule",
+        "Olmis 5mg Capsule",
+        "Tacromus 5mg Capsule",
+        "Tacrograf 5mg Tablet",
+        "Biomus 5mg Capsule"
+      ],
+      "sideEffects": [
+        "Diarrhea",
+        "Increased glucose level in blood",
+        "Increased thirst",
+        "Kidney damage",
+        "Liver damage",
+        "Nausea",
+        "Stomach pain"
+      ],
+      "interactsWith": [],
+      "contraindications": [
+        {
+          "disease": "severe hepatic impairment",
+          "severity": "Severe",
+          "warning": "High risk of severe liver toxicity."
+        }
+      ]
+    },
+    {
+      "genericName": "etoposide (20mg/5ml)",
+      "compositions": [
+        "Etoposide (20mg/5ml)"
+      ],
+      "substitutes": [],
+      "sideEffects": [
+        "Anemia (low number of red blood cells)",
+        "Decreased blood cells (red cells",
+        "white cells",
+        "and platelets)",
+        "Decreased white blood cell count",
+        "Diarrhea",
+        "Hair loss",
+        "Liver damage",
+        "Low blood platelets",
+        "Nausea",
+        "Rash",
+        "Stomatitis (Inflammation of the mouth)",
+        "Vomiting"
+      ],
+      "interactsWith": [],
+      "contraindications": [
+        {
+          "disease": "severe hepatic impairment",
+          "severity": "Severe",
+          "warning": "High risk of severe liver toxicity."
+        }
+      ]
+    },
+    {
+      "genericName": "tacrolimus (2mg)",
+      "compositions": [
+        "Tacrolimus (2mg)"
+      ],
+      "substitutes": [
+        "Takfa 2 Capsule",
+        "Grafnos 2.0 Capsule",
+        "Tacloran 2mg Capsule",
+        "Pangraf 2 Capsule",
+        "Mylimus 2 Capsule",
+        "Biomus 2mg Capsule",
+        "Rolitrans 2mg Capsule",
+        "Tacrorite 2mg Capsule"
+      ],
+      "sideEffects": [
+        "Diarrhea",
+        "Increased glucose level in blood",
+        "Increased thirst",
+        "Kidney damage",
+        "Liver damage",
+        "Nausea",
+        "Stomach pain"
+      ],
+      "interactsWith": [],
+      "contraindications": [
+        {
+          "disease": "severe hepatic impairment",
+          "severity": "Severe",
+          "warning": "High risk of severe liver toxicity."
+        }
+      ]
+    },
+    {
+      "genericName": "tacrolimus (0.25mg)",
+      "compositions": [
+        "Tacrolimus (0.25mg)"
+      ],
+      "substitutes": [
+        "Tacroren 0.25mg Capsule",
+        "Tacromus 0.25 Capsule",
+        "Fujigraf 0.25 Capsule",
+        "Takfa 0.25 Capsule",
+        "Tacren 0.25 Capsule",
+        "Grafnos 0.25mg Capsule"
+      ],
+      "sideEffects": [
+        "Diarrhea",
+        "Increased glucose level in blood",
+        "Increased thirst",
+        "Kidney damage",
+        "Liver damage",
+        "Nausea",
+        "Stomach pain"
+      ],
+      "interactsWith": [],
+      "contraindications": [
+        {
+          "disease": "severe hepatic impairment",
+          "severity": "Severe",
+          "warning": "High risk of severe liver toxicity."
+        }
+      ]
+    },
+    {
+      "genericName": "amino acids (18.24gm)",
+      "compositions": [
+        "Amino Acids (18.24gm)"
+      ],
+      "substitutes": [],
+      "sideEffects": [
+        "Folic acid deficiency",
+        "Chills",
+        "Fever",
+        "Flushing (sense of warmth in the face",
+        "ears",
+        "neck and trunk)",
+        "Increased sweating",
+        "Metabolic disorder",
+        "Vomiting",
+        "Liver damage",
+        "Injection site reactions (pain",
+        "swelling",
+        "redness)"
+      ],
+      "interactsWith": [],
+      "contraindications": [
+        {
+          "disease": "severe hepatic impairment",
+          "severity": "Severe",
+          "warning": "High risk of severe liver toxicity."
+        }
+      ]
+    },
+    {
+      "genericName": "tacrolimus (0.03%)",
+      "compositions": [
+        "Tacrolimus (0.03%)"
+      ],
+      "substitutes": [],
+      "sideEffects": [
+        "Application site reactions (burning",
+        "irritation",
+        "itching and redness)",
+        "Diarrhea",
+        "Increased glucose level in blood",
+        "Increased thirst",
+        "Kidney damage",
+        "Liver damage",
+        "Nausea",
+        "Stomach pain"
+      ],
+      "interactsWith": [],
+      "contraindications": [
+        {
+          "disease": "severe hepatic impairment",
+          "severity": "Severe",
+          "warning": "High risk of severe liver toxicity."
+        }
+      ]
+    },
+    {
+      "genericName": "etoposide (50mg)",
+      "compositions": [
+        "Etoposide (50mg)"
+      ],
+      "substitutes": [
+        "Etoplast 50mg Capsule",
+        "Etovel 50 Capsule",
+        "Etopa 50mg Capsule",
+        "Lastet 50 Capsule",
+        "Posid 50mg Capsule",
+        "Bioside 50mg Capsule"
+      ],
+      "sideEffects": [
+        "Anemia (low number of red blood cells)",
+        "Decreased blood cells (red cells",
+        "white cells",
+        "and platelets)",
+        "Decreased white blood cell count",
+        "Diarrhea",
+        "Hair loss",
+        "Liver damage",
+        "Low blood platelets",
+        "Nausea",
+        "Rash",
+        "Stomatitis (Inflammation of the mouth)",
+        "Vomiting"
+      ],
+      "interactsWith": [],
+      "contraindications": [
+        {
+          "disease": "severe hepatic impairment",
+          "severity": "Severe",
+          "warning": "High risk of severe liver toxicity."
+        }
+      ]
+    },
+    {
+      "genericName": "amino acids (250mg)",
+      "compositions": [
+        "Amino Acids (250mg)"
+      ],
+      "substitutes": [],
+      "sideEffects": [
+        "Folic acid deficiency",
+        "Chills",
+        "Fever",
+        "Flushing (sense of warmth in the face",
+        "ears",
+        "neck and trunk)",
+        "Increased sweating",
+        "Metabolic disorder",
+        "Vomiting",
+        "Liver damage",
+        "Injection site reactions (pain",
+        "swelling",
+        "redness)"
+      ],
+      "interactsWith": [],
+      "contraindications": [
+        {
+          "disease": "severe hepatic impairment",
+          "severity": "Severe",
+          "warning": "High risk of severe liver toxicity."
+        }
+      ]
+    },
+    {
+      "genericName": "tacrolimus (0.1% w/v)",
+      "compositions": [
+        "Tacrolimus (0.1% w/v)"
+      ],
+      "substitutes": [
+        "Tacrokan Forte Lotion",
+        "Tarolus 0.1% Lotion",
+        "Tacrovin Forte Lotion",
+        "Tacmate 0.1% Lotion",
+        "Tacronex Solution",
+        "Tacvido Forte Solution",
+        "Tacrovera Solution",
+        "Eczrid Forte Lotion",
+        "Tecum 0.1% Lotion",
+        "Tacmod Lotion",
+        "Tacroz Forte Solution"
+      ],
+      "sideEffects": [
+        "Application site reactions (burning",
+        "irritation",
+        "itching and redness)",
+        "Diarrhea",
+        "Increased glucose level in blood",
+        "Increased thirst",
+        "Kidney damage",
+        "Liver damage",
+        "Nausea",
+        "Stomach pain",
+        "Dryness in mouth"
+      ],
+      "interactsWith": [],
+      "contraindications": [
+        {
+          "disease": "severe hepatic impairment",
+          "severity": "Severe",
+          "warning": "High risk of severe liver toxicity."
+        }
+      ]
+    },
+    {
+      "genericName": "tacrolimus (0.01% w/w)",
+      "compositions": [
+        "Tacrolimus (0.01% w/w)"
+      ],
+      "substitutes": [
+        "TACROTOPIC OINTMENT"
+      ],
+      "sideEffects": [
+        "Application site reactions (burning",
+        "irritation",
+        "itching and redness)",
+        "Diarrhea",
+        "Increased glucose level in blood",
+        "Increased thirst",
+        "Kidney damage",
+        "Liver damage",
+        "Nausea",
+        "Stomach pain"
+      ],
+      "interactsWith": [],
+      "contraindications": [
+        {
+          "disease": "severe hepatic impairment",
+          "severity": "Severe",
+          "warning": "High risk of severe liver toxicity."
+        }
+      ]
+    },
+    {
+      "genericName": "tacrolimus (0.3mg)",
+      "compositions": [
+        "Tacrolimus (0.3mg)"
+      ],
+      "substitutes": [],
+      "sideEffects": [
+        "Application site reactions (burning",
+        "irritation",
+        "itching and redness)",
+        "Diarrhea",
+        "Increased glucose level in blood",
+        "Increased thirst",
+        "Kidney damage",
+        "Liver damage",
+        "Nausea",
+        "Stomach pain"
+      ],
+      "interactsWith": [],
+      "contraindications": [
+        {
+          "disease": "severe hepatic impairment",
+          "severity": "Severe",
+          "warning": "High risk of severe liver toxicity."
+        }
+      ]
+    },
+    {
+      "genericName": "tacrolimus (na)",
+      "compositions": [
+        "Tacrolimus (NA)"
+      ],
+      "substitutes": [
+        "Tacmed Ointment",
+        "Tames Forte Ointment",
+        "Xerolimus Ointment",
+        "Tacmod Forte Ointment",
+        "Imograf Forte Ointment",
+        "Tacvido Forte Ointment",
+        "Eczrid Forte Ointment",
+        "Takfa Forte Ointment",
+        "Tacoseal Ointment"
+      ],
+      "sideEffects": [
+        "Application site reactions (burning",
+        "irritation",
+        "itching and redness)",
+        "Diarrhea",
+        "Increased glucose level in blood",
+        "Increased thirst",
+        "Kidney damage",
+        "Liver damage",
+        "Nausea",
+        "Stomach pain"
+      ],
+      "interactsWith": [],
+      "contraindications": [
+        {
+          "disease": "severe hepatic impairment",
+          "severity": "Severe",
+          "warning": "High risk of severe liver toxicity."
+        }
+      ]
+    },
+    {
+      "genericName": "tacrolimus (3mg)",
+      "compositions": [
+        "Tacrolimus (3mg)"
+      ],
+      "substitutes": [],
+      "sideEffects": [
+        "Diarrhea",
+        "Increased glucose level in blood",
+        "Increased thirst",
+        "Kidney damage",
+        "Liver damage",
+        "Nausea",
+        "Stomach pain"
+      ],
+      "interactsWith": [],
+      "contraindications": [
+        {
+          "disease": "severe hepatic impairment",
+          "severity": "Severe",
+          "warning": "High risk of severe liver toxicity."
+        }
+      ]
+    },
+    {
+      "genericName": "tulsi",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "cough syrup",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "inhalers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antihistamines",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "decongestants",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "steroids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "topical creams",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antipyretics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "fluids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "inhalers (beta-agonists",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "corticosteroids)",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "pain relievers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "physical therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiviral drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "calamine lotion",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "bronchodilators",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antitussives",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "ashwagandha",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "cough syrup",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "inhalers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "beta-blockers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "diuretics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "pain relievers (nsaids)",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "steroids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "sleep aids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "melatonin",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antidepressants",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "benzodiazepines",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "hormone replacement",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "surgery",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "steroid replacement",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "hormone therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "pain relievers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "vitamin c",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antihistamines",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "topical creams",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "acetylcholinesterase inhibitors",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "riluzole",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "muscle relaxants",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "nsaids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "corticosteroids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "statins",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "blood thinners",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "physical therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "supportive care",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "heart medication",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "calcium channel blockers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "inhalers (beta-agonists",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "corticosteroids)",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "ace inhibitors",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiviral drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "corticosteroid injections",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antipyretics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "chemotherapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "radiation therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "corticosteroid inhibitors",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "chest physiotherapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antibiotics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "cysteamine",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "kidney transplant",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "cognitive enhancers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "therapies",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "physiotherapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "hormonal treatment",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiepileptic drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antithyroid medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "levothyroxine",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiplatelet drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antifungal medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antihypertensives",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antithyroid drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "anti-inflammatory drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "testosterone therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "targeted therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "immunosuppressants",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "radiation",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "hormone replacement therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "hormonal therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antianxiety medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "stress-relief medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "anticholinesterase",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "weight loss medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "bisphosphonates",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "calcium supplements",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "levodopa",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "dopamine agonists",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "pelvic exercises",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "birth control",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "insulin sensitizers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "psychotherapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "pain management",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "blood transfusions",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antioxidants",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "moisturizers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "topical corticosteroids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "cpap machine",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "thyroid hormone replacement",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "pain relief",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "anticonvulsants",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "anxiolytics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "mood stabilizers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "medications for cognitive decline",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "thyroid medication",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antimalarials",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiplatelets",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "calcium",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "vitamin d",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "methotrexate",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "disease-modifying antirheumatic drugs (dmards)",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "stress management techniques",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "rehabilitation",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "anti-inflammatory medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "jamun",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "insulin",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "metformin",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "oral hypoglycemics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "gudmar",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "insulin",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "metformin",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "pain management",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "blood transfusions",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "immunosuppressants",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "steroids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "oral hypoglycemics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "arjuna",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "beta-blockers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "diuretics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "calcium channel blockers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "statins",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "blood thinners",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "supportive care",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "heart medication",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiplatelet drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "ace inhibitors",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antihypertensives",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "brahmi",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "pain relievers (nsaids)",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antidepressants",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "benzodiazepines",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "hormone replacement",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "surgery",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antihistamines",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "topical creams",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "acetylcholinesterase inhibitors",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "riluzole",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "muscle relaxants",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "beta-blockers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "calcium channel blockers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "inhalers (beta-agonists",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "corticosteroids)",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "supportive care",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "cognitive enhancers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "therapies",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiepileptic drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antithyroid medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "statins",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "diuretics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "ace inhibitors",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antianxiety medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "stress-relief medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "immunosuppressants",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "steroids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "levodopa",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "dopamine agonists",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "cpap machine",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "blood thinners",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "pain relief",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "anticonvulsants",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "anxiolytics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "mood stabilizers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "pain relievers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "medications for cognitive decline",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "stress management techniques",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "jatamansi",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "pain relievers (nsaids)",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "sleep aids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "melatonin",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antidepressants",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antianxiety medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "guggul",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "pain relievers (nsaids)",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "weight loss medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "surgery",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "bisphosphonates",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "calcium supplements",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "anti-inflammatory drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "physical therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antioxidants",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "moisturizers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "statins",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antihypertensives",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "pain relievers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antidepressants",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "ginger",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "antihistamines",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "decongestants",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antipyretics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "fluids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "bronchodilators",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "steroids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "pain relievers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antacids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "laxatives",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antibiotics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "proton-pump inhibitors",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "fiber supplements",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antispasmodics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiemetics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "proton pump inhibitors",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "triphala",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "antacids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "probiotics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "laxatives",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "fiber",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "weight loss medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiprotozoal drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "gluten-free diet",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "stool softeners",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "immunosuppressants",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "steroids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "corticosteroid inhibitors",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "surgery",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "proton pump inhibitors",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "proton-pump inhibitors",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "fiber supplements",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antispasmodics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antileishmanial drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "ajwain",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "antacids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "probiotics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "proton pump inhibitors",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "laxatives",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "stool softeners",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "isabgol",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "laxatives",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "fiber",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "neem",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "antihistamines",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "topical creams",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antibiotics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "enzyme replacement",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "dietary management",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "calamine lotion",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antifungal treatment",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "topical steroids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "phototherapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "liver transplant",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antifungal shampoo",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiparasitic drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "topical corticosteroids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antimalarial drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "topical treatments",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "systemic meds",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "topical antifungals",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "steroids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "surgery",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "chemotherapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "oral antibiotics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antifungals",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "biologics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "moisturizers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "steroid creams",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antifungal medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "amla",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "antacids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "proton pump inhibitors",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "topical treatments",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "steroid creams",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "phototherapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "liver transplant",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "cysteamine",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "kidney transplant",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiparasitic drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "minoxidil",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "finasteride",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "phlebotomy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "chelating agents",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "supportive care",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "vaccination",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiviral medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "glucose",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "sugar supplements",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiviral drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "surgery",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "chemotherapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antibiotics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "targeted therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiviral",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "radiation",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "insulin",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "hypertension medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "turmeric",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "topical creams",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antibiotics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "enzyme replacement",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "dietary management",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "pain relievers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "corticosteroid injections",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antifungal treatment",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "immunosuppressants",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "steroids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antipyretics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiviral medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "anti-inflammatory drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "biologics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "chemotherapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "surgery",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiviral",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "liver transplant",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "supportive care",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antimalarial drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "insulin",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "hypertension medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "physiotherapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "topical treatments",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "systemic meds",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "oral antibiotics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiparasitic drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "topical antifungals",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antifungals",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "radiation",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "moisturizers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "steroid creams",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antifungal medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antimalarials",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "nsaids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "methotrexate",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "disease-modifying antirheumatic drugs (dmards)",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "blood thinners",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "rehabilitation",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "anti-inflammatory medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "punarnava",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "diuretics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "dialysis",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "ace inhibitors",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "gokshura",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "diuretics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "dialysis",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "ace inhibitors",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "licorice",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "steroid replacement",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "hormone therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "pain relievers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "physical therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antitussives",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "decongestants",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "proton pump inhibitors",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antacids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "guggulu",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "pain relievers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "vitamin c",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "nsaids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "corticosteroids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "physical therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "ace inhibitors",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "diuretics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antipyretics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "chemotherapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "radiation therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "statins",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "beta-blockers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "supportive care",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "physiotherapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antidepressants",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "levothyroxine",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "thyroid medication",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "surgery",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "thyroid hormone replacement",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "calcium",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "vitamin d",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "bisphosphonates",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "bhringraj",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "topical treatments",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "steroid creams",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "minoxidil",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "finasteride",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "kutki",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "antiprotozoal drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "gluten-free diet",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "none specific",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "arginine restriction",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "dietary management",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "enzyme replacement",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "symptomatic treatment",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "nsaids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "corticosteroids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "anthelmintics (mebendazole",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "albendazole)",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "statins",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "blood thinners",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "supportive care",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "heart medication",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "anti-arrhythmic drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antibiotics (streptomycin",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "doxycycline)",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antibiotics (rifampicin)",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "cholestyramine",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "bile acid sequestrants",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antitrypanosomal drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "anthelmintics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiviral drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiprotozoal medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiparasitic drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antipyretics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "fluids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "iv fluids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "cosmetic dental treatment",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antibiotics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "vaccination",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiviral medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "bronchodilators",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "steroids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiparasitic medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "supportive therapies",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "pain relievers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "surgery (if severe)",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "diuretics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "anti-inflammatory medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "immune globulin",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "plasma exchange",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiretroviral therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antivirals",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "blood clotting factors",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiviral treatment",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "supportive medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "surgery",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "lipid-lowering drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "calcium supplements",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antileishmanial drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "aspirin",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "immunoglobulin",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "symptom-specific medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "stimulants",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "sleep regulation",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "no specific treatment",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiviral",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "chemotherapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "symptom-specific treatment",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "sodium restriction",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "medication",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "enzyme replacement therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "vitamin a",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "copper replacement therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "symptom-specific therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "symptom management",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "physiotherapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antifungals",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antifungal",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antimicrobial",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "hormone therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "targeted therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "radiation therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "enzyme supplements",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antifungal medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiplatelet drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "phenylalanine-restricted diet",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "supportive therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "blood pressure meds",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "dialysis",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antifungal treatments",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "oxygen therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antirabies vaccine",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "blood pressure medication",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "inhalers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "anti-inflammatory drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "rest",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "tetanus vaccine",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "blood transfusions",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "iron chelation",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "surgery (advanced cases)",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "immunosuppressants",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "topical corticosteroids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "uv therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiviral drugs (if needed)",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "copper chelation therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antibiotics (penicillin)",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antimalarial drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antihypertensives",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "radiation",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antibiotics (e.g.",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "rifampicin)",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "bone marrow transplant",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "immunotherapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "disease-modifying drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "dopaminergic drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antimicrobial drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "pain management",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "treatment for underlying conditions",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "hormone replacement therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "vitamin c supplements",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "nitrates",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "beta-blockers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "speech therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "gluten-free diet",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "supplements",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "physical therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "nasal sprays",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "liver transplant",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antihistamines",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "eye drops",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antidepressants",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "fibrates",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "anticonvulsants",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "pde5 inhibitors",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "testosterone",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "rehydration",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antidiarrheals",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiseptic mouthwash",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "anti-inflammatory",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antithyroid medication",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "beta blockers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "interferons",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiviral medication",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "fiber supplements",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antispasmodics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "anti-nausea drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "hormonal therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "nasal corticosteroids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antacids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "hydroxyurea",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "alpha-blockers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "5-alpha reductase inhibitors",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "calcium channel blockers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "vasodilators",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "nasal decongestants",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "cpap",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "muscle relaxants",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "radioactive iodine",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "sound therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antibiotics (6-9 months course)",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "compression stockings",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "nutritional support",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "copper-chelating agents",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "zinc",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "anti-worm medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "mucus-thinning drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "insulin",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "blood sugar control",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "haritaki",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "anthelmintics (mebendazole",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "albendazole)",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "trifala",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "anthelmintics (mebendazole",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "albendazole)",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "shallaki",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "inhalers (beta-agonists",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "corticosteroids)",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "aloe vera",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "topical steroids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antihistamines",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antifungal shampoo",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "topical corticosteroids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "chemotherapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "surgery",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "topical treatments",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "systemic meds",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "topical creams",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "oral antibiotics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "biologics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antibiotics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antifungals",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "guduchi",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "chest physiotherapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antibiotics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antacids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "proton pump inhibitors",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "phlebotomy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "chelating agents",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "supportive care",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "vaccination",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiviral medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antifungal medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "glucose",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "sugar supplements",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "immunosuppressants",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "biologics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiviral drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "surgery",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "chemotherapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antileishmanial drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiviral",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "liver transplant",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "steroids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antimalarial drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "anticholinesterase",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "bitter melon",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "insulin",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "oral hypoglycemics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "insulin (type 1)",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "metformin (type 2)",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "insulin therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "diabetes meds",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "fenugreek",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "insulin",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "oral hypoglycemics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "hypertension medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "diet control",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "exercise",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "medications (e.g.",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "orlistat)",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "gymnema sylvestre",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "insulin (type 1)",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "metformin (type 2)",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "insulin therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "diabetes meds",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "shatavari",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "pain relievers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "hormonal treatment",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "levothyroxine",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antithyroid drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "surgery",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "testosterone therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "hormone replacement therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "hormonal therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "bisphosphonates",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "calcium supplements",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "pelvic exercises",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "birth control",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "insulin sensitizers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "hormone therapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "psychotherapy",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "thyroid hormone replacement",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "bhumi amla",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "antiviral medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "bhumyamalaki",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "antiviral medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "boswellia",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "nsaids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "pain relievers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "none",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "antiviral drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antibiotics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "iv fluids",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiparasitic drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antifungal drugs",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "symptom management",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "supportive care",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "riluzole",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "mucolytics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antibacterial meds",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "pain relievers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "surgery",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "lavender",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "stress-relief medications",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "pain relievers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiemetics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "peppermint",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "pain relievers",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antiemetics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "garcinia cambogia",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "nutritional supplements",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "appetite stimulants",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "green tea",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "nutritional supplements",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "appetite stimulants",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "ginseng",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "diet control",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "exercise",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "medications (e.g.",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "orlistat)",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "iron-rich foods (spinach",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "iron supplements",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "vitamin b12",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "red meat)",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "iron supplements",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "vitamin b12",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "garlic",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "antiplatelets",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "statins",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
+    {
+      "genericName": "tea tree oil",
+      "compositions": [],
+      "substitutes": [],
+      "sideEffects": [],
+      "interactsWith": [
+        {
+          "drug": "antibiotics",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        },
+        {
+          "drug": "antifungals",
+          "severity": "Moderate",
+          "warning": "Potential herb-drug interaction. Monitor efficacy of current medications."
+        }
+      ],
+      "contraindications": []
+    },
     {
       "genericName": "itraconazole",
       "interactsWith": [

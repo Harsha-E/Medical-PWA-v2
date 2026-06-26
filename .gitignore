@@ -10,3 +10,9 @@ firebase-applet-config.json
 .aider*
 PRD.txt
 night_sprint.txt
+
+# Large data files
+data/*.csv
+data/*.zip
+data/ayurvedha/
+scratch/
