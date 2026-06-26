@@ -483,7 +483,7 @@ export default class ScanView {
         `;
 
         modalOverlay.innerHTML = blobBackground + `
-            <div class="clay-glass-panel" style="position: relative; z-index: 1; width: 100%; max-width: 420px; padding: 36px 28px; text-align: center; display: flex; flex-direction: column; gap: 28px; transform: translateY(30px); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-height: 90vh; overflow-y: auto; overflow-x: hidden;">
+            <div class="clay-glass-panel" style="position: relative; z-index: 1; width: 100%; max-width: 420px; padding: 36px 28px; text-align: center; display: flex; flex-direction: column; gap: 28px; transform: translateY(30px); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); margin: auto;">
                 <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--color-surface-elevated); color: var(--color-primary); display: flex; justify-content: center; align-items: center; font-size: 36px; margin: 0 auto; box-shadow: inset 4px 4px 10px rgba(0,0,0,0.3), inset -4px -4px 10px rgba(255,255,255,0.05), 0 8px 16px rgba(0,0,0,0.2); border: 1px solid var(--color-border);">💊</div>
                 
                 <div>
