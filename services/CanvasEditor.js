@@ -22,13 +22,10 @@ export default class CanvasEditor {
         this.container.innerHTML = `
             <div class="editor-toolbar" style="position: absolute; top: 10px; left: 10px; z-index: 100; display: flex; gap: 10px; background: var(--theme-surface, #fff); padding: 10px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
                 <button id="btn-erase" style="padding: 8px 16px; border-radius: 8px; background: #ff4757; color: white; border: none; font-weight: bold; cursor: pointer;">Erase 🔴</button>
-                <button id="btn-restore" style="padding: 8px 16px; border-radius: 8px; background: #2ed573; color: white; border: none; font-weight: bold; cursor: pointer;">Restore 🟢</button>
                 <input type="range" id="brush-size" min="5" max="50" value="20" style="margin-left: 10px;">
                 <button id="btn-done" style="padding: 8px 16px; border-radius: 8px; background: #1e90ff; color: white; border: none; font-weight: bold; cursor: pointer; margin-left: auto;">Done ✔️</button>
             </div>
             <div style="position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; overflow: hidden;">
-                <!-- Original Image (Faded in background for reference) -->
-                <canvas id="bg-canvas" style="position: absolute; opacity: 0.2; pointer-events: none;"></canvas>
                 <!-- Editable Canvas (The Cutout) -->
                 <canvas id="edit-canvas" style="position: absolute; cursor: crosshair; touch-action: none;"></canvas>
             </div>
@@ -36,38 +33,29 @@ export default class CanvasEditor {
 
         // Event Listeners for Toolbar
         this.container.querySelector('#btn-erase').onclick = () => this.mode = 'erase';
-        this.container.querySelector('#btn-restore').onclick = () => this.mode = 'restore';
         this.container.querySelector('#brush-size').oninput = (e) => this.brushSize = parseInt(e.target.value);
         this.container.querySelector('#btn-done').onclick = () => this.exportResult();
 
-        this.bgCanvas = this.container.querySelector('#bg-canvas');
         this.editCanvas = this.container.querySelector('#edit-canvas');
         this.ctx = this.editCanvas.getContext('2d');
-        this.bgCtx = this.bgCanvas.getContext('2d');
 
         this.bindDrawingEvents();
     }
 
     async loadImages(originalSrc, cutoutSrc) {
-        this.originalImg = new Image();
         this.cutoutImg = new Image();
 
-        await Promise.all([
-            new Promise(r => { this.originalImg.onload = r; this.originalImg.src = originalSrc; }),
-            new Promise(r => { this.cutoutImg.onload = r; this.cutoutImg.src = cutoutSrc; })
-        ]);
+        await new Promise(r => { this.cutoutImg.onload = r; this.cutoutImg.src = cutoutSrc; });
 
         // Match canvas size to image size
-        this.editCanvas.width = this.bgCanvas.width = this.originalImg.width;
-        this.editCanvas.height = this.bgCanvas.height = this.originalImg.height;
+        this.editCanvas.width = this.cutoutImg.width;
+        this.editCanvas.height = this.cutoutImg.height;
 
         // Scale down for UI fitting (CSS scale)
-        const scale = Math.min(window.innerWidth / this.originalImg.width, (window.innerHeight - 100) / this.originalImg.height) * 0.9;
+        const scale = Math.min(window.innerWidth / this.cutoutImg.width, (window.innerHeight - 100) / this.cutoutImg.height) * 0.9;
         this.editCanvas.style.transform = `scale(${scale})`;
-        this.bgCanvas.style.transform = `scale(${scale})`;
 
         // Draw initial states
-        this.bgCtx.drawImage(this.originalImg, 0, 0);
         this.ctx.drawImage(this.cutoutImg, 0, 0);
     }
 
@@ -102,15 +90,6 @@ export default class CanvasEditor {
             this.ctx.beginPath();
             this.ctx.arc(x, y, this.brushSize, 0, Math.PI * 2);
             this.ctx.fill();
-        } else {
-            // Restore mode: Clip to brush radius and draw the original image back in
-            this.ctx.globalCompositeOperation = 'source-over';
-            this.ctx.save();
-            this.ctx.beginPath();
-            this.ctx.arc(x, y, this.brushSize, 0, Math.PI * 2);
-            this.ctx.clip();
-            this.ctx.drawImage(this.originalImg, 0, 0);
-            this.ctx.restore();
         }
     }
 
