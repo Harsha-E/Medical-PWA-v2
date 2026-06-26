@@ -42,22 +42,29 @@ export default class PwaInstallManager {
     }
     window.addEventListener('beforeinstallprompt', handlePrompt);
 
+    const forceOpenAppBanner = () => {
+      const btn = this.bannerEl?.querySelector('#pwa-action-btn');
+      if (btn) {
+        btn.textContent = 'Open App';
+        btn.classList.add('bg-[#10b981]/20', 'text-[#10b981]', 'border-[#10b981]/50');
+        btn.classList.remove('text-[#ffb88c]', 'border-[#ffb88c]/20', 'opacity-70', 'cursor-not-allowed');
+      }
+      const textNode = this.bannerEl?.querySelector('#pwa-banner-text');
+      if (textNode) textNode.textContent = 'Ready on Homescreen';
+    };
+
     // If we know it's installed from a previous session, show the Open App banner on the install route
-    if (localStorage.getItem('pwa_installed') === 'true' && !this._isStandalone()) {
+    if (!this._isStandalone() && (localStorage.getItem('pwa_installed') === 'true' || window.location.hash.startsWith('#/install'))) {
       setTimeout(() => {
-        const btn = this.bannerEl?.querySelector('#pwa-action-btn');
-        if (btn) {
-          btn.textContent = 'Open App';
-          btn.classList.add('bg-[#10b981]/20', 'text-[#10b981]', 'border-[#10b981]/50');
-          btn.classList.remove('text-[#ffb88c]', 'border-[#ffb88c]/20', 'opacity-70', 'cursor-not-allowed');
+        if (!this.deferredPrompt) {
+          localStorage.setItem('pwa_installed', 'true');
+          forceOpenAppBanner();
         }
-        const textNode = this.bannerEl?.querySelector('#pwa-banner-text');
-        if (textNode) textNode.textContent = 'Ready on Homescreen';
         
         if (window.location.hash.startsWith('#/install')) {
-          this._showBanner('Ready on Homescreen');
+          this._showBanner(this.deferredPrompt ? 'Tap to Install' : 'Ready on Homescreen');
         }
-      }, 500);
+      }, 800);
     }
 
     // Handle post-installation platform routing cleanly
@@ -82,10 +89,14 @@ export default class PwaInstallManager {
     // Listen to route changes to strictly control "Open App" banner visibility
     window.addEventListener('hashchange', () => {
       const btn = this.bannerEl?.querySelector('#pwa-action-btn');
-      if (btn && btn.textContent === 'Open App') {
-        if (window.location.hash.startsWith('#/install')) {
-          this._showBanner('Ready on Homescreen');
-        } else {
+      if (window.location.hash.startsWith('#/install')) {
+        if (!this.deferredPrompt) {
+          localStorage.setItem('pwa_installed', 'true');
+          forceOpenAppBanner();
+        }
+        this._showBanner(this.deferredPrompt ? 'Tap to Install' : 'Ready on Homescreen');
+      } else {
+        if (btn && btn.textContent === 'Open App') {
           this._hideBanner();
         }
       }
