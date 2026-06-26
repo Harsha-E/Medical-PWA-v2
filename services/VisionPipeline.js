@@ -77,6 +77,7 @@
                         await yieldToMain();
                         
                         const graph = new MedicineKnowledgeGraph();
+                        await graph.init();
 
                         console.log("[VisionPipeline] Bypassing legacy search. Deploying Advanced Fuzzy Matcher...");
                         const fullDataset = await graph.db.medicine_knowledge.toArray();
