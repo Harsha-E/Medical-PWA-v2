@@ -45,13 +45,10 @@
                 canvas.height = targetSize;
                 const ctx = canvas.getContext('2d');
                 
-                // 1.5. Apply Grayscale & Contrast to drastically compress base64 size for Groq
-                ctx.filter = 'grayscale(100%) contrast(1.2)';
-                
+                // Retain full color and max quality for highest accuracy
                 ctx.drawImage(sourceElement, startX, startY, cropSize, cropSize, 0, 0, targetSize, targetSize);
 
-                // Compress heavily. B&W text holds up well at 0.70 quality.
-                const base64Image = canvas.toDataURL('image/jpeg', 0.70);
+                const base64Image = canvas.toDataURL('image/jpeg', 1.0);
 
                 window.dispatchEvent(new CustomEvent('scan:pipeline-stage', { detail: 'Local Worker Analysis' }));
 
