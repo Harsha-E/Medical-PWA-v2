@@ -4,7 +4,7 @@ import state from '../core/state.js';
 export default class OrchestratorView {
   constructor() {
     this.container = document.createElement('div');
-    this.container.className = 'viewport-container view-enter pb-safe min-h-screen flex flex-col bg-surface text-text-primary';
+    this.container.className = 'viewport-container pb-safe min-h-screen flex flex-col bg-surface text-text-primary';
     this.messages = [];
   }
 

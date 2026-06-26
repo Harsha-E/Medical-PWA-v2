@@ -11,7 +11,7 @@ import { interactionGraph } from '../services/InteractionGraph.js';
 export default class InteractionCheckerView {
   constructor() {
     this.container = document.createElement('div');
-    this.container.className = 'viewport-container view-enter pb-safe min-h-screen text-text-primary';
+    this.container.className = 'viewport-container pb-safe min-h-screen text-text-primary';
     this.prospectiveDrug = '';
   }
 
