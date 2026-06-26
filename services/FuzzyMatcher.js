@@ -146,10 +146,10 @@ export default class FuzzyMatcher {
         }
 
         if (highestScore >= CONFIDENCE_THRESHOLD) {
-            console.log(\`[FuzzyMatcher] Resolving payload to \${bestMatch.name || bestMatch.genericName} with Confidence Score: \${highestScore.toFixed(1)}/100\`);
+            console.log(`[FuzzyMatcher] Resolving payload to ${bestMatch.name || bestMatch.genericName} with Confidence Score: ${highestScore.toFixed(1)}/100`);
             return bestMatch;
         } else {
-            console.warn(\`[FuzzyMatcher] Failed to resolve. Highest score was \${highestScore.toFixed(1)}/100, below threshold of \${CONFIDENCE_THRESHOLD}\`);
+            console.warn(`[FuzzyMatcher] Failed to resolve. Highest score was ${highestScore.toFixed(1)}/100, below threshold of ${CONFIDENCE_THRESHOLD}`);
             return null;
         }
     }
