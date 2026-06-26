@@ -205,7 +205,7 @@ export default class FamilyTreeView {
         btnAdd.onclick = () => {
             const myId = window.familyMesh?.peer?.id;
             if (myId) {
-                qrImage.src = \`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=medcare://peer/\${myId}&color=ffffff&bgcolor=1e293b\`;
+                qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=medcare://peer/${myId}&color=ffffff&bgcolor=1e293b`;
                 qrModal.style.display = 'flex';
             } else {
                 alert("You are currently offline. Cannot generate pairing code.");
@@ -252,8 +252,8 @@ export default class FamilyTreeView {
 
         const drawPulse = (fromId, toId, color) => {
             const svg = document.getElementById('pulse-layer');
-            const nodeFrom = document.querySelector(\`.family-node[data-id="\${fromId}"]\`);
-            const nodeTo = document.querySelector(\`.family-node[data-id="\${toId}"]\`);
+            const nodeFrom = document.querySelector(`.family-node[data-id="${fromId}"]`);
+            const nodeTo = document.querySelector(`.family-node[data-id="${toId}"]`);
             
             if (!svg || !nodeFrom || !nodeTo) return;
 
