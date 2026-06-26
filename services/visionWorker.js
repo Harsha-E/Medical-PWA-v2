@@ -25,7 +25,7 @@ Return ONLY a pure JSON object in this exact format, with no markdown formatting
     }
   },
   "form": "e.g., Tablet, Inhaler, Liquid, Capsule",
-  "totalQuantity": "total count (look explicitly for words like 'Doses' or 'Puffs' or 'Tablets', e.g. 60 or 30)",
+  "totalQuantity": "integer only (look explicitly for 'Doses', 'Puffs', 'Metered actuations', or 'Tablets' on the label and extract JUST the number, e.g. 60 or 120)",
   "isAsNeeded": true or false (boolean, true if PRN / 'as needed' is indicated),
   "manufacturer": "any manufacturer found"
 }`;

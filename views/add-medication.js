@@ -126,13 +126,13 @@ export default class AddMedicationView {
               <input type="date" id="m-start" class="form-input [color-scheme:dark]" value="${this.medData.startDate || new Date().toISOString().split('T')[0]}">
             </div>
             <div class="form-group">
-              <label for="m-end" class="form-label">End Date (Optional)</label>
+              <label for="m-end" id="label-end" class="form-label">End Date (Optional)</label>
               <input type="date" id="m-end" class="form-input [color-scheme:dark]" value="${this.medData.endDate || ''}">
             </div>
           </div>
           <div class="grid grid-cols-2 gap-5 mt-4">
             <div class="form-group">
-              <label for="m-dosage" class="form-label">Dosage</label>
+              <label for="m-dosage" id="label-dosage" class="form-label">Dosage</label>
               <input type="text" id="m-dosage" autocomplete="off" class="form-input" value="${this.medData.dosage || ''}" placeholder="20">
             </div>
             <div class="form-group">
@@ -145,7 +145,7 @@ export default class AddMedicationView {
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-4">
             <div class="form-group">
-              <label for="m-total" class="form-label">Total Quantity</label>
+              <label for="m-total" id="label-total" class="form-label">Total Quantity</label>
               <input type="number" id="m-total" autocomplete="off" class="form-input" value="${this.medData.totalQuantity || ''}" placeholder="e.g. 30">
             </div>
             <div class="form-group">
@@ -220,6 +220,34 @@ export default class AddMedicationView {
     // Auto-save form draft to sessionStorage on input or change
     this.container.addEventListener('input', () => this.saveDraftState());
     this.container.addEventListener('change', () => this.saveDraftState());
+
+    const categorySelect = this.container.querySelector('#m-category');
+    const lblDosage = this.container.querySelector('#label-dosage');
+    const lblTotal = this.container.querySelector('#label-total');
+    const lblEnd = this.container.querySelector('#label-end');
+
+    const updateLabels = () => {
+      const cat = categorySelect.value;
+      if (cat === 'Inhaler' || cat === 'Spray') {
+        lblDosage.textContent = 'Dose (Puffs/Sprays)';
+        lblTotal.textContent = 'Total Doses / Puffs';
+        lblEnd.textContent = 'Discard Date (Optional)';
+      } else if (cat === 'Liquid' || cat === 'Drops') {
+        lblDosage.textContent = 'Dose Amount';
+        lblTotal.textContent = 'Total Volume (ml)';
+        lblEnd.textContent = 'Discard Date (Optional)';
+      } else if (cat === 'Patch') {
+        lblDosage.textContent = 'Strength';
+        lblTotal.textContent = 'Total Patches';
+        lblEnd.textContent = 'End Date (Optional)';
+      } else {
+        lblDosage.textContent = 'Dosage';
+        lblTotal.textContent = 'Total Quantity';
+        lblEnd.textContent = 'End Date (Optional)';
+      }
+    };
+    categorySelect.addEventListener('change', updateLabels);
+    updateLabels(); // Initial call
 
     const freqSelect = this.container.querySelector('#m-freq');
     const timeContainer = this.container.querySelector('#time-slots-container');
