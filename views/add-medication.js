@@ -93,8 +93,15 @@ export default class AddMedicationView {
             this.medData.dosage = scanPayload.dosageAmount;
             if (scanPayload.dosageUnit) this.medData.dosageUnit = scanPayload.dosageUnit;
         } else if (scanPayload.dosage) {
-            this.medData.dosage = scanPayload.dosage;
-            if (scanPayload.unit) this.medData.dosageUnit = scanPayload.unit;
+            const rawDosageStr = scanPayload.dosage.toString();
+            const comboMatch = rawDosageStr.match(/^([\d.]+)\s*([a-zA-Zμ]+)$/);
+            if (comboMatch) {
+                this.medData.dosage = comboMatch[1];
+                this.medData.dosageUnit = comboMatch[2].toLowerCase();
+            } else {
+                this.medData.dosage = rawDosageStr;
+                if (scanPayload.unit) this.medData.dosageUnit = scanPayload.unit;
+            }
         }
         if (scanPayload.quantity) this.medData.totalQuantity = scanPayload.quantity;
         if (scanPayload.totalQuantity) this.medData.totalQuantity = scanPayload.totalQuantity;
