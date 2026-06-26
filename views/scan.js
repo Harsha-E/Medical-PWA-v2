@@ -239,8 +239,8 @@ export default class ScanView {
         if (matchResult && matchResult.bestMatch) {
             const payload = {
               name: matchResult.bestMatch.name || matchResult.bestMatch.brandName || matchResult.bestMatch.genericName,
-              dosage: matchResult.bestMatch.dosage,
-              form: matchResult.bestMatch.form,
+              dosage: matchResult.bestMatch.dosage || matchResult.bestMatch.strength,
+              form: matchResult.bestMatch.form || matchResult.bestMatch.dosageForm,
               totalQuantity: matchResult.bestMatch.totalQuantity || matchResult.quantity,
               isAsNeeded: matchResult.bestMatch.isAsNeeded,
               confidence: matchResult.confidence,
@@ -288,8 +288,8 @@ export default class ScanView {
         if (matchResult && matchResult.bestMatch) {
             const payload = {
               name: matchResult.bestMatch.name || matchResult.bestMatch.brandName || matchResult.bestMatch.genericName,
-              dosage: matchResult.bestMatch.dosage,
-              form: matchResult.bestMatch.form,
+              dosage: matchResult.bestMatch.dosage || matchResult.bestMatch.strength,
+              form: matchResult.bestMatch.form || matchResult.bestMatch.dosageForm,
               totalQuantity: matchResult.bestMatch.totalQuantity || matchResult.quantity,
               isAsNeeded: matchResult.bestMatch.isAsNeeded,
               confidence: matchResult.confidence,
