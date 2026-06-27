@@ -29,8 +29,8 @@ export default class QRManager {
             text: deepLink,
             width: 200,
             height: 200,
-            colorDark: "#ffffff",
-            colorLight: "transparent",
+            colorDark: "#000000",
+            colorLight: "#ffffff",
             correctLevel: QRCode.CorrectLevel.H
         });
 

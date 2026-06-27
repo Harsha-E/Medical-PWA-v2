@@ -169,10 +169,18 @@ export default class PeerNetworkView {
     
     // Generate QR using QRManager
     const generateQR = (id) => {
-        const qrContainer = this.container.querySelector('#qr-container');
-        if (qrContainer && id) {
-            QRManager.generateConnectQR(qrContainer, id);
-        }
+        // Must defer to next tick so app.js can append the container to the DOM,
+        // otherwise qrcode.js fails because elements have 0 dimensions.
+        setTimeout(() => {
+            const qrContainer = this.container.querySelector('#qr-container');
+            if (qrContainer && id) {
+                // Ensure visibility against any background by forcing white canvas background
+                qrContainer.style.backgroundColor = '#ffffff';
+                qrContainer.style.padding = '10px';
+                qrContainer.style.borderRadius = '12px';
+                QRManager.generateConnectQR(qrContainer, id);
+            }
+        }, 150);
     };
 
     if (mesh.peerId) {
