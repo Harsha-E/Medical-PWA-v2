@@ -1,4 +1,5 @@
 import db from '../core/db.js';
+import { appConfirm, appAlert } from '../core/ui.js';
 
 export default class MedicationDetailView {
   async render() {
@@ -98,13 +99,13 @@ export default class MedicationDetailView {
     const btnRemove = this.container.querySelector('#btn-remove-med');
     if (btnRemove) {
       btnRemove.addEventListener('click', async () => {
-        if (confirm(`Are you sure you want to completely remove ${med.name}?`)) {
+        if (await appConfirm(`Are you sure you want to completely remove ${med.name}?`, 'Delete Medication')) {
           try {
             await db.medications.delete(id);
             window.location.hash = '#/medications';
           } catch (e) {
             console.error('Failed to delete medication:', e);
-            alert('Failed to remove medication.');
+            await appAlert('Failed to remove medication.', 'Error');
           }
         }
       });

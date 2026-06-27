@@ -9,6 +9,7 @@ import { StripSceneOrchestrator } from '../services/reconstruction/StripSceneOrc
 import { StripFlatProjector } from '../services/reconstruction/StripFlatProjector.js';
 import { ObjectSegmenter } from '../services/vision/ObjectSegmenter.js';
 import VisionPipeline from '../services/VisionPipeline.js';
+import MultipleMatchGate from '../components/MultipleMatchGate.js';
 
 export default class Scan3DView {
   constructor() {
@@ -246,7 +247,18 @@ export default class Scan3DView {
           };
 
           await updatePhaseLabel('Match Found!', 'Verifying Data...');
-          this.showConfirmationModal(payload);
+          if (matchResult.candidates && matchResult.candidates.length > 1) {
+              const onConfirm = (confirmedPayload) => {
+                  sessionStorage.setItem('medcheck_scanned_data', JSON.stringify(confirmedPayload));
+                  window.location.hash = '#/add-medication';
+              };
+              const onReject = () => {
+                  window.location.hash = '#/add-medication?manual=true';
+              };
+              MultipleMatchGate.show(matchResult.candidates, payload, onConfirm, onReject);
+          } else {
+              this.showConfirmationModal(payload);
+          }
       } else {
           // Failed to find medicine
           await updatePhaseLabel('Scan Failed', 'Try Again');

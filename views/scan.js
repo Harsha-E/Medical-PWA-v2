@@ -6,6 +6,8 @@ import { scannerCoordinator } from '../scanner/ScannerCoordinator.js';
 import { FilesetResolver, HandLandmarker } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/vision_bundle.mjs';
 import VisionPipeline from '../services/VisionPipeline.js';
 import ConfirmationGate from '../components/ConfirmationGate.js';
+import MultipleMatchGate from '../components/MultipleMatchGate.js';
+import { appAlert } from '../core/ui.js';
 
 export default class ScanView {
   constructor() {
@@ -145,6 +147,20 @@ export default class ScanView {
 
   async _startCamera() {
     try {
+      // Check Permissions API (specifically for Android/Chrome handling of permanent denials)
+      if (navigator.permissions) {
+          try {
+              const status = await navigator.permissions.query({ name: 'camera' });
+              if (status.state === 'denied') {
+                  this._permissionOverlay.style.display = 'flex';
+                  this._permissionOverlay.querySelector('h2').textContent = 'Camera Blocked';
+                  this._permissionOverlay.querySelector('p').innerHTML = 'Camera access is disabled. <br><br><b>Android Fix:</b> Tap the lock icon 🔒 in your browser URL bar, tap <b>Site Settings</b>, and switch Camera to <b>Allow</b>.';
+                  this._btnRequestCam.style.display = 'none';
+                  return;
+              }
+          } catch(e) { /* Ignore permissions API errors on unsupported browsers */ }
+      }
+
       this._permissionOverlay.style.display = 'none';
       const success = await scannerCoordinator.startScanner(this._video, () => {}, this.facingMode);
       if (!success) throw new Error('Camera access denied or unavailable');
@@ -155,6 +171,11 @@ export default class ScanView {
     } catch (err) {
       console.warn('Camera connection error:', err);
       this._permissionOverlay.style.display = 'flex';
+      if (err.name === 'NotAllowedError') {
+          this._permissionOverlay.querySelector('h2').textContent = 'Camera Blocked';
+          this._permissionOverlay.querySelector('p').innerHTML = 'Camera access is disabled. <br><br><b>Android Fix:</b> Tap the lock icon 🔒 in your browser URL bar, tap <b>Site Settings</b>, and switch Camera to <b>Allow</b>.';
+          this._btnRequestCam.style.display = 'none';
+      }
     }
   }
 
@@ -293,20 +314,24 @@ export default class ScanView {
               manufacturer: matchResult.bestMatch.manufacturer,
               therapeuticCategory: matchResult.bestMatch.therapeuticCategory,
               alternativeBrands: matchResult.bestMatch.alternativeBrands ? matchResult.bestMatch.alternativeBrands.join(', ') : '',
+              expiryDate: matchResult.bestMatch.expiryDate || matchResult.expiryDate || '',
               explainabilityDetails: matchResult.explainabilityDetails,
               diagnosticReport: matchResult.diagnosticReport
             };
             
-            ConfirmationGate.show(
-                payload,
-                (confirmedPayload) => {
-                    sessionStorage.setItem('medcheck_scanned_data', JSON.stringify(confirmedPayload));
-                    window.location.hash = '#/add-medication';
-                },
-                (rejectedPayload) => {
-                    window.location.hash = '#/add-medication?manual=true';
-                }
-            );
+            const onConfirm = (confirmedPayload) => {
+                sessionStorage.setItem('medcheck_scanned_data', JSON.stringify(confirmedPayload));
+                window.location.hash = '#/add-medication';
+            };
+            const onReject = () => {
+                window.location.hash = '#/add-medication?manual=true';
+            };
+
+            if (matchResult.candidates && matchResult.candidates.length > 1) {
+                MultipleMatchGate.show(matchResult.candidates, payload, onConfirm, onReject);
+            } else {
+                ConfirmationGate.show(payload, onConfirm, onReject);
+            }
         } else {
             this.show3DTutorialPopup(blob);
         }
@@ -352,20 +377,24 @@ export default class ScanView {
               manufacturer: matchResult.bestMatch.manufacturer,
               therapeuticCategory: matchResult.bestMatch.therapeuticCategory,
               alternativeBrands: matchResult.bestMatch.alternativeBrands ? matchResult.bestMatch.alternativeBrands.join(', ') : '',
+              expiryDate: matchResult.bestMatch.expiryDate || matchResult.expiryDate || '',
               explainabilityDetails: matchResult.explainabilityDetails,
               diagnosticReport: matchResult.diagnosticReport
             };
             
-            ConfirmationGate.show(
-                payload,
-                (confirmedPayload) => {
-                    sessionStorage.setItem('medcheck_scanned_data', JSON.stringify(confirmedPayload));
-                    window.location.hash = '#/add-medication';
-                },
-                (rejectedPayload) => {
-                    window.location.hash = '#/add-medication?manual=true';
-                }
-            );
+            const onConfirm = (confirmedPayload) => {
+                sessionStorage.setItem('medcheck_scanned_data', JSON.stringify(confirmedPayload));
+                window.location.hash = '#/add-medication';
+            };
+            const onReject = () => {
+                window.location.hash = '#/add-medication?manual=true';
+            };
+
+            if (matchResult.candidates && matchResult.candidates.length > 1) {
+                MultipleMatchGate.show(matchResult.candidates, payload, onConfirm, onReject);
+            } else {
+                ConfirmationGate.show(payload, onConfirm, onReject);
+            }
         } else {
             this.showGalleryErrorPopup();
         }
@@ -376,14 +405,14 @@ export default class ScanView {
     }
   }
 
-  _routeTo3D(blob) {
+  async _routeTo3D(blob) {
     try {
       const blobUrl = URL.createObjectURL(blob);
       sessionStorage.setItem('medcare_scanned_image', blobUrl);
       window.location.hash = '#/scan/3d';
     } catch (e) {
       console.error('Failed to create object URL for routing:', e);
-      alert('Failed to process image. Please try again.');
+      await appAlert('Failed to process image. Please try again.', 'Error');
     }
   }
 

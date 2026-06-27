@@ -102,6 +102,82 @@
   border: 1px solid var(--color-border);
 }
 
+/* Custom Neumorphic + Claymorphic Modal Definitions */
+.clay-modal {
+  background: var(--color-surface-elevated);
+  border-radius: 24px; /* Exaggerated pillowy radius */
+  border: 1px solid rgba(255,255,255,0.4);
+  /* Neumorphic dual-source outer shadows + Claymorphic inset */
+  box-shadow: 
+    -10px -10px 20px rgba(255,255,255,0.8), /* Light source reflection */
+    10px 10px 20px rgba(0,0,0,0.06),       /* Dark source shadow */
+    inset 4px 4px 12px rgba(255, 255, 255, 0.9), /* Clay inset highlight */
+    inset -4px -4px 12px rgba(0, 0, 0, 0.04);    /* Clay inset shadow */
+  transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .clay-modal {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  box-shadow: 
+    -8px -8px 16px rgba(255,255,255,0.02), /* Dimmed light source reflection */
+    8px 8px 16px rgba(0,0,0,0.6),          /* Intense dark source shadow */
+    inset 3px 3px 10px rgba(255, 255, 255, 0.05),
+    inset -3px -3px 10px rgba(0, 0, 0, 0.5);
+}
+
+.clay-modal-btn {
+  border-radius: 16px;
+  background: var(--color-surface);
+  border: 1px solid rgba(255,255,255,0.3);
+  box-shadow: 
+    -4px -4px 10px rgba(255,255,255,0.7),
+    4px 4px 10px rgba(0,0,0,0.05),
+    inset 2px 2px 5px rgba(255,255,255,0.8),
+    inset -2px -2px 5px rgba(0,0,0,0.03);
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+[data-theme="dark"] .clay-modal-btn {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: 
+    -4px -4px 10px rgba(255,255,255,0.02),
+    4px 4px 10px rgba(0,0,0,0.4),
+    inset 2px 2px 5px rgba(255,255,255,0.05),
+    inset -2px -2px 5px rgba(0,0,0,0.4);
+}
+
+.clay-modal-btn:active {
+  transform: scale(0.96);
+  box-shadow: 
+    inset 4px 4px 10px rgba(0,0,0,0.1),
+    inset -4px -4px 10px rgba(255,255,255,0.5) !important;
+}
+[data-theme="dark"] .clay-modal-btn:active {
+  box-shadow: 
+    inset 4px 4px 10px rgba(0,0,0,0.6),
+    inset -4px -4px 10px rgba(255,255,255,0.02) !important;
+}
+
+.clay-modal-btn-primary {
+  background: linear-gradient(135deg, var(--color-brand-blue), var(--color-brand-indigo));
+  color: white !important;
+  border: none;
+  box-shadow: 
+    -4px -4px 10px rgba(255,255,255,0.4),
+    6px 6px 15px rgba(37,99,235,0.4),
+    inset 2px 2px 5px rgba(255,255,255,0.4),
+    inset -2px -2px 5px rgba(0,0,0,0.2);
+}
+[data-theme="dark"] .clay-modal-btn-primary {
+  box-shadow: 
+    -4px -4px 10px rgba(255,255,255,0.05),
+    6px 6px 15px rgba(37,99,235,0.5),
+    inset 2px 2px 5px rgba(255,255,255,0.2),
+    inset -2px -2px 5px rgba(0,0,0,0.3);
+}
+
 /* Theme Utilities for missing Tailwind arbitrary classes */
 .bg-theme-surface { background-color: var(--color-surface); }
 .bg-theme-surface-elevated { background-color: var(--color-surface-elevated); }

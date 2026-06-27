@@ -18,11 +18,18 @@ export class DatasetSyncManager {
      */
     async syncAll() {
         await this.init();
-        console.log('[DatasetSyncManager] Starting full dataset synchronization...');
+        
+        // Fast-path: Check if database is already fully hydrated
+        const existingCount = await this.db.medicine_knowledge.count();
+        if (existingCount >= 240000) {
+            console.log(`[DatasetSyncManager] Database already hydrated with ${existingCount} records. Skipping sync to save battery and time.`);
+            return { success: true, updates: 0, skipped: true };
+        }
+
+        console.log('[DatasetSyncManager] Starting full dataset synchronization (First Boot)...');
         
         try {
-            // In a real implementation, we would fetch from the endpoints
-            // and merge the results. Here we just mock the process.
+            // Fetch massive JSON and stream to Dexie
             const mockUpdateCount = await this.fetchAndMergeUpdates();
             console.log(`[DatasetSyncManager] Sync complete. Applied ${mockUpdateCount} updates.`);
             return { success: true, updates: mockUpdateCount };
@@ -33,144 +40,47 @@ export class DatasetSyncManager {
     }
 
     /**
-     * Mocks the fetching and merging of database updates
+     * Fetches the massive 250k JSON dataset and streams it into Dexie in chunks.
+     * Yields to the main thread to prevent UI lag.
      */
     async fetchAndMergeUpdates() {
-        // Mock data
-        const mockData = [
-            {
-                id: 'brand-dolo-650',
-                name: 'Dolo 650',
-                genericName: 'Paracetamol',
-                manufacturer: 'Micro Labs Ltd',
-                strength: '650mg',
-                dosageForm: 'tablet',
-                prescriptionStatus: 'OTC',
-                therapeuticCategory: 'Analgesic, Antipyretic',
-                commonOcrErrors: ['DOL0', 'D0L0', 'ODLO', 'DOLO 6S0'],
-                regionalAvailability: ['Andhra Pradesh', 'Telangana', 'Karnataka', 'Pan India'],
-                andhraDistribution: ['Apollo Pharmacy AP', 'MedPlus Hyd/Vija'],
-                alternativeBrands: ['brand-crocin-650', 'brand-calpol-650'],
-                tabletShape: 'oval',
-                tabletColor: 'white',
-                imprintCodes: ['DOLO', '650'],
-                marketStatus: 'Active'
-            },
-            {
-                id: 'brand-ecosprin-75',
-                name: 'Ecosprin 75',
-                genericName: 'Aspirin',
-                manufacturer: 'USV Ltd',
-                strength: '75mg',
-                dosageForm: 'tablet',
-                prescriptionStatus: 'Rx',
-                therapeuticCategory: 'Antiplatelet',
-                commonOcrErrors: ['EC0SPRIN', 'ECOSPRN', 'E0SPRIN'],
-                regionalAvailability: ['Pan India'],
-                andhraDistribution: ['All major chains'],
-                alternativeBrands: ['brand-asa-75', 'brand-delisprin'],
-                tabletShape: 'round',
-                tabletColor: 'white',
-                imprintCodes: ['ECO', '75'],
-                marketStatus: 'Active'
-            },
-            {
-                id: 'brand-combiflam',
-                name: 'Combiflam',
-                genericName: 'Ibuprofen + Paracetamol',
-                manufacturer: 'Sanofi India Ltd',
-                strength: '400mg + 325mg',
-                dosageForm: 'tablet',
-                prescriptionStatus: 'OTC',
-                therapeuticCategory: 'Analgesic, Anti-inflammatory',
-                commonOcrErrors: ['C0MBIFLAM', 'COMB1FLAM'],
-                regionalAvailability: ['Pan India'],
-                andhraDistribution: ['Apollo Pharmacy AP', 'MedPlus'],
-                alternativeBrands: ['brand-flexon', 'brand-ibugesic-plus'],
-                tabletShape: 'capsule-shaped',
-                tabletColor: 'white',
-                imprintCodes: [],
-                marketStatus: 'Active'
-            },
-            {
-                id: 'brand-liv52',
-                name: 'Liv.52',
-                genericName: 'Ayurvedic Proprietary Medicine',
-                manufacturer: 'Himalaya Wellness',
-                strength: 'N/A',
-                dosageForm: 'tablet',
-                prescriptionStatus: 'OTC',
-                therapeuticCategory: 'Hepatoprotective',
-                commonOcrErrors: ['L1V.52', 'LIV52', 'LIV 52', 'L1V 52'],
-                regionalAvailability: ['Pan India'],
-                andhraDistribution: ['Ayurvedic Stores', 'Apollo Pharmacy'],
-                alternativeBrands: [],
-                tabletShape: 'round',
-                tabletColor: 'brown',
-                imprintCodes: ['LIV52'],
-                marketStatus: 'Active'
-            },
-            {
-                id: 'brand-pan-40',
-                name: 'Pan 40',
-                genericName: 'Pantoprazole',
-                manufacturer: 'Alkem Laboratories',
-                strength: '40mg',
-                dosageForm: 'tablet',
-                prescriptionStatus: 'Rx',
-                therapeuticCategory: 'Antacid, PPI',
-                commonOcrErrors: ['PAN40', 'P4N 40', 'PAN 4O'],
-                regionalAvailability: ['Pan India'],
-                andhraDistribution: ['All major chains'],
-                alternativeBrands: ['brand-pantocid', 'brand-pantodac'],
-                tabletShape: 'round',
-                tabletColor: 'yellow',
-                imprintCodes: ['PAN40'],
-                marketStatus: 'Active'
-            },
-            {
-                id: 'brand-symbicort',
-                name: 'Symbicort',
-                genericName: 'Budesonide + Formoterol',
-                manufacturer: 'AstraZeneca',
-                strength: '160mcg + 4.5mcg',
-                dosageForm: 'inhaler',
-                prescriptionStatus: 'Rx',
-                therapeuticCategory: 'Bronchodilator, Corticosteroid',
-                commonOcrErrors: ['SYMBIC0RT', 'SYMBICORT', '5YMBICORT'],
-                regionalAvailability: ['Pan India'],
-                andhraDistribution: ['Apollo Pharmacy AP', 'MedPlus Hyd/Vija'],
-                alternativeBrands: ['brand-foracort'],
-                tabletShape: 'inhaler device',
-                tabletColor: 'red/white',
-                imprintCodes: [],
-                marketStatus: 'Active'
-            },
-            {
-                id: 'brand-itratuf',
-                name: 'Itratuf',
-                genericName: 'Itraconazole',
-                manufacturer: 'Alkem Laboratories',
-                strength: '100mg',
-                dosageForm: 'capsule',
-                tabletColor: 'pink/white',
-                tabletShape: 'capsule',
-                therapeuticCategory: 'Antifungal',
-                prescriptionStatus: 'Rx',
-                regionalAvailability: ['Pan India'],
-                commonOcrErrors: ['ITRATUF', 'ltratuf', '1TRATUF', 'Itraconazole']
-            }
-        ];
+        console.log('[DatasetSyncManager] Fetching massive indian_medicine_data.json...');
+        try {
+            const response = await fetch('./data/indian_medicine_data.json');
+            if (!response.ok) throw new Error('Failed to fetch dataset');
+            
+            const records = await response.json();
+            console.log(`[DatasetSyncManager] Successfully parsed ${records.length} records. Starting DB Hydration...`);
 
-        let updateCount = 0;
-        await this.db.transaction('rw', this.db.medicine_knowledge, async () => {
-            for (const item of mockData) {
-                await this.db.medicine_knowledge.put(item);
-                updateCount++;
-            }
-        });
+            const CHUNK_SIZE = 2500;
+            let updateCount = 0;
+            
+            // Clear existing if any
+            await this.db.transaction('rw', this.db.medicine_knowledge, async () => {
+                await this.db.medicine_knowledge.clear();
+            });
 
-        return updateCount;
+            // Chunked insertion to keep phone completely lag-free
+            for (let i = 0; i < records.length; i += CHUNK_SIZE) {
+                const chunk = records.slice(i, i + CHUNK_SIZE);
+                await this.db.transaction('rw', this.db.medicine_knowledge, async () => {
+                    await this.db.medicine_knowledge.bulkAdd(chunk);
+                });
+                updateCount += chunk.length;
+                console.log(`[DatasetSyncManager] Hydrated ${updateCount}/${records.length}...`);
+                
+                // Yield to main thread with a 50ms window.
+                // This is CRITICAL because it allows background IndexedDB read queries (like the Scanner)
+                // to slip through and execute without getting stuck behind massive write locks.
+                await new Promise(resolve => setTimeout(resolve, 50));
+            }
+
+            console.log('[DatasetSyncManager] DB Hydration complete!');
+            return updateCount;
+        } catch (error) {
+            console.error('[DatasetSyncManager] Failed to hydrate DB:', error);
+            return 0;
+        }
     }
 }
 

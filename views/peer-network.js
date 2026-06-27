@@ -1,12 +1,12 @@
 import state from '../core/state.js';
 import PeerMesh from '../services/PeerMesh.js';
 import QRCode from 'https://esm.sh/qrcode@1.5.3';
+import { appConfirm } from '../utils/CustomModals.js';
 
 export default class PeerNetworkView {
   async render() {
     this.container = document.createElement('div');
     this.container.className = 'container';
-    
     const displayName = state.user?.displayName || 'Unknown Node';
     const mesh = PeerMesh.getInstance();
     await mesh.init();
@@ -472,6 +472,7 @@ export default class PeerNetworkView {
             if (await appConfirm(`This peer's phone number matches your emergency contact. Do you want to name this connection '${emergencyName}'?`, 'Emergency Contact Match')) {
                 const conn = mesh._connections.get(peerId);
                 if (conn) {
+                    if (!conn.metadata) conn.metadata = {};
                     conn.metadata.displayName = emergencyName;
                     peerName = emergencyName;
                     this.updateRoster(mesh);

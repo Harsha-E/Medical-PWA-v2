@@ -10,12 +10,12 @@ export function appAlert(msg, title = 'Alert') {
   return new Promise(resolve => {
     const modalHtml = `
       <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-surface/80 backdrop-blur-md animate-fade-in" id="alert-modal">
-        <div class="bg-surface-elevated border border-border w-full max-w-sm rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+        <div class="clay-modal w-full max-w-sm p-6 relative overflow-hidden">
           <div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent pointer-events-none"></div>
           <h2 class="text-xl font-bold text-text-primary mb-2">${title}</h2>
           <p class="text-sm text-text-secondary mb-6">${msg}</p>
           <div class="flex gap-3">
-            <button id="alert-ok" class="w-full py-3 rounded-xl bg-gradient-to-r from-secondary to-primary text-text-primary font-bold uppercase text-xs tracking-widest shadow-lg shadow-primary/20 active:scale-95 transition-transform">OK</button>
+            <button id="alert-ok" class="clay-modal-btn clay-modal-btn-primary w-full py-3 font-bold uppercase text-xs tracking-widest cursor-pointer">OK</button>
           </div>
         </div>
       </div>
@@ -35,13 +35,13 @@ export function appConfirm(msg, title = 'Confirm') {
   return new Promise(resolve => {
     const modalHtml = `
       <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-surface/80 backdrop-blur-md animate-fade-in" id="confirm-modal">
-        <div class="bg-surface-elevated border border-border w-full max-w-sm rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+        <div class="clay-modal w-full max-w-sm p-6 relative overflow-hidden">
           <div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent pointer-events-none"></div>
           <h2 class="text-xl font-bold text-text-primary mb-2">${title}</h2>
           <p class="text-sm text-text-secondary mb-6">${msg}</p>
           <div class="flex gap-3">
-            <button id="confirm-cancel" class="flex-1 py-3 rounded-xl border border-border text-text-secondary font-bold uppercase text-xs tracking-widest hover:bg-white/5 transition-colors">Cancel</button>
-            <button id="confirm-ok" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-secondary to-primary text-text-primary font-bold uppercase text-xs tracking-widest shadow-lg shadow-primary/20 active:scale-95 transition-transform">Confirm</button>
+            <button id="confirm-cancel" class="clay-modal-btn flex-1 py-3 text-text-secondary font-bold uppercase text-xs tracking-widest cursor-pointer">Cancel</button>
+            <button id="confirm-ok" class="clay-modal-btn clay-modal-btn-primary flex-1 py-3 font-bold uppercase text-xs tracking-widest cursor-pointer">Confirm</button>
           </div>
         </div>
       </div>
@@ -65,14 +65,14 @@ export function appPrompt(msg, title = 'Prompt') {
   return new Promise(resolve => {
     const modalHtml = `
       <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-surface/80 backdrop-blur-md animate-fade-in" id="prompt-modal">
-        <div class="bg-surface-elevated border border-border w-full max-w-sm rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+        <div class="clay-modal w-full max-w-sm p-6 relative overflow-hidden">
           <div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent pointer-events-none"></div>
           <h2 class="text-xl font-bold text-text-primary mb-2">${title}</h2>
           <p class="text-sm text-text-secondary mb-4">${msg}</p>
-          <input type="text" id="prompt-input" class="w-full bg-surface-deep border border-border rounded-xl px-4 py-3 text-text-primary text-sm focus:outline-none focus:border-accent-primary/50 mb-6">
+          <input type="text" id="prompt-input" class="w-full bg-surface-deep border border-border rounded-xl px-4 py-3 text-text-primary text-sm focus:outline-none focus:border-accent-primary/50 mb-6 shadow-inner">
           <div class="flex gap-3">
-            <button id="prompt-cancel" class="flex-1 py-3 rounded-xl border border-border text-text-secondary font-bold uppercase text-xs tracking-widest hover:bg-white/5 transition-colors">Cancel</button>
-            <button id="prompt-ok" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-secondary to-primary text-text-primary font-bold uppercase text-xs tracking-widest shadow-lg shadow-primary/20 active:scale-95 transition-transform">OK</button>
+            <button id="prompt-cancel" class="clay-modal-btn flex-1 py-3 text-text-secondary font-bold uppercase text-xs tracking-widest cursor-pointer">Cancel</button>
+            <button id="prompt-ok" class="clay-modal-btn clay-modal-btn-primary flex-1 py-3 font-bold uppercase text-xs tracking-widest cursor-pointer">OK</button>
           </div>
         </div>
       </div>

@@ -27,7 +27,7 @@ import SplashView           from './views/splash.js';
 import LandingView          from './views/landing.js';
 import LoginView            from './views/login.js';
 import RegisterView         from './views/register.js';
-import InstallView          from './views/install.js';
+import InstallView          from './views/install2.js';
 import OnboardingView       from './views/onboarding.js';
 import DashboardView        from './views/dashboard.js';
 import MedicationsView      from './views/medications.js';

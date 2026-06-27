@@ -10,25 +10,25 @@ self.onmessage = async (e) => {
 
         console.log("[Groq Worker] Sending payload...");
 
-        const promptText = `You are a medical OCR extraction engine. Analyze this image of a medicine package.
-Identify the primary brand name AND the generic/chemical name. 
-CRITICAL: Heavily isolate the primary brand name (e.g., "Symbicort", "Pan", "Itratuf") and the generic/active ingredient (e.g., "Itraconazole", "Pantoprazole"). Check for manufacturer/company names as well (e.g., Alkem). If a company name is found, carefully rescan the text to ensure you capture the actual medicine generic name.
+        const promptText = `You are an expert pharmaceutical extraction engine. Your job is to extract highly accurate data from medicine packaging.
+First, read all text on the packaging silently. Then, carefully identify the PRIMARY BRAND NAME (the trade name, usually in large stylized font) and the GENERIC/CHEMICAL NAME (the active ingredient, often written below the brand name or followed by "Tablets" / "Capsules" / etc.).
+Do not confuse manufacturer names (like Alkem, Sun Pharma, Cipla) with the medicine's brand or generic name.
 
-Return ONLY a pure JSON object in this exact format, with no markdown formatting or extra text:
+Return ONLY a strict JSON object with this EXACT structure (no markdown, no backticks, no extra text):
 {
-  "brandName": "isolated brand name here (if missing, use the generic name)",
-  "genericName": "isolated generic/chemical name here (critical for database matching)",
+  "brandName": "Exact Brand Name (e.g., 'Symbicort', 'Itratuf', 'Pan'. If there is no brand name, use the generic name)",
+  "genericName": "Exact Generic Name/Active Ingredient (e.g., 'Itraconazole', 'Pantoprazole'. Critical for clinical databases)",
   "dosage": {
-    "rawText": "exactly what is printed on label, e.g., '160/4.5 μg' or '100 mg'",
+    "rawText": "Exact printed strength (e.g., '160/4.5 μg' or '500 mg')",
     "parsed": {
-      "amount": "pure number or ratio string e.g., '160/4.5' or '100'",
-      "unit": "translate greek symbols like μg to mcg, e.g., 'mcg', 'mg', 'g', 'ml'"
+      "amount": "Numeric portion only (e.g., '160/4.5' or '500')",
+      "unit": "Unit portion only, normalizing greek symbols (e.g., 'mcg', 'mg', 'g', 'ml')"
     }
   },
-  "form": "e.g., Tablet, Inhaler, Liquid, Capsule",
-  "totalQuantity": "integer only (look explicitly for 'Doses', 'Puffs', 'Metered actuations', or 'Tablets' on the label and extract JUST the number, e.g. 60 or 120)",
-  "isAsNeeded": true or false (boolean, true if PRN / 'as needed' is indicated),
-  "manufacturer": "any manufacturer found (e.g. ALKEM)"
+  "form": "Dosage form (e.g., 'Tablet', 'Capsule', 'Inhaler', 'Syrup', 'Injection')",
+  "totalQuantity": "Integer value of total quantity in the pack (e.g. 10, 15, 60). Look for '10 Tablets' or '120 Metered Doses'. Extract JUST the number. If unknown, output null",
+  "isAsNeeded": true or false,
+  "manufacturer": "Company that makes the drug (e.g., 'ALKEM', 'Pfizer')"
 }`;
 
         const payload = {
@@ -49,7 +49,7 @@ Return ONLY a pure JSON object in this exact format, with no markdown formatting
         const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
             headers: {
-                'Authorization': 'Bearer YOUR_GROQ_API_KEY_HERE',
+                'Authorization': 'Bearer YOUR_GROQ_API_KEY', // NEVER HARDCODE API KEYS IN FRONTEND CODE
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(payload)

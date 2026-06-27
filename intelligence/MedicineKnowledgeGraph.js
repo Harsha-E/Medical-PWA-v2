@@ -16,13 +16,11 @@ export class MedicineKnowledgeGraph {
         await this.init();
         const lowerQuery = query.toLowerCase();
         
-        // Exact or partial match on name or generic name
+        // Highly optimized index query to prevent lagging on the 250k dataset
         const matches = await this.db.medicine_knowledge
-            .filter(med => {
-                return med.name.toLowerCase().includes(lowerQuery) || 
-                       med.genericName.toLowerCase().includes(lowerQuery) ||
-                       (med.commonOcrErrors && med.commonOcrErrors.some(err => err.toLowerCase().includes(lowerQuery)));
-            })
+            .where('name').startsWithIgnoreCase(query)
+            .or('genericName').startsWithIgnoreCase(query)
+            .limit(50)
             .toArray();
             
         return matches;

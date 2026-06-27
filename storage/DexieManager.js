@@ -8,7 +8,7 @@ export class DexieManager {
 
     initSchema() {
         // Define schema
-        this.db.version(2).stores({
+        this.db.version(3).stores({
             medicine_knowledge: 'id, name, genericName, manufacturer, therapeuticCategory, *commonOcrErrors, *alternativeBrands, *regionalAvailability',
             packaging_reference: 'id, medicineId, blisterLayout',
             scan_history: '++id, userId, timestamp, identifiedMedId',

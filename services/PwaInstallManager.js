@@ -62,7 +62,7 @@ export default class PwaInstallManager {
         if (window.location.hash.startsWith('#/install')) {
           this._showBanner(this.deferredPrompt ? 'Tap to Install' : 'Ready on Homescreen');
         }
-      }, 800);
+      }, 3000);
     }
 
     // Handle post-installation platform routing cleanly

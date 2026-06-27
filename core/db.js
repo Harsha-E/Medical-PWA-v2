@@ -2,12 +2,13 @@
  * MedCare | Local Database (IndexedDB via Dexie)
  */
 import Dexie from 'https://cdn.jsdelivr.net/npm/dexie@4.0.8/dist/dexie.mjs';
+import { appAlert } from './ui.js';
 
 const db = new Dexie('MedCareDB');
 
 // ─── ANTI-DEADLOCK SYSTEM ─────────────────────────────────────────────────────
-db.on('blocked', () => {
-  alert('Database upgrade blocked! Please close ALL other tabs running this app and click OK to refresh.');
+db.on('blocked', async () => {
+  await appAlert('Database upgrade blocked! Please close ALL other tabs running this app and click OK to refresh.', 'Database Blocked');
   window.location.reload();
 });
 

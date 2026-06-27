@@ -26,47 +26,62 @@ export default class ConfirmationGate {
             opacity: 0; transition: opacity 0.3s ease;
         `;
 
-        const drugName = aiPayload.brandName || aiPayload.graphMatch?.name || aiPayload.genericName || 'Unknown Medicine';
-        const genericName = aiPayload.graphMatch?.genericName || aiPayload.genericName || '';
-        const dosage = aiPayload.dosageAmount || aiPayload.dosage || '';
-        const form = aiPayload.graphMatch?.dosageForm || aiPayload.form || '';
+        const drugName = aiPayload.brandName || aiPayload.graphMatch?.name || aiPayload.name || aiPayload.genericName || 'Unknown Medicine';
+        const genericName = aiPayload.genericName || aiPayload.graphMatch?.genericName || '';
+        const dosage = aiPayload.dosage || aiPayload.dosageAmount || '';
+        const form = aiPayload.form || aiPayload.graphMatch?.dosageForm || '';
+        const manufacturer = aiPayload.manufacturer || '';
+        const schedule = aiPayload.schedule || '';
+        const expiryDate = aiPayload.expiryDate || '';
+        
+        const badges = [];
+        if (schedule) badges.push(`<span style="background: var(--color-warning); color: #000; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; margin-right: 6px; text-transform: uppercase; letter-spacing: 0.5px;">${schedule}</span>`);
+        if (aiPayload.confidence) badges.push(`<span style="background: rgba(16, 185, 129, 0.1); color: var(--color-success); border: 1px solid var(--color-success); padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">${Math.round(aiPayload.confidence * 100)}% Match</span>`);
+
+        const badgesHtml = badges.length ? `<div style="margin-bottom: var(--space-sm); display: flex; justify-content: center; align-items: center;">${badges.join('')}</div>` : '';
 
         const card = document.createElement('div');
-        // Premium Claymorphism Card
+        // Use global clay-glass-panel class from style.css
+        card.className = 'clay-glass-panel';
         card.style.cssText = `
-            background: #1e2435;
-            border-radius: 32px;
-            padding: 30px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: inset 2px 2px 5px rgba(255,255,255,0.05), 10px 10px 30px rgba(0,0,0,0.5);
+            padding: var(--space-lg);
+            width: 90%;
+            max-width: 350px;
             text-align: center;
             transform: translateY(20px);
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
         `;
 
         card.innerHTML = `
-            <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #1e90ff, #0984e3); border-radius: 50%; margin: 0 auto 20px auto; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 20px rgba(30, 144, 255, 0.3), inset 2px 2px 5px rgba(255,255,255,0.4);">
-                <span style="font-size: 32px; color: white;">🤖</span>
+            <!-- Top Right Rescan/Close Button -->
+            <button id="btn-rescan-match" style="position: absolute; top: 15px; right: 15px; background: transparent; border: none; color: var(--color-text-muted); font-size: 24px; cursor: pointer; transition: color 0.2s;">
+                ↻
+            </button>
+            
+            <div style="width: 50px; height: 50px; background: linear-gradient(135deg, var(--color-brand-blue), var(--color-brand-indigo)); border-radius: var(--radius-full); margin: 0 auto var(--space-md) auto; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3), inset 2px 2px 5px rgba(255,255,255,0.4);">
+                <span style="font-size: 24px; color: white;">✨</span>
             </div>
             
-            <h3 style="color: rgba(255,255,255,0.6); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 5px;">AI Match Detected</h3>
-            <h2 style="color: white; font-size: 1.8rem; font-weight: 800; margin: 0 0 10px 0;">${drugName}</h2>
+            <h2 style="color: var(--color-text-primary); font-size: var(--text-xl); font-weight: 800; margin: 0 0 var(--space-xs) 0; line-height: 1.2;">${drugName}</h2>
+            ${badgesHtml}
             
-            <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 16px; margin-bottom: 25px;">
-                <p style="color: #a4b0be; margin: 0 0 5px 0; font-size: 0.95rem;"><strong>Generic:</strong> ${genericName || 'N/A'}</p>
-                <p style="color: #a4b0be; margin: 0; font-size: 0.95rem;"><strong>Dosage:</strong> ${dosage} ${form}</p>
+            <div style="background: rgba(127, 47, 93, 0.05); padding: var(--space-md); border-radius: var(--radius-sm); margin-bottom: var(--space-md); width: 100%; border: 1px solid var(--color-border); box-shadow: inset 2px 2px 5px rgba(0,0,0,0.05); text-align: left;">
+                <p style="color: var(--color-text-primary); margin: 0; font-size: var(--text-sm);"><strong>Compound:</strong> <span style="color: var(--color-text-secondary);">${genericName || 'N/A'}</span></p>
+                <p style="color: var(--color-text-primary); margin: 6px 0 0 0; font-size: var(--text-sm);"><strong>Dosage:</strong> <span style="color: var(--color-text-secondary);">${dosage} ${form}</span></p>
+                ${manufacturer ? `<p style="color: var(--color-text-primary); margin: 6px 0 0 0; font-size: var(--text-sm);"><strong>Mfg:</strong> <span style="color: var(--color-text-secondary);">${manufacturer}</span></p>` : ''}
+                ${expiryDate ? `<p style="color: var(--color-danger); margin: 6px 0 0 0; font-size: var(--text-sm);"><strong>Expires:</strong> <span>${expiryDate}</span></p>` : ''}
             </div>
-
-            <p style="color: white; margin-bottom: 20px; font-weight: 600;">Is this correct?</p>
             
-            <div style="display: flex; gap: 15px; flex-direction: column;">
-                <button id="btn-confirm-match" style="background: #2ed573; color: white; border: none; padding: 18px; border-radius: 20px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 10px 20px rgba(46, 213, 115, 0.3), inset 2px 2px 5px rgba(255,255,255,0.3);">
-                    Yes, Confirm & Add
+            <div style="display: flex; gap: var(--space-sm); flex-direction: row; width: 100%;">
+                <button id="btn-reject-match" style="flex: 1; background: var(--color-surface); color: var(--color-text-primary); border: 1px solid var(--color-border); padding: var(--space-sm); border-radius: var(--radius-md); font-size: var(--text-sm); font-weight: bold; cursor: pointer; box-shadow: inset 2px 2px 5px rgba(255,255,255,0.05); transition: background 0.2s;">
+                    Edit
                 </button>
-                <button id="btn-reject-match" style="background: #2c3e50; color: #a4b0be; border: none; padding: 18px; border-radius: 20px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: inset 2px 2px 5px rgba(255,255,255,0.05);">
-                    No, Edit Manually
+                <button id="btn-confirm-match" style="flex: 2; background: var(--color-success); color: white; border: none; padding: var(--space-sm); border-radius: var(--radius-md); font-size: var(--text-sm); font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2), inset 2px 2px 5px rgba(255,255,255,0.3); transition: transform 0.2s;">
+                    Confirm
                 </button>
             </div>
         `;
@@ -89,6 +104,11 @@ export default class ConfirmationGate {
         document.getElementById('btn-reject-match').onclick = () => {
             overlay.style.opacity = '0';
             setTimeout(() => { overlay.remove(); onReject(aiPayload); }, 300);
+        };
+        
+        document.getElementById('btn-rescan-match').onclick = () => {
+            overlay.style.opacity = '0';
+            setTimeout(() => { overlay.remove(); }, 300);
         };
     }
 }

@@ -2,6 +2,7 @@
  * @fileoverview Scan Result View
  * The final minimal screen displaying extracted data and action buttons.
  */
+import { appAlert } from '../core/ui.js';
 
 const SCHEDULE_INFO = {
   'H': { color: '#ef4444' },
@@ -180,7 +181,7 @@ export default class ScanResultView {
     if (btnRescan) btnRescan.addEventListener('click', () => window.location.hash = '#/scan');
     if (btnFamily) btnFamily.addEventListener('click', () => window.location.hash = '#/family-profiles');
     if (btnInteractions) btnInteractions.addEventListener('click', () => window.location.hash = '#/interaction-checker');
-    if (btnEvidence) btnEvidence.addEventListener('click', () => alert('Evidence Telemetry viewer coming soon...'));
+    if (btnEvidence) btnEvidence.addEventListener('click', async () => await appAlert('Evidence Telemetry viewer coming soon...', 'Coming Soon'));
     
     if (btnAdd) {
       btnAdd.addEventListener('click', () => {

@@ -80,12 +80,68 @@
                         await graph.init();
 
                         console.log("[VisionPipeline] Bypassing legacy search. Deploying Advanced Fuzzy Matcher...");
-                        const fullDataset = await graph.db.medicine_knowledge.toArray();
                         
-                        // Pass the entire AI payload for contextual scoring (dosage, mfg, form, array fields)
-                        bestMatch = FuzzyMatcher.resolveComplexPayload(result, fullDataset);
+                        // Optimized DB Query to prevent 250k full table scan lag
+                        const brandPrefix = String(brandToMatch || '').substring(0, 2).toLowerCase();
+                        const genericPrefix = String(genericToMatch || '').substring(0, 2).toLowerCase();
                         
-                        if (bestMatch) {
+                        // Always do the fast prefix search
+                        let candidateDataset = [];
+                        if (brandPrefix.length >= 2 || genericPrefix.length >= 2) {
+                            const query = graph.db.medicine_knowledge.where('name').startsWithIgnoreCase(brandPrefix);
+                            if (genericPrefix.length >= 2) {
+                                query.or('genericName').startsWithIgnoreCase(genericPrefix);
+                            }
+                            candidateDataset = await query.limit(1500).toArray(); 
+                        } else {
+                            candidateDataset = await graph.db.medicine_knowledge.limit(100).toArray();
+                        }
+                        
+                        // Per user request: ALWAYS run a deep substring scan for cropped OCR (e.g., 'apen' matching 'Megapen')
+                        // We merge this with the prefix dataset to ensure comprehensive candidate presentation.
+                        const brandTarget = String(brandToMatch || '').toLowerCase();
+                        const genericTarget = String(genericToMatch || '').toLowerCase();
+                        
+                        if (brandTarget.length >= 3 || genericTarget.length >= 3) {
+                            console.log(`[VisionPipeline] Executing deep substring scan using optimized key-index (target: '${brandTarget}'/'${genericTarget}')...`);
+                            
+                            let substringDataset = [];
+                            try {
+                                substringDataset = await graph.db.medicine_knowledge
+                                    .filter(item => {
+                                        let match = false;
+                                        if (brandTarget.length >= 3 && item.name && item.name.toLowerCase().includes(brandTarget)) {
+                                            match = true;
+                                        }
+                                        if (genericTarget.length >= 3 && item.genericName && item.genericName.toLowerCase().includes(genericTarget)) {
+                                            match = true;
+                                        }
+                                        return match;
+                                    })
+                                    .limit(30)
+                                    .toArray();
+                            } catch(e) {
+                                console.warn("[VisionPipeline] Deep substring scan failed:", e);
+                            }
+                            
+                            // Merge and deduplicate
+                            const merged = [...candidateDataset, ...substringDataset];
+                            const uniqueMap = new Map();
+                            merged.forEach(d => {
+                                const key = d.id || d.name;
+                                if (!uniqueMap.has(key)) uniqueMap.set(key, d);
+                            });
+                            candidateDataset = Array.from(uniqueMap.values());
+                        }
+
+                        // Pass the comprehensive dataset for contextual scoring
+                        bestMatch = null;
+                        let candidates = [];
+                        let matchOutput = FuzzyMatcher.resolveComplexPayload(result, candidateDataset);
+                        
+                        if (matchOutput) {
+                            bestMatch = matchOutput.bestMatch;
+                            candidates = matchOutput.candidates || [];
                             console.log("[Fuzzy Matcher] Successfully matched payload to:", bestMatch.name || bestMatch.genericName);
                         }
 
@@ -102,6 +158,7 @@
                                 totalQuantity: result.totalQuantityCount || null,
                                 isRawPayload: true
                             };
+                            candidates = [bestMatch];
                         }
 
                         console.log("[Graph Search] Match Result:", bestMatch || "FAILED - No match found");
@@ -117,7 +174,8 @@
                             quantity: bestMatch.totalQuantity,
                             unit: '', 
                             bbox: null,
-                            bestMatch: bestMatch
+                            bestMatch: bestMatch,
+                            candidates: candidates
                         });
                     };
 

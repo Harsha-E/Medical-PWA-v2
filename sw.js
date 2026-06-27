@@ -1,7 +1,7 @@
 /**
  * MedCare | Service Worker — Offline-First Cache
  */
-const CACHE_NAME = 'medcare-v10';
+const CACHE_NAME = 'medcare-v24';
 const BASE_PATH = self.location.hostname === 'harsha-e.github.io' ? '/Medical-PWA-v2' : '';
 
 const ASSETS = [
@@ -12,6 +12,7 @@ const ASSETS = [
   '/manifest.local.json',
   '/manifest.github.json',
   '/assets/logo.webp',
+  '/assets/Bg-Video.webm',
   '/core/db.js',
   '/core/router.js',
   '/core/state.js',
@@ -35,7 +36,8 @@ const ASSETS = [
   '/views/emergency.js',
   '/views/appointments.js',
   '/views/admin.js',
-  '/views/install.js',
+  '/views/install2.js',
+  '/utils/CustomModals.js',
   '/services/PeerMesh.js',
   '/services/SyncBridge.js',
   '/services/DocLedger.js',

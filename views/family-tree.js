@@ -3,6 +3,7 @@
  * Renders spatial PeerJS connections, handles 3-second context switching,
  * profile mapping, draggable nodes, and animated data pulses.
  */
+import { appAlert } from '../core/ui.js';
 
 export default class FamilyTreeView {
     constructor(container) {
@@ -202,13 +203,13 @@ export default class FamilyTreeView {
         const qrImage = this.container.querySelector('#qr-image');
         const btnCloseQr = this.container.querySelector('#btn-close-qr');
 
-        btnAdd.onclick = () => {
+        btnAdd.onclick = async () => {
             const myId = window.familyMesh?.peer?.id;
             if (myId) {
                 qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=medcare://peer/${myId}&color=ffffff&bgcolor=1e293b`;
                 qrModal.style.display = 'flex';
             } else {
-                alert("You are currently offline. Cannot generate pairing code.");
+                await appAlert("You are currently offline. Cannot generate pairing code.", "Offline");
             }
         };
         btnCloseQr.onclick = () => qrModal.style.display = 'none';

@@ -61,6 +61,7 @@ export default class FuzzyMatcher {
 
         let bestMatch = null;
         let highestScore = 0;
+        let candidates = [];
         const CONFIDENCE_THRESHOLD = 50; // Minimum score required to accept a fuzzy match
 
         for (const drug of dataset) {
@@ -149,6 +150,10 @@ export default class FuzzyMatcher {
                 }
             }
 
+            if (score >= CONFIDENCE_THRESHOLD) {
+                candidates.push({ drug, score });
+            }
+
             // Check if this is the new best
             if (score > highestScore) {
                 highestScore = score;
@@ -156,12 +161,26 @@ export default class FuzzyMatcher {
             }
             
             // Optimization: If score is incredibly high early on, we can short circuit
-            if (highestScore >= 95) break;
+            if (highestScore >= 95) {
+                // Ensure the perfect match is in candidates if it just hit >=95
+                if (!candidates.find(c => c.drug === bestMatch)) {
+                    candidates.push({ drug: bestMatch, score: highestScore });
+                }
+                break;
+            }
         }
 
         if (highestScore >= CONFIDENCE_THRESHOLD) {
             console.log(`[FuzzyMatcher] Resolving payload to ${bestMatch.name || bestMatch.genericName} with Confidence Score: ${highestScore.toFixed(1)}/100`);
-            return bestMatch;
+            
+            // Sort candidates by score descending and take top 5
+            candidates.sort((a, b) => b.score - a.score);
+            const topCandidates = candidates.slice(0, 5).map(c => c.drug);
+
+            return {
+                bestMatch: bestMatch,
+                candidates: topCandidates
+            };
         } else {
             console.warn(`[FuzzyMatcher] Failed to resolve. Highest score was ${highestScore.toFixed(1)}/100, below threshold of ${CONFIDENCE_THRESHOLD}`);
             return null;

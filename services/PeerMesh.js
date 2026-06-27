@@ -4,6 +4,7 @@
 
 import state from '../core/state.js';
 import SyncBridge from './SyncBridge.js';
+import { appAlert } from '../core/ui.js';
 
 let instance = null;
 
@@ -241,8 +242,12 @@ export default class PeerMesh {
             window.dispatchEvent(new CustomEvent('medcare:write-granted', { detail: { peerId } }));
         } else if (data && data.type === 'emergency-sos') {
             // High-priority alert for receiving peers
-            alert(`CRITICAL EMERGENCY SOS RECEIVED!\n\nFrom Peer: ${peerId.substring(0,6)}...\nMessage: ${data.payload?.message}\nLocation: ${data.payload?.location || 'Unknown'}`);
-            window.dispatchEvent(new CustomEvent('medcare:sos-received', { detail: { peerId, ...data.payload } }));
+            this._handleSOS(peerId, data.payload);
         }
+    }
+
+    async _handleSOS(peerId, payload) {
+        await appAlert(`CRITICAL EMERGENCY SOS RECEIVED!\n\nFrom Peer: ${peerId.substring(0,6)}...\nMessage: ${payload?.message}\nLocation: ${payload?.location || 'Unknown'}`, 'EMERGENCY');
+        window.dispatchEvent(new CustomEvent('medcare:sos-received', { detail: { peerId, ...payload } }));
     }
 }
