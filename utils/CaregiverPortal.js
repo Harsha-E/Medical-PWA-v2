@@ -4,6 +4,65 @@
  */
 
 export default class CaregiverPortal {
+    // Audit Trail: Wraps the payload with identity/time data
+    static signPayload(data, actorId) {
+        return {
+            ...data,
+            audit_trail: {
+                actorId: actorId,
+                timestamp: new Date().toISOString(),
+                nodeId: navigator.userAgent.substring(0, 20), // Placeholder for device ID
+                integrityHash: btoa(JSON.stringify(data) + Date.now()) // Simple proof of submission
+            }
+        };
+    }
+
+    // Clinical Idle Timeout Engine
+    static createIdleTimer(onTimeout) {
+        let timeoutId;
+        const idleDuration = 180000; // 3 minutes in ms
+        const warnDuration = 15000; // 15 seconds warning
+
+        const reset = () => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(onTimeout, idleDuration);
+            
+            // Update UI progress bar if it exists
+            const pb = document.getElementById('session-progress');
+            if (pb) {
+                // Reset width to 100% instantly
+                pb.style.transition = 'none';
+                pb.style.width = '100%';
+                pb.style.backgroundColor = '#3b82f6'; // Reset to blue
+                
+                // Force reflow
+                void pb.offsetWidth;
+                
+                // Start shrink animation
+                pb.style.transition = `width ${idleDuration}ms linear`;
+                pb.style.width = '0%';
+                
+                // Set timeout for red fade warning
+                clearTimeout(this._warnTimeoutId);
+                this._warnTimeoutId = setTimeout(() => {
+                    pb.style.transition = `width ${warnDuration}ms linear, background-color 0.5s ease`;
+                    pb.style.backgroundColor = '#ef4444'; // Fade to red
+                }, idleDuration - warnDuration);
+            }
+        };
+
+        const activityEvents = ['mousemove', 'keydown', 'touchstart'];
+        activityEvents.forEach(evt => window.addEventListener(evt, reset));
+
+        reset(); // Start immediately
+
+        return () => {
+            activityEvents.forEach(evt => window.removeEventListener(evt, reset));
+            clearTimeout(timeoutId);
+            clearTimeout(this._warnTimeoutId);
+        };
+    }
+
     /**
      * Deterministic color generator based on the hash/PeerID
      */
@@ -35,11 +94,26 @@ export default class CaregiverPortal {
             header.id = 'caregiver-portal-header';
             header.style.cssText = `
                 position: fixed; top: 15px; left: 50%; transform: translateX(-50%);
-                z-index: 100000; display: flex; align-items: center; gap: 15px;
+                z-index: 100000; display: flex; flex-direction: column; align-items: center; gap: 5px;
                 padding: 10px 20px; border-radius: 30px; font-family: 'Inter', sans-serif;
                 font-weight: bold; cursor: pointer; backdrop-filter: blur(20px);
-                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden;
             `;
+            
+            // The session progress bar at the top of the header
+            const pb = document.createElement('div');
+            pb.id = 'session-progress';
+            pb.style.cssText = `
+                position: absolute; top: 0; left: 0; height: 3px; width: 100%;
+                background-color: #3b82f6; border-radius: 3px 3px 0 0;
+            `;
+            header.appendChild(pb);
+            
+            const content = document.createElement('div');
+            content.style.cssText = `display: flex; align-items: center; gap: 15px; width: 100%; justify-content: space-between;`;
+            content.id = 'caregiver-portal-content';
+            header.appendChild(content);
+
             document.body.appendChild(header);
         }
 
@@ -47,13 +121,23 @@ export default class CaregiverPortal {
         header.style.border = `1px solid ${themeColor}`;
         header.style.color = themeColor;
         
-        header.innerHTML = `
-            <span>👁️ Managing: ${peerName}</span>
-            <div style="background: ${themeColor}; color: #000; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem;">Exit</div>
-        `;
+        const content = document.getElementById('caregiver-portal-content');
+        if (content) {
+            content.innerHTML = `
+                <span>👁️ Managing: ${peerName}</span>
+                <div style="background: ${themeColor}; color: #000; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem;">Exit</div>
+            `;
+        }
 
         // Click to exit portal and return to your own timeline
         header.onclick = () => this.exitPortal();
+
+        // 3. Initialize the Idle Timer
+        if (this._cleanupTimer) this._cleanupTimer(); // Cleanup existing if any
+        this._cleanupTimer = this.createIdleTimer(() => {
+            console.warn("[Portal] Idle timeout reached. Exiting Caregiver Mode to prevent data cross-contamination.");
+            this.exitPortal();
+        });
     }
 
     static exitPortal() {
@@ -67,6 +151,17 @@ export default class CaregiverPortal {
         const header = document.getElementById('caregiver-portal-header');
         if (header) header.remove();
 
+        // Cleanup timer
+        if (this._cleanupTimer) {
+            this._cleanupTimer();
+            this._cleanupTimer = null;
+        }
+
         console.log("[Portal] Exited Caregiver Mode. Returned to Self context.");
+        
+        // If we are on a page that depends on activeProfileContext, we might want to redirect to dashboard
+        if (window.location.hash !== '#/dashboard') {
+            window.location.hash = '#/dashboard';
+        }
     }
 }

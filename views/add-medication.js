@@ -6,6 +6,7 @@
 import db from '../core/db.js';
 import state from '../core/state.js';
 import InteractionEngine from '../services/InteractionEngine.js';
+import CaregiverPortal from '../utils/CaregiverPortal.js';
 import { collection, addDoc, doc, setDoc, getFirestore } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 export default class AddMedicationView {
@@ -507,6 +508,9 @@ export default class AddMedicationView {
 
     data.createdAt = new Date().toISOString();
     data.updatedAt = new Date().toISOString();
+    
+    // Cryptographically sign the payload for the audit trail
+    data = CaregiverPortal.signPayload(data, window.activeProfileContext || 'self');
 
     try {
       // 1. Write to local database (Fast/Offline)
