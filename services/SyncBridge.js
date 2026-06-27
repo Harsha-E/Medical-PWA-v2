@@ -1,105 +1,141 @@
 /**
- * @fileoverview Y.js CRDT Sync Layer for PeerMesh
+ * SyncBridge.js
+ * Implements Offline Queueing and CRDT (Conflict-Free Replicated Data Types)
+ * for the MedCheck P2P Mesh Network.
  */
-import * as Y from 'https://esm.sh/yjs@13.6.14';
-import db from '../core/db.js';
-import PeerMesh from './PeerMesh.js';
-import state from '../core/state.js';
 
-let instance = null;
+import db from '../core/db.js';
 
 export default class SyncBridge {
-    constructor() {
-        if (instance) return instance;
-        instance = this;
-        this._docs = new Map();
-    }
+    /**
+     * Queues a mutation for offline syncing.
+     * @param {string} action 'ADD', 'UPDATE', or 'DELETE'
+     * @param {string} table The Dexie table name
+     * @param {object} record The full record data (with logicalClock and updatedAt)
+     */
+    static async queueMutation(action, table, record) {
+        // Increment logical clock
+        record.logicalClock = (record.logicalClock || 0) + 1;
+        record.updatedAt = new Date().toISOString();
 
-    static getInstance() {
-        if (!instance) {
-            instance = new SyncBridge();
+        if (action === 'DELETE') {
+            record.isDeleted = true;
+            action = 'UPDATE'; // A delete is just an update with the tombstone set
         }
-        return instance;
+
+        const payload = { ...record };
+
+        // Save to the actual table first
+        if (action === 'ADD') {
+            if (!record.id) {
+                record.id = await db[table].add(record);
+                payload.id = record.id;
+            } else {
+                await db[table].put(record);
+            }
+        } else if (action === 'UPDATE') {
+            await db[table].put(record);
+        }
+
+        // Add to sync queue
+        await db.sync_queue.add({
+            action,
+            table,
+            recordId: record.id,
+            payload,
+            timestamp: Date.now(),
+            status: 'pending',
+            retryCount: 0
+        });
+
+        console.log(`[SyncBridge] Queued ${action} on ${table}:${record.id}`);
+
+        // Try to flush immediately if online
+        if (navigator.onLine) {
+            // We dispatch an event so PeerMeshV2 can pick it up and flush
+            window.dispatchEvent(new CustomEvent('medcare:sync-queued'));
+        }
     }
 
     /**
-     * Attaches a Y.js document to an active peer session.
-     * @param {string} peerId - The ID of the peer.
-     * @param {string} permissionLevel - 'READ_ONLY' or 'READ_WRITE'
+     * Flushes the offline queue and sends payloads over the provided peer connection.
      */
-    async attachToSession(peerId, permissionLevel) {
-        try {
-            const ydoc = new Y.Doc();
-            this._docs.set(peerId, { ydoc, permission: permissionLevel });
+    static async processQueue(meshInstance) {
+        if (!meshInstance || !meshInstance._connections) return;
+        const peers = Array.from(meshInstance._connections.keys());
+        if (peers.length === 0) return;
 
-            const mesh = PeerMesh.getInstance();
-            const conn = mesh._connections.get(peerId);
+        const pending = await db.sync_queue.where('status').equals('pending').toArray();
+        if (pending.length === 0) return;
 
-            if (!conn) throw new Error('No active connection found for this peer.');
+        console.log(`[SyncBridge] Flushing ${pending.length} queued items to peers...`);
 
-            ydoc.on('update', (update, origin) => {
-                if (origin !== 'remote') {
-                    conn.send({ type: 'yjs-update', payload: Array.from(update) });
+        for (const item of pending) {
+            const message = {
+                type: 'CRDT_SYNC',
+                table: item.table,
+                payload: item.payload
+            };
+
+            let successCount = 0;
+            for (const peerId of peers) {
+                try {
+                    meshInstance.sendMessage(peerId, message);
+                    successCount++;
+                } catch (e) {
+                    console.warn(`[SyncBridge] Failed to send to ${peerId}:`, e);
                 }
-            });
+            }
 
-            const sharedProfile = ydoc.getMap('userProfile');
-
-            sharedProfile.observe(async (event) => {
-                if (event.transaction.origin === 'remote') {
-                    const updatedData = sharedProfile.toJSON();
-                    await this._flushToDb(peerId, updatedData);
-                }
-            });
-
-        } catch (err) {
-            console.error('[SyncBridge] Failed to attach to session:', err);
+            if (successCount > 0) {
+                // Mark as synced if sent to at least one peer
+                await db.sync_queue.update(item.id, { status: 'synced' });
+            }
         }
     }
 
     /**
-     * Flushes updated data from the Y.js doc to the Dexie database.
-     * @param {string} peerId 
-     * @param {Object} data 
+     * Applies an incoming CRDT payload using Last-Write-Wins (LWW).
      */
-    async _flushToDb(peerId, data) {
+    static async applyIncomingSync(message, senderId) {
+        const { table, payload } = message;
+        
         try {
-            const localUserId = state.user?.uid;
-            if (!localUserId) throw new Error('User not authenticated.');
+            const existingRecord = await db[table].get(payload.id);
 
-            await db.family.where('userId').equals(localUserId).modify(data);
-        } catch (err) {
-            console.error('[SyncBridge] DB flush failed:', err);
+            if (existingRecord) {
+                // Conflict Resolution (LWW)
+                const localTime = new Date(existingRecord.updatedAt).getTime();
+                const remoteTime = new Date(payload.updatedAt).getTime();
+
+                if (remoteTime > localTime) {
+                    // Remote is newer, accept
+                    await db[table].put(payload);
+                    console.log(`[SyncBridge] Applied newer remote record for ${table}:${payload.id}`);
+                } else if (remoteTime === localTime) {
+                    // Tie-breaker: Alphabetical Peer ID
+                    const localPeerId = localStorage.getItem('medcheck_peer_v2_id') || 'Z';
+                    if (senderId > localPeerId) {
+                        await db[table].put(payload);
+                        console.log(`[SyncBridge] Tie-breaker won by remote for ${table}:${payload.id}`);
+                    } else {
+                        console.log(`[SyncBridge] Tie-breaker won by local for ${table}:${payload.id}`);
+                    }
+                } else {
+                    // Local is newer, ignore
+                    console.log(`[SyncBridge] Ignored older remote record for ${table}:${payload.id}`);
+                }
+            } else {
+                // Doesn't exist locally, add it
+                await db[table].put(payload);
+                console.log(`[SyncBridge] Inserted new remote record for ${table}:${payload.id}`);
+            }
+
+            // Dispatch event to refresh UI
+            window.dispatchEvent(new CustomEvent('medcare:data-synced', { detail: { table } }));
+
+        } catch (e) {
+            console.error(`[SyncBridge] Failed to apply incoming sync for ${table}:`, e);
         }
-    }
-
-    /**
-     * Handles an incoming remote update from the data channel.
-     * @param {string} peerId 
-     * @param {Array} payload 
-     */
-    handleRemoteUpdate(peerId, payload) {
-        const session = this._docs.get(peerId);
-        if (session) {
-            Y.applyUpdate(session.ydoc, new Uint8Array(payload), 'remote');
-        }
-    }
-
-    /**
-     * Updates a shared field if permission allows.
-     * @param {string} peerId 
-     * @param {string} key 
-     * @param {any} value 
-     */
-    setSharedField(peerId, key, value) {
-        const session = this._docs.get(peerId);
-        if (!session) return;
-
-        if (session.permission !== 'READ_WRITE') {
-            console.warn('[SyncBridge] Write blocked. READ_ONLY session.');
-            return;
-        }
-
-        session.ydoc.getMap('userProfile').set(key, value);
     }
 }

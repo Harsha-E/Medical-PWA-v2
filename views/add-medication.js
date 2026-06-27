@@ -7,6 +7,7 @@ import db from '../core/db.js';
 import state from '../core/state.js';
 import InteractionEngine from '../services/InteractionEngine.js';
 import CaregiverPortal from '../utils/CaregiverPortal.js';
+import SyncBridge from '../services/SyncBridge.js';
 import { collection, addDoc, doc, setDoc, getFirestore } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 export default class AddMedicationView {
@@ -513,11 +514,13 @@ export default class AddMedicationView {
     data = CaregiverPortal.signPayload(data, window.activeProfileContext || 'self');
 
     try {
-      // 1. Write to local database (Fast/Offline)
+      // 1. Write to local database and Queue for P2P Sync (Offline-First CRDT)
       if (this.isEdit && this.medId) {
-        await db.medications.update(this.medId, data);
+        data.id = this.medId;
+        await SyncBridge.queueMutation('UPDATE', 'medications', data);
       } else {
-        this.medId = await db.medications.add(data);
+        await SyncBridge.queueMutation('ADD', 'medications', data);
+        this.medId = data.id; // queueMutation adds 'id' to payload if ADD
       }
 
       // 2. DUAL-WRITE: Write to Firestore (Cloud Sync) - Do not await to avoid offline hanging

@@ -60,25 +60,44 @@ export default class PeerMeshV2 {
         conn.on('open', () => {
             console.log(`[PeerMeshV2] ✅ Secure channel opened with ${conn.peer}`);
             this.connections.set(conn.peer, conn);
+
+            // Flush offline queue on new connection
+            import('./SyncBridge.js').then(module => {
+                module.default.processQueue(this);
+            }).catch(err => console.error("Failed to load SyncBridge for flush", err));
         });
 
         conn.on('data', (payload) => {
             console.log(`[PeerMeshV2] 📦 Data received from ${conn.peer}:`, payload);
-            if (this.onSyncReceived) {
+
+            if (payload && payload.type === 'CRDT_SYNC') {
+                import('./SyncBridge.js').then(module => {
+                    module.default.applyIncomingSync(payload, conn.peer);
+                });
+            } else if (this.onSyncReceived) {
                 // Trigger the local database update
                 this.onSyncReceived(payload);
-
-                // Dispatch global event for UI visual data pulses
-                window.dispatchEvent(new CustomEvent('peermesh:data-received', {
-                    detail: { from: conn.peer, payload: payload }
-                }));
             }
+
+            // Dispatch global event for UI visual data pulses
+            window.dispatchEvent(new CustomEvent('peermesh:data-received', {
+                detail: { from: conn.peer, payload: payload }
+            }));
         });
 
         conn.on('close', () => {
             console.log(`[PeerMeshV2] ❌ Disconnected from ${conn.peer}`);
             this.connections.delete(conn.peer);
         });
+    }
+
+    sendMessage(peerId, message) {
+        const conn = this.connections.get(peerId);
+        if (conn && conn.open) {
+            conn.send(message);
+        } else {
+            throw new Error(`Connection to ${peerId} is not open`);
+        }
     }
 
     broadcastUpdate(action, data) {
