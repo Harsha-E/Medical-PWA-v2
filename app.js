@@ -290,7 +290,11 @@ class App {
         if (user) {
           await state.hydrate(user); // Must be strictly awaited
           // Check for QR deep links once hydrated
-          QRManager.checkDeepLink(PeerMeshV2.getInstance());
+          setTimeout(() => {
+              if (window.familyMesh) {
+                  QRManager.checkDeepLink(window.familyMesh);
+              }
+          }, 500);
         } else {
           state.clear();
         }

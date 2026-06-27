@@ -174,10 +174,6 @@ export default class PeerNetworkView {
         setTimeout(() => {
             const qrContainer = this.container.querySelector('#qr-container');
             if (qrContainer && id) {
-                // Ensure visibility against any background by forcing white canvas background
-                qrContainer.style.backgroundColor = '#ffffff';
-                qrContainer.style.padding = '10px';
-                qrContainer.style.borderRadius = '12px';
                 QRManager.generateConnectQR(qrContainer, id);
             }
         }, 150);

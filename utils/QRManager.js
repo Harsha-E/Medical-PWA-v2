@@ -55,10 +55,14 @@ export default class QRManager {
             window.history.replaceState({}, document.title, window.location.pathname);
             
             // Trigger the connection in the mesh
-            if (peerMeshInstance && typeof peerMeshInstance.connectToPeer === 'function') {
-                peerMeshInstance.connectToPeer(targetPeer); // Our peer mesh has connectToPeer
+            if (peerMeshInstance) {
+                if (typeof peerMeshInstance.connectToPeer === 'function') {
+                    peerMeshInstance.connectToPeer(targetPeer); // V1
+                } else if (typeof peerMeshInstance.connectToFamilyMember === 'function') {
+                    peerMeshInstance.connectToFamilyMember(targetPeer); // V2
+                }
             } else {
-                console.error("[QRManager] peerMeshInstance not provided or missing connectToPeer method.");
+                console.error("[QRManager] peerMeshInstance not provided.");
             }
         }
     }
