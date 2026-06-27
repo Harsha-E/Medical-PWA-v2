@@ -206,27 +206,29 @@ export default class InstallView2 {
       const width = x + horizontalPadding;
       const height = fontSize * 3;
       const maskId = 'signature-reveal-mask';
-      const duration = 1; // Each letter takes 1s to draw
-      const stagger = 0.5; // Stagger next letter by 0.5s (Total for 9 letters = 5s)
+      const duration = 1.5; // Componentry defaults to 1.5s
+      const stagger = 0.2; // Componentry defaults to 0.2s stagger
 
       let svgContent = `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" fill="none" class="overflow-visible" style="max-width: 100%; height: auto;">
         <defs>
           <mask id="${maskId}" maskUnits="userSpaceOnUse">
             ${paths.map((d, i) => `
-              <path d="${d}" stroke="white" stroke-width="${fontSize * 0.22}" fill="none" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" pathLength="100" stroke-dasharray="100" style="opacity: 0; animation: signature-draw-op ${duration}s linear ${i * stagger}s forwards;" />
+              <path d="${d}" stroke="white" stroke-width="${fontSize * 0.22}" fill="none" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" pathLength="100" stroke-dasharray="100" style="opacity: 0; animation: signature-draw-op ${duration}s ease-in-out ${i * stagger}s forwards;" />
             `).join('')}
           </mask>
         </defs>
 
         <!-- Base outline strokes -->
         ${paths.map((d, i) => `
-          <path d="${d}" stroke="${color}" stroke-width="2" fill="none" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" pathLength="100" stroke-dasharray="100" style="opacity: 0; animation: signature-draw-op ${duration}s linear ${i * stagger}s forwards;" />
+          <path d="${d}" stroke="${color}" stroke-width="2" fill="none" vector-effect="non-scaling-stroke" stroke-linecap="butt" stroke-linejoin="round" pathLength="100" stroke-dasharray="100" style="opacity: 0; animation: signature-draw-op ${duration}s ease-in-out ${i * stagger}s forwards;" />
         `).join('')}
 
-        <!-- Filled body (rendered directly without mask to ensure perfect solid fill) -->
-        ${paths.map((d, i) => `
-          <path d="${d}" fill="${fillColor}" fill-rule="nonzero" style="opacity: 0; animation: signature-fade 0.5s ease-out ${i * stagger + duration - 0.2}s forwards;" />
-        `).join('')}
+        <!-- Filled body perfectly masked as per React componentry -->
+        <g mask="url(#${maskId})">
+          ${paths.map((d, i) => `
+            <path d="${d}" fill="${fillColor}" />
+          `).join('')}
+        </g>
       </svg>`;
 
       const container = this.container.querySelector('#signature-container');
