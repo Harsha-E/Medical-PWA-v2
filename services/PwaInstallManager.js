@@ -30,9 +30,22 @@ export default class PwaInstallManager {
     this._createBanner();
 
     // Connect to early-captured prompt or listen for new ones
+    const resetInstalledBanner = () => {
+      const btn = this.bannerEl?.querySelector('#pwa-action-btn');
+      if (btn) {
+        btn.textContent = 'Install';
+        btn.classList.remove('bg-[#10b981]/20', 'text-[#10b981]', 'border-[#10b981]/50', 'opacity-70', 'cursor-not-allowed');
+        btn.classList.add('text-[#ffb88c]', 'border-[#ffb88c]/20', 'cursor-pointer');
+      }
+      const textNode = this.bannerEl?.querySelector('#pwa-banner-text');
+      if (textNode) textNode.textContent = 'Tap to Install';
+    };
+
     const handlePrompt = (e) => {
       e.preventDefault();
       this.deferredPrompt = e;
+      localStorage.removeItem('pwa_installed');
+      resetInstalledBanner();
       this._showBanner('Tap to Install');
       this.onChange?.('ready');
     };
@@ -40,6 +53,10 @@ export default class PwaInstallManager {
     if (window.deferredInstallPrompt) {
       handlePrompt(window.deferredInstallPrompt);
     }
+    
+    // Also listen globally in case it fires after instantiation
+    window.addEventListener('beforeinstallprompt', handlePrompt);
+
     const forceInstalledBanner = () => {
       const btn = this.bannerEl?.querySelector('#pwa-action-btn');
       if (btn) {
@@ -54,15 +71,18 @@ export default class PwaInstallManager {
     // If we know it's installed from a previous session, show the Installed banner on the install route
     if (!this._isStandalone() && (localStorage.getItem('pwa_installed') === 'true' || window.location.hash.startsWith('#/install'))) {
       setTimeout(() => {
-        if (!this.deferredPrompt) {
-          localStorage.setItem('pwa_installed', 'true');
-          forceInstalledBanner();
-        }
-        
         if (window.location.hash.startsWith('#/install')) {
-          this._showBanner(this.deferredPrompt ? 'Tap to Install' : 'Ready on Homescreen');
+          // If we have a prompt, show Tap to Install. Otherwise, on iOS we might not have a prompt, but we shouldn't falsely mark as installed.
+          if (this.deferredPrompt) {
+              this._showBanner('Tap to Install');
+          } else if (localStorage.getItem('pwa_installed') === 'true') {
+              this._showBanner('Ready on Homescreen');
+          } else {
+              // Just show the banner but without assuming it's installed
+              this._showBanner('Install MedCare');
+          }
         }
-      }, 3000);
+      }, 1000); // reduced timeout so it shows up faster
     }
 
     // Handle post-installation platform routing cleanly
@@ -80,11 +100,13 @@ export default class PwaInstallManager {
     window.addEventListener('hashchange', () => {
       const btn = this.bannerEl?.querySelector('#pwa-action-btn');
       if (window.location.hash.startsWith('#/install')) {
-        if (!this.deferredPrompt) {
-          localStorage.setItem('pwa_installed', 'true');
-          forceInstalledBanner();
+        if (this.deferredPrompt) {
+          this._showBanner('Tap to Install');
+        } else if (localStorage.getItem('pwa_installed') === 'true') {
+          this._showBanner('Ready on Homescreen');
+        } else {
+          this._showBanner('Install MedCare');
         }
-        this._showBanner(this.deferredPrompt ? 'Tap to Install' : 'Ready on Homescreen');
       } else {
         if (btn && btn.textContent === 'Installed') {
           this._hideBanner();
