@@ -63,16 +63,10 @@ export default class PeerNetworkView {
         <!-- QR DETAILS (Card 2) -->
         <section id="share-section" class="mb-12 hidden animate-fade-in">
             <div class="clay-glass-panel p-8 text-center border-border shadow-[0_8px_32px_var(--color-card-shadow)] relative overflow-hidden bg-surface-elevated/40 backdrop-blur-xl rounded-[2rem]">
-                <h2 class="text-lg font-display text-text-primary mb-2">My Pairing QR</h2>
-                <p class="text-xs text-accent-primary/70 font-mono mb-6">Scan this code to establish a peer-to-peer connection with ${displayName}</p>
+                <h2 class="text-lg font-display text-text-primary mb-2">My Pairing ID</h2>
+                <p class="text-xs text-accent-primary/70 font-mono mb-6">Share this code to establish a peer-to-peer connection with ${displayName}</p>
                 
-                <div id="qr-container" class="bg-transparent p-4 grid place-items-center w-full relative z-10 min-h-[200px] mx-auto">
-                    <div id="qr-loader" class="flex space-x-2 justify-center items-center h-full">
-                        <div class="w-3 h-3 bg-primary rounded-full animate-bounce"></div>
-                        <div class="w-3 h-3 bg-primary rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                        <div class="w-3 h-3 bg-primary rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                    </div>
-                </div>
+                
                 <p id="peer-id-display" class="text-xs text-text-primary font-mono mt-6 tracking-[0.2em] uppercase font-bold cursor-pointer hover:text-accent-primary active:scale-95 transition-all select-none" title="Click to copy">Code: ${mesh.peerId || 'AWAITING_ID'}</p>
             </div>
         </section>
@@ -149,8 +143,7 @@ export default class PeerNetworkView {
     `;
 
     this.attachListeners(mesh);
-    this.generateQR(mesh.peerId);
-    this.updateRoster(mesh);
+        this.updateRoster(mesh);
     document.dispatchEvent(new CustomEvent('view:ready', { detail: { hash: '#/peer-hub' } }));
     
     // Auto-Connect from Deep Link
@@ -179,7 +172,8 @@ export default class PeerNetworkView {
             window.dispatchEvent(new CustomEvent('medcare:peer-request', { detail: { peerId: firstPendingId } }));
         }
     }, 500);
-    // Cleanup scanner on navigation
+
+    // Cleanup scanner on navigation
     window.addEventListener('hashchange', () => {
         if (this.html5QrcodeScanner) {
             this.html5QrcodeScanner.stop().catch(()=>{});
@@ -190,27 +184,6 @@ export default class PeerNetworkView {
     return this.container;
   }
 
-  generateQR(peerId) {
-    const container = this.container.querySelector('#qr-container');
-    if (!peerId) {
-      container.innerHTML = '<p class="text-xs text-danger uppercase tracking-widest font-bold">Network Offline</p>';
-      return;
-    }
-
-    const deepLink = `${window.location.origin}${window.location.pathname}#/peer-hub?connect=${peerId}`;
-
-    QRCode.toDataURL(deepLink, {
-      width: 200,
-      margin: 1,
-      color: { dark: '#000000', light: '#ffffff' }
-    }, (err, url) => {
-      if (err) {
-        console.error('QR Generate Error:', err);
-        return;
-      }
-      container.innerHTML = `<img src="${url}" alt="Pairing QR Code" class="border-4 border-surface-deep bg-white p-2" style="border-radius: 0px; margin: auto; display: block; max-width: 100%; max-height: 100%; animation: clay-pulse 3s infinite alternate ease-in-out;" />`;
-    });
-  }
 
   attachListeners(mesh) {
     const scanBtn = this.container.querySelector('#toggle-scan');
@@ -308,8 +281,7 @@ export default class PeerNetworkView {
             <div id="qr-loader" class="w-[224px] h-[224px] bg-surface-elevated/40 animate-pulse border-4 border-surface-deep shadow-[0_0_30px_var(--color-primary)] flex items-center justify-center" style="margin: auto;"><div class="flex space-x-2"><div class="w-3 h-3 bg-primary rounded-full animate-bounce"></div><div class="w-3 h-3 bg-primary rounded-full animate-bounce" style="animation-delay: 0.1s"></div><div class="w-3 h-3 bg-primary rounded-full animate-bounce" style="animation-delay: 0.2s"></div></div></div>
           `;
           setTimeout(() => {
-            this.generateQR(mesh.peerId);
-          }, 1200); // Give the pulsing animation a bit longer to be appreciated
+                      }, 1200); // Give the pulsing animation a bit longer to be appreciated
         }
       });
     }
