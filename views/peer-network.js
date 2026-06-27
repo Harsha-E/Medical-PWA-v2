@@ -168,12 +168,20 @@ export default class PeerNetworkView {
     this.updateRoster(mesh);
     
     // Generate QR using QRManager
-    setTimeout(() => {
+    const generateQR = (id) => {
         const qrContainer = this.container.querySelector('#qr-container');
-        if (qrContainer && mesh.peerId) {
-            QRManager.generateConnectQR(qrContainer, mesh.peerId);
+        if (qrContainer && id) {
+            QRManager.generateConnectQR(qrContainer, id);
         }
-    }, 100);
+    };
+
+    if (mesh.peerId) {
+        generateQR(mesh.peerId);
+    }
+    
+    window.addEventListener('peermesh:ready', (e) => {
+        generateQR(e.detail.id);
+    });
 
     document.dispatchEvent(new CustomEvent('view:ready', { detail: { hash: '#/peer-hub' } }));
     

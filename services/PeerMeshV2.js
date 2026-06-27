@@ -22,10 +22,15 @@ export default class PeerMeshV2 {
         this.setupListeners();
     }
 
+    get peerId() {
+        return this.peer ? this.peer.id : null;
+    }
+
     setupListeners() {
         this.peer.on('open', (id) => {
             console.log(`[PeerMeshV2] 🟢 Node Online. Device ID: ${id}`);
             localStorage.setItem('medcheck_peer_v2_id', id);
+            window.dispatchEvent(new CustomEvent('peermesh:ready', { detail: { id } }));
         });
 
         // Listen for incoming connections from family members
