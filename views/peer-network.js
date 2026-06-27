@@ -614,8 +614,6 @@ updateRoster(mesh) {
           });
       });
   }
-  }
-
   destroy() {
     // Cleanup event listeners
   }
