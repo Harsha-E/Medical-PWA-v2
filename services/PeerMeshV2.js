@@ -36,6 +36,13 @@ export default class PeerMeshV2 {
 
         this.peer.on('error', (err) => {
             console.error('[PeerMeshV2] Network Error:', err);
+            if (err.type === 'unavailable-id') {
+                console.warn('[PeerMeshV2] ID was taken (likely a ghost connection from a refresh). Generating a new ID...');
+                localStorage.removeItem('medcheck_peer_v2_id');
+                this.peer.destroy();
+                this.peer = new Peer();
+                this.setupListeners();
+            }
         });
     }
 
