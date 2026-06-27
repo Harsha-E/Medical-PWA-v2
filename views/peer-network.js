@@ -1,6 +1,7 @@
 import state from '../core/state.js';
 import PeerMesh from '../services/PeerMesh.js';
-import QRCode from 'https://esm.sh/qrcode@1.5.3';
+import QRManager from '../utils/QRManager.js';
+import CaregiverPortal from '../utils/CaregiverPortal.js';
 import { appConfirm } from '../utils/CustomModals.js';
 
 export default class PeerNetworkView {
@@ -64,25 +65,46 @@ export default class PeerNetworkView {
         <section id="share-section" class="mb-12 hidden animate-fade-in">
             <div class="clay-glass-panel p-8 text-center border-border shadow-[0_8px_32px_var(--color-card-shadow)] relative overflow-hidden bg-surface-elevated/40 backdrop-blur-xl rounded-[2rem]">
                 <h2 class="text-lg font-display text-text-primary mb-2">My Pairing ID</h2>
-                <p class="text-xs text-accent-primary/70 font-mono mb-6">Share this code to establish a peer-to-peer connection with ${displayName}</p>
+                <p class="text-xs text-accent-primary/70 font-mono mb-6">Share this code or scan the QR below to establish a peer-to-peer connection with ${displayName}</p>
                 
-                
+                <div id="qr-container" class="flex flex-col items-center justify-center my-4 min-h-[250px]"></div>
+
                 <p id="peer-id-display" class="text-xs text-text-primary font-mono mt-6 tracking-[0.2em] uppercase font-bold cursor-pointer hover:text-accent-primary active:scale-95 transition-all select-none" title="Click to copy">Code: ${mesh.peerId || 'AWAITING_ID'}</p>
             </div>
         </section>
 
-        <!-- The Roster: Connected peers -->
-        <section>
+        <!-- Network Topology: Block Snapping UI -->
+        <section class="mb-12">
             <div class="flex justify-between items-center mb-6 px-1">
-                <h3 class="text-xs font-bold text-accent-primary/80 tracking-[0.2em] uppercase">The Roster</h3>
-                <span class="text-xs text-success font-mono border border-success/30 bg-success/10 px-2 py-0.5 rounded uppercase tracking-widest">Live</span>
+                <h3 class="text-xs font-bold text-accent-primary/80 tracking-[0.2em] uppercase">Network Topology</h3>
+                <span class="text-xs text-primary font-mono border border-primary/30 bg-primary/10 px-2 py-0.5 rounded uppercase tracking-widest">Drag & Drop</span>
             </div>
             
-            <div id="roster-container" class="space-y-4">
-                <!-- Peer nodes will be injected here -->
-                <div class="text-center py-10 border border-dashed border-border bg-surface-elevated/40 backdrop-blur-xl shadow-[0_8px_32px_var(--color-card-shadow)] rounded-3xl opacity-50">
-                    <p class="text-xs text-text-primary font-mono uppercase tracking-widest">No Active Connections</p>
+            <div class="grid grid-cols-1 gap-4 mb-8">
+                <!-- Dropzones -->
+                <div class="topology-slot p-6 border-2 border-dashed border-border rounded-3xl bg-surface-elevated/20 flex flex-col items-center justify-center min-h-[100px] transition-all" data-role="parent">
+                    <p class="text-xs text-text-secondary font-mono tracking-widest uppercase mb-2">Parent Node</p>
+                    <div class="slot-content w-full flex flex-col gap-2"></div>
                 </div>
+                
+                <div class="topology-slot p-6 border-2 border-dashed border-border rounded-3xl bg-surface-elevated/20 flex flex-col items-center justify-center min-h-[100px] transition-all" data-role="spouse">
+                    <p class="text-xs text-text-secondary font-mono tracking-widest uppercase mb-2">Spouse Node</p>
+                    <div class="slot-content w-full flex flex-col gap-2"></div>
+                </div>
+                
+                <div class="topology-slot p-6 border-2 border-dashed border-border rounded-3xl bg-surface-elevated/20 flex flex-col items-center justify-center min-h-[100px] transition-all" data-role="child">
+                    <p class="text-xs text-text-secondary font-mono tracking-widest uppercase mb-2">Child Node</p>
+                    <div class="slot-content w-full flex flex-col gap-2"></div>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center mb-4 px-1">
+                <h3 class="text-xs font-bold text-success/80 tracking-[0.2em] uppercase">Unassigned Peers</h3>
+                <span class="text-xs text-success font-mono border border-success/30 bg-success/10 px-2 py-0.5 rounded uppercase tracking-widest" id="live-count">0 Live</span>
+            </div>
+            
+            <div id="roster-container" class="space-y-4 min-h-[100px] border border-transparent rounded-3xl p-2 transition-all">
+                <!-- Peer nodes will be injected here -->
             </div>
         </section>
         
@@ -143,7 +165,16 @@ export default class PeerNetworkView {
     `;
 
     this.attachListeners(mesh);
-        this.updateRoster(mesh);
+    this.updateRoster(mesh);
+    
+    // Generate QR using QRManager
+    setTimeout(() => {
+        const qrContainer = this.container.querySelector('#qr-container');
+        if (qrContainer && mesh.peerId) {
+            QRManager.generateConnectQR(qrContainer, mesh.peerId);
+        }
+    }, 100);
+
     document.dispatchEvent(new CustomEvent('view:ready', { detail: { hash: '#/peer-hub' } }));
     
     // Auto-Connect from Deep Link
@@ -485,10 +516,13 @@ export default class PeerNetworkView {
     });
   }
 
-  updateRoster(mesh) {
+updateRoster(mesh) {
       const rosterEl = this.container.querySelector('#roster-container');
+      const liveCountEl = this.container.querySelector('#live-count');
       const peers = Array.from(mesh._connections?.entries() || []);
       
+      if (liveCountEl) liveCountEl.innerText = `${peers.length} Live`;
+
       if (peers.length === 0) {
           rosterEl.innerHTML = `
               <div class="text-center py-10 border border-dashed border-border bg-surface-elevated/40 backdrop-blur-xl shadow-[0_8px_32px_var(--color-card-shadow)] rounded-3xl opacity-50">
@@ -498,11 +532,12 @@ export default class PeerNetworkView {
           return;
       }
 
+      // Render draggable blocks
       rosterEl.innerHTML = peers.map(([pid, conn]) => {
           const pName = conn?.metadata?.displayName || 'Peer Node';
           return `
-          <div class="clay-glass-panel p-4 flex justify-between items-center">
-              <div class="flex items-center gap-4">
+          <div draggable="true" data-peer-id="${pid}" data-peer-name="${pName}" class="peer-block clay-glass-panel p-4 flex justify-between items-center cursor-move hover:border-primary transition-all active:scale-95">
+              <div class="flex items-center gap-4 pointer-events-none">
                   <div class="w-10 h-10 rounded-full bg-gradient-to-br from-success/20 to-surface-elevated border border-success/40 flex items-center justify-center text-success">
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
                   </div>
@@ -511,16 +546,74 @@ export default class PeerNetworkView {
                       <p class="text-[10px] text-success/70 font-mono tracking-widest uppercase">${pid.substring(0,8)}...</p>
                   </div>
               </div>
-              <button data-drop-pid="${pid}" class="text-danger px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-widest active:scale-90 transition-transform btn-neumorphic">Drop</button>
+              <div class="flex gap-2">
+                  <button data-portal-pid="${pid}" data-portal-name="${pName}" class="text-primary px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-widest active:scale-90 transition-transform btn-neumorphic">Portal</button>
+                  <button data-drop-pid="${pid}" class="text-danger px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-widest active:scale-90 transition-transform btn-neumorphic">Drop</button>
+              </div>
           </div>
       `}).join('');
 
+      // Portal logic
+      rosterEl.querySelectorAll('[data-portal-pid]').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+              const pid = e.target.getAttribute('data-portal-pid');
+              const pname = e.target.getAttribute('data-portal-name');
+              CaregiverPortal.enterPortal(pid, pname);
+          });
+      });
+
+      // Drop (Disconnect) logic
       rosterEl.querySelectorAll('[data-drop-pid]').forEach(btn => {
           btn.addEventListener('click', (e) => {
               const dropId = e.target.getAttribute('data-drop-pid');
               mesh.disconnectPeer(dropId);
           });
       });
+      
+      this.initDragAndDrop();
+  }
+
+  initDragAndDrop() {
+      const blocks = this.container.querySelectorAll('.peer-block');
+      const slots = this.container.querySelectorAll('.topology-slot');
+      
+      blocks.forEach(block => {
+          block.addEventListener('dragstart', (e) => {
+              e.dataTransfer.setData('text/plain', e.target.getAttribute('data-peer-id'));
+              e.target.style.opacity = '0.5';
+          });
+          block.addEventListener('dragend', (e) => {
+              e.target.style.opacity = '1';
+          });
+      });
+
+      slots.forEach(slot => {
+          slot.addEventListener('dragover', (e) => {
+              e.preventDefault(); // Necessary to allow dropping
+              slot.classList.add('bg-primary/20', 'border-primary');
+          });
+          slot.addEventListener('dragleave', (e) => {
+              slot.classList.remove('bg-primary/20', 'border-primary');
+          });
+          slot.addEventListener('drop', (e) => {
+              e.preventDefault();
+              slot.classList.remove('bg-primary/20', 'border-primary');
+              const pid = e.dataTransfer.getData('text/plain');
+              const block = this.container.querySelector(`.peer-block[data-peer-id="${pid}"]`);
+              
+              if (block) {
+                  const contentDiv = slot.querySelector('.slot-content');
+                  contentDiv.appendChild(block);
+                  
+                  // Automatically enter portal on snap
+                  const pname = block.getAttribute('data-peer-name');
+                  setTimeout(() => {
+                      CaregiverPortal.enterPortal(pid, pname);
+                  }, 300);
+              }
+          });
+      });
+  }
   }
 
   destroy() {

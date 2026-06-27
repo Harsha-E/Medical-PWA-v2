@@ -21,6 +21,7 @@ import ContextSwitcher    from './components/context-switcher.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { datasetSyncManager } from './datasets/sync/DatasetSyncManager.js';
 import PeerMeshV2 from './services/PeerMeshV2.js';
+import QRManager from './utils/QRManager.js';
 
 // ─── View imports ─────────────────────────────────────────────────────────────
 import SplashView           from './views/splash.js';
@@ -288,6 +289,8 @@ class App {
       try {
         if (user) {
           await state.hydrate(user); // Must be strictly awaited
+          // Check for QR deep links once hydrated
+          QRManager.checkDeepLink(PeerMeshV2.getInstance());
         } else {
           state.clear();
         }
