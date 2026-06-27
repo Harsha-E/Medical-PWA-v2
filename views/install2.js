@@ -42,12 +42,18 @@ export default class InstallView2 {
           from { opacity: 0; }
           to { opacity: 1; }
         }
+
+        @keyframes signature-draw-op {
+          0% { opacity: 0; stroke-dashoffset: 100; }
+          1% { opacity: 1; stroke-dashoffset: 100; }
+          100% { opacity: 1; stroke-dashoffset: 0; }
+        }
         
         @keyframes liquidExpand {
-          0% { clip-path: polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%, 50% 50%, 50% 50%, 50% 50%, 50% 50%); opacity: 0; }
-          10% { opacity: 1; clip-path: polygon(48% 45%, 53% 43%, 55% 48%, 52% 55%, 47% 53%, 44% 48%, 46% 45%, 48% 45%); }
-          40% { clip-path: polygon(40% 30%, 65% 35%, 70% 55%, 55% 75%, 35% 65%, 25% 45%, 35% 35%, 40% 30%); }
-          100% { clip-path: polygon(-50% -50%, 150% -50%, 150% 150%, 50% 150%, -50% 150%, -50% 50%, -50% -50%, -50% -50%); opacity: 1; }
+          0% { clip-path: circle(0% at 50% 50%); opacity: 0; }
+          10% { opacity: 1; clip-path: circle(5% at 50% 50%); }
+          40% { clip-path: circle(40% at 50% 50%); }
+          100% { clip-path: circle(150% at 50% 50%); opacity: 1; }
         }
         
         .liquid-blur-overlay {
@@ -207,14 +213,14 @@ export default class InstallView2 {
         <defs>
           <mask id="${maskId}" maskUnits="userSpaceOnUse">
             ${paths.map((d, i) => `
-              <path d="${d}" stroke="white" stroke-width="${fontSize * 0.22}" fill="none" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" pathLength="100" stroke-dasharray="100" style="opacity: 0; animation: signature-draw-op ${duration}s ease-in-out ${i * stagger}s forwards;" />
+              <path d="${d}" stroke="white" stroke-width="${fontSize * 0.22}" fill="none" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" pathLength="100" stroke-dasharray="100" style="opacity: 0; animation: signature-draw-op ${duration}s linear ${i * stagger}s forwards;" />
             `).join('')}
           </mask>
         </defs>
 
         <!-- Base outline strokes -->
         ${paths.map((d, i) => `
-          <path d="${d}" stroke="${color}" stroke-width="2" fill="none" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" pathLength="100" stroke-dasharray="100" style="opacity: 0; animation: signature-draw-op ${duration}s ease-in-out ${i * stagger}s forwards;" />
+          <path d="${d}" stroke="${color}" stroke-width="2" fill="none" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" pathLength="100" stroke-dasharray="100" style="opacity: 0; animation: signature-draw-op ${duration}s linear ${i * stagger}s forwards;" />
         `).join('')}
 
         <!-- Filled body (rendered directly without mask to ensure perfect solid fill) -->
