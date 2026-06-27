@@ -1,6 +1,6 @@
 /**
  * @fileoverview visionWorker.js
- * Restored Groq Vision pipeline using the valid API key and Strict Payload formatting.
+ * Restored Groq Vision pipeline routing through secure Cloudflare Proxy.
  */
 
 self.onmessage = async (e) => {
@@ -46,10 +46,9 @@ Return ONLY a strict JSON object with this EXACT structure (no markdown, no back
             max_tokens: 500
         };
 
-        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        const response = await fetch('https://medcare-groq-proxy.harshaedupuganti70.workers.dev/', {
             method: 'POST',
             headers: {
-                'Authorization': 'Bearer YOUR_GROQ_API_KEY', // NEVER HARDCODE API KEYS IN FRONTEND CODE
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(payload)
