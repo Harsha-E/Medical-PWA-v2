@@ -1,8 +1,8 @@
 /**
  * MedCare | Service Worker — Offline-First Cache
  */
-const CACHE_NAME = 'medcare-v30';
-const DATA_CACHE_NAME = 'medcare-data-v30';
+const CACHE_NAME = 'medcare-v31';
+const DATA_CACHE_NAME = 'medcare-data-v31';
 const BASE_PATH = self.location.hostname === 'harsha-e.github.io' ? '/Medical-PWA-v2' : '';
 
 const ASSETS = [

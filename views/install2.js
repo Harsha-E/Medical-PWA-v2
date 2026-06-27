@@ -206,8 +206,8 @@ export default class InstallView2 {
       const width = x + horizontalPadding;
       const height = fontSize * 3;
       const maskId = 'signature-reveal-mask';
-      const duration = 2; // Each letter takes 2s to draw
-      const stagger = 1; // Stagger next letter by 1s (Total for 9 letters = 10s)
+      const duration = 1; // Each letter takes 1s to draw
+      const stagger = 0.5; // Stagger next letter by 0.5s (Total for 9 letters = 5s)
 
       let svgContent = `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" fill="none" class="overflow-visible" style="max-width: 100%; height: auto;">
         <defs>

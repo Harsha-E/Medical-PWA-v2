@@ -20,8 +20,8 @@ export default class CaregiverPortal {
     // Clinical Idle Timeout Engine
     static createIdleTimer(onTimeout) {
         let timeoutId;
-        const idleDuration = 2000; // 2 seconds in ms (for testing)
-        const warnDuration = 1000; // 1 second warning
+        const idleDuration = 180000; // 3 minutes in ms
+        const warnDuration = 15000; // 15 seconds warning
 
         const reset = () => {
             clearTimeout(timeoutId);
