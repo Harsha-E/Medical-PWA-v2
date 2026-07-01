@@ -23,15 +23,15 @@ export default class OnboardingView {
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label for="fullName" class="block text-xs font-mono text-text-muted uppercase mb-2 ml-1">Full Name</label>
-              <input type="text" id="fullName" autocomplete="name" required class="w-full px-4 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
+              <input type="text" id="fullName" autocomplete="name" required class="form-input">
             </div>
             <div>
               <label for="myPhone" class="block text-xs font-mono text-text-muted uppercase mb-2 ml-1">My Phone #</label>
-              <input type="tel" id="myPhone" autocomplete="tel" required class="w-full px-4 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
+              <input type="tel" id="myPhone" autocomplete="tel" placeholder="+919876543210" required class="form-input">
             </div>
             <div>
               <label for="bloodType" class="block text-xs font-mono text-text-muted uppercase mb-2 ml-1">Blood Type</label>
-              <select id="bloodType" required class="w-full px-4 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
+              <select id="bloodType" required class="form-input">
                 <option value="" disabled selected class="bg-surface text-text-muted">Select</option>
                 <option value="A+" class="bg-surface text-text-primary">A+</option>
                 <option value="A-" class="bg-surface text-text-primary">A-</option>
@@ -45,18 +45,18 @@ export default class OnboardingView {
             </div>
             <div>
               <label for="dob" class="block text-xs font-mono text-text-muted uppercase mb-2 ml-1">Date of Birth</label>
-              <input type="date" id="dob" autocomplete="bday" required class="w-full px-4 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2[color-scheme:dark]">
+              <input type="date" id="dob" autocomplete="bday" required class="form-input [color-scheme:dark]">
             </div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <div>
               <label for="emergencyName" class="block text-xs font-mono text-text-muted uppercase mb-2 ml-1">Primary Responder</label>
-              <input type="text" id="emergencyName" placeholder="Name" required class="w-full px-4 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
+              <input type="text" id="emergencyName" placeholder="Name" required class="form-input">
             </div>
             <div>
               <label for="emergencyPhone" class="block text-xs font-mono text-text-muted uppercase mb-2 ml-1">Emergency Phone</label>
-              <input type="tel" id="emergencyPhone" autocomplete="tel" required class="w-full px-4 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
+              <input type="tel" id="emergencyPhone" autocomplete="tel" placeholder="+919876543210" required class="form-input">
             </div>
           </div>
           
@@ -78,10 +78,10 @@ export default class OnboardingView {
       const btn = form.querySelector('button');
       const errorContainer = this.container.querySelector('#error-container');
 
-      const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+      const phoneRegex = /^\+\d{1,3}\d{10}$/;
       if (!phoneRegex.test(form.myPhone.value.trim())) {
           if (errorContainer) {
-              errorContainer.textContent = 'Invalid Phone: Must be E.164 format (e.g. +1234567890)';
+              errorContainer.textContent = 'Invalid Phone: Must include Country Code + 10 digits (e.g. +919876543210)';
               errorContainer.classList.remove('hidden');
           }
           showToast('Invalid Phone Format', 'error');
@@ -89,7 +89,7 @@ export default class OnboardingView {
       }
       if (!phoneRegex.test(form.emergencyPhone.value.trim())) {
           if (errorContainer) {
-              errorContainer.textContent = 'Invalid Emergency Phone: Must be E.164 format';
+              errorContainer.textContent = 'Invalid Emergency Phone: Must include Country Code + 10 digits (e.g. +919876543210)';
               errorContainer.classList.remove('hidden');
           }
           showToast('Invalid Emergency Phone Format', 'error');
