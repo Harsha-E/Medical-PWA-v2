@@ -356,11 +356,13 @@ class App {
     const user    = state.user;
     const profile = state.userProfile;
     const isAdmin = state.isAdmin;
-    const isComplete = !!profile?.onboardingComplete;
+    const p = profile?.profile || {};
+    const hasAllDetails = !!(p.phone && p.bloodType && p.dob && p.emergencyName && p.emergencyPhone);
+    const isComplete = !!profile?.onboardingComplete && hasAllDetails;
 
-    // â”€â”€ Managed by individual views (GhostFluid instantiation removed) â”€â”€
+    // ————————————————— Managed by individual views (GhostFluid instantiation removed) —————————————————
 
-    // â”€â”€ Navbar visibility â”€â”€
+    // ————————————————— Navbar visibility —————————————————
     const showNav = !HIDE_NAV_ROUTES.has(hash);
     this.glassNav.setVisibility?.(showNav);
 
