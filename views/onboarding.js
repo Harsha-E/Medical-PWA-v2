@@ -23,15 +23,15 @@ export default class OnboardingView {
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label for="fullName" class="block text-xs font-mono text-text-muted uppercase mb-2 ml-1">Full Name</label>
-              <input type="text" id="fullName" autocomplete="name" required class="form-input">
+              <input type="text" id="fullName" autocomplete="name" required class="w-full px-4 py-3 rounded-xl bg-black/20 border border-white/5 text-sm font-bold text-text-primary shadow-inner focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-text-muted/50">
             </div>
             <div>
               <label for="myPhone" class="block text-xs font-mono text-text-muted uppercase mb-2 ml-1">My Phone #</label>
-              <input type="tel" id="myPhone" autocomplete="tel" placeholder="+919876543210" required class="form-input">
+              <input type="tel" id="myPhone" autocomplete="tel" placeholder="+919876543210" required class="w-full px-4 py-3 rounded-xl bg-black/20 border border-white/5 text-sm font-bold text-text-primary shadow-inner focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-text-muted/50">
             </div>
             <div>
               <label for="bloodType" class="block text-xs font-mono text-text-muted uppercase mb-2 ml-1">Blood Type</label>
-              <select id="bloodType" required class="form-input">
+              <select id="bloodType" required class="w-full px-4 py-3 rounded-xl bg-black/20 border border-white/5 text-sm font-bold text-text-primary shadow-inner focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all">
                 <option value="" disabled selected class="bg-surface text-text-muted">Select</option>
                 <option value="A+" class="bg-surface text-text-primary">A+</option>
                 <option value="A-" class="bg-surface text-text-primary">A-</option>
@@ -45,18 +45,18 @@ export default class OnboardingView {
             </div>
             <div>
               <label for="dob" class="block text-xs font-mono text-text-muted uppercase mb-2 ml-1">Date of Birth</label>
-              <input type="date" id="dob" autocomplete="bday" required class="form-input [color-scheme:dark]">
+              <input type="date" id="dob" autocomplete="bday" required class="w-full px-4 py-3 rounded-xl bg-black/20 border border-white/5 text-sm font-bold text-text-primary shadow-inner focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all [color-scheme:dark]">
             </div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <div>
               <label for="emergencyName" class="block text-xs font-mono text-text-muted uppercase mb-2 ml-1">Primary Responder</label>
-              <input type="text" id="emergencyName" placeholder="Name" required class="form-input">
+              <input type="text" id="emergencyName" placeholder="Name" required class="w-full px-4 py-3 rounded-xl bg-black/20 border border-white/5 text-sm font-bold text-text-primary shadow-inner focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-text-muted/50">
             </div>
             <div>
               <label for="emergencyPhone" class="block text-xs font-mono text-text-muted uppercase mb-2 ml-1">Emergency Phone</label>
-              <input type="tel" id="emergencyPhone" autocomplete="tel" placeholder="+919876543210" required class="form-input">
+              <input type="tel" id="emergencyPhone" autocomplete="tel" placeholder="+919876543210" required class="w-full px-4 py-3 rounded-xl bg-black/20 border border-white/5 text-sm font-bold text-text-primary shadow-inner focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-text-muted/50">
             </div>
           </div>
           
