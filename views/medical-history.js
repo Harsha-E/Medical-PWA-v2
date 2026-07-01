@@ -27,7 +27,7 @@ export default class MedicalHistoryView {
     const hospitals = records.filter(r => r.type === 'Hospital');
 
     this.container.innerHTML = `
-      <main class="scroll-area pt-[112px]" style="padding-left:0; padding-right:0;">
+      <main class="scroll-area pt-[112px] md:pt-8" style="padding-left:0; padding-right:0;">
 <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
         <div class="mb-6 flex gap-2">
             <input type="text" id="ledger-search" placeholder="Search Clinical Vault..." class="flex-1 px-4 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
@@ -205,7 +205,7 @@ export default class MedicalHistoryView {
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 z-[9999] flex items-center justify-center bg-overlay-bg backdrop-blur-sm p-6';
     modal.innerHTML = `
-      <div class="bg-surface-elevated/60 backdrop-blur-2xl border border-border p-8 rounded-3xl max-w-sm w-full shadow-[0_8px_32px_rgba(0,0,0,0.7)]">
+      <div class="bg-surface-elevated/60 backdrop-blur-2xl border border-border p-8 rounded-3xl max-w-sm w-full shadow-[0_8px_32px_rgba(0,0,0,0.7)]" style="overflow:visible;">
         <h3 class="text-lg font-display text-text-primary mb-6">Add Clinical Record</h3>
         <form id="add-history-form" class="space-y-4">
           <div>
@@ -217,9 +217,10 @@ export default class MedicalHistoryView {
               <option value="Allergy" class="bg-surface">Allergy</option>
             </select>
           </div>
-          <div>
+          <div class="relative">
             <label class="block text-xs text-text-secondary uppercase tracking-widest mb-1 ml-1">Title/Name</label>
-            <input type="text" id="h-title" required class="w-full px-4 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
+            <input type="text" id="h-title" autocomplete="off" required class="w-full px-4 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
+            <div id="h-title-dropdown" class="absolute left-0 right-0 top-full mt-2 bg-surface-elevated border border-border rounded-xl shadow-lg z-[10000] hidden max-h-48 overflow-y-auto"></div>
           </div>
           <div>
             <label class="block text-xs text-text-secondary uppercase tracking-widest mb-1 ml-1">Date</label>
@@ -238,6 +239,53 @@ export default class MedicalHistoryView {
     `;
     document.body.appendChild(modal);
 
+    let selectedClinicalName = null;
+    const titleInput = modal.querySelector('#h-title');
+    const dropdown = modal.querySelector('#h-title-dropdown');
+    const typeSelect = modal.querySelector('#h-type');
+
+    import('../data/DiseaseOntology.js').then(module => {
+        titleInput.addEventListener('input', (e) => {
+            if (typeSelect.value !== 'Disease') {
+                dropdown.classList.add('hidden');
+                return;
+            }
+            
+            const val = e.target.value;
+            selectedClinicalName = null;
+            dropdown.innerHTML = '';
+            
+            if (!val) {
+                dropdown.classList.add('hidden');
+                return;
+            }
+            
+            const matches = module.searchOntology(val);
+            if (matches.length > 0) {
+                dropdown.classList.remove('hidden');
+                matches.forEach(m => {
+                    const div = document.createElement('div');
+                    div.className = 'p-4 hover:bg-primary/20 cursor-pointer border-b border-border/50 text-sm transition-colors text-left';
+                    div.innerHTML = `<div class="font-bold text-text-primary">${m.clinicalName}</div>`;
+                    div.addEventListener('click', () => {
+                        titleInput.value = m.clinicalName;
+                        selectedClinicalName = m.clinicalName;
+                        dropdown.classList.add('hidden');
+                    });
+                    dropdown.appendChild(div);
+                });
+            } else {
+                dropdown.classList.add('hidden');
+            }
+        });
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!titleInput.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
+
     modal.querySelector('#cancel-history').onclick = () => modal.remove();
     modal.querySelector('#add-history-form').onsubmit = async (e) => {
       e.preventDefault();
@@ -250,10 +298,19 @@ export default class MedicalHistoryView {
           await appAlert('Please enter a valid alphanumeric title.', 'Invalid Title');
           return;
       }
-      
-      const spellCheck = fuse.search(title);
-      if (spellCheck.length > 0) {
-          title = spellCheck[0].item;
+
+      if (type === 'Disease') {
+          if (!selectedClinicalName) {
+              await appAlert('Please select a valid disease from the dropdown to ensure accurate interaction checking.', 'Invalid Disease');
+              return;
+          }
+          title = selectedClinicalName;
+          await db.disease_ledger.add({ diseaseName: title, clinicalName: title, userId: state.user.uid });
+      } else {
+          const spellCheck = fuse.search(title);
+          if (spellCheck.length > 0) {
+              title = spellCheck[0].item;
+          }
       }
       
       await db.history.add({ type, title, date, notes, userId: state.user.uid, provider: 'Self-Reported' });

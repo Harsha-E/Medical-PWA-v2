@@ -1015,7 +1015,7 @@ export default class DashboardView {
     `;
     return `
       <!-- Header removed -->
-      <div class="flex-1 overflow-y-auto px-6 md:px-12 pt-[112px] pb-28 w-full max-w-7xl mx-auto" id="dashboard-main-content" style="overscroll-behavior-y: none;">
+      <div class="flex-1 overflow-y-auto px-6 md:px-12 pt-[112px] md:pt-8 pb-28 w-full max-w-7xl mx-auto" id="dashboard-main-content" style="overscroll-behavior-y: none;">
         <div class="md:grid md:grid-cols-12 md:gap-10 md:items-start w-full">
           <!-- Left Column -->
           <div class="md:col-span-7 lg:col-span-8 flex flex-col gap-8">

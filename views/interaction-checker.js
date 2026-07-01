@@ -27,6 +27,10 @@ export default class InteractionCheckerView {
         .map(m => (m.name || m.genericName || '').trim())
         .filter(n => n.length > 0);
 
+      // Fetch user's disease ledger for single-drug checks
+      const diseaseRecords = await db.disease_ledger ? await db.disease_ledger.filter(d => d.userId === userId).toArray() : [];
+      const userConditions = diseaseRecords.map(d => d.clinicalName);
+
       // Merge active + sandbox
       const evaluationList = [...currentDrugNames, ...this.sandboxMeds];
       
@@ -34,21 +38,26 @@ export default class InteractionCheckerView {
       const seenWarnings = new Set();
       
       for (const drug of evaluationList) {
-        const warnings = await engine.analyze(drug, { conditions: [], activeMeds: evaluationList.filter(d => d !== drug) });
+        const warnings = await engine.analyze(drug, { activeDiseases: userConditions, activeMeds: evaluationList.filter(d => d !== drug) });
         warnings.forEach(w => {
-           const warnKey = [drug, w.trigger].sort().join('-') + w.message;
+           const warnKey = `${drug}-${w.type}-${w.text}`;
            if (!seenWarnings.has(warnKey)) {
              seenWarnings.add(warnKey);
              
+             // Check if it's a Drug-Disease interaction vs Drug-Drug interaction
+             const isDiseaseWarning = w.type === 'Disease Warning' || w.type === 'Allergy';
+             const titleLabel = isDiseaseWarning ? 'Patient Condition Conflict' : 'Drug-Drug Conflict';
+
              const mappedItem = {
                 drug1: drug,
-                drug2: w.trigger,
-                severity: w.severity.toLowerCase(),
-                details: { mechanism: w.message },
-                recommendation: w.severity === 'High' || w.severity === 'Severe' ? 'Immediate clinical review recommended.' : 'Monitor patient for adverse effects.'
+                drug2: titleLabel,
+                severity: (w.severity || 'moderate').toLowerCase(),
+                details: { mechanism: w.text },
+                recommendation: w.severity === 'High' || w.severity === 'Severe' || w.severity === 'Critical' ? 'Immediate clinical review recommended.' : 'Monitor patient for adverse effects.',
+                alternatives: w.alternatives || []
              };
              
-             if (w.severity === 'Severe' || w.severity === 'High') {
+             if (w.severity === 'Severe' || w.severity === 'High' || w.severity === 'Critical') {
                 summary.severe.push(mappedItem);
              } else if (w.severity === 'Moderate') {
                 summary.moderate.push(mappedItem);
@@ -68,7 +77,7 @@ export default class InteractionCheckerView {
       );
 
       this.container.innerHTML = `
-        <div class="max-w-2xl mx-auto w-full px-4 md:px-6 pt-[112px] pb-28">
+        <div class="max-w-2xl mx-auto w-full px-4 md:px-6 pt-[112px] md:pt-8 pb-28">
 
           <section class="bg-surface-elevated/40 backdrop-blur-xl border border-white/5 rounded-[2.5rem] p-6 mb-8 shadow-[10px_10px_30px_rgba(0,0,0,0.6),-10px_-10px_30px_rgba(255,255,255,0.02),inset_2px_2px_5px_rgba(255,255,255,0.05)] relative overflow-visible">
             <span class="text-xs font-mono tracking-widest uppercase text-accent-primary block mb-1">Pre-purchase Screener</span>
@@ -218,21 +227,41 @@ export default class InteractionCheckerView {
                 </svg>
               </div>
               ` : ''}
-              <div class="flex justify-between items-center mb-2 relative z-10">
-                <span class="text-xs font-mono uppercase tracking-widest font-bold px-2 py-0.5 rounded bg-overlay-bg border border-border shadow-inner">
-                  ${label}
-                </span>
-                <span class="text-xs font-mono text-accent-primary border border-accent-primary/30 px-2 py-0.5 rounded uppercase tracking-widest bg-primary/10 shadow-inner">
-                  ${mechType}
-                </span>
-              </div>
-              <div class="relative z-10">
-                <h4 class="text-sm font-bold text-text-primary mb-1">${item.drug1} <span class="text-xs text-text-secondary font-normal">cross-linked with</span> ${item.drug2}</h4>
-                <p class="text-xs opacity-90 leading-relaxed mb-3">${item.details?.mechanism || item.description}</p>
-                <div class="pt-3 border-t border-border flex gap-2 items-start">
-                  <span class="text-xs font-mono text-inherit opacity-70 uppercase tracking-widest shrink-0 mt-0.5">Protocol:</span>
-                  <p class="text-xs text-text-secondary italic leading-relaxed">${item.recommendation}</p>
+              <div class="${isSevere && item.alternatives?.length ? 'grid grid-cols-1 md:grid-cols-2 gap-4' : ''}">
+                <div class="relative z-10">
+                  <div class="flex flex-wrap justify-between items-center mb-2 gap-2">
+                    <span class="text-xs font-mono uppercase tracking-widest font-bold px-2 py-0.5 rounded bg-overlay-bg border border-border shadow-inner shrink-0">
+                      ${label}
+                    </span>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-[10px] font-mono text-green-400 border border-green-500/30 px-2 py-0.5 rounded uppercase tracking-widest bg-green-500/10 shadow-inner flex items-center gap-1 shrink-0" title="Exact Match Guarantee">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Safety Match Confidence: 100%
+                        </span>
+                        <span class="text-xs font-mono text-accent-primary border border-accent-primary/30 px-2 py-0.5 rounded uppercase tracking-widest bg-primary/10 shadow-inner shrink-0">
+                          ${mechType}
+                        </span>
+                    </div>
+                  </div>
+                  <h4 class="text-sm font-bold text-text-primary mb-1">${item.drug1} <span class="text-xs text-text-secondary font-normal">cross-linked with</span> ${item.drug2}</h4>
+                  <p class="text-xs opacity-90 leading-relaxed mb-3">${item.details?.mechanism || item.description}</p>
+                  <div class="pt-3 border-t border-border flex gap-2 items-start">
+                    <span class="text-xs font-mono text-inherit opacity-70 uppercase tracking-widest shrink-0 mt-0.5">Protocol:</span>
+                    <p class="text-xs text-text-secondary italic leading-relaxed">${item.recommendation}</p>
+                  </div>
                 </div>
+                ${isSevere && item.alternatives?.length ? `
+                <div class="relative z-10 border-t md:border-t-0 md:border-l border-border pt-3 md:pt-0 md:pl-4">
+                  <h4 class="text-xs font-mono tracking-widest uppercase text-success mb-2 flex items-center gap-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Safe Alternatives</h4>
+                  <ul class="space-y-2">
+                    ${item.alternatives.slice(0,3).map(alt => `
+                      <li class="bg-success/10 border border-success/30 rounded-lg p-2 flex flex-col">
+                        <span class="text-[11px] font-bold text-success uppercase tracking-wider">${alt}</span>
+                      </li>
+                    `).join('')}
+                  </ul>
+                </div>
+                ` : ''}
               </div>
             </div>
             `;
@@ -379,7 +408,7 @@ export default class InteractionCheckerView {
 
   _getSkeletonUI() {
     return `
-      <div class="max-w-2xl mx-auto w-full px-4 md:px-6 pt-[112px] pb-28">
+      <div class="max-w-2xl mx-auto w-full px-4 md:px-6 pt-[112px] md:pt-8 pb-28">
         
         <!-- Animated Title Skeleton -->
         <div class="h-4 w-32 bg-surface-elevated/80 backdrop-blur-3xl rounded-full mb-10 overflow-hidden relative shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]">

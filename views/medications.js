@@ -30,7 +30,7 @@ export default class MedicationsView {
       const activeMeds = allMeds.filter(m => m.active !== false);
 
       this.container.innerHTML = `
-        <div class="max-w-7xl mx-auto w-full px-4 md:px-6 pt-[112px] pb-28">
+        <div class="max-w-7xl mx-auto w-full px-4 md:px-6 pt-[112px] md:pt-8 pb-28">
 
           <a id="btn-check-interactions" href="${activeMeds.length >= 2 ? '#/interaction-checker' : 'javascript:void(0)'}" class="block mb-6 ${activeMeds.length >= 2 ? 'bg-amber-900/20 border-amber-500/30 hover:bg-amber-900/30' : 'bg-surface-elevated/40 backdrop-blur-xl border-border opacity-60 cursor-not-allowed'} border rounded-2xl p-4 flex items-center justify-between transition-colors shadow-[0_8px_32px_rgba(0,0,0,0.5)]" data-disabled="${activeMeds.length < 2}">
             <div class="flex items-center gap-3">
@@ -57,7 +57,7 @@ export default class MedicationsView {
     } catch (error) {
       console.error('[MedicationsView] Render Pipeline Failure:', error);
       this.container.innerHTML = `
-        <div class="max-w-7xl mx-auto w-full px-4 md:px-6 pt-[112px] pb-28">
+        <div class="max-w-7xl mx-auto w-full px-4 md:px-6 pt-[112px] md:pt-8 pb-28">
           <div class="p-4 rounded-2xl bg-red-900/30 border border-red-500/40 text-red-200 text-xs font-mono text-left">
             Structural Exception Caught: ${error.message}
           </div>
@@ -126,7 +126,7 @@ export default class MedicationsView {
       <div class="skeleton skeleton-card" style="height:80px; margin-bottom:12px; width:100%;"></div>
     `;
     return `
-      <div class="max-w-7xl mx-auto w-full px-4 md:px-6 pt-[112px] pb-28">
+      <div class="max-w-7xl mx-auto w-full px-4 md:px-6 pt-[112px] md:pt-8 pb-28">
         <!-- Interaction banner skeleton -->
         <div class="skeleton skeleton-card" style="height:60px; margin-bottom:24px;"></div>
         <!-- Med cards -->

@@ -29,17 +29,17 @@ export default class GlassNavbar {
     // Strict check: Landing pages must ALWAYS be at the top
     const isLanding = (hash === '#/' || hash === '#/landing');
     
-    // Hardcoded override to ensure Top-position on landing
+    // Hardcoded override to ensure Top-position on landing, otherwise always bottom
     // This class is applied before the browser paints the navbar
     const positionClass = isLanding 
       ? 'fixed top-6' 
-      : (isAuth ? 'fixed bottom-4 md:top-6 md:bottom-auto' : 'fixed top-6');
+      : 'fixed bottom-4';
 
     const isAuthLayout = isAuth && !isLanding;
 
     if (isAuthLayout) {
       this.root.innerHTML = `
-        <nav id="glass-nav" class="bottom-6 md:bottom-auto md:top-6 fixed z-[9999] left-1/2 -translate-x-1/2 w-[95%] max-w-2xl px-2 md:px-6 py-3 rounded-full flex justify-between items-center backdrop-blur-xl border transition-all duration-300" style="background: var(--color-nav-bg); border-color: var(--color-nav-border); box-shadow: 0 8px 32px var(--color-card-shadow), inset 0 1px 1px rgba(255,255,255,0.08); opacity: 0.85;">
+        <nav id="glass-nav" class="bottom-6 fixed z-[9999] left-1/2 -translate-x-1/2 w-[95%] max-w-2xl px-2 md:px-6 py-3 rounded-full flex justify-between items-center backdrop-blur-xl border transition-all duration-300" style="background: var(--color-nav-bg); border-color: var(--color-nav-border); box-shadow: 0 8px 32px var(--color-card-shadow), inset 0 1px 1px rgba(255,255,255,0.08); opacity: 0.85;">
           ${this.getAuthenticatedMenu(hash)}
         </nav>
       `;

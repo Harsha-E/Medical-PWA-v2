@@ -1,6 +1,5 @@
 import state from '../core/state.js';
 import db from '../core/db.js';
-import PeerMesh from '../services/PeerMesh.js';
 
 export default class EmergencyView {
   async render() {
@@ -19,7 +18,7 @@ export default class EmergencyView {
     const myPhone = state.userProfile?.profile?.phone || '';
 
     this.container.innerHTML = `
-      <main class="scroll-area pt-[112px] bg-surface-elevated pb-24" style="padding-left:0; padding-right:0;">
+      <main class="scroll-area bg-surface-elevated pb-24 pt-0" style="padding-left:0; padding-right:0;">
 <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
         
         <!-- Broadcast SOS Action (Absolute Highest Priority) -->
@@ -102,34 +101,7 @@ export default class EmergencyView {
                 </div>
                 `).join('')}
             </div>
-        </section>
-        <!-- Hydra Pool Mesh Network -->
-        <section class="mb-12">
-            <h3 class="text-xs font-bold text-primary mb-4 tracking-[0.2em] px-1 uppercase">Hydra Pool Mesh</h3>
-            <div class="clay-glass-panel p-6 flex flex-col items-center bg-surface-deep border-border shadow-xl">
-                <div class="w-full flex justify-between items-center mb-4">
-                    <p class="font-bold text-sm text-text-primary">Peer Connection</p>
-                    <span id="hydra-status-badge" class="px-3 py-1 text-[10px] uppercase tracking-widest rounded-full bg-surface-elevated border border-border text-text-muted">Offline</span>
-                </div>
-                <div id="hydra-qr-container" class="bg-white p-2 rounded-2xl mb-4 w-[200px] h-[200px] flex items-center justify-center">
-                    <svg class="animate-spin text-surface" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-                </div>
-                <button id="hydra-help-btn" class="text-xs text-accent-primary/80 underline tracking-wider uppercase font-medium">How does this work?</button>
-            </div>
-        </section>
-
       </div></main>
-
-      <!-- Onboarding Overlay -->
-      <div id="hydra-onboarding-overlay" class="fixed inset-0 z-[9999] bg-surface/90 backdrop-blur-md flex items-center justify-center p-6 transition-opacity duration-300 opacity-0 pointer-events-none">
-          <div class="clay-glass-panel p-8 max-w-sm w-full">
-              <h2 class="text-lg font-bold text-primary mb-4">Hydra Pool Mesh</h2>
-              <p class="text-sm text-text-secondary mb-6 leading-relaxed">
-                  Scan this QR code from a family member's device to establish a secure, decentralized data bridge. Changes made to medical profiles will automatically sync without a central server.
-              </p>
-              <button id="close-help-btn" class="w-full btn-primary-specter py-3 text-xs rounded-full bg-white text-black font-bold uppercase tracking-widest">Acknowledge</button>
-          </div>
-      </div>
 
       <style>
         .clay-glass-panel { backdrop-filter: blur(12px); border-radius: var(--radius-lg); }
@@ -141,14 +113,14 @@ export default class EmergencyView {
   }
 
   attachListeners() {
-    this.container.querySelector('#sos-btn').addEventListener('click', () => this.dispatchSOS());
-    this.container.querySelector('#hydra-help-btn').addEventListener('click', () => {
+    this.container.querySelector('#sos-btn')?.addEventListener('click', () => this.dispatchSOS());
+    this.container.querySelector('#hydra-help-btn')?.addEventListener('click', () => {
         const overlay = this.container.querySelector('#hydra-onboarding-overlay');
-        overlay.classList.remove('opacity-0', 'pointer-events-none');
+        if(overlay) overlay.classList.remove('opacity-0', 'pointer-events-none');
     });
-    this.container.querySelector('#close-help-btn').addEventListener('click', () => {
+    this.container.querySelector('#close-help-btn')?.addEventListener('click', () => {
         const overlay = this.container.querySelector('#hydra-onboarding-overlay');
-        overlay.classList.add('opacity-0', 'pointer-events-none');
+        if(overlay) overlay.classList.add('opacity-0', 'pointer-events-none');
     });
 
     // Mesh Events
@@ -193,8 +165,8 @@ export default class EmergencyView {
             });
         }
 
-        const mesh = PeerMesh.getInstance();
-        await mesh.init();
+        const mesh = window.familyMesh;
+        if (!mesh) return;
 
         const qrContainer = this.container.querySelector('#hydra-qr-container');
         qrContainer.innerHTML = ''; // clear loader
@@ -258,10 +230,24 @@ export default class EmergencyView {
     // Internal Broadcast for Peer Network auto-linking
     window.dispatchEvent(new CustomEvent('medcare:sos-broadcast', { detail: { message, location: mapsLink } }));
 
+    // Clean the primary phone number for WhatsApp deep link
+    let cleanPrimaryPhone = primaryPhone ? primaryPhone.replace(/[^\d+]/g, '') : '';
+    // Ensure it starts with +91 if Indian number and missing country code (basic heuristic)
+    if (cleanPrimaryPhone.length === 10 && !cleanPrimaryPhone.startsWith('+')) {
+        cleanPrimaryPhone = '+91' + cleanPrimaryPhone;
+    }
+
     let dispatched = false;
 
-    // 2. Native Web Share API (Primary method for mobile)
-    if (navigator.share) {
+    // 1. Try WhatsApp Teleport (Primary Responder)
+    if (cleanPrimaryPhone) {
+        // Use wa.me deep link
+        const waUrl = `https://wa.me/${cleanPrimaryPhone.replace('+', '')}?text=${encodeURIComponent(message)}`;
+        window.open(waUrl, '_blank');
+        dispatched = true;
+    } 
+    // 2. Native Web Share API as Fallback
+    else if (navigator.share) {
         try {
             await navigator.share({
                 title: 'EMERGENCY SOS',
@@ -271,7 +257,7 @@ export default class EmergencyView {
         } catch (e) {
             console.warn('[SOS] Web Share aborted or failed:', e);
             if (e.name === 'AbortError') {
-                dispatched = true; // User intentionally cancelled, don't fallback to force SMS
+                dispatched = true;
             }
         }
     }

@@ -77,7 +77,18 @@ db.version(6).stores({
         });
     });
 });
-
+// ─── Schema Version 7 (Disease Ledger) ──────────────────────────────────────────
+db.version(7).stores({
+  medications:  '++id, name, dosage, frequency, startDate, endDate, notes, active, userId, category, patientFriendlyUse, updatedAt, logicalClock, isDeleted',
+  doses:        '++id, medicationId, takenAt, skipped, userId, updatedAt, logicalClock, isDeleted',
+  history:      '++id, type, date, title, provider, userId, updatedAt, logicalClock, isDeleted',
+  family:       '++id, relationship, name, bloodGroup, userId, updatedAt, logicalClock, isDeleted',
+  appointments: '++id, date, time, title, provider, userId, updatedAt, logicalClock, isDeleted',
+  prescriptions: '++id, imageBlob, rawText, date, doctorName, userId, updatedAt, logicalClock, isDeleted',
+  reminders:     '++id, medicationId, time, isActive, userId, updatedAt, logicalClock, isDeleted',
+  sync_queue:    '++id, action, table, recordId, payload, timestamp, status, retryCount',
+  disease_ledger: '++id, diseaseName, clinicalName, userId, updatedAt, logicalClock, isDeleted'
+});
 if (import.meta.env?.DEV) {
   db.open().then(() => {
     console.debug('[DB] MedCareDB open. Tables:', db.tables.map(t => t.name));

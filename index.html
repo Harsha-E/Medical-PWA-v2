@@ -34,6 +34,11 @@
     link.href = (basePath || '.') + '/style.css';
     document.head.appendChild(link);
 
+    const scrollbarLink = document.createElement('link');
+    scrollbarLink.rel = 'stylesheet';
+    scrollbarLink.href = (basePath || '.') + '/scrollbar.css';
+    document.head.appendChild(scrollbarLink);
+
     const tourLink = document.createElement('link');
     tourLink.rel = 'stylesheet';
     tourLink.href = (basePath || '.') + '/tours/tour-styles.css';
@@ -87,26 +92,28 @@
   <!-- ── Global Animated Blobs ─────────────────────────────────────────── -->
   <style>
     @keyframes premium-blob-flow {
-      0% { transform: translate(0px, 0px) scale(1) rotate(0deg); }
-      33% { transform: translate(30px, -50px) scale(1.2) rotate(10deg); }
-      66% { transform: translate(-20px, 20px) scale(0.8) rotate(-10deg); }
-      100% { transform: translate(0px, 0px) scale(1) rotate(0deg); }
+      0% { transform: translate3d(0px, 0px, 0) scale(1) rotate(0deg); }
+      33% { transform: translate3d(30px, -50px, 0) scale(1.2) rotate(10deg); }
+      66% { transform: translate3d(-20px, 20px, 0) scale(0.8) rotate(-10deg); }
+      100% { transform: translate3d(0px, 0px, 0) scale(1) rotate(0deg); }
     }
     .animate-blob {
       animation: premium-blob-flow 15s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: transform;
+      backface-visibility: hidden;
     }
     .animation-delay-2000 { animation-delay: -5s; }
     .animation-delay-4000 { animation-delay: -10s; }
   </style>
   <div id="blob-bg" class="fixed inset-0 z-0 pointer-events-none overflow-hidden transition-colors duration-700" style="background-color: var(--color-surface);">
-      <!-- Lava Blob 1 -->
-      <div class="animate-blob absolute top-[-10%] left-[-10%] w-[70vw] h-[70vw] rounded-full filter blur-[100px] opacity-60" style="background-color: var(--color-primary);"></div>
+      <!-- Lava Blob 1 (Top Left Edge) -->
+      <div class="animate-blob absolute top-[-30%] left-[-30%] w-[60vw] h-[60vw] md:w-[40vw] md:h-[40vw] rounded-full filter blur-[100px] opacity-20 md:opacity-20" style="background-color: var(--color-primary);"></div>
       
-      <!-- Lava Blob 2 -->
-      <div class="animate-blob animation-delay-2000 absolute top-[40%] right-[-10%] w-[60vw] h-[60vw] rounded-full filter blur-[120px] opacity-60" style="background-color: var(--color-primary);"></div>
+      <!-- Lava Blob 2 (Top Right Edge) -->
+      <div class="animate-blob animation-delay-2000 absolute top-[-20%] right-[-30%] w-[60vw] h-[60vw] md:w-[35vw] md:h-[35vw] rounded-full filter blur-[120px] opacity-20 md:opacity-20" style="background-color: var(--color-primary);"></div>
       
-      <!-- Lava Blob 3 -->
-      <div class="animate-blob animation-delay-4000 absolute bottom-[-10%] left-[20%] w-[50vw] h-[50vw] rounded-full filter blur-[90px] opacity-60" style="background-color: var(--color-primary);"></div>
+      <!-- Lava Blob 3 (Bottom Edge) -->
+      <div class="animate-blob animation-delay-4000 absolute bottom-[-40%] left-[20%] w-[60vw] h-[60vw] md:w-[45vw] md:h-[45vw] rounded-full filter blur-[100px] opacity-20 md:opacity-20" style="background-color: var(--color-primary);"></div>
   </div>
 
   <!-- ── Splash screen ─────────────────────────────────────────────────── -->

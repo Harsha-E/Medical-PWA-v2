@@ -107,8 +107,12 @@
                             
                             let substringDataset = [];
                             try {
-                                substringDataset = await graph.db.medicine_knowledge
-                                    .filter(item => {
+                                // Instead of a slow Dexie full table scan, we fetch the raw JSON which v8 parses extremely fast in memory.
+                                const response = await fetch('./data/indian_medicine_data.json');
+                                if (response.ok) {
+                                    const allData = await response.json();
+                                    
+                                    substringDataset = allData.filter(item => {
                                         let match = false;
                                         if (brandTarget.length >= 3 && item.name && item.name.toLowerCase().includes(brandTarget)) {
                                             match = true;
@@ -117,9 +121,8 @@
                                             match = true;
                                         }
                                         return match;
-                                    })
-                                    .limit(30)
-                                    .toArray();
+                                    }).slice(0, 30);
+                                }
                             } catch(e) {
                                 console.warn("[VisionPipeline] Deep substring scan failed:", e);
                             }

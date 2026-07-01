@@ -1,196 +1,268 @@
-import Dexie from 'https://cdn.jsdelivr.net/npm/dexie@4.0.8/dist/dexie.mjs';
-
-class InteractionDB extends Dexie {
-  constructor() {
-    super('InteractionEngineDB');
-    this.version(1).stores({
-      metadata: 'id',
-      interactions: 'genericName'
-    });
-  }
-}
-
-const db = new InteractionDB();
+/**
+ * InteractionEngine.js
+ * Enterprise-Grade Local Processing Engine.
+ * Features: Verbose debugging, One-Time IndexedDB Hydration, and LRU in-memory caching.
+ */
 
 export default class InteractionEngine {
-  constructor() {
-    this.lruCache = new Map();
-    this.maxCacheSize = 100;
-  }
-
-  async init(datasetUrl) {
-    try {
-      const meta = await db.metadata.get('dataset_info');
-      if (meta && meta.loaded) {
-        return; // Already cached
-      }
-
-      console.log('[InteractionEngine] 📥 Streaming massive interaction dataset...');
-      const response = await fetch(datasetUrl);
-      if (!response.ok) throw new Error(`HTTP fetch failed: ${response.status}`);
-      const json = await response.json();
-      
-      // Store in IndexedDB for chunked access
-      await db.transaction('rw', db.metadata, db.interactions, async () => {
-        await db.interactions.clear();
-        await db.interactions.bulkPut(json.data);
-        await db.metadata.put({ id: 'dataset_info', loaded: true, version: json.metadata.version });
-      });
-      console.log('[InteractionEngine] ✅ Dataset successfully chunked and cached in IndexedDB.');
-    } catch (e) {
-      console.error('[InteractionEngine] Failed to initialize dataset:', e);
+    constructor() {
+        this.dbName = 'MedCheck_Interactions_DB';
+        this.storeName = 'interactions_store';
+        this.isReady = false;
+        this.db = null;
+        this.cache = new Map();
+        this.MAX_CACHE_SIZE = 50; 
     }
-  }
 
-  // Levenshtein Distance for fuzzy matching
-  _levenshtein(a, b) {
-    if(a.length === 0) return b.length; 
-    if(b.length === 0) return a.length; 
-    const matrix = [];
-    for(let i = 0; i <= b.length; i++){ matrix[i] = [i]; }
-    for(let j = 0; j <= a.length; j++){ matrix[0][j] = j; }
-    for(let i = 1; i <= b.length; i++){
-      for(let j = 1; j <= a.length; j++){
-        if(b.charAt(i-1) == a.charAt(j-1)){
-          matrix[i][j] = matrix[i-1][j-1];
-        } else {
-          matrix[i][j] = Math.min(matrix[i-1][j-1] + 1, Math.min(matrix[i][j-1] + 1, matrix[i-1][j] + 1));
+    async init(datasetUrl = '/data/indian_pharma_interactions.json') {
+        console.log('[InteractionEngine] 🚀 Initialization started...');
+        try {
+            await this._initDB();
+            
+            console.log('[InteractionEngine] 🔍 Checking for existing local database...');
+            const hasData = await this._checkIfDataExists();
+            
+            if (!hasData) {
+                console.log('[InteractionEngine] ⚠️ Database is empty. First boot detected.');
+                console.log(`[InteractionEngine] 📥 Streaming dataset from: ${datasetUrl}`);
+                await this._fetchAndCacheDataset(datasetUrl);
+            } else {
+                console.log('[InteractionEngine] ✅ Local database is fully populated. SKIPPING HYDRATION.');
+            }
+            
+            this.isReady = true;
+            console.log('[InteractionEngine] 🟢 Engine is READY and active.');
+        } catch (error) {
+            console.error('[InteractionEngine] ❌ Critical Initialization Failure:', error);
         }
-      }
-    }
-    return matrix[b.length][a.length];
-  }
-
-  async getDrugData(query) {
-    if (!query) return null;
-    const key = query.toLowerCase().trim();
-    
-    // LRU Cache hit
-    if (this.lruCache.has(key)) {
-      const data = this.lruCache.get(key);
-      this.lruCache.delete(key);
-      this.lruCache.set(key, data);
-      return data;
     }
 
-    // Try Exact Generic Match in DB
-    let data = await db.interactions.get(key);
-    
-    // If not found exactly, fall back to Brand/Substitute search and Fuzzy Matching
-    if (!data) {
-      const allDrugs = await db.interactions.toArray();
-      let bestMatch = null;
-      let lowestDistance = Infinity;
-
-      for (const drug of allDrugs) {
-         // 1. Check exact brand match
-         if (drug.substitutes && drug.substitutes.some(s => s.toLowerCase() === key)) {
-            data = drug;
-            break;
-         }
-         // 2. Check exact composition match
-         if (drug.compositions && drug.compositions.some(c => c.toLowerCase() === key)) {
-            data = drug;
-            break;
-         }
-         // 3. Calculate fuzzy distance on generic name
-         const dist = this._levenshtein(key, drug.genericName.toLowerCase());
-         if (dist < lowestDistance && dist <= 3) { // Max 3 typos allowed
-            lowestDistance = dist;
-            bestMatch = drug;
-         }
-      }
-      // Apply fuzzy fallback if no exact substitute/composition match found
-      if (!data && bestMatch) data = bestMatch;
-    }
-
-    if (data) {
-      // Store under the original query key to speed up subsequent identical typos or brand queries
-      if (this.lruCache.size >= this.maxCacheSize) {
-        const firstKey = this.lruCache.keys().next().value;
-        this.lruCache.delete(firstKey);
-      }
-      this.lruCache.set(key, data);
-    }
-    return data;
-  }
-
-  async autocomplete(query) {
-    if (!query || query.length < 2) return [];
-    const q = query.toLowerCase().trim();
-    
-    // We fetch all and filter since we have max 100-200 cached items right now in the demo
-    const allDrugs = await db.interactions.toArray();
-    const suggestions = new Set();
-    
-    for (const drug of allDrugs) {
-      if (suggestions.size >= 5) break;
-      if (drug.genericName.toLowerCase().includes(q)) {
-        suggestions.add(drug.genericName);
-      } else if (drug.substitutes) {
-        for (const sub of drug.substitutes) {
-          if (sub.toLowerCase().includes(q)) {
-            suggestions.add(sub);
-            break;
-          }
+    // --- Core Analysis Logic ---
+    async analyze(newMedGeneric, patientProfile) {
+        console.log(`[InteractionEngine] 🔬 Analyzing drug: "${newMedGeneric}" against patient profile...`);
+        if (!this.isReady) {
+            console.warn('[InteractionEngine] ⚠️ Engine offline or still initializing. Returning empty warnings.');
+            return [];
         }
-      }
-    }
-    return Array.from(suggestions);
-  }
 
-  async analyze(genericName, patientProfile = { conditions: [], activeMeds: [] }) {
-    if (!genericName) return [];
-    
-    const drugData = await this.getDrugData(genericName);
-    if (!drugData) return [];
+        const warnings = [];
+        if (!newMedGeneric) return warnings;
 
-    const warnings = [];
+        const targetDrug = this._normalize(newMedGeneric);
+        console.log(`[InteractionEngine] 🧬 Normalized drug name: "${targetDrug}"`);
 
-    // 1. Evaluate Disease Contraindications
-    if (drugData.contraindications) {
-      for (const condition of patientProfile.conditions) {
-        const match = drugData.contraindications.find(c => c.disease.toLowerCase() === condition.toLowerCase());
-        if (match) {
-          warnings.push({
-            type: 'CONTRAINDICATION',
-            severity: match.severity,
-            trigger: condition,
-            message: match.warning
-          });
+        // 1. Check Allergies
+        if (patientProfile.allergies && Array.isArray(patientProfile.allergies)) {
+            const isAllergic = patientProfile.allergies.some(allergy => 
+                this._normalize(allergy).includes(targetDrug) || targetDrug.includes(this._normalize(allergy))
+            );
+            if (isAllergic) {
+                console.warn(`[InteractionEngine] 🚨 ALLERGY DETECTED: ${newMedGeneric}`);
+                warnings.push({ type: 'Allergy', severity: 'Critical', text: `Patient has a documented allergy to ${newMedGeneric}!` });
+            }
         }
-      }
+
+        // 2. Fetch specific drug profile
+        const drugData = await this._getDrugData(targetDrug);
+
+        if (!drugData) {
+            console.log(`[InteractionEngine] ℹ️ No interaction profile found in database for: ${targetDrug}`);
+            return warnings;
+        }
+
+        console.log(`[InteractionEngine] 📊 Drug profile found. Checking ${drugData.interactsWith?.length || 0} known interactions...`);
+
+        // 3. Check Drug-Drug Interactions
+        if (patientProfile.activeMeds && Array.isArray(drugData.interactsWith)) {
+            patientProfile.activeMeds.forEach(currentMed => {
+                const current = this._normalize(currentMed);
+                const interaction = drugData.interactsWith.find(dd => {
+                    const dbDrug = this._normalize(dd.drug);
+                    return current.includes(dbDrug) || dbDrug.includes(current);
+                });
+                
+                if (interaction) {
+                    console.warn(`[InteractionEngine] 🚨 DRUG INTERACTION DETECTED: ${currentMed} + ${newMedGeneric}`);
+                    warnings.push({ 
+                        type: 'Drug Interaction', 
+                        severity: interaction.severity, 
+                        text: `Interaction with ${currentMed}: ${interaction.warning}` 
+                    });
+                }
+            });
+        }
+
+        // 4. Check Disease Contraindications
+        if (patientProfile.activeDiseases && Array.isArray(drugData.contraindications)) {
+            patientProfile.activeDiseases.forEach(disease => {
+                const dName = this._normalize(disease);
+                const contraindication = drugData.contraindications.find(dc => {
+                    const dbDisease = this._normalize(dc.disease);
+                    return dName.includes(dbDisease) || dbDisease.includes(dName);
+                });
+                
+                if (contraindication) {
+                    console.warn(`[InteractionEngine] 🚨 DISEASE CONTRAINDICATION DETECTED: ${disease}`);
+                    warnings.push({ 
+                        type: 'Disease Warning', 
+                        severity: contraindication.severity, 
+                        text: `Contraindicated for ${disease}: ${contraindication.warning}` 
+                    });
+                }
+            });
+        }
+
+        console.log(`[InteractionEngine] ✅ Analysis complete. Found ${warnings.length} warnings.`);
+        return warnings;
     }
 
-    // 2. Evaluate Drug-Drug Interactions (Multi-Salt Combination Support)
-    if (drugData.interactsWith) {
-      // Resolve all active meds into their base salts if they are brands/combos
-      const resolvedActiveSalts = new Set();
-      for (const activeMed of patientProfile.activeMeds) {
-        const activeData = await this.getDrugData(activeMed);
-        if (activeData) {
-          resolvedActiveSalts.add(activeData.genericName.toLowerCase());
-          if (activeData.compositions) {
-            activeData.compositions.forEach(c => resolvedActiveSalts.add(c.toLowerCase()));
-          }
-        } else {
-          resolvedActiveSalts.add(activeMed.toLowerCase());
-        }
-      }
-
-      for (const activeSalt of resolvedActiveSalts) {
-        const match = drugData.interactsWith.find(i => i.drug.toLowerCase() === activeSalt);
-        if (match) {
-          warnings.push({
-            type: 'INTERACTION',
-            severity: match.severity,
-            trigger: activeSalt, // Note: activeSalt might be a base chemical now
-            message: match.warning
-          });
-        }
-      }
+    _normalize(str) {
+        if (!str) return '';
+        return String(str).toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim();
     }
 
-    return warnings;
-  }
+    // --- IndexedDB Management ---
+    _initDB() {
+        return new Promise((resolve, reject) => {
+            console.log('[InteractionEngine] 🗄️ Opening IndexedDB connection...');
+            const request = indexedDB.open(this.dbName, 1);
+
+            request.onupgradeneeded = (event) => {
+                console.log('[InteractionEngine] 🛠️ Creating new Object Store: ' + this.storeName);
+                const db = event.target.result;
+                if (!db.objectStoreNames.contains(this.storeName)) {
+                    db.createObjectStore(this.storeName, { keyPath: 'genericName' });
+                }
+            };
+
+            request.onsuccess = (event) => {
+                this.db = event.target.result;
+                console.log('[InteractionEngine] 🔓 IndexedDB connected successfully.');
+                resolve();
+            };
+
+            request.onerror = (event) => {
+                console.error('[InteractionEngine] ❌ IndexedDB connection failed:', event.target.error);
+                reject(event.target.error);
+            };
+        });
+    }
+
+    async _checkIfDataExists() {
+        return new Promise((resolve) => {
+            try {
+                const transaction = this.db.transaction([this.storeName], 'readonly');
+                const store = transaction.objectStore(this.storeName);
+                const request = store.count();
+                
+                request.onsuccess = () => {
+                    console.log(`[InteractionEngine] 📊 DB Count check: Found ${request.result} records.`);
+                    resolve(request.result > 0);
+                };
+                request.onerror = (err) => {
+                    console.error('[InteractionEngine] ❌ Error checking DB count:', err);
+                    resolve(false);
+                };
+            } catch (err) {
+                console.error('[InteractionEngine] ❌ Exception checking DB count:', err);
+                resolve(false);
+            }
+        });
+    }
+
+    async _fetchAndCacheDataset(url) {
+        try {
+            console.log(`[InteractionEngine] 🌐 Fetching JSON from network: ${url}`);
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            
+            let dataset = await response.json();
+            
+            if (dataset.data && Array.isArray(dataset.data)) {
+                console.log(`[InteractionEngine] 📦 Metadata detected. Version: ${dataset.metadata?.version || 'unknown'}`);
+                dataset = dataset.data;
+            }
+            
+            if (!Array.isArray(dataset)) {
+                throw new Error("Invalid Dataset Schema: Expected Array of objects or { data: [] } wrapper.");
+            }
+
+            console.log(`[InteractionEngine] 📥 Memory loaded ${dataset.length} records. Writing to IndexedDB in chunks...`);
+            await this._insertInChunks(dataset, 2500);
+
+        } catch (error) {
+            console.error('[InteractionEngine] ❌ Failed to fetch and cache dataset:', error);
+            throw error;
+        }
+    }
+
+    _insertInChunks(dataset, chunkSize) {
+        return new Promise((resolve, reject) => {
+            let index = 0;
+
+            const processChunk = () => {
+                const chunk = dataset.slice(index, index + chunkSize);
+                
+                if (chunk.length === 0) {
+                    console.log(`[InteractionEngine] ✅ DB Write Complete: All ${dataset.length} records safely inserted.`);
+                    resolve();
+                    return;
+                }
+
+                console.log(`[InteractionEngine] 💾 Writing chunk ${index} to ${index + chunk.length}...`);
+                const transaction = this.db.transaction([this.storeName], 'readwrite');
+                const store = transaction.objectStore(this.storeName);
+                
+                chunk.forEach(record => {
+                    if (record && record.genericName) {
+                        record.genericName = this._normalize(record.genericName);
+                        store.put(record);
+                    }
+                });
+
+                transaction.oncomplete = () => {
+                    index += chunkSize;
+                    setTimeout(processChunk, 0); // Yield to main thread
+                };
+
+                transaction.onerror = () => reject(transaction.error);
+            };
+
+            processChunk(); 
+        });
+    }
+
+    async _getDrugData(normalizedGenericName) {
+        if (this.cache.has(normalizedGenericName)) {
+            console.log(`[InteractionEngine] ⚡ Cache HIT for: ${normalizedGenericName}`);
+            return this.cache.get(normalizedGenericName);
+        }
+
+        console.log(`[InteractionEngine] 🐢 Cache MISS for: ${normalizedGenericName}. Querying IndexedDB...`);
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction([this.storeName], 'readonly');
+            const store = transaction.objectStore(this.storeName);
+            const request = store.get(normalizedGenericName);
+
+            request.onsuccess = () => {
+                const result = request.result;
+                if (result) {
+                    console.log(`[InteractionEngine] 🎯 DB HIT for: ${normalizedGenericName}`);
+                    this._addToCache(normalizedGenericName, result);
+                } else {
+                    console.log(`[InteractionEngine] 📭 DB MISS for: ${normalizedGenericName}`);
+                }
+                resolve(result);
+            };
+            request.onerror = (err) => reject(request.error);
+        });
+    }
+
+    _addToCache(key, value) {
+        if (this.cache.size >= this.MAX_CACHE_SIZE) {
+            const firstKey = this.cache.keys().next().value;
+            this.cache.delete(firstKey);
+        }
+        this.cache.set(key, value);
+    }
 }

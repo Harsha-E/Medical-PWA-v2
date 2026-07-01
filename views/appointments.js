@@ -11,7 +11,7 @@ export default class AppointmentsView {
 
     // Immediate skeleton before async data
     this.container.innerHTML = `
-      <main class="flex-1 overflow-y-auto md:px-12 pt-[112px] pb-28 w-full max-w-7xl mx-auto md:grid md:grid-cols-2 md:gap-12" style="padding-left:0; padding-right:0;">
+      <main class="flex-1 overflow-y-auto md:px-12 pt-[112px] md:pt-8 pb-28 w-full max-w-7xl mx-auto md:grid md:grid-cols-2 md:gap-12" style="padding-left:0; padding-right:0;">
 <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
         <div>
           <div class="skeleton" style="height:12px; width:100px; margin-bottom:20px;"></div>
@@ -61,7 +61,7 @@ export default class AppointmentsView {
     `;
 
     this.container.innerHTML = `
-      <main class="flex-1 overflow-y-auto md:px-12 pt-[112px] pb-28 w-full max-w-7xl mx-auto md:grid md:grid-cols-2 md:gap-12" style="padding-left:0; padding-right:0;">
+      <main class="flex-1 overflow-y-auto md:px-12 pt-[112px] md:pt-8 pb-28 w-full max-w-7xl mx-auto md:grid md:grid-cols-2 md:gap-12" style="padding-left:0; padding-right:0;">
 <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
         <section class="mb-12">
             <h3 class="text-xs text-uppercase font-bold text-accent-primary/70 mb-6 tracking-[0.2em] px-1 uppercase">Upcoming</h3>

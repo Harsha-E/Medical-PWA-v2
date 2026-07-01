@@ -2,9 +2,9 @@
  * MedCare | Main Application Entry Point
  *
  * Responsibilities:
- *   1. Register all route → View class mappings
+ *   1. Register all route â†’ View class mappings
  *   2. Boot the Router, Navbar, and GhostFluid background
- *   3. Subscribe to Firebase auth changes → hydrate State
+ *   3. Subscribe to Firebase auth changes â†’ hydrate State
  *   4. Run the navigation guard after every auth change or hash change
  */
 
@@ -18,12 +18,13 @@ import PwaInstallManager  from './services/PwaInstallManager.js';
 import GlassNavbar        from './components/navbar.js';
 import AppHeader        from './components/header.js';
 import ContextSwitcher    from './components/context-switcher.js';
+import { portalLayout }   from './components/PortalLayout.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { datasetSyncManager } from './datasets/sync/DatasetSyncManager.js';
 import PeerMeshV2 from './services/PeerMeshV2.js';
 import QRManager from './utils/QRManager.js';
 
-// ─── View imports ─────────────────────────────────────────────────────────────
+// â”€â”€â”€ View imports â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 import SplashView           from './views/splash.js';
 import LandingView          from './views/landing.js';
 import LoginView            from './views/login.js';
@@ -40,19 +41,21 @@ import Scan3DView           from './views/scan-3d.js';
 import ScanResultView       from './views/scan-result.js';
 import ReportsView          from './views/reports.js';
 import SettingsView         from './views/settings.js';
-import MedicalHistoryView   from './views/medical-history.js';
+import ClinicalDashboard      from './views/ClinicalDashboard.js';
 import FamilyProfilesView   from './views/family-profiles.js';
 import EmergencyView        from './views/emergency.js';
 import PeerNetworkView      from './views/peer-network.js';
 import PeerDashboardView    from './views/peer-dashboard.js';
+import ClinicalLedgerView     from './views/clinical-ledger.js';
+import InteractionGraphView from './views/interaction-graph.js';
 import AppointmentsView     from './views/appointments.js';
-
 import CalendarView         from './views/calendar.js';
+
 import OrchestratorView     from './views/orchestrator.js';
 import FamilyTreeView       from './views/family-tree.js';
 import MedicalTimelineView  from './views/timeline.js';
 
-// ─── Route map ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Route map â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Defined before the App class so it is in scope for the constructor.
 
 const ROUTES = {
@@ -73,13 +76,12 @@ const ROUTES = {
   '#/scan/result': ScanResultView,
   '#/reports': ReportsView,
   '#/settings': SettingsView,
-  '#/medical-history': MedicalHistoryView,
+  '#/medical-history': ClinicalDashboard,
   '#/family-profiles': FamilyProfilesView,
   '#/peer-hub': PeerNetworkView,
   '#/emergency': EmergencyView,
   '#/peer-dashboard': PeerDashboardView,
   '#/appointments': AppointmentsView,
-
   '#/calendar': CalendarView,
   '#/orchestrator': OrchestratorView,
   '#/medication-detail': MedicationDetailView
@@ -92,14 +94,14 @@ const PUBLIC_ROUTES = new Set(['#/', '#/landing', '#/splash', '#/login', '#/regi
 const HIDE_NAV_ROUTES = new Set([
   '#/onboarding', '#/splash', '#/install', 
   '#/add-medication', '#/medication-detail', '#/scan', '#/scan/3d', '#/scan/result',
-  '#/interaction-checker', '#/medical-history', 
+  '#/interaction-checker', '#/interaction-graph', '#/medical-history', 
   '#/family-profiles', '#/reports', '#/emergency'
 ]);
 
 /** Routes where the WebGL liquid background is active. */
 const LIQUID_ROUTES = new Set(['#/', '#/landing', '#/login', '#/register']);
 
-// ─── Header Icons & Config ───────────────────────────────────────────────────
+// â”€â”€â”€ Header Icons & Config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const PLUS_ICON = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>`;
 const SCAN_ICON = `<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h2M21 7V5a2 2 0 00-2-2h-2M3 17v2a2 2 0 002 2h2M21 17v2a2 2 0 01-2 2h-2M9 9h6v6H9z"></path></svg>`;
@@ -140,7 +142,7 @@ const HEADER_CONFIGS = {
   '#/orchestrator': { back: true, title: 'Orchestrator' }
 };
 
-// ─── App ──────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ App â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class App {
   constructor() {
@@ -157,7 +159,7 @@ class App {
 
   async init() {
 
-    // ─── PWA NATIVE STANDARDS ───────────────────────────────────────────
+    // â”€â”€â”€ PWA NATIVE STANDARDS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     hapticEngine.init();
     
     // Register Service Worker and Boot PWA Install Manager (Non-blocking)
@@ -174,6 +176,14 @@ class App {
 
           
           this.pwaManager = new PwaInstallManager();
+
+          if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission().then(permission => {
+              if (permission === 'granted') {
+                console.log('[App] Notification permission granted.');
+              }
+            });
+          }
         } catch (err) {
           console.error('[Service Worker] Registration failed:', err);
         }
@@ -301,6 +311,10 @@ class App {
       } catch (err) {
         console.error('[Auth Error]', err);
       } finally {
+      
+      // Init PortalLayout for Caregiver mode
+      portalLayout.init();
+
         this._authReady = true;
         this.runGuard(); 
 
@@ -318,7 +332,7 @@ class App {
     }
   }
 
-  // ─── Navigation guard ───────────────────────────────────────────────────────
+  // â”€â”€â”€ Navigation guard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /**
    * Called after every auth event and every hashchange.
@@ -344,19 +358,19 @@ class App {
     const isAdmin = state.isAdmin;
     const isComplete = !!profile?.onboardingComplete;
 
-    // ── Managed by individual views (GhostFluid instantiation removed) ──
+    // â”€â”€ Managed by individual views (GhostFluid instantiation removed) â”€â”€
 
-    // ── Navbar visibility ──
+    // â”€â”€ Navbar visibility â”€â”€
     const showNav = !HIDE_NAV_ROUTES.has(hash);
     this.glassNav.setVisibility?.(showNav);
 
-    // ── AppHeader visibility ──
+    // â”€â”€ AppHeader visibility â”€â”€
     const headerConfig = HEADER_CONFIGS[hash] ?? { hidden: true };
     // Show skeleton immediately for async views
     const needsSkeleton = ['#/dashboard', '#/reports', '#/appointments'].includes(hash);
     this.appHeader.configure({ ...headerConfig, skeleton: needsSkeleton });
 
-    // ── Manage Pill Docking and Layout ──
+    // â”€â”€ Manage Pill Docking and Layout â”€â”€
     if (user && isComplete) {
       document.body.classList.add('auth-layout-active');
     } else {
@@ -370,7 +384,7 @@ class App {
       document.body.classList.remove('has-navbar');
     }
 
-    // ── Auth guard ──
+    // â”€â”€ Auth guard â”€â”€
     // App installation requirement
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -411,12 +425,12 @@ class App {
 
 
 
-    // Guard passed — render the current hash
+    // Guard passed â€” render the current hash
     this.router.handleRoute();
   }
 }
 
-// ─── Bootstrap ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Bootstrap â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const app = new App();
 app.init();

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @fileoverview Scan Capture View
  * Minimalist glassmorphic UI solely dedicated to capturing an image.
  */
@@ -154,7 +154,7 @@ export default class ScanView {
               if (status.state === 'denied') {
                   this._permissionOverlay.style.display = 'flex';
                   this._permissionOverlay.querySelector('h2').textContent = 'Camera Blocked';
-                  this._permissionOverlay.querySelector('p').innerHTML = 'Camera access is disabled. <br><br><b>Android Fix:</b> Tap the lock icon 🔒 in your browser URL bar, tap <b>Site Settings</b>, and switch Camera to <b>Allow</b>.';
+                  this._permissionOverlay.querySelector('p').innerHTML = 'Camera access is disabled. <br><br><b>Android Fix:</b> Tap the lock icon ≡ƒöÆ in your browser URL bar, tap <b>Site Settings</b>, and switch Camera to <b>Allow</b>.';
                   this._btnRequestCam.style.display = 'none';
                   return;
               }
@@ -171,10 +171,11 @@ export default class ScanView {
     } catch (err) {
       console.warn('Camera connection error:', err);
       this._permissionOverlay.style.display = 'flex';
-      // If we got here and couldn't start, assume it's blocked or unavailable
-      this._permissionOverlay.querySelector('h2').textContent = 'Camera Blocked';
-      this._permissionOverlay.querySelector('p').innerHTML = 'Camera access is disabled or unavailable. <br><br><b>Fix:</b> Tap the lock icon 🔒 in your browser URL bar, tap <b>Site Settings</b>, and switch Camera to <b>Allow</b>.';
-      this._btnRequestCam.style.display = 'none';
+      if (err.name === 'NotAllowedError') {
+          this._permissionOverlay.querySelector('h2').textContent = 'Camera Blocked';
+          this._permissionOverlay.querySelector('p').innerHTML = 'Camera access is disabled. <br><br><b>Android Fix:</b> Tap the lock icon ≡ƒöÆ in your browser URL bar, tap <b>Site Settings</b>, and switch Camera to <b>Allow</b>.';
+          this._btnRequestCam.style.display = 'none';
+      }
     }
   }
 
@@ -471,7 +472,7 @@ export default class ScanView {
             <div class="clay-panel" style="width: 100%; max-width: 400px; padding: 32px; text-align: center; display: flex; flex-direction: column; gap: 24px; transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); background: #2a3149; border-radius: 28px; box-shadow: 10px 10px 20px rgba(15,20,30,0.6), inset 4px 4px 8px rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05);">
                 
                 <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(255, 165, 0, 0.15); color: #ffa500; display: flex; justify-content: center; align-items: center; font-size: 36px; margin: 0 auto; box-shadow: inset 2px 2px 10px rgba(0,0,0,0.2);">
-                    🔄
+                    ≡ƒöä
                 </div>
                 
                 <div>
@@ -522,7 +523,7 @@ export default class ScanView {
         modalOverlay.innerHTML = `
             <div class="clay-panel" style="width: 100%; max-width: 400px; padding: 32px; text-align: center; display: flex; flex-direction: column; gap: 24px; transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); background: #2a3149; border-radius: 28px; box-shadow: 10px 10px 20px rgba(15,20,30,0.6), inset 4px 4px 8px rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05);">
                 <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(255, 71, 87, 0.15); color: #ff4757; display: flex; justify-content: center; align-items: center; font-size: 36px; margin: 0 auto; box-shadow: inset 2px 2px 10px rgba(0,0,0,0.2);">
-                    ⚠️
+                    ΓÜá∩╕Å
                 </div>
                 <div>
                     <h2 style="color: #fff; margin: 0 0 8px 0; font-size: 1.4rem; font-weight: 800;">Medication Not Found</h2>
@@ -574,7 +575,7 @@ export default class ScanView {
 
         modalOverlay.innerHTML = blobBackground + `
             <div class="clay-glass-panel" style="position: relative; z-index: 1; width: 100%; max-width: 420px; padding: 36px 28px; text-align: center; display: flex; flex-direction: column; gap: 28px; transform: translateY(30px); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); margin: auto;">
-                <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--color-surface-elevated); color: var(--color-primary); display: flex; justify-content: center; align-items: center; font-size: 36px; margin: 0 auto; box-shadow: inset 4px 4px 10px rgba(0,0,0,0.3), inset -4px -4px 10px rgba(255,255,255,0.05), 0 8px 16px rgba(0,0,0,0.2); border: 1px solid var(--color-border);">💊</div>
+                <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--color-surface-elevated); color: var(--color-primary); display: flex; justify-content: center; align-items: center; font-size: 36px; margin: 0 auto; box-shadow: inset 4px 4px 10px rgba(0,0,0,0.3), inset -4px -4px 10px rgba(255,255,255,0.05), 0 8px 16px rgba(0,0,0,0.2); border: 1px solid var(--color-border);">≡ƒÆè</div>
                 
                 <div>
                     <h2 style="color: var(--color-text-primary); margin: 0 0 10px 0; font-size: clamp(1.4rem, 5vw, 1.7rem); font-weight: 800; letter-spacing: -0.02em;">Scan Successful</h2>
@@ -595,14 +596,14 @@ export default class ScanView {
                         <div style="height: 1px; background: var(--color-border); opacity: 0.5;"></div>
                         <div>
                             <div style="color: var(--color-primary); font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px;">Dosage & Form</div>
-                            <div style="color: var(--color-text-secondary); font-size: clamp(1rem, 3.5vw, 1.15rem); font-weight: 500;">${rawDosage} • ${dosageForm}</div>
+                            <div style="color: var(--color-text-secondary); font-size: clamp(1rem, 3.5vw, 1.15rem); font-weight: 500;">${rawDosage} ΓÇó ${dosageForm}</div>
                         </div>
                     </div>
                 </div>
                 
                 <div style="display: flex; gap: 16px; margin-top: 12px; flex-wrap: nowrap;">
                     <button id="btn-rescan" style="flex: 1; background: var(--color-surface); color: var(--color-text-primary); padding: 16px 8px; border-radius: 20px; border: 1px solid var(--color-border); font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: clamp(0.85rem, 3.5vw, 1rem); transition: transform 0.2s; white-space: nowrap; min-width: 0;">Rescan</button>
-                    <button id="btn-confirm" style="flex: 1.2; background: var(--color-primary); color: var(--color-surface); padding: 16px 8px; border-radius: 20px; border: none; font-weight: 800; box-shadow: 0 8px 20px var(--color-skeleton-glow1); cursor: pointer; font-size: clamp(0.85rem, 3.5vw, 1rem); transition: transform 0.2s; white-space: nowrap; min-width: 0;">Confirm ✓</button>
+                    <button id="btn-confirm" style="flex: 1.2; background: var(--color-primary); color: var(--color-surface); padding: 16px 8px; border-radius: 20px; border: none; font-weight: 800; box-shadow: 0 8px 20px var(--color-skeleton-glow1); cursor: pointer; font-size: clamp(0.85rem, 3.5vw, 1rem); transition: transform 0.2s; white-space: nowrap; min-width: 0;">Confirm Γ£ô</button>
                 </div>
             </div>
         `;

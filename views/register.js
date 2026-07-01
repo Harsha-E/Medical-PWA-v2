@@ -135,7 +135,7 @@ export default class RegisterView {
           <!-- STEP 1: EMAIL -->
           <div id="step-1" class="transition-all duration-300">
             <div class="google-input-group mb-4">
-              <input type="email" id="email" autocomplete="email" required placeholder=" ">
+              <input type="email" id="email" autocomplete="email" required placeholder=" " style="mix-blend-mode: difference; color: #fff;">
               <label for="email">Email</label>
               <fieldset aria-hidden="true"><legend><span>Email</span></legend></fieldset>
             </div>
@@ -154,7 +154,7 @@ export default class RegisterView {
             </div>
 
             <div class="google-input-group relative">
-              <input type="password" id="password" autocomplete="new-password" required placeholder=" " style="padding-right: 48px;">
+              <input type="password" id="password" autocomplete="new-password" required placeholder=" " style="padding-right: 48px; mix-blend-mode: difference; color: #fff;">
               <label for="password">Create Password</label>
               <fieldset aria-hidden="true"><legend><span>Create Password</span></legend></fieldset>
               <button type="button" id="toggle-password" class="absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary focus:outline-none z-10 btn-neumorphic" style="padding: 0; background: transparent; border: none; outline: none;">

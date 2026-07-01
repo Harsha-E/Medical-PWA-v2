@@ -145,7 +145,7 @@ export default class FuzzyMatcher {
                 
                 if (isOcrSingle && isDbCompound && dbGeneric.includes(ocrGeneric)) {
                     // It matched part of the compound, but it's fundamentally a different drug profile
-                    console.log(`[FuzzyMatcher] Applying Compound Steal Penalty (-40) for ${drug.name || drug.genericName}`);
+                    // console.log(`[FuzzyMatcher] Applying Compound Steal Penalty (-40) for ${drug.name || drug.genericName}`);
                     score -= 40;
                 }
             }

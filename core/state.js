@@ -22,6 +22,9 @@ class State {
     /** @type {Array<Function>} */
     this._listeners = [];
 
+    /** @type {Object | null} */
+    this.activeProfileContext = null; // null means 'self'. Otherwise object with id, name.
+
     // Initialize Theme
     this.themePref = localStorage.getItem('medcare_theme_pref') || 'system';
     this._applyThemePref();
@@ -70,6 +73,13 @@ class State {
       try { l(this.user, this.userProfile); }
       catch (e) { console.error('[State] Listener error:', e); }
     });
+  }
+
+  // ─── Profile Context (Caregiver Mode) ──────────────────────────────────────
+  
+  setActiveProfileContext(profile) {
+    this.activeProfileContext = profile;
+    window.dispatchEvent(new CustomEvent('medcare:profile-context-changed', { detail: profile }));
   }
 
   // ─── Hydration ────────────────────────────────────────────────────────────────

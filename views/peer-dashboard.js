@@ -26,7 +26,7 @@ export default class PeerDashboardView {
     }
 
     this.container.innerHTML = `
-      <main class="scroll-area pt-[112px] bg-surface-elevated min-h-screen" style="padding-left:0; padding-right:0;">
+      <main class="scroll-area pt-[112px] md:pt-8 bg-surface-elevated min-h-screen" style="padding-left:0; padding-right:0;">
 <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
         <section class="mb-10">
           <div class="clay-glass-panel p-6 border-primary/30 bg-primary/5 shadow-xl shadow-primary/10">

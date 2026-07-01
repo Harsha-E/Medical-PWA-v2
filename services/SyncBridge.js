@@ -80,7 +80,7 @@ export default class SyncBridge {
             let successCount = 0;
             for (const peerId of peers) {
                 try {
-                    meshInstance.sendMessage(peerId, message);
+                    await meshInstance.sendMessage(peerId, message);
                     successCount++;
                 } catch (e) {
                     console.warn(`[SyncBridge] Failed to send to ${peerId}:`, e);

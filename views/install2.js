@@ -34,19 +34,13 @@ export default class InstallView2 {
         .panel-breathe { animation: breathe 6s ease-in-out infinite; }
         
         @keyframes signature-draw-op {
-          0% { stroke-dashoffset: 100; opacity: 0; }
-          1% { stroke-dashoffset: 100; opacity: 1; }
-          100% { stroke-dashoffset: 0; opacity: 1; }
+          0% { stroke-dashoffset: 1; }
+          100% { stroke-dashoffset: 0; }
         }
-        @keyframes signature-fade {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-
-        @keyframes signature-draw-op {
-          0% { opacity: 0; stroke-dashoffset: 100; }
-          1% { opacity: 1; stroke-dashoffset: 100; }
-          100% { opacity: 1; stroke-dashoffset: 0; }
+        
+        @keyframes signature-fill-op {
+          0% { fill-opacity: 0; }
+          100% { fill-opacity: 1; }
         }
         
         @keyframes liquidExpand {
@@ -65,23 +59,130 @@ export default class InstallView2 {
           z-index: 10;
           pointer-events: none;
           opacity: 0;
-          animation: liquidExpand 1.5s cubic-bezier(0.65, 0, 0.05, 1) 3s forwards;
+          animation: liquidExpand 1.5s cubic-bezier(0.65, 0, 0.05, 1) 0.5s forwards;
         }
 
+        .mc-hero { 
+          display: flex; 
+          flex-direction: column; 
+          align-items: center; 
+          z-index: 10; 
+          pointer-events: none; 
+          margin-bottom: 2rem; 
+        }
+        .mc-mark { 
+          width: 68px; 
+          height: 68px; 
+          border-radius: 20px; 
+          background: linear-gradient(145deg, var(--color-secondary) 0%, #3d1228 100%); 
+          border: 1px solid rgba(255,184,140,0.25); 
+          display: flex; 
+          align-items: center; 
+          justify-content: center; 
+          box-shadow: 0 0 0 1px rgba(255,184,140,0.08), 0 0 40px rgba(127,47,93,0.45), 0 12px 40px rgba(0,0,0,0.6); 
+          animation: mcMarkFloat 7s ease-in-out infinite; 
+        }
+        @keyframes mcMarkFloat { 
+          0%, 100% { transform: translateY(0px); box-shadow: 0 0 0 1px rgba(255,184,140,0.08), 0 0 40px rgba(127,47,93,0.45), 0 12px 40px rgba(0,0,0,0.6); } 
+          50% { transform: translateY(-7px); box-shadow: 0 0 0 1px rgba(255,184,140,0.18), 0 0 65px rgba(127,47,93,0.65), 0 20px 55px rgba(0,0,0,0.7); } 
+        }
+        .mc-ping { 
+          position: absolute; 
+          inset: -6px; 
+          border-radius: 26px; 
+          border: 1px solid rgba(255,184,140,0.22); 
+          animation: mcPing 3s ease-out infinite; 
+          pointer-events: none; 
+        }
+        .mc-ping:nth-child(2) { 
+          inset: -14px; 
+          border-radius: 34px; 
+          border-color: rgba(127,47,93,0.25); 
+          animation-delay: 1.4s; 
+        }
+        @keyframes mcPing { 
+          0% { opacity: 1; transform: scale(1); } 
+          75%, 100%{ opacity: 0; transform: scale(1.7); } 
+        }
+        .mc-brand { 
+          margin-top: 18px; 
+          font-family: 'Cormorant Garamond', 'Georgia', serif; 
+          font-weight: 600; 
+          font-size: 38px; 
+          letter-spacing: -0.5px; 
+          line-height: 1; 
+          color: #ffd9b5; 
+          opacity: 0; 
+          transform: translateY(12px); 
+          animation: mcFadeUp 0.9s 0.2s cubic-bezier(0.16,1,0.3,1) forwards; 
+        }
+        .mc-brand em { font-style: normal; color: var(--color-accent-primary); }
+        .mc-tagline { 
+          margin-top: 6px; 
+          font-family: 'Courier New', monospace; 
+          font-size: 10px; 
+          letter-spacing: 3.5px; 
+          text-transform: uppercase; 
+          color: rgba(255,217,181,0.45); 
+          opacity: 0; 
+          animation: mcFadeUp 0.9s 0.45s cubic-bezier(0.16,1,0.3,1) forwards; 
+        }
+        .mc-trust { 
+          display: flex; 
+          align-items: center; 
+          justify-content: center; 
+          gap: 10px; 
+          margin-top: 14px; 
+          opacity: 0; 
+          animation: mcFadeUp 0.9s 0.65s cubic-bezier(0.16,1,0.3,1) forwards; 
+        }
+        .mc-chip { 
+          padding: 3px 10px; 
+          border-radius: 20px; 
+          background: rgba(127,47,93,0.2); 
+          border: 1px solid rgba(255,184,140,0.2); 
+          font-family: 'Courier New', monospace; 
+          font-size: 9px; 
+          letter-spacing: 1.5px; 
+          text-transform: uppercase; 
+          color: var(--color-accent-primary); 
+        }
+        @keyframes mcFadeUp { to { opacity: 1; transform: translateY(0); } }
       </style>
 
       <video id="install-bg-video" loop muted playsinline autoplay style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0;" src="./assets/Bg-Video.webm"></video>
       
+      <div id="dynamic-droplets-container" class="absolute inset-0 z-0 pointer-events-none overflow-hidden mix-blend-overlay opacity-30"></div>
+      
       <div class="liquid-blur-overlay"></div>
       
       <div class="min-h-[100dvh] w-full flex flex-col relative z-20 text-text-primary font-sans pointer-events-none">
-        <main class="flex-1 flex flex-col items-center justify-start pt-24 text-center relative overflow-hidden pointer-events-auto" style="padding-left:0; padding-right:0;">
-          <div class="px-6 w-full max-w-7xl mx-auto flex flex-col justify-start items-center">
+        <main class="flex-1 flex flex-col items-center justify-center text-center relative overflow-hidden pointer-events-auto" style="padding-left:0; padding-right:0;">
+          <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col justify-center items-center flex-1">
             
             <div class="relative w-full max-w-4xl mx-auto flex flex-col items-center justify-center panel-breathe">
               
-              <div id="signature-container" class="mb-8 flex items-center justify-center relative z-20" style="filter: drop-shadow(0 0 15px rgba(255,0,128,0.4)) drop-shadow(0 0 30px rgba(255,0,128,0.2)); opacity: 0; transition: opacity 0.5s ease-in-out;">
-                <!-- SVG Signature will be injected here -->
+              <div class="mc-hero" style="opacity: 0; transition: opacity 0.5s ease-in-out;" id="signature-container">
+                <div class="mc-mark" style="position:relative;">
+                  <div class="mc-ping"></div>
+                  <div class="mc-ping"></div>
+                  <svg viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="13" y="2" width="8" height="30" rx="2.5" fill="rgba(255,217,181,0.95)"></rect>
+                    <rect x="2" y="13" width="30" height="8" rx="2.5" fill="rgba(255,217,181,0.95)"></rect>
+                  </svg>
+                </div>
+                <div class="mc-brand">Med<em>Care</em></div>
+                <div class="mc-tagline">Clinical Environment</div>
+                <div class="mc-trust">
+                  <span class="mc-chip">Encrypted</span>
+                  <span class="mc-chip">Offline Ready</span>
+                </div>
+              </div>
+
+              <div class="mb-8 h-6 flex items-center justify-center relative z-20">
+                <p class="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] text-sm md:text-base leading-relaxed font-mono tracking-wide max-w-lg mx-auto font-bold">
+                  <span class="typewriter-text" data-text="Install MedCare as a native app for faster startup, offline access and secure OS-level integration."></span><span class="typewriter-cursor text-accent-primary animate-pulse">|</span>
+                </p>
               </div>
 
             </div>
@@ -111,12 +212,12 @@ export default class InstallView2 {
       dropletsContainer.innerHTML = dropletsHtml;
     }
 
-    // Wait 3s + 1.5s full blur fade = 4.5s before drawing signature
+    // Wait 0.5s + 1s blur = 1.5s before drawing signature
     this._typingTimer = setTimeout(() => {
       const sigContainer = this.container.querySelector('#signature-container');
       if (sigContainer) sigContainer.style.opacity = '1';
-      this.initSignatureEffect();
-    }, 4500);
+      this.initTypingEffect();
+    }, 1500);
 
     const cardContainer = this.container.querySelector('.panel-breathe');
     if (cardContainer) {
@@ -126,7 +227,7 @@ export default class InstallView2 {
         triggerBtn.style.display = 'none'; // Hidden initially
         
         // Show install button only after blur has expanded
-        setTimeout(() => { triggerBtn.style.display = 'block'; }, 4500);
+        setTimeout(() => { triggerBtn.style.display = 'block'; }, 1500);
         
         triggerBtn.addEventListener('click', async () => {
             if (!_deferredPrompt) {
@@ -149,101 +250,24 @@ export default class InstallView2 {
     return this.container;
   }
 
-  async initSignatureEffect() {
-    if (!window.opentype) {
-      try {
-        await new Promise((resolve, reject) => {
-          const script = document.createElement('script');
-          script.src = 'https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js';
-          script.onload = resolve;
-          script.onerror = reject;
-          document.head.appendChild(script);
-        });
-      } catch (e) {
-        console.error("Failed to load opentype.js", e);
-        return;
+  initTypingEffect() {
+    const el = this.container.querySelector('.typewriter-text');
+    if (!el) return;
+    const fullText = el.dataset.text || '';
+    let index = 0;
+    el.textContent = '';
+    const type = () => {
+      if (index < fullText.length) {
+        el.textContent += fullText.charAt(index);
+        index++;
+        this._typeLoop = setTimeout(type, 30 + Math.random() * 30);
       }
-    }
-
-    const text = "Med Check";
-    const color = "#ff0080";
-    const fillColor = "#ffffff";
-    const fontSize = 120;
-    
-    try {
-      let font;
-      const fontPaths = [
-          "https://www.componentry.fun/LastoriaBoldRegular.otf",
-          "/LastoriaBoldRegular.otf"
-      ];
-
-      for (const path of fontPaths) {
-        try {
-          font = await opentype.load(path);
-          if (font) break;
-        } catch (e) {
-          // Fallback to next path
-        }
-      }
-
-      if (!font) throw new Error("Font could not be loaded");
-
-      const horizontalPadding = fontSize * 0.1;
-      const topMargin = fontSize * 1.5;
-      const baseline = topMargin;
-      let x = horizontalPadding;
-      
-      const paths = [];
-      for (const char of text) {
-        const glyph = font.charToGlyph(char);
-        const path = glyph.getPath(x, baseline, fontSize);
-        paths.push(path.toPathData(3));
-        
-        const advanceWidth = glyph.advanceWidth || font.unitsPerEm;
-        x += advanceWidth * (fontSize / font.unitsPerEm);
-      }
-      
-      const width = x + horizontalPadding;
-      const height = fontSize * 3;
-      const maskId = 'signature-reveal-mask';
-      const duration = 1.5; // Componentry defaults to 1.5s
-      const stagger = 0.2; // Componentry defaults to 0.2s stagger
-
-      let svgContent = `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" fill="none" class="overflow-visible" style="max-width: 100%; height: auto;">
-        <defs>
-          <mask id="${maskId}" maskUnits="userSpaceOnUse">
-            ${paths.map((d, i) => `
-              <path d="${d}" stroke="white" stroke-width="${fontSize * 0.22}" fill="none" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" pathLength="100" stroke-dasharray="100" style="opacity: 0; animation: signature-draw-op ${duration}s ease-in-out ${i * stagger}s forwards;" />
-            `).join('')}
-          </mask>
-        </defs>
-
-        <!-- Base outline strokes -->
-        ${paths.map((d, i) => `
-          <path d="${d}" stroke="${color}" stroke-width="2" fill="none" vector-effect="non-scaling-stroke" stroke-linecap="butt" stroke-linejoin="round" pathLength="100" stroke-dasharray="100" style="opacity: 0; animation: signature-draw-op ${duration}s ease-in-out ${i * stagger}s forwards;" />
-        `).join('')}
-
-        <!-- Filled body perfectly masked as per React componentry -->
-        <g mask="url(#${maskId})">
-          ${paths.map((d, i) => `
-            <path d="${d}" fill="${fillColor}" />
-          `).join('')}
-        </g>
-      </svg>`;
-
-      const container = this.container.querySelector('#signature-container');
-      if (container) {
-        container.innerHTML = svgContent;
-      }
-    } catch (err) {
-      console.error("Signature rendering failed:", err);
-      const container = this.container.querySelector('#signature-container');
-      if (container) {
-        container.innerHTML = `<h1 style="color: ${color}; font-size: 5rem; font-family: cursive; text-shadow: 0 0 20px rgba(255,0,128,0.8);">${text}</h1>`;
-      }
-    }
+    };
+    this._typeLoop = setTimeout(type, 600);
   }
 
   destroy() {
+    if (this._typeLoop) clearTimeout(this._typeLoop);
+    if (this._typingTimer) clearTimeout(this._typingTimer);
   }
 }

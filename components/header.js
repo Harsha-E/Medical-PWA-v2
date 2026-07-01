@@ -94,15 +94,16 @@ export default class AppHeader {
     } else {
       if (eyebrow) {
         const eyeEl = document.createElement('span');
-        eyeEl.className = 'text-[10px] font-mono uppercase tracking-[0.2em] leading-none mb-0.5';
+        eyeEl.className = 'text-[10px] md:text-xs font-mono uppercase tracking-[0.2em] md:tracking-[0.3em] leading-none mb-1 transition-all duration-300';
         eyeEl.style.color = 'var(--color-primary)';
         eyeEl.textContent = eyebrow;
         centerCol.appendChild(eyeEl);
       }
       
       this.titleEl = document.createElement('h1');
-      this.titleEl.className = 'text-lg font-bold leading-none';
+      this.titleEl.className = 'text-xl md:text-2xl font-bold leading-none tracking-tight md:tracking-normal transition-all duration-300';
       this.titleEl.style.color = 'var(--color-text-primary)';
+      this.titleEl.style.fontFamily = "'Syne', sans-serif";
       this.titleEl.textContent = typeof title === 'function' ? title() : (title || '');
       centerCol.appendChild(this.titleEl);
     }

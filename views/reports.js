@@ -13,7 +13,7 @@ export default class ReportsView {
 
     // Immediate skeleton before heavy analytics compute
     this.container.innerHTML = `
-      <main class="scroll-area md:px-12 pt-[112px] pb-28 max-w-7xl mx-auto" style="padding-left:0; padding-right:0;">
+      <main class="scroll-area md:px-12 pt-[112px] md:pt-8 pb-28 max-w-7xl mx-auto" style="padding-left:0; padding-right:0;">
 <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
         <div class="md:grid md:grid-cols-12 md:gap-10">
             <div class="md:col-span-5 lg:col-span-4 flex flex-col gap-8">
@@ -79,7 +79,7 @@ export default class ReportsView {
     const dashOffset = 377 - (377 * (overallAdherence / 100));
 
     this.container.innerHTML = `
-      <main class="scroll-area md:px-12 pt-[112px] pb-28 max-w-7xl mx-auto" style="padding-left:0; padding-right:0;">
+      <main class="scroll-area md:px-12 pt-[112px] md:pt-8 pb-28 max-w-7xl mx-auto" style="padding-left:0; padding-right:0;">
 <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
         <div class="md:grid md:grid-cols-12 md:gap-10">
           <!-- Left Column -->
@@ -125,6 +125,14 @@ export default class ReportsView {
                     </div>
                     <p class="text-xs font-bold uppercase tracking-widest">Save Dataset CSV</p>
                   </div>
+              </div>
+              <div class="mt-4">
+                  <a href="#/interaction-graph" class="block clay-glass-panel p-6 text-center cursor-pointer hover:bg-white/5 transition-colors border border-border bg-surface-elevated/40 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-2xl text-decoration-none">
+                    <div class="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center mx-auto mb-4">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+                    </div>
+                    <p class="text-xs font-bold uppercase tracking-widest text-white">View Interaction Graph</p>
+                  </a>
               </div>
             </section>
           </div>

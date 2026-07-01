@@ -1,0 +1,19 @@
+/* Global Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(127, 47, 93, 0.4);
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(127, 47, 93, 0.8);
+}
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(127, 47, 93, 0.4) transparent;
+}

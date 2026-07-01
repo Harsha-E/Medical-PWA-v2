@@ -20,7 +20,7 @@ export default class SettingsView {
     const dobYear = state.userProfile?.profile?.dob ? new Date(state.userProfile.profile.dob).getFullYear() : 'N/A';
 
     this.container.innerHTML = `
-      <main class="scroll-area pt-[112px] bg-transparent pb-40" style="padding-left:0; padding-right:0;">
+      <main class="scroll-area pt-[112px] md:pt-8 bg-transparent pb-40" style="padding-left:0; padding-right:0;">
 <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
         <div class="clay-glass-panel p-8 mb-12 flex items-center gap-4 shadow-[0_8px_32px_var(--color-card-shadow)] border-border backdrop-blur-xl relative z-10">
           <a href="#/emergency" class="w-20 h-20 rounded-full flex items-center justify-center font-display italic text-3xl font-bold shadow-[0_0_20px_var(--color-primary)] border border-accent-primary/40 bg-gradient-to-br from-primary/80 to-secondary/80 text-accent-bright backdrop-blur-md shrink-0 ring-4 ring-surface-elevated/50 hover:scale-105 transition-transform">
@@ -60,14 +60,14 @@ export default class SettingsView {
 
         <section class="mb-10">
           <h3 class="text-xs text-uppercase font-bold text-accent-primary/70 mb-4 tracking-[0.2em] px-1">Data Architecture</h3>
-          <div class="clay-glass-panel overflow-hidden border border-border bg-surface-elevated/40 backdrop-blur-xl shadow-[0_8px_32px_var(--color-card-shadow)] rounded-2xl">
-            <button class="settings-row w-full text-left bg-transparent border-none" id="logout-btn">
-              <span class="text-sm font-medium text-primary">Terminate Session</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-primary" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <div class="clay-glass-panel overflow-hidden border border-border bg-surface-elevated/40 backdrop-blur-xl shadow-[0_8px_32px_var(--color-card-shadow)] rounded-2xl flex flex-col">
+            <button class="flex items-center justify-between w-full px-5 py-4 bg-transparent border-none hover:bg-primary/10 transition-colors active:bg-primary/20" id="logout-btn">
+              <span class="text-sm font-bold tracking-wide text-primary uppercase">Terminate Session</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-primary opacity-80" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
             </button>
-            <button class="settings-row w-full text-left bg-transparent border-none border-t border-red-500/30" id="delete-account-btn">
-              <span class="text-sm font-medium text-danger">Purge Data & Delete Account</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-danger" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+            <button class="flex items-center justify-between w-full px-5 py-4 bg-transparent border-none border-t border-red-500/30 hover:bg-red-500/10 transition-colors active:bg-red-500/20" id="delete-account-btn">
+              <span class="text-sm font-bold tracking-wide text-danger uppercase">Purge Data & Delete Account</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-danger opacity-80" stroke-width="2.5"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
             </button>
           </div>
         </section>
@@ -235,19 +235,37 @@ export default class SettingsView {
              const user = auth.currentUser;
              if (user) {
                  try {
-                     await user.delete();
-                     await db.delete();
-                     window.location.hash = '#/register';
-                     window.location.reload();
-                 } catch (err) {
-                     if (err.code === 'auth/requires-recent-login') {
-                         await appAlert('Security Policy: You must re-authenticate to delete your account. Please log out, log back in, and try again.', 'Authentication Required');
-                     } else {
-                         await appAlert('Failed to delete account: ' + err.message, 'Error');
-                     }
-                 }
-             } else {
-                 await db.delete();
+                       // Wipe Service Worker Caches & Unregister
+                       if ('serviceWorker' in navigator) {
+                           const regs = await navigator.serviceWorker.getRegistrations();
+                           for(let reg of regs) { await reg.unregister(); }
+                       }
+                       if ('caches' in window) {
+                           const keys = await caches.keys();
+                           for(let key of keys) { await caches.delete(key); }
+                       }
+                       await user.delete();
+                       await db.delete();
+                       window.location.hash = '#/register';
+                       window.location.reload();
+                   } catch (err) {
+                       if (err.code === 'auth/requires-recent-login') {
+                           await appAlert('Security Policy: You must re-authenticate to delete your account. Please log out, log back in, and try again.', 'Authentication Required');
+                       } else {
+                           await appAlert('Failed to delete account: ' + err.message, 'Error');
+                       }
+                   }
+               } else {
+                   // Wipe caches even if user is not authed
+                   if ('serviceWorker' in navigator) {
+                       const regs = await navigator.serviceWorker.getRegistrations();
+                       for(let reg of regs) { await reg.unregister(); }
+                   }
+                   if ('caches' in window) {
+                       const keys = await caches.keys();
+                       for(let key of keys) { await caches.delete(key); }
+                   }
+                   await db.delete();
                  window.location.hash = '#/register';
                  window.location.reload();
              }

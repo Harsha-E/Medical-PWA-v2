@@ -25,7 +25,7 @@ export default class MedicationDetailView {
     const history = allHistory.slice(0, 10);
 
     this.container.innerHTML = `
-      <main class="scroll-area pt-[112px] pb-24" style="padding-left:0; padding-right:0;">
+      <main class="scroll-area pt-[112px] md:pt-8 pb-24" style="padding-left:0; padding-right:0;">
 <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
         <!-- Section 1: Overview Card -->
         <section class="mb-8">
