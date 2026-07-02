@@ -386,48 +386,56 @@ class App {
       document.body.classList.remove('has-navbar');
     }
 
-    // â”€â”€ Auth guard â”€â”€
+    // ─── Auth guard ───
     // App installation requirement
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     
+    console.debug(`[App Guard] 🛡️ Evaluating Route: "${hash}"`);
+    console.debug(`[App Guard] 📊 State => Mobile: ${isMobile}, Standalone: ${isStandalone}, User: ${!!user}, Admin: ${isAdmin}, Onboarding Complete: ${isComplete}`);
+
     if (!isStandalone && isMobile) {
       if (hash !== '#/install') {
+        console.debug(`[App Guard] 🚫 Non-standalone mobile web blocked. Redirecting to #/install...`);
         window.location.hash = '#/install';
         return;
       }
       // Force render install view and bypass auth checks
+      console.debug(`[App Guard] ✅ Allowing render of #/install bypassing auth checks.`);
       this.router.handleRoute();
       return;
     }
 
     if (!user) {
       if (!PUBLIC_ROUTES.has(hash)) {
+        console.debug(`[App Guard] 🚫 Unauthorized access to "${hash}". Redirecting to #/landing...`);
         window.location.hash = '#/landing';
         return;
       }
     } else {
       if (isAdmin) {
         if (hash !== '#/admin') {
+          console.debug(`[App Guard] 👑 Admin User detected. Forcing redirect to #/admin...`);
           window.location.hash = '#/admin';
           return;
         }
       } else {
         const needsOnboarding = !isComplete;
         if (needsOnboarding && hash !== '#/onboarding') {
+          console.debug(`[App Guard] 📝 Incomplete profile detected. Redirecting to #/onboarding...`);
           window.location.hash = '#/onboarding';
           return;
         }
         if (!needsOnboarding && (PUBLIC_ROUTES.has(hash) || hash === '#/onboarding')) {
+          console.debug(`[App Guard] 🔄 Authenticated user attempting to access public/onboarding route. Redirecting to #/dashboard...`);
           window.location.hash = '#/dashboard';
           return;
         }
       }
     }
 
-
-
-    // Guard passed â€” render the current hash
+    // Guard passed — render the current hash
+    console.debug(`[App Guard] ✅ Guard passed for "${hash}". Handing off to Router...`);
     this.router.handleRoute();
   }
 }

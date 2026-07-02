@@ -29,6 +29,7 @@ export class Router {
    */
   async handleRoute() {
     const rawHash = window.location.hash || '#/landing';
+    console.debug(`[Router] 🚦 Navigation trigger detected. Raw hash: "${rawHash}"`);
     
     // Failsafe: Reset the lock to prevent permanent deadlock during transitions
     window.medcareAlertLock = false;
@@ -45,6 +46,7 @@ export class Router {
       }
     }
     
+    console.debug(`[Router] 🧭 Resolved Base Route: "${baseRoute}"`);
 
     this.navigationSequenceId = (this.navigationSequenceId || 0) + 1;
     const currentSequence = this.navigationSequenceId;
@@ -53,12 +55,14 @@ export class Router {
     const ViewClass = this.routes[baseRoute] ?? this.routes['#/landing'];
 
     if (!ViewClass) {
-      console.warn(`[Router] No view registered matching base identifier: "${baseRoute}"`);
+      console.warn(`[Router] ❌ No view registered matching base identifier: "${baseRoute}"`);
       this.viewport.innerHTML = `<div style="padding: 2rem; color: white; background: red; font-weight: bold; font-family: monospace;">Route Not Found: ${baseRoute}</div>`;
       this.viewport.style.opacity = '1';
       this.viewport.style.visibility = 'visible';
       return;
     }
+
+    console.debug(`[Router] 🖼️ Mounting View Class for "${baseRoute}"...`);
 
     // Render configuration mapping layers onto active view ports
     try {
