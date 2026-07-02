@@ -23,15 +23,22 @@ export default class OnboardingView {
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label for="fullName" class="block text-xs font-mono text-text-muted uppercase mb-2 ml-1">Full Name</label>
-              <input type="text" id="fullName" autocomplete="name" required class="w-full px-4 py-3 rounded-xl bg-black/20 border border-white/5 text-sm font-bold text-text-primary shadow-inner focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-text-muted/50">
+              <input type="text" id="fullName" autocomplete="name" required class="w-full px-4 py-3 rounded-xl bg-surface/40 border border-white/10 text-sm font-bold text-text-primary shadow-inner focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-text-muted/50">
             </div>
             <div>
               <label for="myPhone" class="block text-xs font-mono text-text-muted uppercase mb-2 ml-1">My Phone #</label>
-              <input type="tel" id="myPhone" autocomplete="tel" placeholder="+919876543210" required class="w-full px-4 py-3 rounded-xl bg-black/20 border border-white/5 text-sm font-bold text-text-primary shadow-inner focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-text-muted/50">
+              <div class="flex gap-2">
+                <select id="myPhoneCode" class="w-[85px] px-2 py-3 rounded-xl bg-surface/40 border border-white/10 text-sm font-bold text-text-primary shadow-inner focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all">
+                  <option value="+91" class="bg-surface text-text-primary">+91 (IN)</option>
+                  <option value="+1" class="bg-surface text-text-primary">+1 (US)</option>
+                  <option value="+44" class="bg-surface text-text-primary">+44 (UK)</option>
+                </select>
+                <input type="tel" id="myPhone" autocomplete="tel" placeholder="9876543210" required pattern="[0-9]{10}" maxlength="10" class="flex-1 w-full px-4 py-3 rounded-xl bg-surface/40 border border-white/10 text-sm font-bold text-text-primary shadow-inner focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-text-muted/50">
+              </div>
             </div>
             <div>
               <label for="bloodType" class="block text-xs font-mono text-text-muted uppercase mb-2 ml-1">Blood Type</label>
-              <select id="bloodType" required class="w-full px-4 py-3 rounded-xl bg-black/20 border border-white/5 text-sm font-bold text-text-primary shadow-inner focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all">
+              <select id="bloodType" required class="w-full px-4 py-3 rounded-xl bg-surface/40 border border-white/10 text-sm font-bold text-text-primary shadow-inner focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all">
                 <option value="" disabled selected class="bg-surface text-text-muted">Select</option>
                 <option value="A+" class="bg-surface text-text-primary">A+</option>
                 <option value="A-" class="bg-surface text-text-primary">A-</option>
@@ -45,18 +52,25 @@ export default class OnboardingView {
             </div>
             <div>
               <label for="dob" class="block text-xs font-mono text-text-muted uppercase mb-2 ml-1">Date of Birth</label>
-              <input type="date" id="dob" autocomplete="bday" required class="w-full px-4 py-3 rounded-xl bg-black/20 border border-white/5 text-sm font-bold text-text-primary shadow-inner focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all [color-scheme:dark]">
+              <input type="date" id="dob" autocomplete="bday" required class="w-full px-4 py-3 rounded-xl bg-surface/40 border border-white/10 text-sm font-bold text-text-primary shadow-inner focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all [color-scheme:dark]">
             </div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <div>
               <label for="emergencyName" class="block text-xs font-mono text-text-muted uppercase mb-2 ml-1">Primary Responder</label>
-              <input type="text" id="emergencyName" placeholder="Name" required class="w-full px-4 py-3 rounded-xl bg-black/20 border border-white/5 text-sm font-bold text-text-primary shadow-inner focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-text-muted/50">
+              <input type="text" id="emergencyName" placeholder="Name" required class="w-full px-4 py-3 rounded-xl bg-surface/40 border border-white/10 text-sm font-bold text-text-primary shadow-inner focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-text-muted/50">
             </div>
             <div>
               <label for="emergencyPhone" class="block text-xs font-mono text-text-muted uppercase mb-2 ml-1">Emergency Phone</label>
-              <input type="tel" id="emergencyPhone" autocomplete="tel" placeholder="+919876543210" required class="w-full px-4 py-3 rounded-xl bg-black/20 border border-white/5 text-sm font-bold text-text-primary shadow-inner focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-text-muted/50">
+              <div class="flex gap-2">
+                <select id="emergencyPhoneCode" class="w-[85px] px-2 py-3 rounded-xl bg-surface/40 border border-white/10 text-sm font-bold text-text-primary shadow-inner focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all">
+                  <option value="+91" class="bg-surface text-text-primary">+91 (IN)</option>
+                  <option value="+1" class="bg-surface text-text-primary">+1 (US)</option>
+                  <option value="+44" class="bg-surface text-text-primary">+44 (UK)</option>
+                </select>
+                <input type="tel" id="emergencyPhone" autocomplete="tel" placeholder="9876543210" required pattern="[0-9]{10}" maxlength="10" class="flex-1 w-full px-4 py-3 rounded-xl bg-surface/40 border border-white/10 text-sm font-bold text-text-primary shadow-inner focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-text-muted/50">
+              </div>
             </div>
           </div>
           
@@ -78,18 +92,21 @@ export default class OnboardingView {
       const btn = form.querySelector('button');
       const errorContainer = this.container.querySelector('#error-container');
 
+      const myFullPhone = form.myPhoneCode.value + form.myPhone.value.trim();
+      const emergencyFullPhone = form.emergencyPhoneCode.value + form.emergencyPhone.value.trim();
+
       const phoneRegex = /^\+\d{1,3}\d{10}$/;
-      if (!phoneRegex.test(form.myPhone.value.trim())) {
+      if (!phoneRegex.test(myFullPhone)) {
           if (errorContainer) {
-              errorContainer.textContent = 'Invalid Phone: Must include Country Code + 10 digits (e.g. +919876543210)';
+              errorContainer.textContent = 'Invalid Phone: Must include Country Code + 10 digits';
               errorContainer.classList.remove('hidden');
           }
           showToast('Invalid Phone Format', 'error');
           return;
       }
-      if (!phoneRegex.test(form.emergencyPhone.value.trim())) {
+      if (!phoneRegex.test(emergencyFullPhone)) {
           if (errorContainer) {
-              errorContainer.textContent = 'Invalid Emergency Phone: Must include Country Code + 10 digits (e.g. +919876543210)';
+              errorContainer.textContent = 'Invalid Emergency Phone: Must include Country Code + 10 digits';
               errorContainer.classList.remove('hidden');
           }
           showToast('Invalid Emergency Phone Format', 'error');
@@ -121,11 +138,11 @@ export default class OnboardingView {
         if (!user) throw new Error("No authenticated user found.");
 
         const profileData = {
-          phone: form.myPhone.value,
+          phone: myFullPhone,
           bloodType: form.bloodType.value,
           dob: form.dob.value,
           emergencyName: form.emergencyName.value,
-          emergencyPhone: form.emergencyPhone.value
+          emergencyPhone: emergencyFullPhone
         };
 
         // ENFORCING STRICT BACKEND SCHEMATICS 
