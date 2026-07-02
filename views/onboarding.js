@@ -7,7 +7,7 @@ import { showToast } from '../core/ui.js';
 export default class OnboardingView {
   async render() {
     this.container = document.createElement('div');
-    this.container.className = 'min-h-[100dvh] w-full flex flex-col items-center justify-center p-6 relative z-10';
+    this.container.className = 'min-h-[100dvh] w-full flex flex-col items-center justify-start pt-12 pb-32 px-4 relative z-10 overflow-y-auto no-scrollbar';
 
     this.container.innerHTML = `
       <div class="w-full max-w-lg p-8 rounded-3xl bg-surface/60 backdrop-blur-3xl border border-border shadow-[0_20px_50px_rgba(0,0,0,0.7)] animate-fade-in-up">
