@@ -92,6 +92,7 @@ class State {
   async hydrate(user) {
     this.user = user;
     this.isAdmin = false;
+    const cacheKey = `medcare_profile_${user.uid}`;
 
     try {
       // Create the primary fetch promise
@@ -109,28 +110,49 @@ class State {
         const data = snap.data();
         this.userProfile = data;
         this.isAdmin = data.role === 'admin';
+        // Cache in localStorage for immediate offline access
+        localStorage.setItem(cacheKey, JSON.stringify(data));
       } else {
         this.userProfile = { onboardingComplete: false };
       }
     } catch (err) {
       console.warn('[State] Circuit breaker tripped. Booting in local offline-first mode:', err.message);
-      try {
-        const localProfiles = await localDb.userProfile.toArray();
-        if (localProfiles && localProfiles.length > 0) {
-          this.userProfile = localProfiles[localProfiles.length - 1];
-          this.isAdmin = this.userProfile.role === 'admin';
-        } else {
-          this.userProfile = { onboardingComplete: true, isOfflineFallback: true };
-          this.isAdmin = false;
+      
+      // Try localStorage first
+      const cachedData = localStorage.getItem(cacheKey);
+      if (cachedData) {
+        try {
+          const data = JSON.parse(cachedData);
+          this.userProfile = data;
+          this.isAdmin = data.role === 'admin';
+          console.log('[State] Hydrated from localStorage cache.');
+        } catch (e) {
+          console.error('[State] localStorage parse error:', e);
+          this._fallbackToIndexedDB();
         }
-      } catch (localErr) {
-        console.error('[State] Local DB read failed during fallback:', localErr);
-        this.userProfile = { onboardingComplete: true, isOfflineFallback: true };
-        this.isAdmin = false;
+      } else {
+        await this._fallbackToIndexedDB();
       }
     }
 
     this._notify();
+  }
+
+  async _fallbackToIndexedDB() {
+    try {
+      const localProfiles = await localDb.userProfile.toArray();
+      if (localProfiles && localProfiles.length > 0) {
+        this.userProfile = localProfiles[localProfiles.length - 1];
+        this.isAdmin = this.userProfile.role === 'admin';
+      } else {
+        this.userProfile = { onboardingComplete: true, isOfflineFallback: true };
+        this.isAdmin = false;
+      }
+    } catch (localErr) {
+      console.error('[State] Local DB read failed during fallback:', localErr);
+      this.userProfile = { onboardingComplete: true, isOfflineFallback: true };
+      this.isAdmin = false;
+    }
   }
 
   // ─── Mutation helpers ─────────────────────────────────────────────────────────

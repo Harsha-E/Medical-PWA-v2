@@ -169,6 +169,8 @@ export default class EmergencyView {
         if (!mesh) return;
 
         const qrContainer = this.container.querySelector('#hydra-qr-container');
+        if (!qrContainer) return; // Prevent crash if UI doesn't have the QR container
+
         qrContainer.innerHTML = ''; // clear loader
 
         if (mesh.peerId) {
