@@ -46,11 +46,26 @@ class State {
     document.documentElement.setAttribute('data-theme', 'dark');
   }
 
+  // ─── Caregiver Mode (Inception Mode) ──────────────────────────────────────────
+
+  setProfileContext(profile) {
+    this.activeProfileContext = profile; // { id: "peer123", name: "Mom" } or null
+    this._notify();
+  }
+
+  get auditFlag() {
+    // If we are in caregiver mode, tag the write.
+    if (this.activeProfileContext && this.userProfile) {
+      return { logged_by: this.userProfile.name || this.user.displayName || 'Caregiver' };
+    }
+    return {};
+  }
+
   // ─── Subscription ────────────────────────────────────────────────────────────
 
   /**
    * Subscribe to state changes.
-   * @param {(user: any, profile: any) => void} listener
+   * @param {(user: any, profile: any, context: any) => void} listener
    * @returns {() => void} Unsubscribe function
    */
   subscribe(listener) {
@@ -62,10 +77,10 @@ class State {
 
   /** Notify all subscribers with current state. */
   _notify() {
-    this._listeners.forEach(l => {
-      try { l(this.user, this.userProfile); }
+    for (const listener of this._listeners) {
+      try { listener(this.user, this.userProfile, this.activeProfileContext); }
       catch (e) { console.error('[State] Listener error:', e); }
-    });
+    }
   }
 
   // ─── Profile Context (Caregiver Mode) ──────────────────────────────────────

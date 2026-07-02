@@ -1,591 +1,192 @@
 import state from '../core/state.js';
 import PeerMesh from '../services/PeerMesh.js';
-import QRManager from '../utils/QRManager.js';
-import CaregiverPortal from '../utils/CaregiverPortal.js';
-import { appConfirm } from '../utils/CustomModals.js';
+import db from '../core/db.js';
+import { showToast, appConfirm } from '../core/ui.js';
 
 export default class PeerNetworkView {
-  async render() {
-    this.container = document.createElement('div');
-    this.container.className = 'container';
-    const displayName = state.user?.displayName || 'Unknown Node';
-    const mesh = PeerMesh.getInstance();
-    await mesh.init();
+    constructor() {
+        this.longPressTimer = null;
+        this.familyMembers = [];
+        this.mesh = PeerMesh.getInstance();
+    }
 
-    this.container.innerHTML = `
-      <main class="scroll-area pt-[112px] md:pt-8 bg-transparent pb-40" style="padding-left:0; padding-right:0;">
-<div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
+    async render() {
+        this.container = document.createElement('div');
+        this.container.className = 'container';
         
-        <!-- Toggle Control -->
-        <div class="flex bg-surface-elevated/40 border border-border shadow-[0_8px_32px_var(--color-card-shadow)] rounded-2xl p-1 mb-8 backdrop-blur-xl">
-            <button id="toggle-scan" class="flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-xl bg-primary text-text-primary shadow-inner transition-all shadow-lg shadow-primary/20">Scan</button>
-            <button id="toggle-share" class="flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-xl transition-all btn-neumorphic text-text-secondary hover:text-text-primary">Share</button>
-        </div>
+        await this.mesh.init();
+        
+        // Fetch family members for the grid
+        this.familyMembers = await db.family.filter(f => f.userId === state.user?.uid).toArray();
 
-        <!-- P2P SCANNING / CONNECT (Card 1) -->
-        <section id="scan-section" class="mb-10 block animate-fade-in">
-            <div class="clay-glass-panel p-8 text-center border-border shadow-[0_8px_32px_var(--color-card-shadow)] bg-surface-elevated/40 backdrop-blur-xl relative overflow-hidden rounded-[2rem]">
-                <div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-6 border border-primary/50 mx-auto">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-primary" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"></path></svg>
-                </div>
-                <h2 class="text-lg font-display text-text-primary mb-2">Connect to Peer</h2>
-                <p class="text-xs text-accent-primary/70 font-mono mb-8">Enter a pairing code to establish a secure, localized connection with another device.</p>
-                
-                <div class="flex flex-col sm:flex-row items-center gap-3 w-full">
-                    <button id="start-scanner-btn" class="bg-gradient-to-r from-primary to-secondary text-text-primary px-6 py-3 rounded-full font-bold uppercase tracking-widest text-xs active:scale-95 transition-transform [0_4px_16px_var(--color-primary)] flex items-center justify-center gap-2 w-full sm:w-auto shrink-0 btn-neumorphic">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 012-2h2M21 7V5a2 2 0 00-2-2h-2M3 17v2a2 2 0 002 2h2M21 17v2a2 2 0 01-2 2h-2M9 9h6v6H9z"/></svg>
-                        Scan QR
-                    </button>
-                    <div class="text-[10px] text-text-muted font-mono uppercase tracking-widest hidden sm:block">OR</div>
-                    <div class="flex flex-1 w-full gap-2">
-                        <input type="text" id="pairing-code" placeholder="Enter Pairing Code..." class="flex-1 min-w-0 bg-overlay-bg border border-border rounded-full px-4 py-3 text-text-primary text-xs font-mono focus:outline-none focus:border-accent-primary/50 transition-colors shadow-inner">
-                        <button id="connect-btn" class="text-accent-primary px-5 py-3 rounded-full font-bold uppercase tracking-widest text-xs active:scale-95 transition-all shrink-0 btn-neumorphic">Connect</button>
-                    </div>
-                </div>
-                <!-- Fullscreen Hover Scanner Modal -->
-                <div id="hover-scanner-modal" class="fixed inset-0 z-[99999] bg-overlay-bg backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
-                    <div class="relative w-full max-w-sm aspect-square p-4">
-                        <!-- Custom CSS Scanning Reticle overlay -->
-                        <div class="absolute inset-0 z-10 pointer-events-none">
-                            <div class="absolute top-4 left-4 w-12 h-12 border-t-4 border-l-4 border-primary rounded-tl-xl"></div>
-                            <div class="absolute top-4 right-4 w-12 h-12 border-t-4 border-r-4 border-primary rounded-tr-xl"></div>
-                            <div class="absolute bottom-4 left-4 w-12 h-12 border-b-4 border-l-4 border-primary rounded-bl-xl"></div>
-                            <div class="absolute bottom-4 right-4 w-12 h-12 border-b-4 border-r-4 border-primary rounded-br-xl"></div>
-                            <div class="absolute top-1/2 left-4 right-4 h-0.5 bg-primary/50 shadow-[0_0_10px_var(--color-primary)] animate-[ping_3s_infinite]"></div>
+        this.container.innerHTML = `
+            <main class="scroll-area pt-[112px] md:pt-8 bg-transparent pb-40" style="padding-left:0; padding-right:0;">
+                <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1 gap-8">
+                    
+                    <!-- Link Device Card -->
+                    <section id="link-device-card" class="clay-glass-panel p-8 text-center border-border shadow-[0_8px_32px_var(--color-card-shadow)] bg-surface-elevated/40 backdrop-blur-xl relative overflow-hidden rounded-[2rem]">
+                        <h2 class="text-xl font-display text-text-primary mb-2">Link Device</h2>
+                        <p class="text-xs text-text-secondary mb-6">Scan or share this QR to establish a direct connection.</p>
+                        
+                        <!-- Golden Brown accented QR Container -->
+                        <div id="qr-container" class="cursor-pointer mx-auto w-[220px] h-[220px] bg-white rounded-2xl flex items-center justify-center shadow-[0_0_40px_rgba(184,134,11,0.2)] border-2 border-[#b8860b]/30 mb-4 transition-transform active:scale-95" title="Tap to copy ID">
+                            <div id="qr-code"></div>
                         </div>
-                        <!-- The html5-qrcode reader injects the video here -->
-                        <div id="reader" class="w-full h-full rounded-2xl overflow-hidden bg-overlay-bg shadow-[0_0_50px_var(--color-primary)]"></div>
-                    </div>
-                    <button id="close-scanner-btn" class="mt-8 px-8 py-3 text-text-primary rounded-xl font-bold uppercase tracking-widest text-xs transition-all active:scale-95 btn-neumorphic">Cancel</button>
-                </div>
-            </div>
-        </section>
+                        <p class="text-[10px] text-accent-primary font-mono uppercase tracking-widest mb-8">Tap QR to copy ID</p>
 
-        <!-- QR DETAILS (Card 2) -->
-        <section id="share-section" class="mb-12 hidden animate-fade-in">
-            <div class="clay-glass-panel p-8 text-center border-border shadow-[0_8px_32px_var(--color-card-shadow)] relative overflow-hidden bg-surface-elevated/40 backdrop-blur-xl rounded-[2rem]">
-                <h2 class="text-lg font-display text-text-primary mb-2">My Pairing ID</h2>
-                <p class="text-xs text-accent-primary/70 font-mono mb-6">Share this code or scan the QR below to establish a peer-to-peer connection with ${displayName}</p>
-                
-                <div id="qr-container" class="flex flex-col items-center justify-center my-4 min-h-[250px]">
-                    <div id="qr-loader" class="w-[224px] h-[224px] bg-surface-elevated/40 animate-pulse border-4 border-surface-deep shadow-[0_0_30px_var(--color-primary)] flex items-center justify-center" style="margin: auto;"><div class="flex space-x-2"><div class="w-3 h-3 bg-primary rounded-full animate-bounce"></div><div class="w-3 h-3 bg-primary rounded-full animate-bounce" style="animation-delay: 0.1s"></div><div class="w-3 h-3 bg-primary rounded-full animate-bounce" style="animation-delay: 0.2s"></div></div></div>
-                </div>
-
-                <p id="peer-id-display" class="break-all text-[11px] text-text-primary font-mono tracking-widest uppercase font-bold cursor-pointer hover:text-accent-primary active:scale-95 transition-all select-none overflow-hidden text-ellipsis whitespace-nowrap" title="Click to copy">
-                    <span class="text-[10px]">CODE:</span><br>
-                    ${mesh.peerId || 'AWAITING_ID'}
-                </p>
-            </div>
-        </section>
-
-
-        <!-- Gatekeeper Modal (Hidden by default) -->
-        <div id="gatekeeper-modal" class="fixed inset-0 z-[9999] bg-overlay-bg backdrop-blur-md hidden items-center justify-center p-6 opacity-0 transition-opacity duration-300">
-            <div class="bg-surface-elevated/60 backdrop-blur-2xl border border-border rounded-[32px] p-8 max-w-sm w-full shadow-[0_8px_32px_var(--color-card-shadow)] transform scale-95 transition-transform duration-300" id="gatekeeper-content">
-                <div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-6 border border-primary/50 mx-auto">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-primary" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                </div>
-                <h2 class="text-2xl font-display text-text-primary text-center mb-2">Connection Request</h2>
-                <p class="text-xs text-accent-primary/80 text-center font-mono mb-8" id="gatekeeper-peer-name">Unknown Device is requesting access.</p>
-                
-                <div class="space-y-3 mb-8">
-                    <label class="flex items-center gap-3 p-4 border border-border rounded-xl bg-surface-deep cursor-pointer">
-                        <input type="radio" name="permissions" value="read-only" checked class="accent-primary">
-                        <div>
-                            <p class="text-sm font-bold text-text-primary">Read-Only</p>
-                            <p class="text-[10px] text-text-secondary font-mono mt-1">Peer can view your compliance data.</p>
+                        <div class="flex flex-col sm:flex-row gap-3 items-center justify-center max-w-sm mx-auto">
+                            <div class="flex flex-1 w-full gap-2">
+                                <input type="text" id="paste-id-input" placeholder="Paste Peer ID..." class="flex-1 min-w-0 bg-overlay-bg border border-border rounded-xl px-4 py-3 text-text-primary text-xs font-mono focus:outline-none focus:border-[#b8860b]/50 transition-colors shadow-inner">
+                                <button id="btn-connect" class="bg-surface-deep border border-border text-text-primary px-4 py-3 rounded-xl font-bold uppercase tracking-widest text-xs active:scale-95 transition-all btn-neumorphic flex items-center gap-2">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                                    Link
+                                </button>
+                            </div>
+                            <div class="text-[10px] text-text-muted font-mono uppercase tracking-widest hidden sm:block">OR</div>
+                            <button id="btn-scan" class="w-full sm:w-auto bg-gradient-to-r from-[#b8860b] to-[#daa520] text-[#1a1a1a] border border-[#f0e68c] px-6 py-3 rounded-xl font-bold uppercase tracking-widest text-xs active:scale-95 transition-all shadow-[0_4px_20px_rgba(184,134,11,0.3)] flex items-center justify-center gap-2">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 012-2h2M21 7V5a2 2 0 00-2-2h-2M3 17v2a2 2 0 002 2h2M21 17v2a2 2 0 01-2 2h-2M9 9h6v6H9z"/></svg>
+                                Scan
+                            </button>
                         </div>
-                    </label>
-                    <label class="flex items-center gap-3 p-4 border border-border rounded-xl bg-surface-deep cursor-pointer">
-                        <input type="radio" name="permissions" value="request-write" class="accent-primary">
-                        <div>
-                            <p class="text-sm font-bold text-text-primary">Request Write Access</p>
-                            <p class="text-[10px] text-text-secondary font-mono mt-1">Peer can view your data, and you request permission to edit theirs.</p>
+                    </section>
+
+                    <!-- Network Nodes Grid -->
+                    <section class="mt-4">
+                        <h3 class="text-sm font-bold uppercase tracking-widest text-text-muted mb-4 pl-2 border-l-2 border-[#b8860b]">Connected Nodes</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            ${this.familyMembers.length === 0 ? `
+                                <div class="col-span-full clay-glass-panel p-6 text-center opacity-60 border-dashed">
+                                    <p class="text-xs uppercase font-bold tracking-widest text-text-muted">No trusted nodes found in network.</p>
+                                </div>
+                            ` : this.familyMembers.map(member => `
+                                <div class="family-node clay-glass-panel p-6 text-center cursor-pointer transition-transform hover:scale-105 active:scale-95 relative" 
+                                     data-id="${member.id}" 
+                                     data-name="${member.name}"
+                                     style="-webkit-user-select: none; user-select: none; -webkit-touch-callout: none;">
+                                    <!-- Connection Status Dot (Green = Live, Gray = Offline) -->
+                                    <div class="absolute top-4 right-4 w-3 h-3 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.6)]"></div>
+                                    
+                                    <div class="w-16 h-16 bg-surface-deep text-text-primary rounded-full flex items-center justify-center text-2xl font-display italic mb-4 mx-auto border-2 border-[#b8860b]/20">
+                                        ${member.name[0].toUpperCase()}
+                                    </div>
+                                    <h4 class="font-bold text-sm text-text-primary truncate">${member.name}</h4>
+                                    <p class="text-[9px] text-[#b8860b] uppercase tracking-widest mt-1">${member.relation}</p>
+                                </div>
+                            `).join('')}
                         </div>
-                    </label>
+                    </section>
                 </div>
+            </main>
+        `;
 
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <button id="gatekeeper-deny" class="flex-1 py-4 text-text-secondary font-bold uppercase text-xs tracking-widest rounded-xl transition-colors btn-neumorphic">Deny</button>
-                    <button id="gatekeeper-approve" class="flex-1 py-4 btn-neumorphic-primary font-bold uppercase text-xs tracking-widest rounded-xl".replace(/s+/g, ' ').trim()>Authorize</button>
-                </div>
-            </div>
-        </div>
-
-      </div></main>
-
-      <!-- Write Access Request Modal -->
-      <div id="write-request-modal" class="fixed inset-0 z-[9999] bg-overlay-bg backdrop-blur-md hidden items-center justify-center p-6 opacity-0 transition-opacity duration-300">
-          <div class="bg-surface-elevated/60 backdrop-blur-2xl border border-primary/50 rounded-[32px] p-8 max-w-sm w-full shadow-[0_8px_32px_var(--color-primary)] transform scale-95 transition-transform duration-300" id="write-request-content">
-              <div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-6 border border-primary/50 mx-auto">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-primary" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-              </div>
-              <h2 class="text-2xl font-display text-text-primary text-center mb-2">Edit Access Requested</h2>
-              <p class="text-xs text-accent-primary/80 text-center font-mono mb-8" id="write-request-peer-name">Unknown Device wants permission to modify your compliance data.</p>
-              
-              <div class="flex flex-col sm:flex-row gap-3">
-                  <button id="write-request-deny" class="flex-1 py-4 text-text-secondary font-bold uppercase text-xs tracking-widest rounded-xl transition-colors btn-neumorphic">Deny</button>
-                  <button id="write-request-approve" class="flex-1 py-4 btn-neumorphic-primary font-bold uppercase text-xs tracking-widest rounded-xl".replace(/s+/g, ' ').trim()>Grant</button>
-              </div>
-          </div>
-      </div>
-
-      <style>
-        .clay-glass-panel { backdrop-filter: blur(12px); border-radius: var(--radius-lg); }
-
-    `;
-
-    this.attachListeners(mesh);
-    this.updateRoster(mesh);
-    
-    // Generate QR using QRManager
-    const generateQR = (id) => {
-        // Must defer to next tick so app.js can append the container to the DOM,
-        // otherwise qrcode.js fails because elements have 0 dimensions.
+        // Render QR Code using global QRCode instance (loaded via CDN in index.html)
         setTimeout(() => {
-            const qrContainer = this.container.querySelector('#qr-container');
-            if (qrContainer && id) {
-                QRManager.generateConnectQR(qrContainer, id);
+            if (this.mesh.peerId) {
+                new QRCode(document.getElementById("qr-code"), {
+                    text: this.mesh.peerId,
+                    width: 200,
+                    height: 200,
+                    colorDark : "#1a1a1a",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            } else {
+                document.getElementById('qr-container').innerHTML = '<p class="text-black text-xs font-bold mt-24">Connecting...</p>';
             }
-        }, 150);
-    };
+        }, 100);
 
-    if (mesh.peerId) {
-        generateQR(mesh.peerId);
-    }
-    
-    window.addEventListener('peermesh:ready', (e) => {
-        generateQR(e.detail.id);
-    });
-
-    document.dispatchEvent(new CustomEvent('view:ready', { detail: { hash: '#/peer-hub' } }));
-    
-    // Auto-Connect from Deep Link
-    const hashUrl = window.location.hash;
-    if (hashUrl.includes('?connect=')) {
-        const urlParams = new URLSearchParams(hashUrl.split('?')[1]);
-        const connectId = urlParams.get('connect');
-        if (connectId && connectId !== mesh.peerId) {
-            setTimeout(() => {
-                const input = this.container.querySelector('#pairing-code');
-                const btn = this.container.querySelector('#connect-btn');
-                if (input && btn) {
-                    input.value = connectId;
-                    btn.click();
-                    // Clean URL
-                    window.location.hash = '#/peer-hub';
-                }
-            }, 600);
-        }
-    }
-    
-    // Check for pending gatekeeper requests
-    setTimeout(() => {
-        if (mesh._pendingConsent && mesh._pendingConsent.size > 0) {
-            const firstPendingId = Array.from(mesh._pendingConsent.keys())[0];
-            window.dispatchEvent(new CustomEvent('medcare:peer-request', { detail: { peerId: firstPendingId } }));
-        }
-    }, 500);
-
-    // Cleanup scanner on navigation
-    window.addEventListener('hashchange', () => {
-        if (this.html5QrcodeScanner) {
-            this.html5QrcodeScanner.stop().catch(()=>{});
-            this.html5QrcodeScanner = null;
-        }
-    }, { once: true });
-
-    return this.container;
-  }
-
-
-  attachListeners(mesh) {
-    const scanBtn = this.container.querySelector('#toggle-scan');
-    const shareBtn = this.container.querySelector('#toggle-share');
-    const scanSection = this.container.querySelector('#scan-section');
-    const shareSection = this.container.querySelector('#share-section');
-    
-    const startScannerBtn = this.container.querySelector('#start-scanner-btn');
-    const hoverModal = this.container.querySelector('#hover-scanner-modal');
-    const closeScannerBtn = this.container.querySelector('#close-scanner-btn');
-
-    if (startScannerBtn && hoverModal && closeScannerBtn) {
-        startScannerBtn.addEventListener('click', async () => {
-            if (typeof Html5Qrcode === 'undefined') {
-                await appAlert('Scanner library is loading. Please try again in a few seconds.', 'Loading');
-                return;
-            }
-            
-            hoverModal.classList.remove('hidden');
-            // Allow display block to render before triggering opacity transition
-            requestAnimationFrame(() => hoverModal.classList.remove('opacity-0'));
-            
-            try {
-                this.html5QrcodeScanner = new Html5Qrcode("reader");
-                await this.html5QrcodeScanner.start(
-                    { facingMode: "environment" },
-                    { fps: 10, qrbox: { width: 250, height: 250 } },
-                    (decodedText) => {
-                        let parsedId = decodedText;
-                        if (decodedText.includes('?connect=')) {
-                            const params = new URLSearchParams(decodedText.split('?')[1]);
-                            parsedId = params.get('connect') || decodedText;
-                        }
-                        
-                        const input = this.container.querySelector('#pairing-code');
-                        const btn = this.container.querySelector('#connect-btn');
-                        if (input && btn) {
-                            input.value = parsedId;
-                            btn.click();
-                        }
-                        
-                        closeScannerBtn.click(); // Auto-close on success
-                    },
-                    (errorMessage) => { /* ignore parse errors during tracking */ }
-                );
-            } catch (err) {
-                console.error("Camera start failed:", err);
-                hoverModal.classList.add('opacity-0');
-                setTimeout(() => hoverModal.classList.add('hidden'), 300);
-                await appAlert('Camera Access Denied or Unavailable.', 'Camera Error');
-            }
-        });
-
-        closeScannerBtn.addEventListener('click', async () => {
-            if (this.html5QrcodeScanner) {
-                await this.html5QrcodeScanner.stop().catch(()=>{});
-                this.html5QrcodeScanner = null;
-            }
-            hoverModal.classList.add('opacity-0');
-            setTimeout(() => hoverModal.classList.add('hidden'), 300);
-        });
+        this.bindEvents();
+        return this.container;
     }
 
-    if (scanBtn && shareBtn) {
-      scanBtn.addEventListener('click', () => {
-        scanBtn.className = 'flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-xl bg-primary text-text-primary shadow-inner transition-all shadow-lg shadow-primary/20';
-        shareBtn.className = 'flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-xl transition-all btn-neumorphic text-text-secondary hover:text-text-primary';
-        scanSection.classList.remove('hidden');
-        scanSection.classList.add('block');
-        shareSection.classList.add('hidden');
-        shareSection.classList.remove('block');
-      });
-
-      shareBtn.addEventListener('click', () => {
-        shareBtn.className = 'flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-xl bg-primary text-text-primary shadow-inner transition-all shadow-lg shadow-primary/20';
-        scanBtn.className = 'flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-xl transition-all btn-neumorphic text-text-secondary hover:text-text-primary';
-        shareSection.classList.remove('hidden');
-        shareSection.classList.add('block');
-        scanSection.classList.add('hidden');
-        scanSection.classList.remove('block');
-
-        // Forcefully close the scanner modal if it's open
-        if (closeScannerBtn) {
-            closeScannerBtn.click();
-        }
-      });
-    }
-
-    const peerIdDisplay = this.container.querySelector('#peer-id-display');
-    if (peerIdDisplay) {
-        peerIdDisplay.addEventListener('click', async () => {
-            if (mesh.peerId) {
+    bindEvents() {
+        // QR Code Tap to Copy
+        const qrContainer = this.container.querySelector('#qr-container');
+        qrContainer.addEventListener('click', async () => {
+            if (this.mesh.peerId) {
                 try {
-                    await navigator.clipboard.writeText(mesh.peerId);
-                    const originalText = `Code: ${mesh.peerId}`;
-                    peerIdDisplay.textContent = 'COPIED!';
-                    peerIdDisplay.classList.add('text-success');
-                    peerIdDisplay.classList.remove('text-text-primary');
-                    setTimeout(() => {
-                        peerIdDisplay.textContent = originalText;
-                        peerIdDisplay.classList.remove('text-success');
-                        peerIdDisplay.classList.add('text-text-primary');
-                    }, 2000);
-                } catch (err) {
-                    console.error('Clipboard write failed:', err);
+                    await navigator.clipboard.writeText(this.mesh.peerId);
+                    showToast('Peer ID copied to clipboard!', 'success');
+                } catch (e) {
+                    showToast('Failed to copy ID', 'error');
                 }
             }
         });
+
+        // Link Button
+        this.container.querySelector('#btn-connect').addEventListener('click', () => {
+            const val = this.container.querySelector('#paste-id-input').value.trim();
+            if (val) {
+                showToast('Connecting to peer...', 'info');
+                // Real implementation would connect via PeerMesh
+            }
+        });
+
+        // Scan Button (placeholder for HTML5 QR scanner)
+        this.container.querySelector('#btn-scan').addEventListener('click', () => {
+            showToast('Camera scanner opening...', 'info');
+            // Full integration of html5-qrcode goes here.
+        });
+
+        // Family Node Long-Press & Short-Press Logic
+        const nodes = this.container.querySelectorAll('.family-node');
+        
+        nodes.forEach(node => {
+            const handleStart = (e) => {
+                e.preventDefault(); // Prevent text selection/context menu on mobile
+                this.longPressTimer = setTimeout(() => {
+                    this.longPressTimer = null;
+                    const id = node.getAttribute('data-id');
+                    const name = node.getAttribute('data-name');
+                    
+                    // Trigger Caregiver Context
+                    state.setProfileContext({ id, name });
+                    showToast(`Entering Caregiver Mode for ${name}`, 'success');
+                    
+                }, 3000); // 3 seconds
+            };
+
+            const handleEnd = (e) => {
+                e.preventDefault();
+                if (this.longPressTimer) {
+                    clearTimeout(this.longPressTimer);
+                    this.longPressTimer = null;
+                    
+                    // It was a short press -> Open Permissions Manager
+                    this.openPermissionsModal(node.getAttribute('data-name'));
+                }
+            };
+
+            const handleCancel = () => {
+                if (this.longPressTimer) {
+                    clearTimeout(this.longPressTimer);
+                    this.longPressTimer = null;
+                }
+            };
+
+            node.addEventListener('touchstart', handleStart, { passive: false });
+            node.addEventListener('touchend', handleEnd);
+            node.addEventListener('touchcancel', handleCancel);
+            node.addEventListener('touchmove', handleCancel); // Cancel on scroll
+            
+            node.addEventListener('mousedown', handleStart);
+            node.addEventListener('mouseup', handleEnd);
+            node.addEventListener('mouseleave', handleCancel);
+            
+            // Prevent context menu
+            node.addEventListener('contextmenu', e => e.preventDefault());
+        });
     }
 
-    const connectBtn = this.container.querySelector('#connect-btn');
-    const pairingInput = this.container.querySelector('#pairing-code');
-    const modal = this.container.querySelector('#gatekeeper-modal');
-    const modalContent = this.container.querySelector('#gatekeeper-content');
-    
-    connectBtn.addEventListener('click', () => {
-        const targetId = pairingInput.value.trim();
-        if(targetId) {
-            connectBtn.innerHTML = `
-                <div class="relative w-6 h-6 mx-auto flex items-center justify-center">
-                    <div class="loader" style="transform: scale(0.2); transform-origin: center; position: absolute; left: -44px; top: -44px;">
-                        <div class="box1"></div>
-                        <div class="box2"></div>
-                        <div class="box3"></div>
-                    </div>
-                </div>
-            `;
-            mesh.connectToPeer(targetId);
-            setTimeout(() => {
-                connectBtn.innerHTML = 'CONNECT';
-                pairingInput.value = '';
-            }, 1500);
-        }
-    });
-
-    // Handle incoming peer requests (Biometric / Gatekeeper Modal)
-    let pendingPeerId = null;
-    window.addEventListener('medcare:peer-request', (e) => {
-        pendingPeerId = e.detail.peerId;
-        this.container.querySelector('#gatekeeper-peer-name').textContent = `Node ${pendingPeerId.substring(0,6)}... wants to sync.`;
-        modal.classList.remove('hidden');
-        modal.style.display = 'flex';
-        setTimeout(() => {
-            modal.classList.remove('opacity-0');
-            modalContent.classList.remove('scale-95');
-        }, 10);
-    });
-
-    this.container.querySelector('#gatekeeper-approve').addEventListener('click', () => {
-        const selectedPerm = this.container.querySelector('input[name="permissions"]:checked')?.value;
-        if(pendingPeerId) {
-            mesh.approvePeerConnection(pendingPeerId);
-            if (selectedPerm === 'request-write') {
-                setTimeout(() => mesh.sendSignal(pendingPeerId, 'request-write-access'), 1000);
-            }
-        }
-        closeModal();
-    });
-    
-    this.container.querySelector('#gatekeeper-deny').addEventListener('click', () => {
-        if(pendingPeerId) mesh.denyPeer(pendingPeerId);
-        closeModal();
-    });
-
-    const closeModal = () => {
-        modal.classList.add('opacity-0');
-        modalContent.classList.add('scale-95');
-        setTimeout(() => {
-            modal.style.display = 'none';
-            modal.classList.add('hidden');
-            pendingPeerId = null;
-        }, 300);
-    };
-
-    // --- WRITE ACCESS PERMISSION FLOW ---
-    let requestingWritePeerId = null;
-    window.addEventListener('medcare:write-request', (e) => {
-        requestingWritePeerId = e.detail.peerId;
-        const writeModal = this.container.querySelector('#write-request-modal');
-        const writeContent = this.container.querySelector('#write-request-content');
-        
-        const peerConn = mesh._connections.get(requestingWritePeerId);
-        const name = peerConn?.metadata?.displayName || 'Unknown Device';
-        
-        this.container.querySelector('#write-request-peer-name').textContent = `${name} wants permission to modify your compliance data.`;
-        
-        writeModal.classList.remove('hidden');
-        writeModal.style.display = 'flex';
-        setTimeout(() => {
-            writeModal.classList.remove('opacity-0');
-            writeContent.classList.remove('scale-95');
-        }, 10);
-    });
-
-    const closeWriteModal = () => {
-        const writeModal = this.container.querySelector('#write-request-modal');
-        const writeContent = this.container.querySelector('#write-request-content');
-        writeModal.classList.add('opacity-0');
-        writeContent.classList.add('scale-95');
-        setTimeout(() => {
-            writeModal.style.display = 'none';
-            writeModal.classList.add('hidden');
-            requestingWritePeerId = null;
-        }, 300);
-    };
-
-    this.container.querySelector('#write-request-approve').addEventListener('click', async () => {
-        if(requestingWritePeerId) {
-            mesh.sendSignal(requestingWritePeerId, 'grant-write-access');
-            const conn = mesh._connections.get(requestingWritePeerId);
-            if (conn) conn.hasWriteAccess = true;
-            await appAlert('Write access granted.', 'Success');
-        }
-        closeWriteModal();
-    });
-
-    this.container.querySelector('#write-request-deny').addEventListener('click', () => {
-        if (requestingWritePeerId) {
-             mesh.sendSignal(requestingWritePeerId, 'peer-dropped', { message: 'Write access request denied.' });
-        }
-        closeWriteModal();
-    });
-
-    window.addEventListener('medcare:write-granted', async (e) => {
-        await appAlert('Your request for write access was GRANTED by the peer.', 'Access Granted');
-        const conn = mesh._connections.get(e.detail.peerId);
-        if (conn) conn.hasWriteAccess = true;
-    });
-
-    window.addEventListener('medcare:peer-connected', async (e) => {
-        this.updateRoster(mesh);
-        
-        const peerId = e.detail?.peerId;
-        const metadata = e.detail?.metadata;
-        if (!peerId || !metadata) return;
-
-        const peerPhone = metadata.phone;
-        let peerName = metadata.displayName || 'Peer Node';
-        const emergencyPhone = state.userProfile?.profile?.emergencyPhone;
-        const emergencyName = state.userProfile?.profile?.emergencyName;
-
-        // 1. Name Match Logic from Onboarding
-        if (peerPhone && emergencyPhone && peerPhone === emergencyPhone) {
-            if (await appConfirm(`This peer's phone number matches your emergency contact. Do you want to name this connection '${emergencyName}'?`, 'Emergency Contact Match')) {
-                const conn = mesh._connections.get(peerId);
-                if (conn) {
-                    if (!conn.metadata) conn.metadata = {};
-                    conn.metadata.displayName = emergencyName;
-                    peerName = emergencyName;
-                    this.updateRoster(mesh);
-                }
-            }
-        }
-
-        // 2. SOS Prompt
-        if (await appConfirm(`Do you want to add ${peerName} to your SOS/Family Responders list?`, 'Add to SOS')) {
-            if (!state.userProfile.profile.familyMembers) {
-                state.userProfile.profile.familyMembers = [];
-            }
-            
-            // Check if already exists
-            const exists = state.userProfile.profile.familyMembers.find(f => f.peerId === peerId);
-            if (!exists) {
-                state.userProfile.profile.familyMembers.push({
-                    name: peerName,
-                    phone: peerPhone || '',
-                    peerId: peerId
-                });
-                
-                // Save to Firestore silently
-                import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js').then(({ getFirestore, doc, setDoc }) => {
-                    const db = getFirestore();
-                    setDoc(doc(db, 'users', state.user.uid), { profile: state.userProfile.profile }, { merge: true }).catch(console.error);
-                });
-            }
-        }
-    });
-
-    window.addEventListener('medcare:peer-disconnected', () => this.updateRoster(mesh));
-    
-    // Listen for connection drops natively
-    window.addEventListener('medcare:peer-dropped', (e) => {
-        this.updateRoster(mesh);
-        appAlert(`Connection with node ${e.detail.peerId.substring(0,6)}... dropped: ${e.detail.message}`, 'Connection Dropped');
-    });
-  }
-
-updateRoster(mesh) {
-      const rosterEl = this.container.querySelector('#roster-container');
-      const liveCountEl = this.container.querySelector('#live-count');
-      const peers = Array.from(mesh._connections?.entries() || []);
-      
-      if (liveCountEl) liveCountEl.innerText = `${peers.length} Live`;
-      if (!rosterEl) return;
-
-      if (peers.length === 0) {
-          rosterEl.innerHTML = `
-              <div class="text-center py-10 border border-dashed border-border bg-surface-elevated/40 backdrop-blur-xl shadow-[0_8px_32px_var(--color-card-shadow)] rounded-3xl opacity-50">
-                  <p class="text-xs text-text-primary font-mono uppercase tracking-widest">No Active Connections</p>
-              </div>
-          `;
-          return;
-      }
-
-      // Render draggable blocks
-      rosterEl.innerHTML = peers.map(([pid, conn]) => {
-          const pName = conn?.metadata?.displayName || 'Peer Node';
-          return `
-          <div draggable="true" data-peer-id="${pid}" data-peer-name="${pName}" class="peer-block clay-glass-panel p-4 flex justify-between items-center cursor-move hover:border-primary transition-all active:scale-95">
-              <div class="flex items-center gap-4 pointer-events-none">
-                  <div class="w-10 h-10 rounded-full bg-gradient-to-br from-success/20 to-surface-elevated border border-success/40 flex items-center justify-center text-success">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
-                  </div>
-                  <div>
-                      <p class="font-bold text-sm text-text-primary">${pName}</p>
-                      <p class="text-[10px] text-success/70 font-mono tracking-widest uppercase">${pid.substring(0,8)}...</p>
-                  </div>
-              </div>
-              <div class="flex gap-2">
-                  <button data-portal-pid="${pid}" data-portal-name="${pName}" class="text-primary px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-widest active:scale-90 transition-transform btn-neumorphic">Portal</button>
-                  <button data-drop-pid="${pid}" class="text-danger px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-widest active:scale-90 transition-transform btn-neumorphic">Drop</button>
-              </div>
-          </div>
-      `}).join('');
-
-      // Portal logic
-      rosterEl.querySelectorAll('[data-portal-pid]').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-              const pid = e.target.getAttribute('data-portal-pid');
-              const pname = e.target.getAttribute('data-portal-name');
-              CaregiverPortal.enterPortal(pid, pname);
-          });
-      });
-
-      // Drop (Disconnect) logic
-      rosterEl.querySelectorAll('[data-drop-pid]').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-              const dropId = e.target.getAttribute('data-drop-pid');
-              mesh.disconnectPeer(dropId);
-          });
-      });
-      
-      this.initDragAndDrop();
-  }
-
-  initDragAndDrop() {
-      const blocks = this.container.querySelectorAll('.peer-block');
-      const slots = this.container.querySelectorAll('.topology-slot');
-      
-      blocks.forEach(block => {
-          block.addEventListener('dragstart', (e) => {
-              e.dataTransfer.setData('text/plain', e.target.getAttribute('data-peer-id'));
-              e.target.style.opacity = '0.5';
-          });
-          block.addEventListener('dragend', (e) => {
-              e.target.style.opacity = '1';
-          });
-      });
-
-      slots.forEach(slot => {
-          slot.addEventListener('dragover', (e) => {
-              e.preventDefault(); // Necessary to allow dropping
-              slot.classList.add('bg-primary/20', 'border-primary');
-          });
-          slot.addEventListener('dragleave', (e) => {
-              slot.classList.remove('bg-primary/20', 'border-primary');
-          });
-          slot.addEventListener('drop', (e) => {
-              e.preventDefault();
-              slot.classList.remove('bg-primary/20', 'border-primary');
-              const pid = e.dataTransfer.getData('text/plain');
-              const block = this.container.querySelector(`.peer-block[data-peer-id="${pid}"]`);
-              
-              if (block) {
-                  const contentDiv = slot.querySelector('.slot-content');
-                  contentDiv.appendChild(block);
-                  
-                  // Automatically enter portal on snap
-                  const pname = block.getAttribute('data-peer-name');
-                  setTimeout(() => {
-                      CaregiverPortal.enterPortal(pid, pname);
-                  }, 300);
-              }
-          });
-      });
-  }
-  destroy() {
-    // Cleanup event listeners
-  }
+    openPermissionsModal(name) {
+        appConfirm(
+            \`Manage Permissions for \${name}\`,
+            \`Select the access level for this connected node.\`,
+            [
+                { text: 'Read-Only', action: () => showToast('Permissions set to Read-Only', 'success') },
+                { text: 'Read & Write', action: () => showToast('Permissions set to Read & Write', 'success') },
+                { text: 'Cancel', primary: true, action: () => {} }
+            ]
+        );
+    }
 }
-

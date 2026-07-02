@@ -275,6 +275,7 @@ class App {
 
     state.subscribe(() => {
       if (this._authReady) this.runGuard();
+      this.updateCaregiverModeUI();
     });
     
     // Listen to Firebase Auth state
@@ -282,6 +283,36 @@ class App {
     
     // Listen for network connectivity changes
     this.initNetworkStatusIndicator();
+  }
+
+  updateCaregiverModeUI() {
+    let header = document.getElementById('caregiver-header');
+    if (!header) {
+      header = document.createElement('div');
+      header.id = 'caregiver-header';
+      header.className = 'fixed top-0 left-0 right-0 z-[10000] bg-red-900/90 text-red-100 font-mono text-xs uppercase font-bold tracking-widest py-2 text-center shadow-[0_4px_20px_rgba(255,0,0,0.5)] border-b border-red-500/50 backdrop-blur-md transform transition-transform duration-300 -translate-y-full';
+      document.body.appendChild(header);
+    }
+    
+    const viewport = document.getElementById('app-viewport');
+    
+    if (state.activeProfileContext) {
+      header.textContent = `🔴 CAREGIVER MODE: Viewing ${state.activeProfileContext.name}'s Data`;
+      header.classList.remove('-translate-y-full');
+      document.body.style.boxShadow = 'inset 0 0 30px rgba(220, 38, 38, 0.4)';
+      if (viewport) {
+        viewport.style.transform = 'scale(0.96)';
+        viewport.style.borderRadius = '24px';
+        viewport.style.overflow = 'hidden';
+      }
+    } else {
+      header.classList.add('-translate-y-full');
+      document.body.style.boxShadow = 'none';
+      if (viewport) {
+        viewport.style.transform = 'scale(1)';
+        viewport.style.borderRadius = '0';
+      }
+    }
   }
 
   initNetworkStatusIndicator() {
