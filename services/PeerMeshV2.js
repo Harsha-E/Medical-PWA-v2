@@ -47,6 +47,10 @@ export default class PeerMeshV2 {
         });
 
         this.peer.on('error', (err) => {
+            if (err.type === 'network' || err.type === 'server-error' || (err.message && err.message.includes('Lost connection'))) {
+                console.warn('[PeerMeshV2] Disconnected from signaling server (Offline mode active).');
+                return;
+            }
             console.error('[PeerMeshV2] Network Error:', err);
             if (err.type === 'unavailable-id' || (err.message && err.message.includes('is taken'))) {
                 console.warn('[PeerMeshV2] ID was taken (ghost connection). Generating a new ID...');

@@ -50,7 +50,11 @@ export default class PeerMesh {
                     resolve();
                 });
                 this._peer.on('error', (err) => {
-                    console.error('[PeerMesh] error in open:', err);
+                    if (err.type === 'network' || err.type === 'server-error' || (err.message && err.message.includes('Lost connection'))) {
+                        console.warn('[PeerMesh] Disconnected from signaling server (Offline mode active).');
+                    } else {
+                        console.error('[PeerMesh] error in open:', err);
+                    }
                     resolve(); // resolve anyway so UI doesn't hang
                 });
             });
