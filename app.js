@@ -257,6 +257,22 @@ class App {
       if (this._authReady) this.runGuard();
     });
     
+    // Developer Tool support for Device Mode toggling (Desktop <-> Mobile)
+    let lastUserAgent = navigator.userAgent;
+    window.addEventListener('resize', () => {
+      if (navigator.userAgent !== lastUserAgent) {
+        lastUserAgent = navigator.userAgent;
+        if (this._authReady) {
+            // Force a hash reset if stuck on install but no longer mobile
+            if (window.location.hash === '#/install' && !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                window.location.hash = '#/dashboard';
+            } else {
+                this.runGuard();
+            }
+        }
+      }
+    });
+
     state.subscribe(() => {
       if (this._authReady) this.runGuard();
     });
