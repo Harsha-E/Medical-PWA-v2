@@ -25,32 +25,25 @@ class State {
     /** @type {Object | null} */
     this.activeProfileContext = null; // null means 'self'. Otherwise object with id, name.
 
-    // Initialize Theme
-    this.themePref = localStorage.getItem('medcare_theme_pref') || 'system';
+    // Initialize Theme (Forced Dark Mode)
+    this.themePref = 'dark';
+    localStorage.setItem('medcare_theme_pref', 'dark');
     this._applyThemePref();
-
-    // Listen for OS theme changes
-    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
-      if (this.themePref === 'system') this._applyThemePref();
-    });
   }
 
   // ─── Theme Management ────────────────────────────────────────────────────────
   
   setThemePreference(pref) {
-    this.themePref = pref;
-    localStorage.setItem('medcare_theme_pref', pref);
+    // Forced dark mode, ignore incoming pref requests
+    this.themePref = 'dark';
+    localStorage.setItem('medcare_theme_pref', 'dark');
     this._applyThemePref();
     this._notify();
   }
 
   _applyThemePref() {
-    if (this.themePref === 'system') {
-      this.theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-    } else {
-      this.theme = this.themePref;
-    }
-    document.documentElement.setAttribute('data-theme', this.theme);
+    this.theme = 'dark';
+    document.documentElement.setAttribute('data-theme', 'dark');
   }
 
   // ─── Subscription ────────────────────────────────────────────────────────────
