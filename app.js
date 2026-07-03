@@ -292,7 +292,7 @@ class App {
     if (!header) {
       header = document.createElement('div');
       header.id = 'caregiver-header';
-      header.className = 'fixed top-0 left-0 right-0 z-[10000] bg-red-900/90 text-red-100 font-mono text-xs uppercase font-bold tracking-widest py-2 text-center shadow-[0_4px_20px_rgba(255,0,0,0.5)] border-b border-red-500/50 backdrop-blur-md transform transition-transform duration-300 -translate-y-full';
+      header.className = 'fixed bottom-0 left-0 right-0 z-[10000] bg-red-900/90 text-red-100 font-mono text-xs uppercase font-bold tracking-widest py-2 text-center shadow-[0_-4px_20px_rgba(255,0,0,0.5)] border-t border-red-500/50 backdrop-blur-md transform transition-transform duration-300 translate-y-full';
       document.body.appendChild(header);
     }
     
@@ -337,8 +337,8 @@ class App {
     
     if (state.activeProfileContext) {
       header.textContent = `🔴 CAREGIVER MODE: Viewing ${state.activeProfileContext.name}'s Data`;
-      header.classList.remove('-translate-y-full');
-      document.body.style.boxShadow = 'inset 0 0 30px rgba(220, 38, 38, 0.4)';
+      header.classList.remove('translate-y-full');
+      // document.body.style.boxShadow = 'inset 0 0 30px rgba(220, 38, 38, 0.4)';
       rainContainer.style.opacity = '1';
       if (viewport) {
         viewport.style.transform = 'scale(0.96)';
@@ -346,8 +346,8 @@ class App {
         viewport.style.overflow = 'hidden';
       }
     } else {
-      header.classList.add('-translate-y-full');
-      document.body.style.boxShadow = 'none';
+      header.classList.add('translate-y-full');
+      // document.body.style.boxShadow = 'none';
       rainContainer.style.opacity = '0';
       if (viewport) {
         viewport.style.transform = 'scale(1)';
