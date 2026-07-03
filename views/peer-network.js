@@ -20,7 +20,7 @@ export default class PeerNetworkView {
         this.familyMembers = await db.family.filter(f => f.userId === state.user?.uid).toArray();
 
         this.container.innerHTML = `
-            <main class="scroll-area pt-[112px] md:pt-8 bg-transparent pb-40" style="padding-left:0; padding-right:0;">
+            <main class="scroll-area bg-transparent pb-40" style="padding-left:0; padding-right:0;">
                 <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1 gap-8">
                     
                     <!-- Link Device Card -->
@@ -28,6 +28,10 @@ export default class PeerNetworkView {
                         <h2 class="text-xl font-display text-text-primary mb-2">Link Device</h2>
                         <p class="text-xs text-text-secondary mb-6">Scan or share this QR to establish a direct connection.</p>
                         
+                        <div class="mx-auto flex justify-center mb-6 cursor-pointer" id="qr-container" title="Tap to copy ID">
+                            <div id="qr-code"></div>
+                        </div>
+                        <p class="text-[10px] text-text-secondary font-mono uppercase tracking-widest mb-8">Tap QR to copy ID</p>
 
                         <div class="flex flex-col sm:flex-row gap-3 items-center justify-center max-w-sm mx-auto">
                             <div class="flex flex-1 w-full gap-2">
@@ -38,7 +42,7 @@ export default class PeerNetworkView {
                                 </button>
                             </div>
                             <div class="text-[10px] text-text-muted font-mono uppercase tracking-widest hidden sm:block">OR</div>
-                            <button id="btn-scan" class="w-full sm:w-auto bg-gradient-to-r from-[#b8860b] to-[#daa520] text-[#1a1a1a] border border-[#f0e68c] px-6 py-3 rounded-xl font-bold uppercase tracking-widest text-xs active:scale-95 transition-all shadow-[0_4px_20px_rgba(184,134,11,0.3)] flex items-center justify-center gap-2">
+                            <button id="btn-scan" class="w-full sm:w-auto clay-glass-panel bg-gradient-to-r from-surface-deep to-surface-elevated text-text-primary border border-primary/20 px-6 py-3 rounded-xl font-bold uppercase tracking-widest text-xs active:scale-95 transition-all shadow-[inset_2px_2px_4px_rgba(255,255,255,0.05),_inset_-2px_-2px_4px_rgba(0,0,0,0.5),_0_4px_20px_rgba(0,0,0,0.3)] flex items-center justify-center gap-2">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 012-2h2M21 7V5a2 2 0 00-2-2h-2M3 17v2a2 2 0 002 2h2M21 17v2a2 2 0 01-2 2h-2M9 9h6v6H9z"/></svg>
                                 Scan
                             </button>
@@ -76,11 +80,39 @@ export default class PeerNetworkView {
 
 
 
+        // Render QR Code using global QRCode instance (loaded via CDN in index.html)
+        setTimeout(() => {
+            if (this.mesh.peerId) {
+                new QRCode(document.getElementById("qr-code"), {
+                    text: this.mesh.peerId,
+                    width: 200,
+                    height: 200,
+                    colorDark : "#e0e0e0", // light mode QR on dark theme
+                    colorLight : "transparent",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            } else {
+                document.getElementById('qr-container').innerHTML = '<p class="text-text-secondary text-xs font-bold mt-24">Connecting...</p>';
+            }
+        }, 100);
+
         this.bindEvents();
         return this.container;
     }
 
     bindEvents() {
+        // QR Code Tap to Copy
+        const qrContainer = this.container.querySelector('#qr-container');
+        qrContainer?.addEventListener('click', async () => {
+            if (this.mesh.peerId) {
+                try {
+                    await navigator.clipboard.writeText(this.mesh.peerId);
+                    showToast('Peer ID copied to clipboard!', 'success');
+                } catch (e) {
+                    showToast('Failed to copy ID', 'error');
+                }
+            }
+        });
 
         // Link Button
         this.container.querySelector('#btn-connect').addEventListener('click', () => {

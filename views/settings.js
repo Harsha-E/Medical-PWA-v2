@@ -235,19 +235,29 @@ export default class SettingsView {
              const user = auth.currentUser;
              if (user) {
                  try {
-                       // Wipe Service Worker Caches & Unregister
-                       if ('serviceWorker' in navigator) {
-                           const regs = await navigator.serviceWorker.getRegistrations();
-                           for(let reg of regs) { await reg.unregister(); }
-                       }
-                       if ('caches' in window) {
-                           const keys = await caches.keys();
-                           for(let key of keys) { await caches.delete(key); }
-                       }
-                       await user.delete();
-                       await db.delete();
-                       window.location.hash = '#/landing';
-                       window.location.reload();
+                        // Wipe Service Worker Caches & Unregister
+                        if ('serviceWorker' in navigator) {
+                            const regs = await navigator.serviceWorker.getRegistrations();
+                            for(let reg of regs) { await reg.unregister(); }
+                        }
+                        if ('caches' in window) {
+                            const keys = await caches.keys();
+                            for(let key of keys) { await caches.delete(key); }
+                        }
+                        
+                        try {
+                            if (db.isOpen()) {
+                                db.close();
+                            }
+                            await db.delete();
+                        } catch (dbErr) {
+                            console.warn("Could not delete IndexedDB immediately:", dbErr);
+                        }
+
+                        await user.delete();
+                        
+                        window.location.hash = '#/login';
+                        setTimeout(() => window.location.reload(), 100);
                    } catch (err) {
                        if (err.code === 'auth/requires-recent-login') {
                            await appAlert('Security Policy: You must re-authenticate to delete your account. Please log out, log back in, and try again.', 'Authentication Required');
