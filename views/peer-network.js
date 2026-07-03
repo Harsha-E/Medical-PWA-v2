@@ -28,10 +28,13 @@ export default class PeerNetworkView {
                         <h2 class="text-xl font-display text-text-primary mb-2">Link Device</h2>
                         <p class="text-xs text-text-secondary mb-6">Scan or share this QR to establish a direct connection.</p>
                         
-                        <div class="mx-auto flex justify-center mb-6 cursor-pointer" id="qr-container" title="Tap to copy ID">
+                        <div class="mx-auto flex justify-center mb-6 cursor-pointer relative group w-fit" id="qr-container">
                             <div id="qr-code"></div>
+                            <div class="absolute -top-12 left-1/2 -translate-x-1/2 px-4 py-2 bg-surface-elevated border border-white/10 text-text-primary text-[11px] font-bold font-mono tracking-widest uppercase rounded-xl opacity-0 group-hover:opacity-100 transition-all pointer-events-none whitespace-nowrap shadow-[0_8px_32px_rgba(0,0,0,0.5)] z-50">
+                                Tap to copy ID
+                            </div>
                         </div>
-                        <p class="text-[10px] text-text-secondary font-mono uppercase tracking-widest mb-8">Tap QR to copy ID</p>
+                        <p class="text-[10px] text-text-secondary font-mono uppercase tracking-widest mb-8">Direct Pairing Node</p>
 
                         <div class="flex flex-col sm:flex-row gap-3 items-center justify-center max-w-sm mx-auto">
                             <div class="flex flex-1 w-full gap-2">
@@ -123,10 +126,9 @@ export default class PeerNetworkView {
             }
         });
 
-        // Scan Button (placeholder for HTML5 QR scanner)
+        // Scan Button (routes to universal vision scanner)
         this.container.querySelector('#btn-scan').addEventListener('click', () => {
-            showToast('Camera scanner opening...', 'info');
-            // Full integration of html5-qrcode goes here.
+            window.location.hash = '#/scan';
         });
 
         // Family Node Long-Press & Short-Press Logic

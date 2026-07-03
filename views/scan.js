@@ -8,6 +8,7 @@ import VisionPipeline from '../services/VisionPipeline.js';
 import ConfirmationGate from '../components/ConfirmationGate.js';
 import MultipleMatchGate from '../components/MultipleMatchGate.js';
 import { appAlert } from '../core/ui.js';
+import PeerMesh from '../services/PeerMesh.js';
 
 export default class ScanView {
   constructor() {
@@ -279,10 +280,13 @@ export default class ScanView {
                 const qrVal = barcodes[0].rawValue;
                 if (qrVal.startsWith('medcare://peer/')) {
                     const peerId = qrVal.replace('medcare://peer/', '');
-                    if (window.familyMesh) {
+                    try {
+                        const mesh = PeerMesh.getInstance();
                         console.log("[ScanView] Intercepted PeerJS QR Code. Connecting to:", peerId);
-                        window.familyMesh.connectToFamilyMember(peerId);
-                        window.location.hash = '#/family-tree';
+                        mesh.connectToPeer(peerId);
+                        window.location.hash = '#/peer-network';
+                    } catch (err) {
+                        console.error("[ScanView] Failed to connect via PeerMesh:", err);
                     }
                     this.hideProcessingSpinner();
                     return; // Stop OCR pipeline
