@@ -28,18 +28,15 @@ export default class GlassNavbar {
     
     const isBottomNav = (hash === '#/' || hash === '#/landing' || hash === '#/login' || hash === '#/register');
     
-    // Hardcoded override to ensure Bottom-position on public pages, otherwise top
-    // This class is applied before the browser paints the navbar
-    const positionClass = isBottomNav 
-      ? 'fixed bottom-4' 
-      : 'fixed top-4';
+    // User requested navbar at the bottom everywhere
+    const positionClass = 'fixed bottom-4 md:bottom-6';
 
     const isLanding = (hash === '#/' || hash === '#/landing');
     const isAuthLayout = isAuth && !isLanding;
 
     if (isAuthLayout) {
       this.root.innerHTML = `
-        <nav id="glass-nav" class="top-6 fixed z-[9999] left-1/2 -translate-x-1/2 w-[95%] max-w-2xl px-2 md:px-6 py-3 rounded-full flex justify-between items-center backdrop-blur-xl border transition-all duration-300" style="background: var(--color-nav-bg); border-color: var(--color-nav-border); box-shadow: 0 8px 32px var(--color-card-shadow), inset 0 1px 1px rgba(255,255,255,0.08); opacity: 0.85;">
+        <nav id="glass-nav" class="bottom-6 md:bottom-8 fixed z-[9999] left-1/2 -translate-x-1/2 w-[95%] max-w-2xl px-2 md:px-6 py-3 rounded-full flex justify-between items-center backdrop-blur-xl border transition-all duration-300" style="background: var(--color-nav-bg); border-color: var(--color-nav-border); box-shadow: 0 8px 32px var(--color-card-shadow), inset 0 1px 1px rgba(255,255,255,0.08); opacity: 0.85;">
           ${this.getAuthenticatedMenu(hash)}
         </nav>
       `;
