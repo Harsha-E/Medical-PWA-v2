@@ -84,7 +84,8 @@ const ROUTES = {
   '#/appointments': AppointmentsView,
   '#/calendar': CalendarView,
   '#/orchestrator': OrchestratorView,
-  '#/medication-detail': MedicationDetailView
+  '#/medication-detail': MedicationDetailView,
+  '#/clinical-ledger': ClinicalLedgerView
 };
 
 /** Routes that don't require a logged-in user. */
@@ -294,12 +295,50 @@ class App {
       document.body.appendChild(header);
     }
     
+    let rainContainer = document.getElementById('blood-rain-container');
+    if (!rainContainer) {
+      rainContainer = document.createElement('div');
+      rainContainer.id = 'blood-rain-container';
+      rainContainer.className = 'fixed inset-0 z-[9998] pointer-events-none overflow-hidden transition-opacity duration-1000 opacity-0';
+      
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes blood-drip {
+          0% { transform: translateY(-20vh) scaleY(1); opacity: 0; }
+          10% { opacity: 0.8; }
+          80% { transform: translateY(100vh) scaleY(1.5); opacity: 0.8; }
+          100% { transform: translateY(110vh) scaleY(1); opacity: 0; }
+        }
+        .blood-drop {
+          position: absolute;
+          top: 0;
+          background: linear-gradient(to bottom, rgba(220,38,38,0), rgba(185,28,28,0.8), rgba(153,27,27,1));
+          border-radius: 0 0 5px 5px;
+          animation: blood-drip linear infinite;
+        }
+      `;
+      document.head.appendChild(style);
+
+      for (let i = 0; i < 25; i++) {
+        const drop = document.createElement('div');
+        drop.className = 'blood-drop';
+        drop.style.left = `${Math.random() * 100}vw`;
+        drop.style.width = `${Math.random() * 2 + 1}px`;
+        drop.style.height = `${Math.random() * 60 + 20}px`;
+        drop.style.animationDuration = `${Math.random() * 1.5 + 0.8}s`;
+        drop.style.animationDelay = `${Math.random() * 2}s`;
+        rainContainer.appendChild(drop);
+      }
+      document.body.appendChild(rainContainer);
+    }
+
     const viewport = document.getElementById('app-viewport');
     
     if (state.activeProfileContext) {
       header.textContent = `🔴 CAREGIVER MODE: Viewing ${state.activeProfileContext.name}'s Data`;
       header.classList.remove('-translate-y-full');
       document.body.style.boxShadow = 'inset 0 0 30px rgba(220, 38, 38, 0.4)';
+      rainContainer.style.opacity = '1';
       if (viewport) {
         viewport.style.transform = 'scale(0.96)';
         viewport.style.borderRadius = '24px';
@@ -308,6 +347,7 @@ class App {
     } else {
       header.classList.add('-translate-y-full');
       document.body.style.boxShadow = 'none';
+      rainContainer.style.opacity = '0';
       if (viewport) {
         viewport.style.transform = 'scale(1)';
         viewport.style.borderRadius = '0';

@@ -24,12 +24,12 @@ export default class PeerNetworkView {
                 <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1 gap-8">
                     
                     <!-- Link Device Card -->
-                    <section id="link-device-card" class="clay-glass-panel p-8 text-center border-border shadow-[0_8px_32px_var(--color-card-shadow)] bg-surface-elevated/40 backdrop-blur-xl relative overflow-hidden rounded-[2rem]">
+                    <section id="link-device-card" class="clay-glass-panel p-6 md:p-8 text-center border-border shadow-[0_8px_32px_var(--color-card-shadow)] bg-surface-elevated/40 backdrop-blur-xl relative rounded-[2rem]">
                         <h2 class="text-xl font-display text-text-primary mb-2">Link Device</h2>
                         <p class="text-xs text-text-secondary mb-6">Scan or share this QR to establish a direct connection.</p>
                         
                         <!-- Golden Brown accented QR Container -->
-                        <div id="qr-container" class="cursor-pointer mx-auto w-[220px] h-[220px] bg-white rounded-2xl flex items-center justify-center shadow-[0_0_40px_rgba(184,134,11,0.2)] border-2 border-[#b8860b]/30 mb-4 transition-transform active:scale-95" title="Tap to copy ID">
+                        <div id="qr-container" class="cursor-pointer mx-auto w-[180px] h-[180px] md:w-[220px] md:h-[220px] bg-white rounded-2xl flex items-center justify-center shadow-[0_0_40px_rgba(184,134,11,0.2)] border-2 border-[#b8860b]/30 mb-4 transition-transform active:scale-95" title="Tap to copy ID">
                             <div id="qr-code"></div>
                         </div>
                         <p class="text-[10px] text-accent-primary font-mono uppercase tracking-widest mb-8">Tap QR to copy ID</p>
