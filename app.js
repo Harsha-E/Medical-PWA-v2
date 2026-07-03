@@ -81,8 +81,8 @@ const ROUTES = {
   '#/peer-hub': PeerNetworkView,
   '#/emergency': EmergencyView,
   '#/peer-dashboard': PeerDashboardView,
-  '#/appointments': AppointmentsView,
-  '#/calendar': CalendarView,
+  '#/appointments': DashboardView,
+  '#/calendar': DashboardView,
   '#/orchestrator': OrchestratorView,
   '#/medication-detail': MedicationDetailView,
   '#/clinical-ledger': ClinicalLedgerView
