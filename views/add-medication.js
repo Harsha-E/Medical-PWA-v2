@@ -170,7 +170,7 @@ export default class AddMedicationView {
     if (this.medData.ocrConfidence) {
         ocrConfidenceHtml = `
             <div class="mb-4 flex justify-end">
-                <span class="text-[10px] font-mono text-green-400 border border-green-500/30 px-3 py-1.5 rounded-xl uppercase tracking-widest bg-green-500/10 shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)] flex items-center gap-2">
+                <span class="text-[10px] font-mono text-text-secondary flex items-center gap-2">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     OCR Confidence: ${this.medData.ocrConfidence}%
                 </span>
