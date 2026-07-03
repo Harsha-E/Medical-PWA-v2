@@ -179,7 +179,7 @@ export default class AddMedicationView {
     }
 
     this.container.innerHTML = `
-      <main class="flex-1 pt-[112px] md:pt-8 pb-24" style="padding-left:0; padding-right:0; height: 100%; overflow-y: auto; overflow-x: hidden;">
+      <main class="flex-1 pb-24" style="padding-left:0; padding-right:0; height: 100%; overflow-y: auto; overflow-x: hidden;">
         <div class="px-6 w-full max-w-7xl mx-auto flex flex-col">
         ${warningBannerHtml}
         ${ocrConfidenceHtml}

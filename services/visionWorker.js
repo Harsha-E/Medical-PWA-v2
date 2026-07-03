@@ -17,7 +17,7 @@ Do not confuse manufacturer names (like Alkem, Sun Pharma, Cipla) with the medic
 Return ONLY a strict JSON object with this EXACT structure (no markdown, no backticks, no extra text):
 {
   "brandName": "Exact Brand Name (e.g., 'Symbicort', 'Itratuf', 'Pan'. If there is no brand name, use the generic name)",
-  "genericName": "Exact Generic Name/Active Ingredient (e.g., 'Itraconazole', 'Pantoprazole'. Critical for clinical databases)",
+  "genericName": "Exact Generic Name/Active Ingredient/Compound. You MUST provide this if you recognize the brand (e.g. 'Bisacodyl' for 'Dulcoflex'). NEVER return null if you can infer the compound. Critical for clinical databases.",
   "dosage": {
     "rawText": "Exact printed strength (e.g., '160/4.5 μg' or '500 mg')",
     "parsed": {

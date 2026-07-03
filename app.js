@@ -122,7 +122,7 @@ const getGreeting = () => {
 };
 
 const HEADER_CONFIGS = {
-  '#/dashboard': { eyebrow: 'Dashboard', title: () => `Good ${getGreeting()}, ${state.user?.displayName?.split(' ')[0] || 'User'}`, actions: [{ id: 'add-med', icon: PLUS_ICON, href: '#/add-medication', label: 'Add medication', style: 'ghost' }] },
+  '#/dashboard': { eyebrow: 'Dashboard', title: () => `Good ${getGreeting()}, ${state.user?.displayName?.split(' ')[0] || 'User'}`, actions: [{ id: 'add-med', icon: PLUS_ICON, href: '#/medications', label: 'Add medication', style: 'ghost' }] },
   '#/medications': { eyebrow: null, title: 'Medications', actions: [{ id: 'scan', icon: SCAN_ICON, href: '#/scan', label: 'Scan prescription', style: 'ghost' }, { id: 'add-med', icon: PLUS_ICON, href: '#/add-medication', label: 'Add medication', style: 'accent' }] },
   '#/add-medication': { back: true, title: () => window.location.hash.includes('/edit/') ? 'Edit Medication' : 'Add Medication' },
   '#/medication-detail': { back: true, title: () => resolveMedNameFromHash(), actions: [] },

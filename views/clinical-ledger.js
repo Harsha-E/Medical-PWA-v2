@@ -64,14 +64,14 @@ export default class ClinicalLedgerView {
         await this.loadData();
 
         this.container.innerHTML = `
-            <main class="scroll-area pt-[112px] md:pt-8 bg-transparent pb-40" style="padding-left:0; padding-right:0;">
+            <main class="scroll-area bg-transparent pb-40" style="padding-left:0; padding-right:0;">
                 <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
                     
                     <!-- Global Controls -->
                     <div class="mb-8 space-y-4">
                         <div class="flex gap-2">
-                            <input type="text" id="ledger-search" placeholder="Search records..." class="flex-1 min-w-0 bg-surface-deep border border-border rounded-xl px-4 py-3 text-text-primary text-xs font-mono focus:outline-none focus:border-[#b8860b]/50 transition-colors shadow-inner">
-                            <select id="ledger-filter" class="w-32 bg-surface-deep border border-border rounded-xl px-2 py-3 text-text-primary text-xs font-mono focus:outline-none focus:border-[#b8860b]/50">
+                            <input type="text" id="ledger-search" placeholder="Search records..." class="flex-1 min-w-0 bg-surface-deep border border-border rounded-xl px-4 py-3 text-text-primary text-xs font-mono focus:outline-none focus:border-accent-primary/50 transition-colors shadow-inner">
+                            <select id="ledger-filter" class="w-32 bg-surface-deep border border-border rounded-xl px-2 py-3 text-text-primary text-xs font-mono focus:outline-none focus:border-accent-primary/50">
                                 <option value="all">All</option>
                                 <option value="surgery">Surgery</option>
                                 <option value="medication">Prescriptions</option>
@@ -81,8 +81,8 @@ export default class ClinicalLedgerView {
 
                         <!-- Pill-shaped Toggle -->
                         <div class="flex bg-surface-elevated/40 border border-border shadow-[0_8px_32px_var(--color-card-shadow)] rounded-full p-1 backdrop-blur-xl">
-                            <button class="tab-btn flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-full transition-all ${this.activeTab === 'timeline' ? 'bg-[#b8860b] text-[#1a1a1a] shadow-[0_0_15px_rgba(184,134,11,0.4)]' : 'text-text-secondary hover:text-text-primary'}" data-tab="timeline">Timeline</button>
-                            <button class="tab-btn flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-full transition-all ${this.activeTab === 'diseases' ? 'bg-[#b8860b] text-[#1a1a1a] shadow-[0_0_15px_rgba(184,134,11,0.4)]' : 'text-text-secondary hover:text-text-primary'}" data-tab="diseases">Health Profile</button>
+                            <button class="tab-btn flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-full transition-all ${this.activeTab === 'timeline' ? 'bg-accent-primary text-surface shadow-[0_0_15px_var(--color-accent-primary)]' : 'text-text-secondary hover:text-text-primary'}" data-tab="timeline">Timeline</button>
+                            <button class="tab-btn flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-full transition-all ${this.activeTab === 'diseases' ? 'bg-accent-primary text-surface shadow-[0_0_15px_var(--color-accent-primary)]' : 'text-text-secondary hover:text-text-primary'}" data-tab="diseases">Health Profile</button>
                         </div>
                     </div>
 
@@ -104,15 +104,15 @@ export default class ClinicalLedgerView {
         }
 
         return `
-            <div class="border-l-2 border-[#b8860b]/50 pl-6 ml-2 space-y-8 relative">
+            <div class="border-l-2 border-accent-primary/50 pl-6 ml-2 space-y-8 relative">
                 ${this.timelineData.map(item => {
                     const hasAttachment = this.attachments.some(a => a.eventId === item.id);
                     return `
                     <div class="relative group">
                         <!-- Golden Brown Node -->
-                        <div class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-surface border-2 border-[#b8860b] shadow-[0_0_10px_rgba(184,134,11,0.5)] group-hover:bg-[#b8860b] transition-colors"></div>
+                        <div class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-surface border-2 border-accent-primary shadow-[0_0_10px_var(--color-accent-primary)] group-hover:bg-accent-primary transition-colors"></div>
                         
-                        <div class="text-[#b8860b] text-[10px] font-bold uppercase tracking-widest mb-1">${this.formatSmartDate(item.rawDate)} &bull; ${item.type}</div>
+                        <div class="text-accent-primary text-[10px] font-bold uppercase tracking-widest mb-1">${this.formatSmartDate(item.rawDate)} &bull; ${item.type}</div>
                         
                         <div class="clay-glass-panel p-5 border border-border shadow-[0_4px_16px_var(--color-card-shadow)] bg-surface-elevated/40 backdrop-blur-xl rounded-2xl relative overflow-hidden transition-transform hover:scale-[1.02]">
                             <h3 class="font-display text-lg text-text-primary mb-1">${escapeHTML(item.title)}</h3>
@@ -120,8 +120,8 @@ export default class ClinicalLedgerView {
                             
                             ${hasAttachment ? `
                                 <div class="mt-4 flex gap-2">
-                                    <div class="w-12 h-12 rounded-lg bg-surface-deep border border-border flex items-center justify-center cursor-pointer hover:border-[#b8860b] transition-colors shadow-inner">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b8860b" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+                                    <div class="w-12 h-12 rounded-lg bg-surface-deep border border-border flex items-center justify-center cursor-pointer hover:border-accent-primary transition-colors shadow-inner text-accent-primary">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
                                     </div>
                                 </div>
                             ` : ''}

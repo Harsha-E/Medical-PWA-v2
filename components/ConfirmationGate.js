@@ -36,7 +36,6 @@ export default class ConfirmationGate {
         
         const badges = [];
         if (schedule) badges.push(`<span style="background: var(--color-warning); color: #000; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; margin-right: 6px; text-transform: uppercase; letter-spacing: 0.5px;">${schedule}</span>`);
-        if (aiPayload.confidence) badges.push(`<span style="background: rgba(16, 185, 129, 0.1); color: var(--color-success); border: 1px solid var(--color-success); padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">${Math.round(aiPayload.confidence * 100)}% Match</span>`);
 
         const badgesHtml = badges.length ? `<div style="margin-bottom: var(--space-sm); display: flex; justify-content: center; align-items: center;">${badges.join('')}</div>` : '';
 
@@ -62,8 +61,8 @@ export default class ConfirmationGate {
                 ↻
             </button>
             
-            <div style="width: 50px; height: 50px; background: linear-gradient(135deg, var(--color-brand-blue), var(--color-brand-indigo)); border-radius: var(--radius-full); margin: 0 auto var(--space-md) auto; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3), inset 2px 2px 5px rgba(255,255,255,0.4);">
-                <span style="font-size: 24px; color: white;">✨</span>
+            <div style="width: 50px; height: 50px; background: linear-gradient(135deg, var(--color-primary), var(--color-accent-primary)); border-radius: var(--radius-full); margin: 0 auto var(--space-md) auto; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(184, 134, 11, 0.3), inset 2px 2px 5px rgba(255,255,255,0.4);">
+                <span style="font-size: 24px; color: #1a1a1a;">✨</span>
             </div>
             
             <h2 style="color: var(--color-text-primary); font-size: var(--text-xl); font-weight: 800; margin: 0 0 var(--space-xs) 0; line-height: 1.2;">${drugName}</h2>
