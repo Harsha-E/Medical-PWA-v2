@@ -3,7 +3,6 @@ import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs
 import { updateProfile } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import state from '../core/state.js';
 import { showToast } from '../core/ui.js';
-import { showToast } from '../core/ui.js';
 
 const COUNTRY_CODES = [
   { code: '+1', name: 'USA/CAN' },
