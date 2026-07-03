@@ -108,7 +108,15 @@ export default class LoginView {
         <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(9,9,11,0.6)_100%)] pointer-events-none"></div>
       </div>
 
-      <div class="clay-glass-panel w-full max-w-md p-6 animate-fade-in-up relative z-10 border border-[var(--color-primary)]/30 shadow-[0_0_40px_rgba(255,184,140,0.15)]">
+      <div class="absolute top-[8vh] left-0 w-full flex flex-col items-center text-center z-20 px-4 animate-fade-in-up">
+        <div class="w-16 h-16 mx-auto rounded-2xl shadow-lg flex items-center justify-center mb-4 transition-transform hover:scale-105 duration-300" style="background: linear-gradient(to bottom right, rgba(255,184,140,0.15), var(--color-surface)); border: 1px solid rgba(255,184,140,0.4);">
+           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h2 class="text-3xl font-display font-bold tracking-tight bg-gradient-to-br from-[#ca5229] via-[#ffb88c] to-[#9a3915] bg-clip-text text-transparent">Access Portal</h2>
+        <p class="text-white text-xs mt-2 font-mono uppercase tracking-widest font-semibold">Verify Clinical Identity</p>
+      </div>
+
+      <div class="clay-glass-panel w-full max-w-md p-6 mt-20 md:mt-0 animate-fade-in-up relative z-10 border border-[var(--color-primary)]/30 shadow-[0_0_40px_rgba(255,184,140,0.15)]">
         <!-- Inner glow wrapper to safely isolate overflow-hidden without breaking Safari/WebKit rendering -->
         <div class="absolute inset-0 overflow-hidden pointer-events-none rounded-[inherit] z-0">
           <div class="absolute inset-0 bg-overlay-bg z-0"></div>
@@ -116,13 +124,6 @@ export default class LoginView {
           <div class="absolute -bottom-24 -right-24 w-48 h-48 blur-[50px] rounded-full z-10" style="background: var(--color-page-blob-3);"></div>
         </div>
 
-        <div class="text-center mb-8 relative z-10">
-          <div class="w-16 h-16 mx-auto rounded-2xl shadow-lg flex items-center justify-center mb-4 transition-transform hover:scale-105 duration-300" style="background: linear-gradient(to bottom right, rgba(255,184,140,0.15), var(--color-surface)); border: 1px solid rgba(255,184,140,0.4);">
-             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          </div>
-          <h2 class="text-3xl font-display font-bold tracking-tight bg-gradient-to-br from-[#ca5229] via-[#ffb88c] to-[#9a3915] bg-clip-text text-transparent">Access Portal</h2>
-          <p class="text-white text-xs mt-2 font-mono uppercase tracking-widest font-semibold">Verify Clinical Identity</p>
-        </div>
 
         <div id="error-container" class="hidden relative z-10 mb-5 p-3 rounded-xl border text-xs font-mono flex items-center gap-2 transition-all opacity-0 transform -translate-y-2" style="background: color-mix(in srgb, var(--color-danger) 15%, transparent); border-color: var(--color-danger); color: var(--color-danger);">
           <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
