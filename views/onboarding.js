@@ -3,6 +3,51 @@ import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs
 import { updateProfile } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import state from '../core/state.js';
 import { showToast } from '../core/ui.js';
+import { showToast } from '../core/ui.js';
+
+const COUNTRY_CODES = [
+  { code: '+1', name: 'USA/CAN' },
+  { code: '+7', name: 'Russia' },
+  { code: '+20', name: 'Egypt' },
+  { code: '+27', name: 'South Africa' },
+  { code: '+31', name: 'Netherlands' },
+  { code: '+32', name: 'Belgium' },
+  { code: '+33', name: 'France' },
+  { code: '+34', name: 'Spain' },
+  { code: '+39', name: 'Italy' },
+  { code: '+44', name: 'UK' },
+  { code: '+49', name: 'Germany' },
+  { code: '+52', name: 'Mexico' },
+  { code: '+54', name: 'Argentina' },
+  { code: '+55', name: 'Brazil' },
+  { code: '+61', name: 'Australia' },
+  { code: '+64', name: 'New Zealand' },
+  { code: '+65', name: 'Singapore' },
+  { code: '+81', name: 'Japan' },
+  { code: '+82', name: 'South Korea' },
+  { code: '+86', name: 'China' },
+  { code: '+91', name: 'India' },
+  { code: '+92', name: 'Pakistan' },
+  { code: '+93', name: 'Afghanistan' },
+  { code: '+94', name: 'Sri Lanka' },
+  { code: '+95', name: 'Myanmar' },
+  { code: '+98', name: 'Iran' },
+  { code: '+212', name: 'Morocco' },
+  { code: '+234', name: 'Nigeria' },
+  { code: '+254', name: 'Kenya' },
+  { code: '+351', name: 'Portugal' },
+  { code: '+353', name: 'Ireland' },
+  { code: '+358', name: 'Finland' },
+  { code: '+420', name: 'Czechia' },
+  { code: '+421', name: 'Slovakia' },
+  { code: '+46', name: 'Sweden' },
+  { code: '+47', name: 'Norway' },
+  { code: '+48', name: 'Poland' },
+  { code: '+506', name: 'Costa Rica' },
+  { code: '+880', name: 'Bangladesh' },
+  { code: '+966', name: 'Saudi Arabia' },
+  { code: '+971', name: 'UAE' },
+];
 
 export default class OnboardingView {
   async render() {
@@ -28,10 +73,8 @@ export default class OnboardingView {
             <div>
               <label for="myPhone" class="block text-xs font-mono text-text-muted uppercase mb-2 ml-1">My Phone #</label>
               <div class="flex gap-2">
-                <select id="myPhoneCode" class="w-[85px] px-2 py-3 rounded-xl bg-surface/40 border border-white/10 text-sm font-bold text-text-primary shadow-inner focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all">
-                  <option value="+91" class="bg-surface text-text-primary">+91 (IN)</option>
-                  <option value="+1" class="bg-surface text-text-primary">+1 (US)</option>
-                  <option value="+44" class="bg-surface text-text-primary">+44 (UK)</option>
+                <select id="myPhoneCode" class="w-[85px] px-2 py-3 rounded-xl bg-surface/40 border border-white/10 text-sm font-bold text-text-primary shadow-inner focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all cursor-pointer">
+                  ${COUNTRY_CODES.map(c => `<option value="${c.code}" data-full="${c.code} (${c.name})" ${c.code === '+91' ? 'selected' : ''} class="bg-surface text-text-primary">${c.code} (${c.name})</option>`).join('')}
                 </select>
                 <input type="tel" id="myPhone" autocomplete="tel" placeholder="9876543210" required pattern="[0-9]{10}" maxlength="10" class="flex-1 w-full px-4 py-3 rounded-xl bg-surface/40 border border-white/10 text-sm font-bold text-text-primary shadow-inner focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-text-muted/50">
               </div>
@@ -64,10 +107,8 @@ export default class OnboardingView {
             <div>
               <label for="emergencyPhone" class="block text-xs font-mono text-text-muted uppercase mb-2 ml-1">Emergency Phone</label>
               <div class="flex gap-2">
-                <select id="emergencyPhoneCode" class="w-[85px] px-2 py-3 rounded-xl bg-surface/40 border border-white/10 text-sm font-bold text-text-primary shadow-inner focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all">
-                  <option value="+91" class="bg-surface text-text-primary">+91 (IN)</option>
-                  <option value="+1" class="bg-surface text-text-primary">+1 (US)</option>
-                  <option value="+44" class="bg-surface text-text-primary">+44 (UK)</option>
+                <select id="emergencyPhoneCode" class="w-[85px] px-2 py-3 rounded-xl bg-surface/40 border border-white/10 text-sm font-bold text-text-primary shadow-inner focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all cursor-pointer">
+                  ${COUNTRY_CODES.map(c => `<option value="${c.code}" data-full="${c.code} (${c.name})" ${c.code === '+91' ? 'selected' : ''} class="bg-surface text-text-primary">${c.code} (${c.name})</option>`).join('')}
                 </select>
                 <input type="tel" id="emergencyPhone" autocomplete="tel" placeholder="9876543210" required pattern="[0-9]{10}" maxlength="10" class="flex-1 w-full px-4 py-3 rounded-xl bg-surface/40 border border-white/10 text-sm font-bold text-text-primary shadow-inner focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-text-muted/50">
               </div>
@@ -86,6 +127,24 @@ export default class OnboardingView {
   }
 
   bindEvents() {
+    const formatSelect = (selectId) => {
+      const el = this.container.querySelector('#' + selectId);
+      if (!el) return;
+      const update = () => {
+        Array.from(el.options).forEach(opt => opt.text = opt.dataset.full);
+        el.options[el.selectedIndex].text = el.value;
+      };
+      el.addEventListener('change', update);
+      el.addEventListener('blur', update);
+      el.addEventListener('focus', () => {
+        Array.from(el.options).forEach(opt => opt.text = opt.dataset.full);
+      });
+      update();
+    };
+
+    formatSelect('myPhoneCode');
+    formatSelect('emergencyPhoneCode');
+
     const form = this.container.querySelector('#onboarding-form');
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -110,6 +169,15 @@ export default class OnboardingView {
           errorContainer.classList.remove('hidden');
         }
         showToast('Invalid Emergency Phone Format', 'error');
+        return;
+      }
+
+      if (myFullPhone === emergencyFullPhone) {
+        if (errorContainer) {
+          errorContainer.textContent = 'Primary and Emergency phone numbers cannot be the same.';
+          errorContainer.classList.remove('hidden');
+        }
+        showToast('Phones cannot match', 'error');
         return;
       }
 
