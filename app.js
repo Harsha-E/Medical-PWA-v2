@@ -292,7 +292,7 @@ class App {
     if (!header) {
       header = document.createElement('div');
       header.id = 'caregiver-header';
-      header.className = 'fixed bottom-0 left-0 right-0 z-[10000] bg-red-900/90 text-red-100 font-mono text-xs uppercase font-bold tracking-widest py-2 text-center shadow-[0_-4px_20px_rgba(255,0,0,0.5)] border-t border-red-500/50 backdrop-blur-md transform transition-transform duration-300 translate-y-full';
+      header.className = 'fixed bottom-0 left-0 right-0 z-[10000] bg-red-900/90 text-red-100 font-mono text-xs uppercase font-bold tracking-widest py-2 text-center border-t border-red-500/50 backdrop-blur-md transform transition-transform duration-300 translate-y-full';
       document.body.appendChild(header);
     }
     

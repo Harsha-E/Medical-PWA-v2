@@ -26,15 +26,15 @@ export default class GlassNavbar {
     const isAuth = !!state.user;
     const hash = window.location.hash || '#/';
     
-    // Strict check: Landing pages must ALWAYS be at the top
-    const isLanding = (hash === '#/' || hash === '#/landing');
+    const isBottomNav = (hash === '#/' || hash === '#/landing' || hash === '#/login' || hash === '#/register');
     
-    // Hardcoded override to ensure Top-position on landing, otherwise always top
+    // Hardcoded override to ensure Bottom-position on public pages, otherwise top
     // This class is applied before the browser paints the navbar
-    const positionClass = isLanding 
-      ? 'fixed top-6' 
+    const positionClass = isBottomNav 
+      ? 'fixed bottom-4' 
       : 'fixed top-4';
 
+    const isLanding = (hash === '#/' || hash === '#/landing');
     const isAuthLayout = isAuth && !isLanding;
 
     if (isAuthLayout) {
