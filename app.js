@@ -265,7 +265,8 @@ class App {
         lastUserAgent = navigator.userAgent;
         if (this._authReady) {
             // Force a hash reset if stuck on install but no longer mobile
-            if (window.location.hash === '#/install' && !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            if (window.location.hash === '#/install' && (!isMobileUA || window.innerWidth >= 1024)) {
                 window.location.hash = '#/dashboard';
             } else {
                 this.runGuard();
@@ -481,7 +482,7 @@ class App {
     console.debug(`[App Guard] 🛡️ Evaluating Route: "${hash}"`);
     console.debug(`[App Guard] 📊 State => Mobile: ${isMobile}, Standalone: ${isStandalone}, User: ${!!user}, Admin: ${isAdmin}, Onboarding Complete: ${isComplete}`);
 
-    if (!isStandalone && isMobile) {
+    if (!isStandalone && isMobile && window.innerWidth < 1024) {
       if (hash !== '#/install') {
         console.debug(`[App Guard] 🚫 Non-standalone mobile web blocked. Redirecting to #/install...`);
         window.location.hash = '#/install';
