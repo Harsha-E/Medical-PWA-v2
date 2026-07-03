@@ -21,7 +21,7 @@ export default class PeerNetworkView {
 
         this.container.innerHTML = `
             <main class="scroll-area bg-transparent pb-40" style="padding-left:0; padding-right:0;">
-                <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1 gap-8">
+                <div class="px-6 pt-28 w-full h-full max-w-7xl mx-auto flex flex-col flex-1 gap-8">
                     
                     <!-- Link Device Card -->
                     <section id="link-device-card" class="clay-glass-panel p-6 md:p-8 text-center border-border shadow-[0_8px_32px_var(--color-card-shadow)] bg-surface-elevated/40 backdrop-blur-xl relative rounded-[2rem]">

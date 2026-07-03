@@ -14,6 +14,7 @@ const ASSETS = [
   '/manifest.github.json',
   '/assets/logo.webp',
   '/assets/Bg-Video.webm',
+  '/lib/qrcode.min.js',
   '/core/db.js',
   '/core/router.js',
   '/core/state.js',
