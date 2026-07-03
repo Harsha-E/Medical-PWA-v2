@@ -7,7 +7,7 @@ import { showToast } from '../core/ui.js';
 export default class OnboardingView {
   async render() {
     this.container = document.createElement('div');
-    this.container.className = 'h-[100dvh] w-full flex flex-col items-center justify-start pt-12 pb-32 px-4 relative z-10 overflow-y-auto no-scrollbar';
+    this.container.className = 'h-[100dvh] w-full flex flex-col items-center justify-start pt-12 pb-32 px-4 relative z-10 overflow-y-auto ';
 
     this.container.innerHTML = `
       <div class="w-full max-w-lg p-8 rounded-3xl bg-surface/60 backdrop-blur-3xl border border-border shadow-[0_20px_50px_rgba(0,0,0,0.7)] animate-fade-in-up">
@@ -97,42 +97,42 @@ export default class OnboardingView {
 
       const phoneRegex = /^\+\d{1,3}\d{10}$/;
       if (!phoneRegex.test(myFullPhone)) {
-          if (errorContainer) {
-              errorContainer.textContent = 'Invalid Phone: Must include Country Code + 10 digits';
-              errorContainer.classList.remove('hidden');
-          }
-          showToast('Invalid Phone Format', 'error');
-          return;
+        if (errorContainer) {
+          errorContainer.textContent = 'Invalid Phone: Must include Country Code + 10 digits';
+          errorContainer.classList.remove('hidden');
+        }
+        showToast('Invalid Phone Format', 'error');
+        return;
       }
       if (!phoneRegex.test(emergencyFullPhone)) {
-          if (errorContainer) {
-              errorContainer.textContent = 'Invalid Emergency Phone: Must include Country Code + 10 digits';
-              errorContainer.classList.remove('hidden');
-          }
-          showToast('Invalid Emergency Phone Format', 'error');
-          return;
+        if (errorContainer) {
+          errorContainer.textContent = 'Invalid Emergency Phone: Must include Country Code + 10 digits';
+          errorContainer.classList.remove('hidden');
+        }
+        showToast('Invalid Emergency Phone Format', 'error');
+        return;
       }
-      
+
       // Strict age gate calculation
       const dobDate = new Date(form.dob.value);
       const today = new Date();
       let age = today.getFullYear() - dobDate.getFullYear();
       const m = today.getMonth() - dobDate.getMonth();
       if (m < 0 || (m === 0 && today.getDate() < dobDate.getDate())) {
-          age--;
+        age--;
       }
 
       if (age < 18) {
-          if (errorContainer) {
-              errorContainer.textContent = 'Protocol requires primary user to be 18+';
-              errorContainer.classList.remove('hidden');
-          }
-          showToast('Protocol requires primary user to be 18+', 'error');
-          return;
+        if (errorContainer) {
+          errorContainer.textContent = 'Protocol requires primary user to be 18+';
+          errorContainer.classList.remove('hidden');
+        }
+        showToast('Protocol requires primary user to be 18+', 'error');
+        return;
       }
 
       btn.textContent = 'SECURING LEDGER...';
-      
+
       try {
         const user = auth.currentUser;
         if (!user) throw new Error("No authenticated user found.");
@@ -157,7 +157,7 @@ export default class OnboardingView {
         };
 
         await setDoc(doc(db, 'users', user.uid), rootPayload);
-        
+
         try {
           await updateProfile(user, { displayName: form.fullName.value });
         } catch (authErr) {
@@ -167,11 +167,11 @@ export default class OnboardingView {
         if (state.patchProfile) {
           state.patchProfile({ onboardingComplete: true, profile: profileData });
         } else if (state.update) {
-           state.update({ userProfile: { onboardingComplete: true, profile: profileData } });
+          state.update({ userProfile: { onboardingComplete: true, profile: profileData } });
         }
-        
+
         window.location.hash = '#/dashboard';
-        
+
       } catch (error) {
         btn.textContent = 'LOCK LEDGER & ENTER';
         showToast('Database Error: ' + error.message, 'error');
