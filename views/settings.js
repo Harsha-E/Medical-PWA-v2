@@ -231,11 +231,21 @@ export default class SettingsView {
       if (await appConfirm('CRITICAL WARNING: This will permanently delete your account, wipe all local data, and remove your cloud backups. This cannot be undone. Type "PURGE" in the next prompt to confirm.', 'Critical Warning')) {
          const validation = await appPrompt('Type PURGE to confirm deletion:', 'Confirm Purge');
          if (validation === 'PURGE') {
-             const { auth } = await import('../core/firebase.js');
+             const { auth, db: firestoreDB } = await import('../core/firebase.js');
+             const { deleteDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
              const user = auth.currentUser;
              if (user) {
                  try {
-                        // Wipe Service Worker Caches & Unregister
+                        const uid = user.uid;
+                        
+                        // 1. Delete Cloud Data FIRST
+                        try {
+                            await deleteDoc(doc(firestoreDB, 'users', uid));
+                        } catch (cloudErr) {
+                            console.warn("Could not delete cloud data:", cloudErr);
+                        }
+
+                        // 2. Wipe Service Worker Caches & Unregister
                         if ('serviceWorker' in navigator) {
                             const regs = await navigator.serviceWorker.getRegistrations();
                             for(let reg of regs) { await reg.unregister(); }
@@ -245,15 +255,28 @@ export default class SettingsView {
                             for(let key of keys) { await caches.delete(key); }
                         }
                         
+                        // 3. Clear Storage
+                        localStorage.clear();
+                        sessionStorage.clear();
+
+                        // 4. Delete Local IndexedDB
                         try {
                             if (db.isOpen()) {
                                 db.close();
                             }
                             await db.delete();
+                            
+                            if (window.indexedDB && window.indexedDB.databases) {
+                                const idbs = await window.indexedDB.databases();
+                                for (const idb of idbs) {
+                                    window.indexedDB.deleteDatabase(idb.name);
+                                }
+                            }
                         } catch (dbErr) {
                             console.warn("Could not delete IndexedDB immediately:", dbErr);
                         }
 
+                        // 5. Delete Auth User
                         await user.delete();
                         
                         window.location.hash = '#/login';
