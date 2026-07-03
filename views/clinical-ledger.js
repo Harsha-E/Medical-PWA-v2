@@ -24,10 +24,10 @@ export default class ClinicalLedgerView {
 
         // Normalize data for timeline
         this.timelineData = [];
-        appts.forEach(a => this.timelineData.push({ id: a.id, rawDate: new Date(a.date), type: 'Appointment', title: a.title, desc: \`Dr. \${a.provider} at \${a.time}\` }));
+        appts.forEach(a => this.timelineData.push({ id: a.id, rawDate: new Date(a.date), type: 'Appointment', title: a.title, desc: `Dr. ${a.provider} at ${a.time}` }));
         history.forEach(h => this.timelineData.push({ id: h.id, rawDate: new Date(h.date), type: 'History', title: h.title, desc: h.type }));
         meds.forEach(m => {
-            if (m.startDate) this.timelineData.push({ id: m.id, rawDate: new Date(m.startDate), type: 'Medication', title: m.name, desc: \`Started: \${m.dosage} \${m.frequency}\` });
+            if (m.startDate) this.timelineData.push({ id: m.id, rawDate: new Date(m.startDate), type: 'Medication', title: m.name, desc: `Started: ${m.dosage} ${m.frequency}` });
         });
 
         // Sort descending
@@ -50,8 +50,8 @@ export default class ClinicalLedgerView {
         
         if (diffDays === 0) return 'Today';
         if (diffDays === 1) return 'Yesterday';
-        if (diffDays > 1 && diffDays < 7) return \`\${diffDays} days ago\`;
-        if (diffDays >= 7 && diffDays < 30) return \`Approx. \${Math.floor(diffDays / 7)} weeks ago\`;
+        if (diffDays > 1 && diffDays < 7) return `${diffDays} days ago`;
+        if (diffDays >= 7 && diffDays < 30) return `Approx. ${Math.floor(diffDays / 7)} weeks ago`;
         
         // Default to Exact Date
         return dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
@@ -63,7 +63,7 @@ export default class ClinicalLedgerView {
         
         await this.loadData();
 
-        this.container.innerHTML = \`
+        this.container.innerHTML = `
             <main class="scroll-area pt-[112px] md:pt-8 bg-transparent pb-40" style="padding-left:0; padding-right:0;">
                 <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
                     
@@ -81,18 +81,18 @@ export default class ClinicalLedgerView {
 
                         <!-- Pill-shaped Toggle -->
                         <div class="flex bg-surface-elevated/40 border border-border shadow-[0_8px_32px_var(--color-card-shadow)] rounded-full p-1 backdrop-blur-xl">
-                            <button class="tab-btn flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-full transition-all \${this.activeTab === 'timeline' ? 'bg-[#b8860b] text-[#1a1a1a] shadow-[0_0_15px_rgba(184,134,11,0.4)]' : 'text-text-secondary hover:text-text-primary'}" data-tab="timeline">Timeline</button>
-                            <button class="tab-btn flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-full transition-all \${this.activeTab === 'diseases' ? 'bg-[#b8860b] text-[#1a1a1a] shadow-[0_0_15px_rgba(184,134,11,0.4)]' : 'text-text-secondary hover:text-text-primary'}" data-tab="diseases">Health Profile</button>
+                            <button class="tab-btn flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-full transition-all ${this.activeTab === 'timeline' ? 'bg-[#b8860b] text-[#1a1a1a] shadow-[0_0_15px_rgba(184,134,11,0.4)]' : 'text-text-secondary hover:text-text-primary'}" data-tab="timeline">Timeline</button>
+                            <button class="tab-btn flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-full transition-all ${this.activeTab === 'diseases' ? 'bg-[#b8860b] text-[#1a1a1a] shadow-[0_0_15px_rgba(184,134,11,0.4)]' : 'text-text-secondary hover:text-text-primary'}" data-tab="diseases">Health Profile</button>
                         </div>
                     </div>
 
                     <!-- Tab Content Area -->
                     <div id="ledger-content" class="animate-fade-in-up">
-                        \${this.activeTab === 'timeline' ? this.renderTimeline() : this.renderDiseases()}
+                        ${this.activeTab === 'timeline' ? this.renderTimeline() : this.renderDiseases()}
                     </div>
                 </div>
             </main>
-        \`;
+        `;
 
         this.bindEvents();
         return this.container;
@@ -100,36 +100,36 @@ export default class ClinicalLedgerView {
 
     renderTimeline() {
         if (this.timelineData.length === 0) {
-            return \`<div class="text-center p-12 opacity-50"><p class="font-mono text-xs uppercase tracking-widest">No clinical history recorded.</p></div>\`;
+            return `<div class="text-center p-12 opacity-50"><p class="font-mono text-xs uppercase tracking-widest">No clinical history recorded.</p></div>`;
         }
 
-        return \`
+        return `
             <div class="border-l-2 border-[#b8860b]/50 pl-6 ml-2 space-y-8 relative">
-                \${this.timelineData.map(item => {
+                ${this.timelineData.map(item => {
                     const hasAttachment = this.attachments.some(a => a.eventId === item.id);
-                    return \`
+                    return `
                     <div class="relative group">
                         <!-- Golden Brown Node -->
                         <div class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-surface border-2 border-[#b8860b] shadow-[0_0_10px_rgba(184,134,11,0.5)] group-hover:bg-[#b8860b] transition-colors"></div>
                         
-                        <div class="text-[#b8860b] text-[10px] font-bold uppercase tracking-widest mb-1">\${this.formatSmartDate(item.rawDate)} &bull; \${item.type}</div>
+                        <div class="text-[#b8860b] text-[10px] font-bold uppercase tracking-widest mb-1">${this.formatSmartDate(item.rawDate)} &bull; ${item.type}</div>
                         
                         <div class="clay-glass-panel p-5 border border-border shadow-[0_4px_16px_var(--color-card-shadow)] bg-surface-elevated/40 backdrop-blur-xl rounded-2xl relative overflow-hidden transition-transform hover:scale-[1.02]">
-                            <h3 class="font-display text-lg text-text-primary mb-1">\${escapeHTML(item.title)}</h3>
-                            <p class="text-xs text-text-secondary font-mono">\${escapeHTML(item.desc)}</p>
+                            <h3 class="font-display text-lg text-text-primary mb-1">${escapeHTML(item.title)}</h3>
+                            <p class="text-xs text-text-secondary font-mono">${escapeHTML(item.desc)}</p>
                             
-                            \${hasAttachment ? \`
+                            ${hasAttachment ? `
                                 <div class="mt-4 flex gap-2">
                                     <div class="w-12 h-12 rounded-lg bg-surface-deep border border-border flex items-center justify-center cursor-pointer hover:border-[#b8860b] transition-colors shadow-inner">
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b8860b" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
                                     </div>
                                 </div>
-                            \` : ''}
+                            ` : ''}
                         </div>
                     </div>
-                \`}).join('')}
+                `}).join('')}
             </div>
-        \`;
+        `;
     }
 
     renderDiseases() {
@@ -137,22 +137,22 @@ export default class ClinicalLedgerView {
         const activeIssues = this.diseaseData.filter(d => d.status !== 'Resolved' && d.status !== 'Past');
         const resolvedIssues = this.diseaseData.filter(d => d.status === 'Resolved' || d.status === 'Past');
 
-        return \`
+        return `
             <div class="space-y-8">
                 <!-- 🔴 Active Issues Bucket -->
                 <div>
                     <h3 class="text-sm font-bold uppercase tracking-widest text-red-400 mb-4 pl-2 border-l-2 border-red-500">Active Issues & Risks</h3>
                     <div class="space-y-4">
-                        \${activeIssues.map(item => \`
+                        ${activeIssues.map(item => `
                             <div class="clay-glass-panel p-5 border-l-4 border-red-500 shadow-[0_4px_16px_rgba(239,68,68,0.1)] bg-surface-elevated/40 backdrop-blur-xl rounded-2xl">
-                                <h3 class="font-display text-lg text-text-primary mb-2">\${escapeHTML(item.name)}</h3>
+                                <h3 class="font-display text-lg text-text-primary mb-2">${escapeHTML(item.name)}</h3>
                                 <div class="flex justify-between text-[10px] uppercase tracking-widest font-bold">
-                                    <span class="text-text-secondary">Severity: \${item.severity || 'Unknown'}</span>
-                                    <span class="text-red-400">\${item.status}</span>
+                                    <span class="text-text-secondary">Severity: ${item.severity || 'Unknown'}</span>
+                                    <span class="text-red-400">${item.status}</span>
                                 </div>
                             </div>
-                        \`).join('')}
-                        \${activeIssues.length === 0 ? '<p class="text-xs text-text-muted italic">No active issues recorded.</p>' : ''}
+                        `).join('')}
+                        ${activeIssues.length === 0 ? '<p class="text-xs text-text-muted italic">No active issues recorded.</p>' : ''}
                     </div>
                 </div>
 
@@ -160,16 +160,16 @@ export default class ClinicalLedgerView {
                 <div>
                     <h3 class="text-sm font-bold uppercase tracking-widest text-green-400 mb-4 pl-2 border-l-2 border-green-500">Resolved History</h3>
                     <div class="space-y-4">
-                        \${resolvedIssues.map(item => \`
+                        ${resolvedIssues.map(item => `
                             <div class="clay-glass-panel p-5 border-l-4 border-green-500 shadow-[0_4px_16px_rgba(34,197,94,0.1)] bg-surface-elevated/40 backdrop-blur-xl rounded-2xl opacity-80">
-                                <h3 class="font-display text-lg text-text-primary mb-2">\${escapeHTML(item.name)}</h3>
+                                <h3 class="font-display text-lg text-text-primary mb-2">${escapeHTML(item.name)}</h3>
                                 <div class="flex justify-between text-[10px] uppercase tracking-widest font-bold">
-                                    <span class="text-text-secondary">Diagnosed: \${item.diagnosed || 'Unknown'}</span>
+                                    <span class="text-text-secondary">Diagnosed: ${item.diagnosed || 'Unknown'}</span>
                                     <span class="text-green-400">Resolved</span>
                                 </div>
                             </div>
-                        \`).join('')}
-                        \${resolvedIssues.length === 0 ? '<p class="text-xs text-text-muted italic">No past history recorded.</p>' : ''}
+                        `).join('')}
+                        ${resolvedIssues.length === 0 ? '<p class="text-xs text-text-muted italic">No past history recorded.</p>' : ''}
                     </div>
                 </div>
 
@@ -177,7 +177,7 @@ export default class ClinicalLedgerView {
                     + Log New Condition
                 </button>
             </div>
-        \`;
+        `;
     }
 
     bindEvents() {

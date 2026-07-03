@@ -180,8 +180,8 @@ export default class PeerNetworkView {
 
     openPermissionsModal(name) {
         appConfirm(
-            \`Manage Permissions for \${name}\`,
-            \`Select the access level for this connected node.\`,
+            `Manage Permissions for ${name}`,
+            `Select the access level for this connected node.`,
             [
                 { text: 'Read-Only', action: () => showToast('Permissions set to Read-Only', 'success') },
                 { text: 'Read & Write', action: () => showToast('Permissions set to Read & Write', 'success') },
