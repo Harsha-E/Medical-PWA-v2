@@ -28,8 +28,8 @@ export default class GlassNavbar {
     
     const isBottomNav = (hash === '#/' || hash === '#/landing' || hash === '#/login' || hash === '#/register');
     
-    // User requested navbar at the bottom everywhere
-    const positionClass = 'fixed bottom-4 md:bottom-6';
+    // User requested navbar at the top for landing/login/register
+    const positionClass = 'fixed top-4 md:top-6';
 
     const isLanding = (hash === '#/' || hash === '#/landing');
     const isAuthLayout = isAuth && !isLanding;
