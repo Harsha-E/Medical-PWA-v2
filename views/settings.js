@@ -276,10 +276,11 @@ export default class SettingsView {
                             console.warn("Could not delete IndexedDB immediately:", dbErr);
                         }
 
-                        // 5. Delete Auth User
+                        // 5. Delete Auth User and explicitly sign out
                         await user.delete();
+                        await auth.signOut();
                         
-                        window.location.hash = '#/login';
+                        window.location.hash = '#/landing';
                         setTimeout(() => window.location.reload(), 100);
                    } catch (err) {
                        if (err.code === 'auth/requires-recent-login') {
