@@ -246,7 +246,7 @@ export default class SettingsView {
                        }
                        await user.delete();
                        await db.delete();
-                       window.location.hash = '#/register';
+                       window.location.hash = '#/landing';
                        window.location.reload();
                    } catch (err) {
                        if (err.code === 'auth/requires-recent-login') {
@@ -266,7 +266,7 @@ export default class SettingsView {
                        for(let key of keys) { await caches.delete(key); }
                    }
                    await db.delete();
-                 window.location.hash = '#/register';
+                 window.location.hash = '#/landing';
                  window.location.reload();
              }
          }
