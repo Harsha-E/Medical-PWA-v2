@@ -28,11 +28,6 @@ export default class PeerNetworkView {
                         <h2 class="text-xl font-display text-text-primary mb-2">Link Device</h2>
                         <p class="text-xs text-text-secondary mb-6">Scan or share this QR to establish a direct connection.</p>
                         
-                        <!-- Golden Brown accented QR Container -->
-                        <div id="qr-container" class="cursor-pointer mx-auto w-[180px] h-[180px] md:w-[220px] md:h-[220px] bg-white rounded-2xl flex items-center justify-center shadow-[0_0_40px_rgba(184,134,11,0.2)] border-2 border-[#b8860b]/30 mb-4 transition-transform active:scale-95" title="Tap to copy ID">
-                            <div id="qr-code"></div>
-                        </div>
-                        <p class="text-[10px] text-accent-primary font-mono uppercase tracking-widest mb-8">Tap QR to copy ID</p>
 
                         <div class="flex flex-col sm:flex-row gap-3 items-center justify-center max-w-sm mx-auto">
                             <div class="flex flex-1 w-full gap-2">
@@ -79,39 +74,13 @@ export default class PeerNetworkView {
             </main>
         `;
 
-        // Render QR Code using global QRCode instance (loaded via CDN in index.html)
-        setTimeout(() => {
-            if (this.mesh.peerId) {
-                new QRCode(document.getElementById("qr-code"), {
-                    text: this.mesh.peerId,
-                    width: 200,
-                    height: 200,
-                    colorDark : "#1a1a1a",
-                    colorLight : "#ffffff",
-                    correctLevel : QRCode.CorrectLevel.H
-                });
-            } else {
-                document.getElementById('qr-container').innerHTML = '<p class="text-black text-xs font-bold mt-24">Connecting...</p>';
-            }
-        }, 100);
+
 
         this.bindEvents();
         return this.container;
     }
 
     bindEvents() {
-        // QR Code Tap to Copy
-        const qrContainer = this.container.querySelector('#qr-container');
-        qrContainer.addEventListener('click', async () => {
-            if (this.mesh.peerId) {
-                try {
-                    await navigator.clipboard.writeText(this.mesh.peerId);
-                    showToast('Peer ID copied to clipboard!', 'success');
-                } catch (e) {
-                    showToast('Failed to copy ID', 'error');
-                }
-            }
-        });
 
         // Link Button
         this.container.querySelector('#btn-connect').addEventListener('click', () => {
