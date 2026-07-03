@@ -458,7 +458,7 @@ export default class DashboardView {
             <div class="clay-glass-panel rounded-3xl p-6">
               <div class="flex items-center justify-between mb-4 pb-2 border-b border-border">
                 <h3 class="text-xs font-bold text-text-secondary uppercase tracking-[0.2em]">Family Updates</h3>
-                <a href="#/family-profiles" class="text-[10px] font-bold text-accent-primary uppercase tracking-widest hover:text-text-primary">Manage</a>
+                <a href="#/peer-hub" class="text-[10px] font-bold text-accent-primary uppercase tracking-widest hover:text-text-primary">Manage Network</a>
               </div>
               <div class="space-y-3">
                 ${familyAlertsHTML}
@@ -558,7 +558,7 @@ export default class DashboardView {
     overlay.className = 'fixed inset-0 z-[99999] bg-black/60 pointer-events-auto transition-opacity duration-300 flex items-center justify-center p-6';
     
     const bubble = document.createElement('div');
-    bubble.className = 'bg-surface-elevated/95 border border-border p-6 rounded-3xl max-w-sm w-full shadow-2xl backdrop-blur-xl animate-[slideUpFade_0.3s_ease-out] relative';
+    bubble.className = 'clay-glass-panel bg-gradient-to-br from-[var(--color-surface)] to-[var(--color-surface-elevated)] p-6 rounded-[2rem] max-w-sm w-full shadow-[inset_2px_2px_4px_rgba(255,255,255,0.05),_inset_-2px_-2px_4px_rgba(0,0,0,0.5),_0_20px_40px_rgba(0,0,0,0.7)] backdrop-blur-3xl animate-[slideUpFade_0.3s_ease-out] border-t border-[var(--color-primary)]/20 relative';
     overlay.appendChild(bubble);
     document.body.appendChild(overlay);
 
@@ -654,7 +654,7 @@ export default class DashboardView {
     }
 
     modal.innerHTML = `
-      <div class="bg-surface-elevated/95 border border-border p-6 rounded-3xl max-w-sm w-full shadow-2xl backdrop-blur-xl animate-[slideUpFade_0.3s_ease-out]">
+      <div class="clay-glass-panel bg-gradient-to-br from-[var(--color-surface)] to-[var(--color-surface-elevated)] p-6 rounded-[2rem] max-w-sm w-full shadow-[inset_2px_2px_4px_rgba(255,255,255,0.05),_inset_-2px_-2px_4px_rgba(0,0,0,0.5),_0_20px_40px_rgba(0,0,0,0.7)] backdrop-blur-3xl animate-[slideUpFade_0.3s_ease-out] border-t border-[var(--color-primary)]/20">
         <h3 class="text-lg font-bold text-text-primary uppercase tracking-wider mb-4">Log ${type.toUpperCase()}</h3>
         
         <form id="followup-form" class="space-y-4">
