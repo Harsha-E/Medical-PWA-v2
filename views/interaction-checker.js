@@ -74,16 +74,6 @@ export default class InteractionCheckerView {
           });
       }
 
-      // ----------------------------------------------------
-      // HACKATHON AUTO-ROUTING LOGIC
-      // ----------------------------------------------------
-      if (newMedicines.length > 0 && summary.severe.length === 0 && summary.moderate.length === 0 && summary.mild.length === 0) {
-          // No interactions found! Route directly to add-medication with the first extracted med
-          sessionStorage.setItem('medcheck_scanned_data', JSON.stringify(newMedicines[0]));
-          window.location.hash = '#/add-medication';
-          return;
-      }
-
       // Legacy fallback / Sandbox processing (For demo flexibility)
       const evaluationList = [...currentDrugNames, ...this.sandboxMeds];
       

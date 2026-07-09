@@ -311,8 +311,7 @@ export default class ScanView {
         } catch (e) { console.error('[ScanView] Native QR detection failed', e); }
     }
 
-    // 2. OCR Medicine Extraction (Hackathon AI Integration)
-
+    // 2. OCR Medicine Extraction
     try {
         const { default: AIExtractionService } = await import('../services/AIExtractionService.js');
         const medicines = await AIExtractionService.extractMedicines(blob);
@@ -320,11 +319,12 @@ export default class ScanView {
         this.hideProcessingSpinner();
 
         if (medicines && medicines.length > 0) {
-            // Save to session storage for the next step in the flow
+            // Store all extracted meds for potential multi-add later
             sessionStorage.setItem('medcheck_extracted_prescriptions', JSON.stringify(medicines));
-            
-            // Hackathon flow: AI extracts medicines -> Interactions detected -> Timeline updates
-            window.location.hash = '#/interaction-checker';
+            // Pre-fill add-medication form with the first extracted medicine
+            sessionStorage.setItem('medcheck_scanned_data', JSON.stringify(medicines[0]));
+            // Go straight to add-medication — no forced detour through interaction-checker
+            window.location.hash = '#/add-medication';
         } else {
             appAlert('No medicines detected in this image.', 'Extraction Failed');
         }
@@ -358,7 +358,8 @@ export default class ScanView {
 
         if (medicines && medicines.length > 0) {
             sessionStorage.setItem('medcheck_extracted_prescriptions', JSON.stringify(medicines));
-            window.location.hash = '#/interaction-checker';
+            sessionStorage.setItem('medcheck_scanned_data', JSON.stringify(medicines[0]));
+            window.location.hash = '#/add-medication';
         } else {
             appAlert('No medicines detected in this image.', 'Extraction Failed');
         }

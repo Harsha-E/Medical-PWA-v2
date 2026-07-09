@@ -13,7 +13,8 @@ import { clayComponentSystem } from '../experience/ClayComponentSystem.js';
 export default class DashboardView {
   async render() {
     visualLanguageEngine.applyTheme();
-    
+    this.selectedDate = this.selectedDate || new Date();
+
     this.container = document.createElement('div');
     this.container.className = 'w-full h-full flex flex-col overflow-hidden';
 
@@ -47,6 +48,8 @@ export default class DashboardView {
         historyPromise,
         familyPromise
       ]);
+
+      this.cachedData = { meds, doses, history, family };
 
       this._renderDashboardWidgets(meds, doses, history, family);
 
@@ -128,7 +131,7 @@ export default class DashboardView {
 
     // --- 2. Today's Schedule Calculations ---
     const now = new Date();
-    const todayStr = now.toISOString().split('T')[0];
+    const todayStr = this.selectedDate.toISOString().split('T')[0];
     const todayDoses = doses.filter(d => d.takenAt && d.takenAt.startsWith(todayStr));
     const takenSlots = new Set(
       todayDoses.filter(d => d.status === 'taken' || !d.skipped).map(d => `${d.medicationId}-${d.scheduledTime}`)
@@ -327,11 +330,14 @@ export default class DashboardView {
           
           <!-- Today's Medicines Widget -->
           <section id="dashboard-schedule-section" class="clay-glass-panel rounded-3xl p-6 relative">
+            <div class="mb-6">
+              ${this._generateHorizontalCalendar(this.selectedDate)}
+            </div>
             <div class="flex items-center justify-between mb-6 pb-2 border-b border-border">
               <div>
                 <h2 class="text-xs text-accent-primary font-bold tracking-[0.2em] uppercase">Taking Medicines</h2>
                 <p class="text-[10px] text-text-secondary uppercase tracking-wider font-bold mt-1">
-                  ${now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+                  ${this.selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
                 </p>
               </div>
               <span class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full ${remainingCount > 0 ? 'bg-accent-soft/30 text-accent-primary' : (schedule.length > 0 ? 'bg-success/20 text-success' : 'bg-surface-deep text-text-secondary')}">
