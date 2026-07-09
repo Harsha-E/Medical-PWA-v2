@@ -1,195 +1,184 @@
 import state from '../core/state.js';
 import PeerMesh from '../services/PeerMesh.js';
-import db from '../core/db.js';
-import { showToast, appConfirm } from '../core/ui.js';
+import { showToast } from '../core/ui.js';
+import { escapeHTML } from '../core/utils.js';
 
 export default class PeerNetworkView {
     constructor() {
-        this.longPressTimer = null;
-        this.familyMembers = [];
         this.mesh = PeerMesh.getInstance();
+        this.container = null;
+        this.connectedPeer = null;
     }
 
     async render() {
-        this.container = document.createElement('div');
-        this.container.className = 'container';
-        
-        await this.mesh.init();
-        
-        // Fetch family members for the grid
-        this.familyMembers = await db.family.filter(f => f.userId === state.user?.uid).toArray();
+        if (!this.container) {
+            this.container = document.createElement('div');
+            this.container.className = 'w-full h-full min-h-screen overflow-y-auto relative text-[#fefcff] font-sans';
+            this.container.style.backgroundColor = '#0a0407';
+        }
+
+        try {
+            await this.mesh.init();
+        } catch (e) {
+            console.warn('[PeerMesh] init warning:', e);
+        }
+
+        this.myPeerId = this.mesh.peerId || (state.user && state.user.uid ? state.user.uid.slice(0, 12) : 'local_node');
+        this.renderContent();
+        return this.container;
+    }
+
+    renderContent() {
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=10&data=${encodeURIComponent(window.location.origin + window.location.pathname + '?connect=' + this.myPeerId)}`;
+
+        const styles = `
+            <style>
+                .connect-pill-btn {
+                    background: linear-gradient(135deg, #3d2127 0%, #1e0e12 100%);
+                    border: 1px solid rgba(255, 184, 140, 0.35);
+                    color: #ffffff;
+                    box-shadow: 
+                        4px 4px 10px rgba(0, 0, 0, 0.6),
+                        inset 1px 1px 2px rgba(255, 255, 255, 0.2);
+                    transition: all 0.2s ease;
+                }
+                .connect-pill-btn:hover {
+                    background: #ffb88c;
+                    color: #0a0407;
+                    transform: scale(1.03);
+                }
+                .qr-sharp-img {
+                    border-radius: 0px !important;
+                    shape-rendering: crispEdges;
+                }
+                .scrollbar-hide::-webkit-scrollbar {
+                    display: none;
+                }
+                .scrollbar-hide {
+                    -ms-overflow-style: none;
+                    scrollbar-width: none;
+                }
+            </style>
+        `;
 
         this.container.innerHTML = `
-            <main class="scroll-area bg-transparent pb-40" style="padding-left:0; padding-right:0;">
-                <div class="px-6 pt-28 w-full h-full max-w-7xl mx-auto flex flex-col flex-1 gap-8">
+            ${styles}
+            <main class="w-full max-w-md mx-auto px-6 pt-20 md:pt-28 pb-40 flex flex-col items-center space-y-8 z-10">
+                
+                <!-- Main Neumorphic Card -->
+                <div class="w-full shrink-0 p-8 clay-glass-panel flex flex-col items-center relative overflow-hidden text-center space-y-6">
+                    <!-- Title -->
+                    <h2 class="text-2xl text-white font-bold font-display tracking-tight">Link Device</h2>
                     
-                    <!-- Link Device Card -->
-                    <section id="link-device-card" class="clay-glass-panel p-6 md:p-8 text-center border-border shadow-[0_8px_32px_var(--color-card-shadow)] bg-surface-elevated/40 backdrop-blur-xl relative rounded-[2rem]">
-                        <h2 class="text-xl font-display text-text-primary mb-2">Link Device</h2>
-                        <p class="text-xs text-text-secondary mb-6">Scan or share this QR to establish a direct connection.</p>
-                        
-                        <div class="mx-auto flex justify-center mb-6 cursor-pointer relative group w-fit" id="qr-container">
-                            <div id="qr-code"></div>
-                            <div class="absolute -top-12 left-1/2 -translate-x-1/2 px-4 py-2 bg-surface-elevated border border-white/10 text-text-primary text-[11px] font-bold font-mono tracking-widest uppercase rounded-xl opacity-0 group-hover:opacity-100 transition-all pointer-events-none whitespace-nowrap shadow-[0_8px_32px_rgba(0,0,0,0.5)] z-50">
-                                Tap to copy ID
-                            </div>
+                    <!-- QR Code -->
+                    <div class="bg-white p-5 rounded-2xl shadow-xl flex items-center justify-center">
+                        <img src="${qrUrl}" alt="Scan QR Code" class="w-40 h-40 qr-sharp-img" />
+                    </div>
+                    
+                    <div class="space-y-2 w-full">
+                        <p class="text-[10px] text-[#ffb88c] uppercase tracking-widest font-mono font-bold">DIRECT PAIRING NODE</p>
+                        <div id="peer-id-display" class="bg-black/50 px-6 py-3 rounded-full border border-white/10 text-[#ffb88c] font-mono text-xs font-bold tracking-wider select-all shadow-inner overflow-x-auto whitespace-nowrap scrollbar-hide cursor-pointer" title="Click to copy">
+                            ${escapeHTML(this.myPeerId)}
                         </div>
-                        <p class="text-[10px] text-text-secondary font-mono uppercase tracking-widest mb-8">Direct Pairing Node</p>
+                    </div>
 
-                        <div class="flex flex-col sm:flex-row gap-3 items-center justify-center max-w-sm mx-auto">
-                            <div class="flex flex-1 w-full gap-2">
-                                <input type="text" id="paste-id-input" placeholder="Paste Peer ID..." class="flex-1 min-w-0 bg-overlay-bg border border-border rounded-xl px-4 py-3 text-text-primary text-xs font-mono focus:outline-none focus:border-[#b8860b]/50 transition-colors shadow-inner">
-                                <button id="btn-connect" class="bg-surface-deep border border-border text-text-primary px-4 py-3 rounded-xl font-bold uppercase tracking-widest text-xs active:scale-95 transition-all btn-neumorphic flex items-center gap-2">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-                                    Link
-                                </button>
-                            </div>
-                            <div class="text-[10px] text-text-muted font-mono uppercase tracking-widest hidden sm:block">OR</div>
-                            <button id="btn-scan" class="w-full sm:w-auto clay-glass-panel bg-gradient-to-r from-surface-deep to-surface-elevated text-text-primary border border-primary/20 px-6 py-3 rounded-xl font-bold uppercase tracking-widest text-xs active:scale-95 transition-all shadow-[inset_2px_2px_4px_rgba(255,255,255,0.05),_inset_-2px_-2px_4px_rgba(0,0,0,0.5),_0_4px_20px_rgba(0,0,0,0.3)] flex items-center justify-center gap-2">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 012-2h2M21 7V5a2 2 0 00-2-2h-2M3 17v2a2 2 0 002 2h2M21 17v2a2 2 0 01-2 2h-2M9 9h6v6H9z"/></svg>
-                                Scan
-                            </button>
-                        </div>
-                    </section>
+                    <!-- Input field + Connect -->
+                    <div class="w-full relative flex items-center">
+                        <input type="text" id="pairing-code" placeholder="Paste Peer ID..." class="w-full bg-[#0d0709] border border-white/10 focus:border-[#ffb88c]/40 text-white text-xs font-mono rounded-full py-4 pl-5 pr-28 outline-none shadow-[inset_2px_2px_6px_rgba(0,0,0,0.8)] placeholder:text-white/30">
+                        <button id="btn-connect" class="absolute right-1.5 top-1.5 bottom-1.5 connect-pill-btn text-[10px] font-mono font-bold tracking-widest px-5 rounded-full">LINK</button>
+                    </div>
 
-                    <!-- Network Nodes Grid -->
-                    <section class="mt-4">
-                        <h3 class="text-sm font-bold uppercase tracking-widest text-text-muted mb-4 pl-2 border-l-2 border-[#b8860b]">Connected Nodes</h3>
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            ${this.familyMembers.length === 0 ? `
-                                <div class="col-span-full clay-glass-panel p-6 text-center opacity-60 border-dashed">
-                                    <p class="text-xs uppercase font-bold tracking-widest text-text-muted">No trusted nodes found in network.</p>
-                                </div>
-                            ` : this.familyMembers.map(member => `
-                                <div class="family-node clay-glass-panel p-6 text-center cursor-pointer transition-transform hover:scale-105 active:scale-95 relative" 
-                                     data-id="${member.id}" 
-                                     data-name="${member.name}"
-                                     style="-webkit-user-select: none; user-select: none; -webkit-touch-callout: none;">
-                                    <!-- Connection Status Dot (Green = Live, Gray = Offline) -->
-                                    <div class="absolute top-4 right-4 w-3 h-3 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.6)]"></div>
-                                    
-                                    <div class="w-16 h-16 bg-surface-deep text-text-primary rounded-full flex items-center justify-center text-2xl font-display italic mb-4 mx-auto border-2 border-[#b8860b]/20">
-                                        ${member.name[0].toUpperCase()}
-                                    </div>
-                                    <h4 class="font-bold text-sm text-text-primary truncate">${member.name}</h4>
-                                    <p class="text-[9px] text-[#b8860b] uppercase tracking-widest mt-1">${member.relation}</p>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </section>
+                    <!-- SCAN Button -->
+                    <button id="btn-scan-qr" class="w-full py-4 rounded-full bg-black/40 border border-white/10 text-white text-xs font-mono font-bold tracking-widest flex items-center justify-center gap-3 hover:bg-white/5 transition-all shadow-inner mt-2">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <rect x="7" y="7" width="3" height="3"/>
+                            <rect x="14" y="7" width="3" height="3"/>
+                            <rect x="7" y="14" width="3" height="3"/>
+                            <rect x="14" y="14" width="3" height="3"/>
+                        </svg>
+                        SCAN
+                    </button>
+                </div>
+
+                <!-- The Roster -->
+                <div class="w-full max-w-sm shrink-0 space-y-4">
+                    <div class="flex justify-between items-center px-2">
+                        <h3 class="text-[10px] text-[#ffb88c] font-mono font-bold uppercase tracking-widest">CONNECTED NODES</h3>
+                        <span class="text-[9px] text-[#10b981] font-mono font-bold uppercase tracking-widest border border-[#10b981]/40 bg-[#10b981]/10 rounded px-2.5 py-0.5">LIVE</span>
+                    </div>
+
+                    <!-- Active Connections or Empty State -->
+                    <div id="roster-list" class="w-full">
+                        ${this.connectedPeer ? `
+                            <div class="p-6 rounded-[2rem] border border-[#10b981]/40 bg-[#10b981]/10 text-center space-y-1">
+                                <span class="text-[10px] font-mono text-[#10b981] uppercase tracking-widest block">🟢 CONNECTED PEER NODE</span>
+                                <h4 class="text-2xl font-bold font-display text-white">${escapeHTML(this.connectedPeer)}</h4>
+                                <p class="text-[10px] font-mono text-white/50">P2P Encrypted Data Channel Active</p>
+                            </div>
+                        ` : `
+                            <div class="w-full py-10 rounded-[2rem] border border-dashed border-white/20 flex flex-col items-center justify-center">
+                                <p class="text-[10px] text-white/40 uppercase tracking-widest font-mono">NO ACTIVE CONNECTIONS</p>
+                            </div>
+                        `}
+                    </div>
                 </div>
             </main>
         `;
 
-
-
-        // Render QR Code using global QRCode instance (loaded via CDN in index.html)
-        setTimeout(() => {
-            if (this.mesh.peerId) {
-                new QRCode(document.getElementById("qr-code"), {
-                    text: this.mesh.peerId,
-                    width: 200,
-                    height: 200,
-                    colorDark : "#e0e0e0", // light mode QR on dark theme
-                    colorLight : "transparent",
-                    correctLevel : QRCode.CorrectLevel.H
-                });
-            } else {
-                document.getElementById('qr-container').innerHTML = '<p class="text-text-secondary text-xs font-bold mt-24">Connecting...</p>';
-            }
-        }, 100);
-
         this.bindEvents();
-        return this.container;
     }
 
     bindEvents() {
-        // QR Code Tap to Copy
-        const qrContainer = this.container.querySelector('#qr-container');
-        qrContainer?.addEventListener('click', async () => {
-            if (this.mesh.peerId) {
+        const btnScanQr = this.container.querySelector('#btn-scan-qr');
+        const btnConnect = this.container.querySelector('#btn-connect');
+        const inputCode = this.container.querySelector('#pairing-code');
+
+        if (btnScanQr) {
+            btnScanQr.onclick = () => {
+                window.location.hash = '#/scan';
+            };
+        }
+
+        const peerIdDisplay = this.container.querySelector('#peer-id-display');
+        if (peerIdDisplay) {
+            peerIdDisplay.onclick = () => {
+                navigator.clipboard.writeText(this.myPeerId);
+                showToast('Peer ID copied to clipboard', 'success');
+            };
+        }
+
+        if (btnConnect && inputCode) {
+            btnConnect.onclick = async () => {
+                let code = inputCode.value.trim();
+                if (!code) {
+                    alert('Please enter a pairing code or peer ID.');
+                    return;
+                }
+
+                if (code.includes('connect=')) {
+                    code = code.split('connect=')[1].split('&')[0];
+                }
+
+                btnConnect.innerText = "LINKING...";
+                btnConnect.disabled = true;
+
                 try {
-                    await navigator.clipboard.writeText(this.mesh.peerId);
-                    showToast('Peer ID copied to clipboard!', 'success');
+                    if (this.mesh && typeof this.mesh.connectToPeer === 'function') {
+                        await this.mesh.connectToPeer(code);
+                    } else if (this.mesh && typeof this.mesh.connectToFamilyMember === 'function') {
+                        await this.mesh.connectToFamilyMember(code);
+                    }
                 } catch (e) {
-                    showToast('Failed to copy ID', 'error');
+                    console.warn('[Handshake Connection]', e);
                 }
-            }
-        });
 
-        // Link Button
-        this.container.querySelector('#btn-connect').addEventListener('click', () => {
-            const val = this.container.querySelector('#paste-id-input').value.trim();
-            if (val) {
-                showToast('Connecting to peer...', 'info');
-                // Real implementation would connect via PeerMesh
-            }
-        });
-
-        // Scan Button (routes to universal vision scanner)
-        this.container.querySelector('#btn-scan').addEventListener('click', () => {
-            window.location.hash = '#/scan';
-        });
-
-        // Family Node Long-Press & Short-Press Logic
-        const nodes = this.container.querySelectorAll('.family-node');
-        
-        nodes.forEach(node => {
-            const handleStart = (e) => {
-                e.preventDefault(); // Prevent text selection/context menu on mobile
-                this.longPressTimer = setTimeout(() => {
-                    this.longPressTimer = null;
-                    const id = node.getAttribute('data-id');
-                    const name = node.getAttribute('data-name');
-                    
-                    // Trigger Caregiver Context
-                    state.setProfileContext({ id, name });
-                    showToast(`Entering Caregiver Mode for ${name}`, 'success');
-                    
-                }, 3000); // 3 seconds
+                this.connectedPeer = code;
+                showToast(`Connected to node: ${code}`);
+                btnConnect.innerText = "LINK";
+                btnConnect.disabled = false;
+                this.renderContent();
             };
-
-            const handleEnd = (e) => {
-                e.preventDefault();
-                if (this.longPressTimer) {
-                    clearTimeout(this.longPressTimer);
-                    this.longPressTimer = null;
-                    
-                    // It was a short press -> Open Permissions Manager
-                    this.openPermissionsModal(node.getAttribute('data-name'));
-                }
-            };
-
-            const handleCancel = () => {
-                if (this.longPressTimer) {
-                    clearTimeout(this.longPressTimer);
-                    this.longPressTimer = null;
-                }
-            };
-
-            node.addEventListener('touchstart', handleStart, { passive: false });
-            node.addEventListener('touchend', handleEnd);
-            node.addEventListener('touchcancel', handleCancel);
-            node.addEventListener('touchmove', handleCancel); // Cancel on scroll
-            
-            node.addEventListener('mousedown', handleStart);
-            node.addEventListener('mouseup', handleEnd);
-            node.addEventListener('mouseleave', handleCancel);
-            
-            // Prevent context menu
-            node.addEventListener('contextmenu', e => e.preventDefault());
-        });
-    }
-
-    openPermissionsModal(name) {
-        appConfirm(
-            `Manage Permissions for ${name}`,
-            `Select the access level for this connected node.`,
-            [
-                { text: 'Read-Only', action: () => showToast('Permissions set to Read-Only', 'success') },
-                { text: 'Read & Write', action: () => showToast('Permissions set to Read & Write', 'success') },
-                { text: 'Cancel', primary: true, action: () => {} }
-            ]
-        );
+        }
     }
 }

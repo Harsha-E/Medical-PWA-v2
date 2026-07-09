@@ -36,13 +36,13 @@ export default class GlassNavbar {
 
     if (isAuthLayout) {
       this.root.innerHTML = `
-        <nav id="glass-nav" class="bottom-6 md:bottom-8 fixed z-[9999] left-1/2 -translate-x-1/2 w-[95%] max-w-2xl px-2 md:px-6 py-3 rounded-full flex justify-between items-center backdrop-blur-xl border transition-all duration-300" style="background: var(--color-nav-bg); border-color: var(--color-nav-border); box-shadow: 0 8px 32px var(--color-card-shadow), inset 0 1px 1px rgba(255,255,255,0.08); opacity: 0.85;">
+        <nav id="glass-nav" class="bottom-6 md:bottom-8 fixed z-[9999] left-1/2 -translate-x-1/2 w-[90%] max-w-[400px] px-4 py-3 rounded-full flex justify-between items-center transition-all duration-300" style="background: linear-gradient(145deg, rgba(30,15,22,0.85), rgba(15,7,11,0.9)); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.05); border-top: 1px solid rgba(255,255,255,0.15); box-shadow: 0 20px 40px rgba(0,0,0,0.8), inset 0 2px 4px rgba(255,255,255,0.05);">
           ${this.getAuthenticatedMenu(hash)}
         </nav>
       `;
     } else {
       this.root.innerHTML = `
-        <nav id="glass-nav" class="${positionClass} left-1/2 -translate-x-1/2 w-[90%] sm:w-[95%] max-w-5xl h-14 md:h-16 flex items-center justify-between px-2 md:px-3 backdrop-blur-2xl md:backdrop-blur-3xl border rounded-full z-[9000] transition-all duration-700 ease-pill-glide select-none pointer-events-auto" style="background: var(--color-nav-bg); border-color: var(--color-nav-border); box-shadow: 0 8px 32px var(--color-card-shadow), inset 0 1px 1px rgba(255,255,255,0.08); opacity: 0.85;">
+        <nav id="glass-nav" class="${positionClass} left-1/2 -translate-x-1/2 w-[90%] sm:w-[95%] max-w-5xl h-14 md:h-16 flex items-center justify-between px-2 md:px-3 backdrop-blur-2xl md:backdrop-blur-3xl border rounded-full z-[9000] select-none pointer-events-auto" style="background: var(--color-nav-bg); border-color: var(--color-nav-border); box-shadow: 0 8px 32px var(--color-card-shadow), inset 0 1px 1px rgba(255,255,255,0.08); opacity: 0.85;">
           <a href="#/landing" class="flex items-center gap-2 md:gap-3 pl-3 md:pl-4 mr-auto hover:opacity-80 transition-opacity">
             <svg class="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><path d="M11 2a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2H2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h5a2 2 0 0 1 2 2v5a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-5a2 2 0 0 1 2-2h5a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-5a2 2 0 0 1-2-2V4a2 2 0 0 0-2-2h-4Z"></path></svg>
             <span class="font-display text-lg tracking-tight font-medium block mt-[2px]" style="color: var(--color-text-primary);">MedCheck</span>
@@ -110,10 +110,9 @@ export default class GlassNavbar {
       const activeBg = isActive ? 'is-active' : '';
 
       return `
-        <a href="${item.href}" class="nav-item flex items-center justify-center md:justify-start px-2 md:px-4 py-2 md:py-3 rounded-[1.25rem] md:rounded-full relative transition-all duration-300 w-12 md:w-auto overflow-hidden group ${activeBg}" ${textColor}>
-          <div class="relative z-10 flex items-center transition-transform ${isActive ? 'scale-110 md:scale-100' : ''}">
+        <a href="${item.href}" class="nav-item flex items-center justify-center py-2 px-3 rounded-full relative overflow-hidden group ${activeBg} transition-all duration-300" ${textColor}>
+          <div class="relative z-10 flex items-center transition-transform ${isActive ? 'scale-110 drop-shadow-[0_0_10px_rgba(255,184,140,0.6)]' : ''}">
             ${item.icon}
-            <span class="hidden md:block text-xs font-bold uppercase tracking-widest ml-2 truncate">${item.label}</span>
           </div>
         </a>
       `;
@@ -124,6 +123,50 @@ export default class GlassNavbar {
     this.root.querySelector('[data-action="logout"]')?.addEventListener('click', () => {
       this.showLogoutConfirmation();
     });
+
+    const nav = document.getElementById('glass-nav');
+    if (nav) {
+      let lastScrollTop = 0;
+      let hideTimeout = null;
+      let isHolding = false;
+      let holdTimer = null;
+
+      const hideNav = () => {
+        nav.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+      };
+
+      const showNav = () => {
+        nav.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+      };
+
+      window.addEventListener('scroll', (e) => {
+        const target = e.target === document ? window : e.target;
+        const scrollTop = target.scrollTop || window.pageYOffset || document.documentElement.scrollTop || 0;
+        
+        if (scrollTop > lastScrollTop && scrollTop > 50) {
+          hideNav();
+        } else {
+          showNav();
+        }
+        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+        
+        clearTimeout(hideTimeout);
+        hideTimeout = setTimeout(() => {
+          if (scrollTop > 50 && !isHolding) showNav();
+        }, 1500);
+      }, true); // Use capture to catch scrolling on internal containers
+
+      window.addEventListener('touchstart', () => {
+        isHolding = true;
+        holdTimer = setTimeout(() => hideNav(), 500); // Hide on long hold
+      }, { passive: true });
+
+      window.addEventListener('touchend', () => {
+        isHolding = false;
+        clearTimeout(holdTimer);
+        showNav();
+      }, { passive: true });
+    }
   }
 
   showLogoutConfirmation() {

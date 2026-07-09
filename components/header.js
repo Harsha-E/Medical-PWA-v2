@@ -2,17 +2,11 @@ export default class AppHeader {
   constructor() {
     this.el = document.createElement('header');
     
-    // Base styles according to spec
-    this.el.style.position = 'fixed';
-    this.el.style.top = '0';
-    this.el.style.left = '0';
-    this.el.style.width = '100%';
-    this.el.style.height = '72px';
-    this.el.style.zIndex = '50';
-    this.el.style.backdropFilter = 'blur(24px)';
-    this.el.style.WebkitBackdropFilter = 'blur(24px)';
-    this.el.style.borderBottom = '1px solid var(--color-border)';
-    this.el.style.backgroundColor = 'var(--color-header-bg)';
+    // Unified Morphism Glass Header
+    this.el.className = 'fixed top-0 left-0 w-full h-20 z-50 flex items-center justify-between px-6 transition-all duration-300';
+    this.el.style.background = 'linear-gradient(to bottom, rgba(10,4,7,0.95) 0%, rgba(10,4,7,0.8) 50%, rgba(10,4,7,0) 100%)';
+    this.el.style.backdropFilter = 'blur(12px)';
+    this.el.style.WebkitBackdropFilter = 'blur(12px)';
     this.el.style.display = 'none';
 
     // Mount to header-root
@@ -44,10 +38,6 @@ export default class AppHeader {
     }
     
     this.el.style.display = 'flex';
-    this.el.style.alignItems = 'center';
-    this.el.style.justifyContent = 'space-between';
-    this.el.style.padding = '0 16px';
-    // Clear previous contents
     this.el.innerHTML = '';
     this.handlers.clear();
 
@@ -55,15 +45,11 @@ export default class AppHeader {
 
     // LEFT COLUMN
     const leftCol = document.createElement('div');
-    leftCol.style.minWidth = '56px';
-    leftCol.style.display = 'flex';
-    leftCol.style.alignItems = 'center';
+    leftCol.className = 'min-w-[56px] flex items-center';
+    
     if (back) {
       const backBtn = document.createElement('button');
-      backBtn.className = 'w-10 h-10 rounded-2xl flex items-center justify-center transition-all active:scale-90 border';
-      backBtn.style.backgroundColor = 'var(--color-accent-soft)';
-      backBtn.style.borderColor = 'var(--color-border)';
-      backBtn.style.color = 'var(--color-text-primary)';
+      backBtn.className = 'w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-90 border border-white/10 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white';
       backBtn.setAttribute('aria-label', 'Go back');
       backBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>`;
       backBtn.addEventListener('click', () => {
@@ -79,31 +65,23 @@ export default class AppHeader {
 
     // CENTER COLUMN
     const centerCol = document.createElement('div');
-    centerCol.style.flex = '1';
-    centerCol.style.display = 'flex';
-    centerCol.style.flexDirection = 'column';
-    centerCol.style.alignItems = 'center';
-    centerCol.style.justifyContent = 'center';
-    centerCol.style.textAlign = 'center';
+    centerCol.className = 'flex-1 flex flex-col items-center justify-center text-center';
 
     if (skeleton) {
       centerCol.innerHTML = `
-        <div class="skeleton" style="height: 10px; width: 100px; margin-bottom: 2px;"></div>
-        <div class="skeleton" style="height: 22px; width: 160px;"></div>
+        <div class="h-2 w-24 bg-white/10 rounded mb-1 animate-pulse"></div>
+        <div class="h-6 w-32 bg-white/20 rounded animate-pulse"></div>
       `;
     } else {
       if (eyebrow) {
         const eyeEl = document.createElement('span');
-        eyeEl.className = 'text-[10px] md:text-xs font-mono uppercase tracking-[0.2em] md:tracking-[0.3em] leading-none mb-1 transition-all duration-300';
-        eyeEl.style.color = 'var(--color-primary)';
+        eyeEl.className = 'text-[9px] font-mono uppercase tracking-widest text-[#ffb88c] opacity-80 mb-1';
         eyeEl.textContent = eyebrow;
         centerCol.appendChild(eyeEl);
       }
       
       this.titleEl = document.createElement('h1');
-      this.titleEl.className = 'text-xl md:text-2xl font-bold leading-none tracking-tight md:tracking-normal transition-all duration-300';
-      this.titleEl.style.color = 'var(--color-text-primary)';
-      this.titleEl.style.fontFamily = "'Syne', sans-serif";
+      this.titleEl.className = 'text-xl font-display font-light text-white tracking-wide';
       this.titleEl.textContent = typeof title === 'function' ? title() : (title || '');
       centerCol.appendChild(this.titleEl);
     }
@@ -111,30 +89,22 @@ export default class AppHeader {
 
     // RIGHT COLUMN
     const rightCol = document.createElement('div');
-    rightCol.style.minWidth = '56px';
-    rightCol.style.display = 'flex';
-    rightCol.style.alignItems = 'center';
-    rightCol.style.justifyContent = 'flex-end';
-    rightCol.style.gap = '8px';
+    rightCol.className = 'min-w-[56px] flex items-center justify-end gap-3';
 
     actions.forEach(action => {
       const isAnchor = !!action.href;
       const el = document.createElement(isAnchor ? 'a' : 'button');
       if (isAnchor) el.href = action.href;
       
-      el.className = 'w-10 h-10 rounded-2xl flex items-center justify-center transition-all active:scale-90 border';
+      el.className = 'w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-90 border';
       el.setAttribute('aria-label', action.label || '');
       el.setAttribute('data-action-id', action.id);
       
       if (action.style === 'accent') {
-        el.style.background = 'linear-gradient(to bottom right, var(--color-secondary), var(--color-primary))';
-        el.style.borderColor = 'var(--color-border)';
-        el.style.color = 'var(--color-surface)';
+        el.className += ' border-[#ffb88c]/30 bg-[#7f2f5d]/80 text-[#ffb88c] shadow-[0_0_15px_rgba(127,47,93,0.5)]';
       } else {
         // ghost
-        el.style.backgroundColor = 'var(--color-accent-soft)';
-        el.style.borderColor = 'var(--color-border)';
-        el.style.color = 'var(--color-text-primary)';
+        el.className += ' border-white/10 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white';
       }
       
       el.innerHTML = action.icon;

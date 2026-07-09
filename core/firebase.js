@@ -22,19 +22,7 @@ const firebaseApp = initializeApp(firebaseConfig);
 export const db = initializeFirestore(firebaseApp, { localCache: persistentLocalCache() });
 export const auth = getAuth(firebaseApp);
 
-// Connectivity check
-async function testConnection() {
-  try {
-    await getDocFromServer(doc(db, 'test', 'connection'));
-  } catch (error) {
-    if (error?.message?.includes('offline')) {
-      console.warn('Firebase: offline, using cache.');
-    } else {
-      console.warn('Firebase ping:', error?.message);
-    }
-  }
-}
-testConnection();
+// Connectivity is managed automatically by Firestore offline persistence.
 
 export const OperationType = {
   CREATE: 'create', UPDATE: 'update', DELETE: 'delete',

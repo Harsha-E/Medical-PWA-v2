@@ -191,7 +191,7 @@ export default class AddMedicationView {
                <input type="text" id="m-name-ghost" disabled class="form-input absolute top-0 left-0 w-full h-full text-text-secondary bg-transparent pointer-events-none border-transparent focus:ring-0" value="" style="color: rgba(255,255,255,0.3); z-index: 1;">
                <input type="text" id="m-name" autocomplete="off" class="form-input relative bg-transparent" value="${this.medData.name || ''}" placeholder="e.g. Atorvastatin" style="z-index: 2;">
             </div>
-            <div id="m-name-dropdown" class="hidden absolute top-full left-0 w-full max-h-60 overflow-y-auto bg-surface border border-border rounded-xl mt-2 shadow-[0_8px_32px_rgba(0,0,0,0.6)] z-[9999] clay-glass-panel">
+            <div id="m-name-dropdown" class="hidden relative w-full max-h-48 overflow-y-auto bg-[#150a0f] border border-[rgba(255,255,255,0.06)] rounded-xl mt-3 shadow-[0_8px_32px_rgba(0,0,0,0.6)] z-[50] clay-glass-panel">
             </div>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-6">

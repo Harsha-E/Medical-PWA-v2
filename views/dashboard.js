@@ -151,7 +151,7 @@ export default class DashboardView {
           dosageUnit: m.dosageUnit || 'mg',
           time: t,
           date: d,
-          taken: takenSlots.has(`${m.id}-${t}`)
+          taken: takenSlots.has(`${m.id}-${t}`) || takenSlots.has(`${m.id}-undefined`)
         };
       });
     }).sort((a, b) => a.date - b.date);
@@ -187,14 +187,7 @@ export default class DashboardView {
         </div>
       `;
     } else {
-      nextReminderHTML = `
-        <div class="clay-glass-panel rounded-3xl p-6 text-center animate-fade-in">
-          <div class="w-10 h-10 rounded-full bg-text-muted/10 border border-text-muted/20 flex items-center justify-center mx-auto mb-3 text-text-secondary">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-          </div>
-          <p class="text-xs text-text-secondary font-bold uppercase tracking-widest">No scheduled medicines today</p>
-        </div>
-      `;
+      nextReminderHTML = ''; // Hide the redundant widget if no schedule exists
     }
 
     // --- 4. Recent Health Reports ---
@@ -236,9 +229,9 @@ export default class DashboardView {
 
     // --- 6. Monthly Health Follow-Up ---
     const sortedHistory = [...history].sort((a, b) => new Date(b.date) - new Date(a.date));
-    const lastHbA1c = sortedHistory.find(r => r.metrics?.hba1c !== undefined || (r.title && r.title.toLowerCase().includes('hba1c')));
-    const lastBP = sortedHistory.find(r => (r.metrics?.systolic !== undefined && r.metrics?.diastolic !== undefined) || (r.title && r.title.toLowerCase().includes('bp')));
-    const lastThyroid = sortedHistory.find(r => r.metrics?.tsh !== undefined || (r.title && r.title.toLowerCase().includes('tsh') || r.title && r.title.toLowerCase().includes('thyroid')));
+    const lastHbA1c = sortedHistory.find(r => r.type === 'Report' && (r.metrics?.hba1c !== undefined || (r.title && r.title.toLowerCase().includes('hba1c'))));
+    const lastBP = sortedHistory.find(r => r.type === 'Report' && ((r.metrics?.systolic !== undefined && r.metrics?.diastolic !== undefined) || (r.title && r.title.toLowerCase().includes('bp'))));
+    const lastThyroid = sortedHistory.find(r => r.type === 'Report' && (r.metrics?.tsh !== undefined || (r.title && r.title.toLowerCase().includes('tsh') || r.title && r.title.toLowerCase().includes('thyroid'))));
 
     const getDaysAgo = (dateStr) => {
       if (!dateStr) return null;
@@ -309,7 +302,7 @@ export default class DashboardView {
     ).length;
 
     const hba1cTrend = history
-      .filter(r => r.metrics?.hba1c !== undefined)
+      .filter(r => r.type === 'Report' && r.metrics?.hba1c !== undefined)
       .map(r => ({ date: r.date, value: r.metrics.hba1c }))
       .sort((a, b) => new Date(a.date) - new Date(b.date));
 

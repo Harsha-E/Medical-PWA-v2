@@ -1,0 +1,41 @@
+[
+  {
+    "herb": "Neem",
+    "compounds": [
+      "Nimbin",
+      "Azadirachtin"
+    ],
+    "source": "Ayurvedic Text NLP Extraction"
+  },
+  {
+    "herb": "Ashwagandha",
+    "compounds": [
+      "Withanolides",
+      "Alkaloids"
+    ],
+    "source": "Ayurvedic Text NLP Extraction"
+  },
+  {
+    "herb": "Tulsi",
+    "compounds": [
+      "Eugenol",
+      "Ursolic Acid"
+    ],
+    "source": "Ayurvedic Text NLP Extraction"
+  },
+  {
+    "herb": "Ginger",
+    "compounds": [
+      "Polyphenols",
+      "Flavonoids"
+    ],
+    "source": "Ayurvedic Text NLP Extraction"
+  },
+  {
+    "herb": "Licorice",
+    "compounds": [
+      "Glycyrrhizin"
+    ],
+    "source": "Ayurvedic Text NLP Extraction"
+  }
+]

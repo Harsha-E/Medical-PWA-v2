@@ -1368,7 +1368,6 @@ body.in-peer-context .bottom-nav {
 }
 @media (max-width: 767px) {
   body.has-navbar #app-viewport { 
-    padding-bottom: calc(90px + env(safe-area-inset-bottom)); 
     padding-top: env(safe-area-inset-top); 
   }
 }

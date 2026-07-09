@@ -44,9 +44,10 @@ import SettingsView         from './views/settings.js';
 import ClinicalDashboard      from './views/ClinicalDashboard.js';
 import FamilyProfilesView   from './views/family-profiles.js';
 import EmergencyView        from './views/emergency.js';
-import PeerNetworkView      from './views/peer-network.js';
+import PeerNetworkView      from './views/peer-network.js?v=3';
 import PeerDashboardView    from './views/peer-dashboard.js';
-import ClinicalLedgerView     from './views/clinical-ledger.js';
+import ClinicalLedgerView     from './views/clinical-ledger.js?v=3';
+import AddRecordView          from './views/add-record.js';
 import InteractionGraphView from './views/interaction-graph.js';
 import AppointmentsView     from './views/appointments.js';
 import CalendarView         from './views/calendar.js';
@@ -81,11 +82,12 @@ const ROUTES = {
   '#/peer-hub': PeerNetworkView,
   '#/emergency': EmergencyView,
   '#/peer-dashboard': PeerDashboardView,
-  '#/appointments': DashboardView,
-  '#/calendar': DashboardView,
+  '#/appointments': ClinicalDashboard,
+  '#/calendar': ClinicalDashboard,
   '#/orchestrator': OrchestratorView,
   '#/medication-detail': MedicationDetailView,
-  '#/clinical-ledger': ClinicalLedgerView
+  '#/clinical-ledger': ClinicalLedgerView,
+  '#/add-record': AddRecordView,
 };
 
 /** Routes that don't require a logged-in user. */
@@ -95,7 +97,7 @@ const PUBLIC_ROUTES = new Set(['#/', '#/landing', '#/splash', '#/login', '#/regi
 const HIDE_NAV_ROUTES = new Set([
   '#/onboarding', '#/splash', '#/install', 
   '#/add-medication', '#/medication-detail', '#/scan', '#/scan/3d', '#/scan/result',
-  '#/interaction-checker', '#/interaction-graph', '#/medical-history', 
+  '#/interaction-checker', '#/interaction-graph',
   '#/family-profiles', '#/reports', '#/emergency'
 ]);
 
@@ -114,7 +116,7 @@ const resolveMedNameFromHash = () => {
   return urlParams.has('id') ? 'Medication Details' : 'Medication';
 };
 
-const resolvePeerNameFromState = () => state.currentPeer?.name || 'Remote Node';
+const resolvePeerNameFromState = () => (state.currentPeer && state.currentPeer.name) ? state.currentPeer.name : 'Remote Node';
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -122,7 +124,11 @@ const getGreeting = () => {
 };
 
 const HEADER_CONFIGS = {
-  '#/dashboard': { eyebrow: 'Dashboard', title: () => `Good ${getGreeting()}, ${state.user?.displayName?.split(' ')[0] || 'User'}`, actions: [{ id: 'add-med', icon: PLUS_ICON, href: '#/medications', label: 'Add medication', style: 'ghost' }] },
+  '#/dashboard': { 
+    eyebrow: 'DASHBOARD', 
+    title: () => 'Good Morning, ' + (state.userProfile?.name || state.user?.displayName || 'User').split(' ')[0].toUpperCase(), 
+    actions: [{ id: 'add', icon: PLUS_ICON, href: '#/add-medication', label: 'Add', style: 'accent' }] 
+  },
   '#/medications': { eyebrow: null, title: 'Medications', actions: [{ id: 'scan', icon: SCAN_ICON, href: '#/scan', label: 'Scan prescription', style: 'ghost' }, { id: 'add-med', icon: PLUS_ICON, href: '#/add-medication', label: 'Add medication', style: 'accent' }] },
   '#/add-medication': { back: true, title: () => window.location.hash.includes('/edit/') ? 'Edit Medication' : 'Add Medication' },
   '#/medication-detail': { back: true, title: () => resolveMedNameFromHash(), actions: [] },
@@ -131,9 +137,11 @@ const HEADER_CONFIGS = {
   '#/calendar': { back: true, eyebrow: 'Health Progress', title: 'Calendar', actions: [{ id: 'toggle-view', icon: CHEVRON_ICON, label: 'Toggle view', style: 'ghost' }] },
   '#/reports': { back: '#/dashboard', eyebrow: 'Health Progress', title: 'Health Reports', skeleton: false },
   '#/medical-history': { back: true, title: 'Medical History', actions: [{ id: 'add-history', icon: PLUS_ICON, label: 'Add record', style: 'ghost' }] },
+  '#/clinical-ledger': { eyebrow: 'PATIENT STATE', title: 'Clinical Ledger', actions: [{ id: 'add-record', icon: PLUS_ICON, label: 'Add record', style: 'accent', href: '#/add-record' }] },
+  '#/add-record': { back: '#/clinical-ledger', eyebrow: 'PATIENT STATE', title: 'Add Record', skeleton: false },
   '#/family-profiles': { back: true, eyebrow: 'Social Graph', title: 'Network Nodes', actions: [{ id: 'add-family', icon: PLUS_ICON, label: 'Add family member', style: 'accent' }] },
   '#/emergency': { back: true, eyebrow: 'Critical', title: 'Emergency Hub' },
-  '#/peer-hub': { eyebrow: 'P2P Network', title: 'The Handshake' },
+  '#/peer-hub': { eyebrow: 'P2P NETWORK', title: 'The Handshake' },
   '#/peer-dashboard': { back: true, eyebrow: 'Remote Node', title: () => resolvePeerNameFromState() },
   '#/settings': { eyebrow: 'Configuration', title: 'System Profile' },
   '#/admin': { back: true, eyebrow: 'Super-User Console', title: 'Admin Portal' },
@@ -159,6 +167,17 @@ class App {
   }
 
   async init() {
+    // Intercept early deep links
+    const urlParams = new URLSearchParams(window.location.search);
+    const connectPeerId = urlParams.get('connect');
+    if (connectPeerId) {
+        const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+        if (!isStandaloneMode) {
+            sessionStorage.setItem('pending_peer_connect', connectPeerId);
+            window.location.hash = '#/install';
+            window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+        }
+    }
 
     // â”€â”€â”€ PWA NATIVE STANDARDS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     hapticEngine.init();
@@ -229,6 +248,22 @@ class App {
             console.log("Family member updated their medicine cabinet!", incomingData);
             // This will later be wired into IndexedDB or KnowledgeGraph
         });
+
+        // Immediately trigger connection if deep link is present and app is installed
+        if (connectPeerId) {
+            const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+            if (isStandaloneMode) {
+                if (typeof window.familyMesh.connect === 'function') {
+                    window.familyMesh.connect(connectPeerId);
+                } else if (typeof window.familyMesh.connectToFamilyMember === 'function') {
+                    window.familyMesh.connectToFamilyMember(connectPeerId);
+                } else if (typeof window.familyMesh.connectToPeer === 'function') {
+                    window.familyMesh.connectToPeer(connectPeerId);
+                }
+                window.location.hash = '#/peer-hub';
+                window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+            }
+        }
       } catch (err) {
         console.error('Failed to boot clinical engines:', err);
       }
@@ -243,7 +278,8 @@ class App {
         this.appHeader.setTitle(e.detail.title);
       }
       // Re-configure without skeleton when ready
-      const hashConfig = HEADER_CONFIGS[e.detail?.hash] || { hidden: true };
+      const hashToUse = e.detail && e.detail.hash ? e.detail.hash : null;
+      const hashConfig = HEADER_CONFIGS[hashToUse] || { hidden: true };
       this.appHeader.configure({ ...hashConfig, skeleton: false });
     });
 
@@ -280,6 +316,9 @@ class App {
       this.updateCaregiverModeUI();
     });
     
+    // Global window.appState binding
+    window.appState = state;
+    
     // Listen to Firebase Auth state
     onAuthStateChanged(auth, this.onAuthStateChanged.bind(this));
     
@@ -292,66 +331,65 @@ class App {
     if (!header) {
       header = document.createElement('div');
       header.id = 'caregiver-header';
-      header.className = 'fixed bottom-0 left-0 right-0 z-[10000] bg-red-900/90 text-red-100 font-mono text-xs uppercase font-bold tracking-widest py-2 text-center border-t border-red-500/50 backdrop-blur-md transform transition-transform duration-300 translate-y-full';
-      document.body.appendChild(header);
-    }
-    
-    let rainContainer = document.getElementById('blood-rain-container');
-    if (!rainContainer) {
-      rainContainer = document.createElement('div');
-      rainContainer.id = 'blood-rain-container';
-      rainContainer.className = 'fixed inset-0 z-[9998] pointer-events-none overflow-hidden transition-opacity duration-1000 opacity-0';
-      
-      const style = document.createElement('style');
-      style.textContent = `
-        @keyframes blood-drip {
-          0% { transform: translateY(-20vh) scaleY(1); opacity: 0; }
-          10% { opacity: 0.8; }
-          80% { transform: translateY(100vh) scaleY(1.5); opacity: 0.8; }
-          100% { transform: translateY(110vh) scaleY(1); opacity: 0; }
-        }
-        .blood-drop {
-          position: absolute;
-          top: 0;
-          background: linear-gradient(to bottom, rgba(220,38,38,0), rgba(185,28,28,0.8), rgba(153,27,27,1));
-          border-radius: 0 0 5px 5px;
-          animation: blood-drip linear infinite;
-        }
+      header.className = 'fixed top-0 left-0 right-0 z-[10000] bg-[var(--danger-crimson,#7f2f5d)] text-[#fefcff] font-mono text-xs uppercase font-bold tracking-widest py-3 px-6 flex items-center justify-between shadow-2xl transition-transform duration-300 -translate-y-full';
+      header.innerHTML = `
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-red-400 animate-ping"></span>
+          <span id="caregiver-header-text">🔴 CAREGIVER MODE ACTIVE</span>
+        </div>
+        <button id="exit-caregiver-btn" class="bg-[#ffb88c] text-[#0a0407] font-bold px-3 py-1 rounded-full text-[10px] hover:bg-white transition-all">
+          Exit Caregiver Mode
+        </button>
       `;
-      document.head.appendChild(style);
+      document.body.appendChild(header);
 
-      for (let i = 0; i < 25; i++) {
-        const drop = document.createElement('div');
-        drop.className = 'blood-drop';
-        drop.style.left = `${Math.random() * 100}vw`;
-        drop.style.width = `${Math.random() * 2 + 1}px`;
-        drop.style.height = `${Math.random() * 60 + 20}px`;
-        drop.style.animationDuration = `${Math.random() * 1.5 + 0.8}s`;
-        drop.style.animationDelay = `${Math.random() * 2}s`;
-        rainContainer.appendChild(drop);
+      const exitBtn = header.querySelector('#exit-caregiver-btn');
+      if (exitBtn) {
+        exitBtn.onclick = () => {
+          if (window.appState) window.appState.setProfileContext(null);
+          else state.setProfileContext(null);
+          window.location.reload();
+        };
       }
-      document.body.appendChild(rainContainer);
     }
 
     const viewport = document.getElementById('app-viewport');
+    const activeContext = state.activeProfileContext;
     
-    if (state.activeProfileContext) {
-      header.textContent = `🔴 CAREGIVER MODE: Viewing ${state.activeProfileContext.name}'s Data`;
-      header.classList.remove('translate-y-full');
-      // document.body.style.boxShadow = 'inset 0 0 30px rgba(220, 38, 38, 0.4)';
-      rainContainer.style.opacity = '1';
+    if (activeContext) {
+      const textEl = header.querySelector('#caregiver-header-text');
+      
+      // Dynamic Name Fetching from IndexedDB (cross-referencing db.family)
+      const peerId = typeof activeContext === 'string' ? activeContext : (activeContext.id || activeContext);
+      let contextName = activeContext.name || 'Remote Record';
+      
+      db.family.where('peerId').equals(peerId).first().then(familyMember => {
+        if (familyMember && familyMember.name) {
+          contextName = familyMember.name;
+        }
+        if (textEl) textEl.textContent = `🔴 CAREGIVER MODE: Watching ${contextName}'s screen!`;
+      }).catch(err => {
+        if (textEl) textEl.textContent = `🔴 CAREGIVER MODE: Watching ${contextName}'s screen!`;
+      });
+      
+      header.classList.remove('-translate-y-full');
+      
       if (viewport) {
+        viewport.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease, border-radius 0.3s ease, border 0.3s ease';
         viewport.style.transform = 'scale(0.96)';
         viewport.style.borderRadius = '24px';
+        viewport.style.border = '4px solid var(--danger-crimson, #e63946)';
+        viewport.style.boxShadow = '0 0 30px rgba(127, 47, 93, 0.6)';
         viewport.style.overflow = 'hidden';
       }
     } else {
-      header.classList.add('translate-y-full');
-      // document.body.style.boxShadow = 'none';
-      rainContainer.style.opacity = '0';
+      header.classList.add('-translate-y-full');
       if (viewport) {
+        viewport.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease, border-radius 0.3s ease, border 0.3s ease';
         viewport.style.transform = 'scale(1)';
-        viewport.style.borderRadius = '0';
+        viewport.style.borderRadius = '0px';
+        viewport.style.border = 'none';
+        viewport.style.boxShadow = 'none';
       }
     }
   }
@@ -411,7 +449,7 @@ class App {
         if (splash) {
             splash.style.opacity = '0';
             splash.style.pointerEvents = 'none';
-            setTimeout(() => splash.remove(), 800); // Completely delete it from DOM
+            setTimeout(() => splash.remove(), 50); // Fast load fix
         }
         if (this.viewport) {
             this.viewport.style.opacity = '1';
@@ -444,15 +482,18 @@ class App {
     const user    = state.user;
     const profile = state.userProfile;
     const isAdmin = state.isAdmin;
-    const p = profile?.profile || {};
+    const p = (profile && profile.profile) ? profile.profile : {};
     const hasAllDetails = !!(p.phone && p.bloodType && p.dob && p.emergencyName && p.emergencyPhone);
-    const isComplete = !!profile?.onboardingComplete && hasAllDetails;
+    // If onboardingComplete flag is true OR the user already has all required details in Firebase, consider them complete
+    const isComplete = (profile && profile.onboardingComplete) || hasAllDetails;
 
     // ————————————————— Managed by individual views (GhostFluid instantiation removed) —————————————————
 
     // ————————————————— Navbar visibility —————————————————
     const showNav = !HIDE_NAV_ROUTES.has(hash);
-    this.glassNav.setVisibility?.(showNav);
+    if (this.glassNav && typeof this.glassNav.setVisibility === 'function') {
+      this.glassNav.setVisibility(showNav);
+    }
 
     // â”€â”€ AppHeader visibility â”€â”€
     const headerConfig = HEADER_CONFIGS[hash] ?? { hidden: true };
@@ -461,7 +502,7 @@ class App {
     this.appHeader.configure({ ...headerConfig, skeleton: needsSkeleton });
 
     // â”€â”€ Manage Pill Docking and Layout â”€â”€
-    if (user && isComplete) {
+    if (user && isComplete && hash !== '#/install') {
       document.body.classList.add('auth-layout-active');
     } else {
       document.body.classList.remove('auth-layout-active');

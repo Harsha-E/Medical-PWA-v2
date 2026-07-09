@@ -18,6 +18,10 @@ export default class InteractionCheckerView {
     this.container.innerHTML = this._getSkeletonUI();
 
     try {
+      const { default: state } = await import('../core/state.js');
+      const { default: db } = await import('../core/db.js');
+      const { default: IntelligenceOrchestrator } = await import('../services/IntelligenceOrchestrator.js');
+
       const userId = state.user?.uid || 'anonymous';
       
       const rawMeds = await db.medications.toArray();
@@ -27,62 +31,75 @@ export default class InteractionCheckerView {
         .map(m => (m.name || m.genericName || '').trim())
         .filter(n => n.length > 0);
 
-      // Fetch user's disease ledger for single-drug checks
+      // Fetch user's disease ledger
       const diseaseRecords = await db.disease_ledger ? await db.disease_ledger.filter(d => d.userId === userId).toArray() : [];
       const userConditions = diseaseRecords.map(d => d.clinicalName);
 
-      // Merge active + sandbox
-      const evaluationList = [...currentDrugNames, ...this.sandboxMeds];
-      
+      const patientProfile = {
+          activeMeds: currentDrugNames,
+          activeDiseases: userConditions,
+          allergies: [] // Mocking empty allergies for hackathon
+      };
+
       const summary = { severe: [], moderate: [], mild: [] };
       const seenWarnings = new Set();
       
-      for (const drug of evaluationList) {
-        const warnings = await engine.analyze(drug, { activeDiseases: userConditions, activeMeds: evaluationList.filter(d => d !== drug) });
-        warnings.forEach(w => {
-           const warnKey = `${drug}-${w.type}-${w.text}`;
-           if (!seenWarnings.has(warnKey)) {
-             seenWarnings.add(warnKey);
-             
-             // Check if it's a Drug-Disease interaction vs Drug-Drug interaction
-             const isDiseaseWarning = w.type === 'Disease Warning' || w.type === 'Allergy';
-             const titleLabel = isDiseaseWarning ? 'Patient Condition Conflict' : 'Drug-Drug Conflict';
-
-             const mappedItem = {
-                drug1: drug,
-                drug2: titleLabel,
-                severity: (w.severity || 'moderate').toLowerCase(),
-                details: { mechanism: w.text },
-                recommendation: w.severity === 'High' || w.severity === 'Severe' || w.severity === 'Critical' ? 'Immediate clinical review recommended.' : 'Monitor patient for adverse effects.',
-                alternatives: w.alternatives || []
-             };
-             
-             if (w.severity === 'Severe' || w.severity === 'High' || w.severity === 'Critical') {
-                summary.severe.push(mappedItem);
-             } else if (w.severity === 'Moderate') {
-                summary.moderate.push(mappedItem);
-             } else {
-                summary.mild.push(mappedItem);
-             }
-           }
-        });
+      // HACKATHON DEMO FLOW: Check if we just came from Scanner
+      const extractedStr = sessionStorage.getItem('medcheck_extracted_prescriptions');
+      let newMedicines = [];
+      if (extractedStr) {
+          newMedicines = JSON.parse(extractedStr);
+          // Only process once per scan
+          sessionStorage.removeItem('medcheck_extracted_prescriptions');
       }
 
-      // Fetch Drug Profiles for sandbox meds
-      const sandboxProfiles = await Promise.all(
-         this.sandboxMeds.map(async m => {
-             const d = await engine.getDrugData(m);
-             return { name: m, data: d };
-         })
-      );
+      // If we have medicines from the scanner, run the full Intelligence Pipeline
+      if (newMedicines.length > 0) {
+          console.log('[InteractionChecker] Running Full Intelligence Pipeline for Scanned Meds...');
+          const explanations = await IntelligenceOrchestrator.analyzePrescription(newMedicines, patientProfile);
+          
+          explanations.forEach(exp => {
+              const mappedItem = {
+                  drug1: exp.drug1,
+                  drug2: exp.drug2,
+                  severity: exp.riskLevel === 'High Risk' ? 'severe' : exp.riskLevel === 'Medium Risk' ? 'moderate' : 'mild',
+                  details: { mechanism: exp.reason },
+                  recommendation: exp.recommendation,
+                  alternatives: exp.possibleEffects || []
+              };
+
+              if (mappedItem.severity === 'severe') summary.severe.push(mappedItem);
+              else if (mappedItem.severity === 'moderate') summary.moderate.push(mappedItem);
+              else summary.mild.push(mappedItem);
+          });
+      }
+
+      // ----------------------------------------------------
+      // HACKATHON AUTO-ROUTING LOGIC
+      // ----------------------------------------------------
+      if (newMedicines.length > 0 && summary.severe.length === 0 && summary.moderate.length === 0 && summary.mild.length === 0) {
+          // No interactions found! Route directly to add-medication with the first extracted med
+          sessionStorage.setItem('medcheck_scanned_data', JSON.stringify(newMedicines[0]));
+          window.location.hash = '#/add-medication';
+          return;
+      }
+
+      // Legacy fallback / Sandbox processing (For demo flexibility)
+      const evaluationList = [...currentDrugNames, ...this.sandboxMeds];
+      
+      // Optional: Fetch Drug Profiles for sandbox meds (can leave empty for hackathon to save time)
+      const sandboxProfiles = [];
 
       this.container.innerHTML = `
         <div class="max-w-2xl mx-auto w-full px-4 md:px-6 pt-[112px] md:pt-8 pb-28">
 
           <section class="bg-surface-elevated/40 backdrop-blur-xl border border-white/5 rounded-[2.5rem] p-6 mb-8 shadow-[10px_10px_30px_rgba(0,0,0,0.6),-10px_-10px_30px_rgba(255,255,255,0.02),inset_2px_2px_5px_rgba(255,255,255,0.05)] relative overflow-visible">
             <span class="text-xs font-mono tracking-widest uppercase text-accent-primary block mb-1">Pre-purchase Screener</span>
-            <h3 class="text-sm font-bold text-text-primary mb-3">Test Over-the-Counter Drugs</h3>
-            <p class="text-xs text-text-secondary mb-4 leading-relaxed">Add multiple drugs to your sandbox to simulate complex interactions before adding them to your permanent profile.</p>
+            <h3 class="text-sm font-bold text-text-primary mb-3">Evaluated Pharmacy Track</h3>
+            <p class="text-xs text-text-secondary mb-4 leading-relaxed">
+              We run a comprehensive Pre-Purchase Screener against your clinical ledger, evaluating potential adverse effects across the entire pharmacy track! 
+              Add multiple drugs to your sandbox below to simulate complex interactions before confirming them to your permanent profile.
+            </p>
             
             <div class="relative z-50">
               <input type="text" id="sandbox-input" placeholder="Search generic or brand name..." class="w-full btn-neumorphic py-4 px-4 text-sm font-bold flex items-center gap-2 mb-2 bg-surface focus:outline-none">
@@ -125,7 +142,16 @@ export default class InteractionCheckerView {
                 <h3 class="text-base font-bold text-text-primary mb-1">Regimen Cleared</h3>
                 <p class="text-xs text-text-secondary max-w-[280px] mx-auto leading-relaxed">No adverse overlapping clinical graph vectors identified across active treatments.</p>
               </div>
-            ` : ''}
+            ` : `
+              ${newMedicines.length > 0 ? `
+                <div class="mt-8 text-center">
+                    <button id="btn-proceed-anyway" class="w-full py-4 rounded-2xl bg-gradient-to-r from-red-900/50 to-red-800/30 border border-red-500/40 text-red-200 text-sm font-bold uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(239,68,68,0.2)] active:scale-95 transition-all">
+                        Proceed & Add Medication Anyway
+                    </button>
+                    <p class="text-[10px] font-mono text-text-muted mt-3">By proceeding, you acknowledge the detected interactions.</p>
+                </div>
+              ` : ''}
+            `}
 
             ${sandboxProfiles.map(profile => profile.data ? `
               <div class="mt-8 border border-white/5 rounded-[2rem] p-6 bg-surface-elevated/40 backdrop-blur-xl shadow-[10px_10px_30px_rgba(0,0,0,0.6),-10px_-10px_30px_rgba(255,255,255,0.03),inset_2px_2px_5px_rgba(255,255,255,0.05)] relative overflow-hidden">
@@ -191,7 +217,7 @@ export default class InteractionCheckerView {
       `;
 
       document.dispatchEvent(new CustomEvent('view:ready', { detail: { hash: '#/interaction-checker' } }));
-      this._attachListeners();
+      this._attachListeners(newMedicines);
       this._drawNetworkGraph(evaluationList, summary);
 
     } catch (err) {
@@ -271,9 +297,19 @@ export default class InteractionCheckerView {
     `;
   }
 
-  _attachListeners() {
+  _attachListeners(newMedicines = []) {
     const input = this.container.querySelector('#sandbox-input');
     const dropdown = this.container.querySelector('#autocomplete-dropdown');
+    
+    const btnProceed = this.container.querySelector('#btn-proceed-anyway');
+    if (btnProceed) {
+        btnProceed.onclick = () => {
+            if (newMedicines.length > 0) {
+                sessionStorage.setItem('medcheck_scanned_data', JSON.stringify(newMedicines[0]));
+            }
+            window.location.hash = '#/add-medication';
+        };
+    }
     
     // Remove sandbox chips
     this.container.querySelectorAll('.remove-sandbox-btn').forEach(btn => {

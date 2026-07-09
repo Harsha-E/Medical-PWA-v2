@@ -103,10 +103,52 @@ db.version(8).stores({
   disease_ledger: '++id, diseaseName, clinicalName, userId, updatedAt, logicalClock, isDeleted',
   attachments:    '++id, eventId, base64Data, type, userId, updatedAt, logicalClock, isDeleted'
 });
+
+// ─── Schema Version 10 (Full My Health Record & Relationship Hub) ─────────────
+db.version(10).stores({
+  medications:     '++id, name, dosage, frequency, startDate, endDate, notes, active, userId, category, patientFriendlyUse, updatedAt, logicalClock, isDeleted, prescriptionId',
+  doses:           '++id, medicationId, takenAt, skipped, userId, updatedAt, logicalClock, isDeleted',
+  history:         '++id, type, date, title, provider, userId, updatedAt, logicalClock, isDeleted',
+  family:          '++id, relationship, name, role, permission, visibility, trustLevel, priority, lastInteraction, userId, updatedAt, logicalClock, isDeleted',
+  appointments:    '++id, date, time, title, provider, userId, updatedAt, logicalClock, isDeleted',
+  prescriptions:   '++id, imageBlob, rawText, date, doctorName, userId, updatedAt, logicalClock, isDeleted',
+  reminders:       '++id, medicationId, time, isActive, userId, updatedAt, logicalClock, isDeleted',
+  sync_queue:      '++id, action, table, recordId, payload, timestamp, status, retryCount',
+  disease_ledger:  '++id, diseaseName, clinicalName, stage, status, doctor, userId, updatedAt, logicalClock, isDeleted',
+  attachments:     '++id, eventId, base64Data, type, title, userId, updatedAt, logicalClock, isDeleted',
+  interactions:    '++id, drug1, drug2, severity, description, checkedAt, userId, updatedAt, logicalClock, isDeleted',
+  allergies:       '++id, allergy, severity, reaction, firstObserved, userId, updatedAt, logicalClock, isDeleted',
+  surgeries:       '++id, hospital, doctor, date, outcome, recoveryStatus, userId, updatedAt, logicalClock, isDeleted',
+  active_problems: '++id, problem, severity, status, painScore, doctorComments, userId, updatedAt, logicalClock, isDeleted'
+});
 if (import.meta.env?.DEV) {
   db.open().then(() => {
     console.debug('[DB] MedCareDB open. Tables:', db.tables.map(t => t.name));
   }).catch(e => console.error('[DB] Failed to open MedCareDB:', e));
 }
+
+export const initMedicalDatabase = () => {
+    return new Promise((resolve, reject) => {
+        if (!window.Worker) {
+            console.warn('[DB] Web Workers not supported. Skipping background chunk loading.');
+            return resolve();
+        }
+
+        const worker = new Worker('js/db-loader.worker.js');
+        worker.postMessage({ action: 'LOAD_CHUNKS', numChunks: 10 });
+
+        worker.onmessage = (event) => {
+            if (event.data.status === 'progress') {
+                console.log(`[DB] Loading chunks... ${event.data.percent}%`);
+            } else if (event.data.status === 'complete') {
+                console.log(`[DB] Successfully loaded ${event.data.totalRecords} records.`);
+                resolve();
+            } else if (event.data.status === 'error') {
+                console.error('[DB] Error loading chunks:', event.data.error);
+                reject(new Error(event.data.error));
+            }
+        };
+    });
+};
 
 export default db;

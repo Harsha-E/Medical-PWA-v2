@@ -1,0 +1,154 @@
+/* 
+   Stage 3 Experience: Signature Moments
+   Curated, tactile interactions focusing on physicality, environmental lighting, and quiet responsiveness.
+*/
+
+/* =========================================================================
+   1. The Archive (Clinical Ledger)
+   ========================================================================= */
+
+/* The timeline surface */
+.archive-surface {
+    /* Subtle background shifts to mimic matte paper/clay */
+    transition: background-color 0.4s ease, filter 0.4s ease;
+}
+
+/* Event nodes: Default (embossed subtly) */
+.ledger-event-node {
+    transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.05), -2px -2px 5px rgba(255,255,255,0.02);
+}
+
+/* When another event is focused, unfocused events deboss (recede) */
+.archive-focused-state .ledger-event-node:not(.focused) {
+    transform: scale(0.98) translateZ(-10px);
+    opacity: 0.6;
+    box-shadow: inset 2px 2px 5px rgba(0,0,0,0.2), inset -2px -2px 5px rgba(255,255,255,0.05);
+    filter: brightness(0.8);
+}
+
+/* The Focused Event: Embosses, catches harsh light */
+.ledger-event-node.focused {
+    transform: scale(1.02) translateZ(20px);
+    z-index: 10;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3), 0 0 0 1px rgba(var(--color-accent-primary-rgb), 0.3);
+    filter: brightness(1.1);
+}
+
+/* Lights Out Effect (Viewing Medical Attachment) */
+body.archive-lightbox-active {
+    background-color: #050505 !important;
+}
+
+body.archive-lightbox-active .archive-surface {
+    opacity: 0.1;
+    pointer-events: none;
+    filter: grayscale(100%) blur(2px);
+}
+
+/* The attachment itself in lightbox */
+.lightbox-document {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
+    z-index: 9999;
+    max-width: 90vw;
+    max-height: 90vh;
+    box-shadow: 0 0 50px rgba(255,255,255,0.1), 0 0 0 100vw rgba(0,0,0,0.9);
+    opacity: 0;
+    animation: documentPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes documentPop {
+    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* Health Profile Context Shift (Cool/Analytical Lighting) */
+.archive-surface.health-profile-context {
+    /* Shift background slightly towards a focused cool tone */
+    background-color: rgba(10, 15, 25, 0.95) !important;
+}
+
+
+/* --- Experience Curator: Archive Details --- */
+
+/* Medication etchings between timeline items */
+.curator-etchings::before {
+    content: '';
+    position: absolute;
+    left: -22px; /* align with timeline line */
+    top: 20px;
+    bottom: -20px;
+    width: 2px;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent 4px,
+      rgba(var(--color-text-secondary-rgb), 0.2) 4px,
+      rgba(var(--color-text-secondary-rgb), 0.2) 6px
+    );
+    opacity: 0.3;
+}
+
+
+
+
+/* =========================================================================
+   2. The Sanctuary (Peer Hub)
+   ========================================================================= */
+
+/* The Resonant Slate Surface */
+.sanctuary-surface {
+    transition: background-color 0.35s ease;
+}
+
+/* The Anchor (Peer Node) */
+.peer-anchor {
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
+    /* Physical groove styling */
+    box-shadow: inset 4px 4px 8px rgba(0,0,0,0.3), inset -4px -4px 8px rgba(255,255,255,0.05);
+}
+
+/* New Anchor Drop Ripple */
+.anchor-drop-ripple {
+    animation: surfaceRipple 0.8s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+}
+
+@keyframes surfaceRipple {
+    0% { box-shadow: 0 0 0 0 rgba(var(--color-accent-primary-rgb), 0.4); }
+    100% { box-shadow: 0 0 0 100px rgba(var(--color-accent-primary-rgb), 0); }
+}
+
+/* Caregiver Mode Shift (Amber Protective Hue) */
+.sanctuary-surface.caregiver-mode-active {
+    /* Shifts the entire room to a warm, protective amber */
+    background-color: rgba(30, 20, 5, 0.95) !important;
+}
+
+.sanctuary-surface.caregiver-mode-active * {
+    /* Subtle warm tint to texts and borders */
+    --color-accent-primary-rgb: 245, 158, 11; /* Amber 500 */
+}
+
+/* Sync Sonar Ping (Successful Synchronization) */
+.sync-sonar-ping {
+    position: relative;
+}
+.sync-sonar-ping::after {
+    content: '';
+    position: absolute;
+    inset: -5px;
+    border-radius: 50%;
+    border: 2px solid rgba(16, 185, 129, 0.8); /* Emerald */
+    opacity: 1;
+    animation: sonarPulse 0.6s ease-out forwards;
+    pointer-events: none;
+}
+
+@keyframes sonarPulse {
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}

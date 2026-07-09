@@ -278,70 +278,60 @@ export default class ScanView {
             const barcodes = await detector.detect(this._canvas);
             if (barcodes.length > 0) {
                 const qrVal = barcodes[0].rawValue;
-                if (qrVal.startsWith('medcare://peer/')) {
-                    const peerId = qrVal.replace('medcare://peer/', '');
+                if (qrVal.includes('?connect=')) {
+                    let peerId = null;
                     try {
-                        const mesh = PeerMesh.getInstance();
-                        console.log("[ScanView] Intercepted PeerJS QR Code. Connecting to:", peerId);
-                        mesh.connectToPeer(peerId);
-                        window.location.hash = '#/peer-network';
-                    } catch (err) {
-                        console.error("[ScanView] Failed to connect via PeerMesh:", err);
+                        const url = new URL(qrVal);
+                        peerId = url.searchParams.get('connect');
+                    } catch(err) {
+                        const match = qrVal.match(/[?&]connect=([^&]+)/);
+                        if (match) peerId = decodeURIComponent(match[1]);
                     }
-                    this.hideProcessingSpinner();
-                    return; // Stop OCR pipeline
+                    if (peerId) {
+                        try {
+                            if (window.familyMesh) {
+                                console.log("[ScanView] Intercepted PWA Deep Link. Connecting to:", peerId);
+                                if (typeof window.familyMesh.connect === 'function') {
+                                    window.familyMesh.connect(peerId);
+                                } else if (typeof window.familyMesh.connectToFamilyMember === 'function') {
+                                    window.familyMesh.connectToFamilyMember(peerId);
+                                } else if (typeof window.familyMesh.connectToPeer === 'function') {
+                                    window.familyMesh.connectToPeer(peerId);
+                                }
+                            }
+                            window.location.hash = '#/peer-hub';
+                        } catch (err) {
+                            console.error("[ScanView] Failed to connect via PeerMesh:", err);
+                        }
+                        this.hideProcessingSpinner();
+                        return; // Stop OCR pipeline
+                    }
                 }
             }
         } catch (e) { console.error('[ScanView] Native QR detection failed', e); }
     }
 
-    // 2. OCR Medicine Extraction
+    // 2. OCR Medicine Extraction (Hackathon AI Integration)
 
     try {
-        const pipeline = new VisionPipeline();
-        const matchResult = await pipeline.processFrame(this._canvas, 1.0, true);
+        const { default: AIExtractionService } = await import('../services/AIExtractionService.js');
+        const medicines = await AIExtractionService.extractMedicines(blob);
+        
         this.hideProcessingSpinner();
 
-        if (matchResult && matchResult.bestMatch) {
-            const payload = {
-              name: matchResult.bestMatch.name || matchResult.bestMatch.brandName || matchResult.bestMatch.genericName,
-              dosage: matchResult.bestMatch.dosage || matchResult.bestMatch.strength,
-              form: matchResult.bestMatch.form || matchResult.bestMatch.dosageForm,
-              totalQuantity: matchResult.bestMatch.totalQuantity || matchResult.quantity,
-              isAsNeeded: matchResult.bestMatch.isAsNeeded,
-              confidence: matchResult.confidence,
-              depthEngineFailed: false,
-              schedule: matchResult.bestMatch.schedule,
-              brandName: matchResult.bestMatch.brandName,
-              genericName: matchResult.bestMatch.genericName,
-              manufacturer: matchResult.bestMatch.manufacturer,
-              therapeuticCategory: matchResult.bestMatch.therapeuticCategory,
-              alternativeBrands: matchResult.bestMatch.alternativeBrands ? matchResult.bestMatch.alternativeBrands.join(', ') : '',
-              expiryDate: matchResult.bestMatch.expiryDate || matchResult.expiryDate || '',
-              explainabilityDetails: matchResult.explainabilityDetails,
-              diagnosticReport: matchResult.diagnosticReport
-            };
+        if (medicines && medicines.length > 0) {
+            // Save to session storage for the next step in the flow
+            sessionStorage.setItem('medcheck_extracted_prescriptions', JSON.stringify(medicines));
             
-            const onConfirm = (confirmedPayload) => {
-                sessionStorage.setItem('medcheck_scanned_data', JSON.stringify(confirmedPayload));
-                window.location.hash = '#/add-medication';
-            };
-            const onReject = () => {
-                window.location.hash = '#/add-medication?manual=true';
-            };
-
-            if (matchResult.candidates && matchResult.candidates.length > 1) {
-                MultipleMatchGate.show(matchResult.candidates, payload, onConfirm, onReject);
-            } else {
-                ConfirmationGate.show(payload, onConfirm, onReject);
-            }
+            // Hackathon flow: AI extracts medicines -> Interactions detected -> Timeline updates
+            window.location.hash = '#/interaction-checker';
         } else {
-            this.show3DTutorialPopup(blob);
+            appAlert('No medicines detected in this image.', 'Extraction Failed');
         }
     } catch (e) {
-        console.error("[ScanView] 2D Scan failed:", e);
+        console.error("[ScanView] AI Extraction failed:", e);
         this.hideProcessingSpinner();
-        this.show3DTutorialPopup(blob);
+        appAlert('AI Extraction Failed. Please try again.', 'Error');
     }
   }
 
@@ -361,45 +351,16 @@ export default class ScanView {
             img.src = URL.createObjectURL(blob); 
         });
 
-        const pipeline = new VisionPipeline();
-        const matchResult = await pipeline.processFrame(img, 1.0, true);
+        const { default: AIExtractionService } = await import('../services/AIExtractionService.js');
+        const medicines = await AIExtractionService.extractMedicines(blob);
+        
         this.hideProcessingSpinner();
 
-        if (matchResult && matchResult.bestMatch) {
-            const payload = {
-              name: matchResult.bestMatch.name || matchResult.bestMatch.brandName || matchResult.bestMatch.genericName,
-              dosage: matchResult.bestMatch.dosage || matchResult.bestMatch.strength,
-              form: matchResult.bestMatch.form || matchResult.bestMatch.dosageForm,
-              totalQuantity: matchResult.bestMatch.totalQuantity || matchResult.quantity,
-              isAsNeeded: matchResult.bestMatch.isAsNeeded,
-              confidence: matchResult.confidence,
-              depthEngineFailed: false,
-              schedule: matchResult.bestMatch.schedule,
-              brandName: matchResult.bestMatch.brandName,
-              genericName: matchResult.bestMatch.genericName,
-              manufacturer: matchResult.bestMatch.manufacturer,
-              therapeuticCategory: matchResult.bestMatch.therapeuticCategory,
-              alternativeBrands: matchResult.bestMatch.alternativeBrands ? matchResult.bestMatch.alternativeBrands.join(', ') : '',
-              expiryDate: matchResult.bestMatch.expiryDate || matchResult.expiryDate || '',
-              explainabilityDetails: matchResult.explainabilityDetails,
-              diagnosticReport: matchResult.diagnosticReport
-            };
-            
-            const onConfirm = (confirmedPayload) => {
-                sessionStorage.setItem('medcheck_scanned_data', JSON.stringify(confirmedPayload));
-                window.location.hash = '#/add-medication';
-            };
-            const onReject = () => {
-                window.location.hash = '#/add-medication?manual=true';
-            };
-
-            if (matchResult.candidates && matchResult.candidates.length > 1) {
-                MultipleMatchGate.show(matchResult.candidates, payload, onConfirm, onReject);
-            } else {
-                ConfirmationGate.show(payload, onConfirm, onReject);
-            }
+        if (medicines && medicines.length > 0) {
+            sessionStorage.setItem('medcheck_extracted_prescriptions', JSON.stringify(medicines));
+            window.location.hash = '#/interaction-checker';
         } else {
-            this.showGalleryErrorPopup();
+            appAlert('No medicines detected in this image.', 'Extraction Failed');
         }
     } catch (error) {
         console.error("[ScanView] Gallery Scan failed:", error);

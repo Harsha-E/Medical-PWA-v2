@@ -98,10 +98,10 @@ export default class SplashView {
       </div>
     `;
 
-    // Auto-dismiss after brand sequence completes — 1.9s total
+    // Auto-dismiss after brand sequence completes — Fast load
     this._timer = setTimeout(() => {
       this._dismiss();
-    }, 1900);
+    }, 400);
 
     return this.container;
   }
