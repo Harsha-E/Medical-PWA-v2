@@ -1,190 +1,224 @@
+/**
+ * MedCare | Avatar Selector Carousel (Inertial Physics Engine)
+ * Samsung Gallery-style scrolling component
+ */
+
 export default class AvatarSelector {
-    constructor(options = {}) {
-        this.avatars = options.avatars || [];
-        this.selected = options.selected || this.avatars[0];
-        this.onChange = options.onChange || (() => {});
-        this.loop = options.loop !== undefined ? options.loop : true;
-        this.theme = options.theme || 'dark';
+    constructor(container, avatars, options = {}) {
+        this.container = container;
+        this.avatars = avatars;
+        this.options = Object.assign({
+            itemWidth: 120,
+            spacing: 20,
+            onChange: (selectedAvatarUrl) => {},
+            initialIndex: 0
+        }, options);
 
-        this.container = document.createElement('div');
-        this.container.className = 'avatar-selector-container w-full relative overflow-hidden h-40';
-        
-        // CSS Variables for tuning
-        this.container.style.setProperty('--avatar-scale', '1.6');
-        this.container.style.setProperty('--avatar-dim', '0.4');
-
+        this.items = [];
+        this.isDragging = false;
+        this.startX = 0;
+        this.currentX = 0;
+        this.targetX = 0;
+        this.velocity = 0;
+        this.lastTime = 0;
+        this.lastX = 0;
         this.animationFrame = null;
-        this.preloadImages();
-        this.render();
-    }
-
-    preloadImages() {
-        this.avatars.forEach(url => {
-            const img = new Image();
-            img.src = url;
-        });
-    }
-
-    render() {
-        // If looping, we duplicate the list 5 times to simulate infinite scroll seamlessly
-        const renderList = this.loop 
-            ? [...this.avatars, ...this.avatars, ...this.avatars, ...this.avatars, ...this.avatars] 
-            : this.avatars;
-
-        this.container.innerHTML = `
-            <style>
-                .avatar-carousel-wrapper {
-                    display: flex;
-                    overflow-x: auto;
-                    scroll-snap-type: x mandatory;
-                    scrollbar-width: none;
-                    -ms-overflow-style: none;
-                    width: 100%;
-                    height: 100%;
-                    align-items: center;
-                    padding: 0 calc(50% - 40px);
-                    -webkit-overflow-scrolling: touch;
-                }
-                .avatar-carousel-wrapper::-webkit-scrollbar {
-                    display: none;
-                }
-                .avatar-item {
-                    scroll-snap-align: center;
-                    flex: 0 0 80px;
-                    height: 80px;
-                    margin: 0 12px;
-                    perspective: 1000px;
-                    will-change: transform, opacity;
-                    cursor: pointer;
-                    -webkit-tap-highlight-color: transparent;
-                }
-                .avatar-item img {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: contain;
-                    border-radius: 50%;
-                    pointer-events: none;
-                    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-                    background: rgba(255,255,255,0.05);
-                    backdrop-filter: blur(4px);
-                    border: 2px solid rgba(255,255,255,0.1);
-                }
-            </style>
-            <div class="avatar-carousel-wrapper">
-                ${renderList.map((url, i) => `
-                    <div class="avatar-item" data-url="${url}">
-                        <img src="${url}" alt="Avatar" loading="lazy" />
-                    </div>
-                `).join('')}
-            </div>
-        `;
-
-        this.wrapper = this.container.querySelector('.avatar-carousel-wrapper');
-        this.items = Array.from(this.wrapper.querySelectorAll('.avatar-item'));
-
-        // Handle clicks to snap to clicked avatar
-        this.items.forEach(item => {
-            item.addEventListener('click', () => {
-                const itemCenter = item.offsetLeft + (item.offsetWidth / 2);
-                const wrapperCenter = this.wrapper.offsetWidth / 2;
-                this.wrapper.scrollTo({
-                    left: itemCenter - wrapperCenter,
-                    behavior: 'smooth'
-                });
-            });
-        });
-
-        // Initialize scroll position to middle if looping
-        setTimeout(() => {
-            if (this.loop && this.items.length > 0) {
-                const middleIndex = Math.floor(this.items.length / 2);
-                const middleItem = this.items[middleIndex];
-                const itemCenter = middleItem.offsetLeft + (middleItem.offsetWidth / 2);
-                const wrapperCenter = this.wrapper.offsetWidth / 2;
-                this.wrapper.scrollTo({
-                    left: itemCenter - wrapperCenter,
-                    behavior: 'instant'
-                });
-            }
-            this.startAnimationLoop();
-        }, 0);
-    }
-
-    startAnimationLoop() {
-        let lastScrollLeft = -1;
         
-        const update = () => {
-            const scrollLeft = this.wrapper.scrollLeft;
-            
-            // Only recalculate if we actually scrolled
-            if (scrollLeft !== lastScrollLeft) {
-                lastScrollLeft = scrollLeft;
-                const containerCenter = this.wrapper.offsetWidth / 2;
-                const absoluteCenter = scrollLeft + containerCenter;
-                
-                let closestItem = null;
-                let minDistance = Infinity;
+        this.totalItems = this.avatars.length;
+        this.itemTotalWidth = this.options.itemWidth + this.options.spacing;
+        this.maxScroll = (this.totalItems - 1) * this.itemTotalWidth;
+        this.selectedIndex = this.options.initialIndex;
+        
+        // Start off at the initial index
+        this.currentX = -this.selectedIndex * this.itemTotalWidth;
+        this.targetX = this.currentX;
 
-                const maxDist = this.wrapper.offsetWidth / 2;
-
-                this.items.forEach(item => {
-                    const itemCenter = item.offsetLeft + (item.offsetWidth / 2);
-                    const distanceFromCenter = itemCenter - absoluteCenter;
-                    const absDist = Math.abs(distanceFromCenter);
-                    
-                    const normalizedDist = Math.min(absDist / maxDist, 1);
-                    
-                    // Cover flow math
-                    const scale = 1.6 - (normalizedDist * 0.8); // 1.6 to 0.8
-                    const rotateY = (distanceFromCenter / maxDist) * 45; // -45deg to 45deg
-                    const translateY = Math.abs(distanceFromCenter / maxDist) * 10; // pushes non-center items slightly down
-                    const opacity = 1 - (normalizedDist * 0.6); // 1.0 to 0.4
-                    const zIndex = Math.round(100 - absDist);
-                    const blur = normalizedDist * 2; // 0px to 2px blur
-                    
-                    item.style.transform = `scale(${scale}) translateY(${translateY}px) rotateY(${rotateY}deg)`;
-                    item.style.opacity = opacity;
-                    item.style.zIndex = zIndex;
-                    item.querySelector('img').style.filter = `blur(${blur}px) drop-shadow(0 10px 15px rgba(0,0,0,0.4))`;
-                    
-                    if (absDist < minDistance) {
-                        minDistance = absDist;
-                        closestItem = item;
-                    }
-                });
-
-                // Update selected state when snapped
-                if (closestItem && minDistance < 10) {
-                    const url = closestItem.getAttribute('data-url');
-                    if (this.selected !== url) {
-                        this.selected = url;
-                        this.onChange(url);
-                    }
-                }
-
-                // Invisible loop reset: if scrolled near edge, jump to middle block instantly
-                if (this.loop) {
-                    const totalWidth = this.wrapper.scrollWidth;
-                    const blockWidth = totalWidth / 5;
-                    
-                    if (scrollLeft < blockWidth) {
-                        this.wrapper.style.scrollBehavior = 'auto'; // ensure instant
-                        this.wrapper.scrollLeft += blockWidth * 2;
-                    } else if (scrollLeft > blockWidth * 4) {
-                        this.wrapper.style.scrollBehavior = 'auto';
-                        this.wrapper.scrollLeft -= blockWidth * 2;
-                    }
-                }
-            }
-
-            this.animationFrame = requestAnimationFrame(update);
-        };
-        update();
+        this._buildUI();
+        this._attachEvents();
+        this._updateLoop();
     }
 
-    destroy() {
+    _buildUI() {
+        this.container.innerHTML = '';
+        this.container.className = (this.container.className || '') + ' relative overflow-hidden w-full h-48 select-none touch-none';
+        
+        this.track = document.createElement('div');
+        this.track.className = 'absolute top-1/2 left-1/2 w-full h-full transform -translate-y-1/2';
+        this.track.style.willChange = 'transform';
+        
+        this.container.appendChild(this.track);
+
+        this.avatars.forEach((avatar, index) => {
+            const item = document.createElement('div');
+            item.className = 'absolute top-1/2 left-1/2 w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 border-transparent overflow-hidden shadow-xl transition-colors';
+            item.style.marginTop = '-3rem';
+            item.style.marginLeft = '-3rem'; // Center alignment offset (48px for w-24)
+            if (window.innerWidth >= 640) { // sm breakpoint adjust
+                item.style.marginTop = '-3.5rem';
+                item.style.marginLeft = '-3.5rem';
+            }
+            item.style.transformOrigin = 'center center';
+            item.style.willChange = 'transform, opacity, z-index';
+            
+            const img = document.createElement('img');
+            img.src = avatar;
+            img.className = 'w-full h-full object-cover pointer-events-none';
+            item.appendChild(img);
+            
+            this.track.appendChild(item);
+            this.items.push(item);
+        });
+        
+        // Initial render frame
+        this._renderItems(this.currentX);
+    }
+
+    _attachEvents() {
+        this.onDragStart = this._onDragStart.bind(this);
+        this.onDragMove = this._onDragMove.bind(this);
+        this.onDragEnd = this._onDragEnd.bind(this);
+
+        this.container.addEventListener('touchstart', this.onDragStart, { passive: false });
+        window.addEventListener('touchmove', this.onDragMove, { passive: false });
+        window.addEventListener('touchend', this.onDragEnd);
+
+        this.container.addEventListener('mousedown', this.onDragStart);
+        window.addEventListener('mousemove', this.onDragMove);
+        window.addEventListener('mouseup', this.onDragEnd);
+    }
+
+    _onDragStart(e) {
+        this.isDragging = true;
+        this.velocity = 0;
+        this.startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        this.lastX = this.startX;
+        this.lastTime = performance.now();
+        
         if (this.animationFrame) {
             cancelAnimationFrame(this.animationFrame);
         }
+    }
+
+    _onDragMove(e) {
+        if (!this.isDragging) return;
+        e.preventDefault(); // prevent native scroll
+
+        const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        const deltaX = clientX - this.lastX;
+        const now = performance.now();
+        const deltaTime = Math.max(now - this.lastTime, 1);
+
+        this.currentX += deltaX;
+        
+        // Add resistance if dragging past boundaries
+        if (this.currentX > 0) {
+            this.currentX -= deltaX * 0.7; // Resistance on left
+        } else if (this.currentX < -this.maxScroll) {
+            this.currentX -= deltaX * 0.7; // Resistance on right
+        }
+
+        this.targetX = this.currentX;
+        this.velocity = deltaX / deltaTime; // px per ms
+
+        this.lastX = clientX;
+        this.lastTime = now;
+        
+        this._renderItems(this.currentX);
+    }
+
+    _onDragEnd(e) {
+        if (!this.isDragging) return;
+        this.isDragging = false;
+        
+        // Apply momentum
+        this.targetX = this.currentX + (this.velocity * 150); // Momentum multiplier
+
+        // Snap to bounds
+        if (this.targetX > 0) {
+            this.targetX = 0;
+        } else if (this.targetX < -this.maxScroll) {
+            this.targetX = -this.maxScroll;
+        } else {
+            // Snap to nearest item
+            const nearestIndex = Math.round(Math.abs(this.targetX) / this.itemTotalWidth);
+            this.targetX = -nearestIndex * this.itemTotalWidth;
+        }
+
+        this._updateLoop();
+    }
+
+    _updateLoop() {
+        if (this.isDragging) return;
+
+        // Smooth decay towards target (ease-out)
+        this.currentX += (this.targetX - this.currentX) * 0.1;
+        
+        this._renderItems(this.currentX);
+
+        // Check if we arrived at target
+        if (Math.abs(this.targetX - this.currentX) > 0.5) {
+            this.animationFrame = requestAnimationFrame(this._updateLoop.bind(this));
+        } else {
+            this.currentX = this.targetX;
+            this._renderItems(this.currentX);
+            this._fireChange();
+        }
+    }
+
+    _renderItems(scrollX) {
+        const centerOffset = this.container.offsetWidth / 2;
+        
+        this.items.forEach((item, index) => {
+            // Calculate base position of item relative to track center
+            const itemBaseX = index * this.itemTotalWidth;
+            
+            // Calculate absolute position on screen (relative to center point)
+            const absoluteX = itemBaseX + scrollX;
+            
+            // Distance from center (0 = perfectly centered)
+            const distanceFromCenter = Math.abs(absoluteX);
+            
+            // Normalised distance (0 to 1 based on item width)
+            const normalizedDist = Math.min(distanceFromCenter / (this.itemTotalWidth * 1.5), 1);
+            
+            // Calculate styles based on distance
+            const scale = 1 - (normalizedDist * 0.35); // Center is 1, edges shrink down to 0.65
+            const opacity = 1 - (normalizedDist * 0.6); // Center is 1, edges fade out
+            const zIndex = 100 - Math.round(distanceFromCenter);
+            
+            // Apply transform
+            item.style.transform = `translateX(${absoluteX}px) scale(${scale})`;
+            item.style.opacity = opacity;
+            item.style.zIndex = zIndex;
+            
+            // Visual highlight for the centered item
+            if (distanceFromCenter < this.itemTotalWidth * 0.4) {
+                item.classList.add('border-accent-primary', 'shadow-[0_0_20px_rgba(255,184,140,0.5)]');
+                item.classList.remove('border-transparent', 'shadow-xl');
+            } else {
+                item.classList.remove('border-accent-primary', 'shadow-[0_0_20px_rgba(255,184,140,0.5)]');
+                item.classList.add('border-transparent', 'shadow-xl');
+            }
+        });
+    }
+
+    _fireChange() {
+        const newIndex = Math.round(Math.abs(this.currentX) / this.itemTotalWidth);
+        if (this.selectedIndex !== newIndex && newIndex >= 0 && newIndex < this.totalItems) {
+            this.selectedIndex = newIndex;
+            const selectedUrl = this.avatars[this.selectedIndex];
+            this.options.onChange(selectedUrl);
+        }
+    }
+
+    destroy() {
+        if (this.animationFrame) cancelAnimationFrame(this.animationFrame);
+        this.container.removeEventListener('touchstart', this.onDragStart);
+        window.removeEventListener('touchmove', this.onDragMove);
+        window.removeEventListener('touchend', this.onDragEnd);
+        this.container.removeEventListener('mousedown', this.onDragStart);
+        window.removeEventListener('mousemove', this.onDragMove);
+        window.removeEventListener('mouseup', this.onDragEnd);
+        this.container.innerHTML = '';
     }
 }

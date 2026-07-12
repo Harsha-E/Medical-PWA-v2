@@ -33,13 +33,17 @@ export default class DashboardView {
 
   async _loadDashboardData() {
     try {
-      const medsPromise = db.medications.toArray().catch(e => {
+      const targetUserId = state.activeProfileContext ? String(state.activeProfileContext.id) : (state.user?.uid || 'anonymous');
+
+      const medsPromise = db.medications.filter(m => String(m.userId) === targetUserId && !m.isDeleted).toArray().catch(e => {
           console.error('[Diagnostics] Local ledger failure:', e);
           return [];
       });
-      const dosesPromise = db.doses.toArray().catch(() => []);
-      const historyPromise = db.history.toArray().catch(() => []);
-      const familyPromise = db.family.toArray().catch(() => []);
+      const dosesPromise = db.doses.filter(d => String(d.userId) === targetUserId && !d.isDeleted).toArray().catch(() => []);
+      const historyPromise = db.history.filter(h => String(h.userId) === targetUserId && !h.isDeleted).toArray().catch(() => []);
+      
+      // Only show family network when viewing self
+      const familyPromise = state.activeProfileContext ? Promise.resolve([]) : db.family.filter(f => !f.isDeleted).toArray().catch(() => []);
 
       const [meds, doses, history, family] = await Promise.all([
         medsPromise,

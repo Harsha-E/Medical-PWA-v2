@@ -30,8 +30,9 @@ export default class ReportsView {
       </div></main>
     `;
 
-    const meds = await db.medications.toArray();
-    const allDoses = await db.doses.toArray();
+    const targetUserId = state.activeProfileContext ? String(state.activeProfileContext.id) : (state.user?.uid || 'anonymous');
+    const meds = await db.medications.filter(m => !m.isDeleted && String(m.userId) === targetUserId).toArray();
+    const allDoses = await db.doses.filter(d => !d.isDeleted && String(d.userId) === targetUserId).toArray();
 
     const now = new Date();
     let totalExpected30 = 0;
@@ -184,8 +185,10 @@ export default class ReportsView {
   }
 
   async generatePdf() {
-    const meds = await db.medications.toArray();
-    const doses = await db.doses.toArray();
+    const targetUserId = state.activeProfileContext ? String(state.activeProfileContext.id) : (state.user?.uid || 'anonymous');
+    const meds = await db.medications.filter(m => !m.isDeleted && String(m.userId) === targetUserId).toArray();
+    const doses = await db.doses.filter(d => !d.isDeleted && String(d.userId) === targetUserId).toArray();
+    const allHistory = await db.history.filter(h => !h.isDeleted && String(h.userId) === targetUserId).toArray();
     const profile = { 
         name: state.user?.displayName || 'User', 
         bloodType: state.userProfile?.profile?.bloodType || 'Unknown' 
@@ -202,7 +205,8 @@ export default class ReportsView {
 
   async generateCsv() {
     try {
-        const meds = await db.medications.toArray();
+        const targetUserId = state.activeProfileContext ? String(state.activeProfileContext.id) : (state.user?.uid || 'anonymous');
+        const meds = await db.medications.filter(m => !m.isDeleted && String(m.userId) === targetUserId).toArray();
         exportEngine.exportMedicationsCSV(meds);
         showToast('CSV export generated.', 'success');
     } catch (e) {

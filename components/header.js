@@ -1,3 +1,5 @@
+import state from '../core/state.js';
+
 export default class AppHeader {
   constructor() {
     this.el = document.createElement('header');
@@ -73,7 +75,20 @@ export default class AppHeader {
         <div class="h-6 w-32 bg-white/20 rounded animate-pulse"></div>
       `;
     } else {
-      if (eyebrow) {
+      if (state.activeProfileContext) {
+        const proxyBadge = document.createElement('div');
+        proxyBadge.className = 'flex items-center gap-2 mb-1 px-3 py-1 rounded-full bg-[#ffb88c]/20 border border-[#ffb88c]/30 cursor-pointer shadow-lg transition-transform hover:scale-105';
+        proxyBadge.innerHTML = `
+          ${state.activeProfileContext.avatarUrl ? `<img src="${state.activeProfileContext.avatarUrl}" class="w-4 h-4 rounded-full object-cover border border-[#ffb88c]/50">` : `<div class="w-4 h-4 rounded-full bg-text-primary text-surface flex items-center justify-center text-[8px] font-bold">${(state.activeProfileContext.name || '?')[0].toUpperCase()}</div>`}
+          <span class="text-[9px] font-mono uppercase tracking-widest text-[#ffb88c] font-bold">Proxy: ${state.activeProfileContext.name}</span>
+          <svg class="w-3 h-3 text-[#ffb88c]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        `;
+        proxyBadge.addEventListener('click', () => {
+          state.setActiveProfileContext(null);
+          window.location.hash = '#/family-profiles';
+        });
+        centerCol.appendChild(proxyBadge);
+      } else if (eyebrow) {
         const eyeEl = document.createElement('span');
         eyeEl.className = 'text-[9px] font-mono uppercase tracking-widest text-[#ffb88c] opacity-80 mb-1';
         eyeEl.textContent = eyebrow;

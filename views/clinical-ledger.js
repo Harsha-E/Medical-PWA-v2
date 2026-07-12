@@ -84,13 +84,14 @@ export default class ClinicalLedgerView {
         };
 
         if (this.targetUserId) {
-            filtered.diseases = allDiseases.filter(d => d.userId === this.targetUserId);
-            filtered.allergies = allAllergies.filter(a => a.userId === this.targetUserId);
-            filtered.surgeries = allSurgeries.filter(s => s.userId === this.targetUserId);
-            filtered.problems = allProblems.filter(p => p.userId === this.targetUserId);
-            filtered.meds = allMeds.filter(m => m.userId === this.targetUserId);
-            filtered.appts = allAppts.filter(a => a.userId === this.targetUserId);
-            filtered.history = allHistory.filter(h => h.userId === this.targetUserId);
+            const tId = String(this.targetUserId);
+            filtered.diseases = allDiseases.filter(d => String(d.userId) === tId);
+            filtered.allergies = allAllergies.filter(a => String(a.userId) === tId);
+            filtered.surgeries = allSurgeries.filter(s => String(s.userId) === tId);
+            filtered.problems = allProblems.filter(p => String(p.userId) === tId);
+            filtered.meds = allMeds.filter(m => String(m.userId) === tId);
+            filtered.appts = allAppts.filter(a => String(a.userId) === tId);
+            filtered.history = allHistory.filter(h => String(h.userId) === tId);
         } else {
             filtered = { diseases: allDiseases, allergies: allAllergies, surgeries: allSurgeries, problems: allProblems, meds: allMeds, appts: allAppts, history: allHistory };
         }

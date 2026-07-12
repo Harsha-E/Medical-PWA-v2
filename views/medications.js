@@ -20,13 +20,13 @@ export default class MedicationsView {
     this.container.innerHTML = this._getSkeletonUI();
 
     try {
-      const userId = state.user?.uid || 'anonymous';
+      const targetUserId = state.activeProfileContext ? String(state.activeProfileContext.id) : (state.user?.uid || 'anonymous');
       
       // WORKAROUND: Extract flat array sequence to completely bypass Index mapping checks
       const rawMeds = await db.medications.toArray();
       
       // Execute standard linear array filtering across available objects
-      const allMeds = rawMeds.filter(m => !m.userId || m.userId === userId).reverse();
+      const allMeds = rawMeds.filter(m => !m.isDeleted && (!m.userId || String(m.userId) === targetUserId)).reverse();
       const activeMeds = allMeds.filter(m => m.active !== false);
 
       this.container.innerHTML = `

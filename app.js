@@ -332,12 +332,19 @@ class App {
 
     state.subscribe(() => {
       if (this._authReady) this.runGuard();
-      this.updateCaregiverModeUI();
     });
     
     // Global window.appState binding
     window.appState = state;
     
+    // Handle Global Profile Context Switching (Family Hub)
+    window.addEventListener('medcare:profile-context-changed', (e) => {
+      console.log('[App] Global context switched to:', e.detail ? e.detail.name : 'Self');
+      const currentHash = window.location.hash || '#/';
+      this.appHeader.configure(HEADER_CONFIGS[currentHash]);
+      this.router.handleRouteChange();
+    });
+
     // Listen to Firebase Auth state
     onAuthStateChanged(auth, this.onAuthStateChanged.bind(this));
     
