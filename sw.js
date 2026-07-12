@@ -1,8 +1,8 @@
 /**
  * MedCare | Service Worker — Offline-First Cache
  */
-const CACHE_NAME = 'medcare-v58';
-const DATA_CACHE_NAME = 'medcare-data-v58';
+const CACHE_NAME = 'medcare-v59';
+const DATA_CACHE_NAME = 'medcare-data-v59';
 const BASE_PATH = self.location.hostname === 'harsha-e.github.io' ? '/Medical-PWA-v2' : '';
 
 const ASSETS = [
@@ -40,13 +40,20 @@ const ASSETS = [
   '/views/appointments.js',
   '/views/admin.js',
   '/views/install2.js',
+  '/views/calendar.js',
+  '/views/ClinicalDashboard.js',
+  '/views/clinical-ledger.js',
+  '/views/peer-network.js',
+  '/widgets/meds-widget.html',
+  '/widgets/sos-widget.html',
   '/utils/CustomModals.js',
   '/services/PeerMesh.js',
   '/services/SyncBridge.js',
   '/services/DocLedger.js',
   '/workers/vision.worker.js',
   '/data/drug-graph.json',
-  '/data/drug-index.json'
+  '/data/drug-index.json',
+  '/data/diseases_11k.json'
 ].map(path => BASE_PATH + path);
 
 self.addEventListener('install', (event) => {

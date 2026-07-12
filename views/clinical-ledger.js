@@ -1,6 +1,7 @@
 import db from '../core/db.js';
 import state from '../core/state.js';
 import { escapeHTML } from '../core/utils.js';
+import AddRecordModal from '../components/AddRecordModal.js';
 
 export default class ClinicalLedgerView {
     constructor() {
@@ -141,7 +142,7 @@ export default class ClinicalLedgerView {
     async render() {
         if (!this.container) {
             this.container = document.createElement('div');
-            this.container.className = 'w-full h-full overflow-y-auto relative min-h-screen font-sans bg-[#0a0407]';
+            this.container.className = 'w-full h-full overflow-y-auto relative min-h-screen font-sans bg-[#0a0407]/90 backdrop-blur-2xl md:backdrop-blur-3xl';
         }
 
         await this.loadData();
@@ -205,61 +206,6 @@ export default class ClinicalLedgerView {
                     /* Not sticky anymore to match mockup style */
                     z-index: 50;
                     padding-bottom: 1rem;
-                }
-
-                .segmented-control {
-                    background: rgba(10, 4, 7, 0.6);
-                    backdrop-filter: blur(12px);
-                    -webkit-backdrop-filter: blur(12px);
-                    border: 1px solid rgba(255,255,255,0.05);
-                    border-radius: 999px;
-                    padding: 4px;
-                    display: flex;
-                    position: relative;
-                    box-shadow: 
-                        inset 4px 4px 10px rgba(0,0,0,0.8),
-                        inset -2px -2px 6px rgba(255,255,255,0.03);
-                }
-
-                .segment-pill {
-                    flex: 1;
-                    text-align: center;
-                    padding: 12px 16px;
-                    border-radius: 999px;
-                    font-size: 11px;
-                    font-weight: 800;
-                    text-transform: uppercase;
-                    letter-spacing: 0.15em;
-                    cursor: pointer;
-                    position: relative;
-                    z-index: 2;
-                    color: rgba(255,255,255,0.4);
-                    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 8px;
-                }
-
-                .segment-pill.active {
-                    color: #ffffff;
-                    text-shadow: 0 0 10px rgba(255,255,255,0.3);
-                }
-
-                .segment-slider {
-                    position: absolute;
-                    top: 4px;
-                    bottom: 4px;
-                    width: calc(50% - 4px);
-                    background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
-                    border-radius: 999px;
-                    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-                    z-index: 1;
-                    box-shadow: 
-                        0 4px 15px rgba(0, 0, 0, 0.4),
-                        inset 1px 1px 1px rgba(255, 255, 255, 0.15),
-                        inset -1px -1px 2px rgba(0, 0, 0, 0.2);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
                 }
 
                 /* Relume Timeline */
@@ -412,17 +358,23 @@ export default class ClinicalLedgerView {
 
         this.container.innerHTML = `
             ${styles}
-            <div class="${themeClass} min-h-screen text-[#fefcff] pb-40 pt-24">
+            <!-- Gradient background layer -->
+            <div class="fixed inset-0 z-0 pointer-events-none" style="background: radial-gradient(circle at 100% 0%, rgba(255, 184, 140, 0.12) 0%, transparent 50%), radial-gradient(circle at 0% 100%, rgba(127, 47, 93, 0.08) 0%, transparent 50%) #0a0407;"></div>
+            <!-- Frosted glass blur layer -->
+            <div class="fixed inset-0 z-[1] pointer-events-none backdrop-blur-3xl bg-[#0a0407]/40"></div>
+            
+            <div class="${themeClass} relative z-10 min-h-screen text-[#fefcff] pb-40 pt-24">
                 
                 <!-- View Toggle -->
                 <div class="max-w-sm mx-auto px-6 mb-10">
-                    <div class="segmented-control w-full relative">
-                        <div class="segment-slider" style="transform: translateX(${this.currentView === 'timeline' ? '0' : '100%'})"></div>
-                        <div class="segment-pill ${this.currentView === 'timeline' ? 'active' : ''}" data-view="timeline">
+                    <div class="w-full relative flex p-1.5 bg-[#0a0407]/40 backdrop-blur-2xl border border-white/5 rounded-full shadow-[inset_6px_6px_12px_rgba(0,0,0,0.8),inset_-4px_-4px_10px_rgba(255,255,255,0.04)]">
+                        <div class="segment-slider absolute top-1.5 bottom-1.5 bg-white/5 rounded-full border border-white/10 shadow-[4px_4px_12px_rgba(0,0,0,0.5),inset_1px_1px_2px_rgba(255,255,255,0.2)] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]" style="${this.currentView === 'timeline' ? 'left: 6px; right: 50%;' : 'left: 50%; right: 6px;'}"></div>
+                        
+                        <div class="segment-pill flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-full text-[11px] font-[800] uppercase tracking-[0.2em] cursor-pointer relative z-10 transition-all duration-500 ${this.currentView === 'timeline' ? 'text-[#ffb88c] drop-shadow-[0_0_15px_rgba(255,184,140,0.4)]' : 'text-white/30'}" data-view="timeline">
                             <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
                             TIMELINE
                         </div>
-                        <div class="segment-pill ${this.currentView === 'diseases' ? 'active' : ''}" data-view="diseases">
+                        <div class="segment-pill flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-full text-[11px] font-[800] uppercase tracking-[0.2em] cursor-pointer relative z-10 transition-all duration-500 ${this.currentView === 'diseases' ? 'text-[#ffb88c] drop-shadow-[0_0_15px_rgba(255,184,140,0.4)]' : 'text-white/30'}" data-view="diseases">
                             <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.42 4.58a5.4 5.4 0 00-7.65 0l-.77.78-.77-.78a5.4 5.4 0 00-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z"/></svg>
                             DISEASES
                         </div>
@@ -594,7 +546,7 @@ export default class ClinicalLedgerView {
 
     renderEmptyState(viewType) {
         return `
-            <div class="flex flex-col items-center justify-center py-20 text-center px-4">
+            <div class="flex flex-col items-center justify-center py-20 text-center px-4 md:px-8 lg:px-12">
                 <div class="w-20 h-20 rounded-full border border-[var(--theme-border)] bg-[var(--theme-accent-muted)] flex items-center justify-center mb-6 shadow-[0_0_30px_var(--theme-accent-glow)]">
                     <svg class="w-10 h-10 text-[var(--theme-accent)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                         <path d="M12 4v16m8-8H4"/>
@@ -640,7 +592,7 @@ export default class ClinicalLedgerView {
         const segments = this.container.querySelectorAll('.segment-pill');
         segments.forEach(seg => {
             seg.addEventListener('click', async (e) => {
-                const targetView = e.target.getAttribute('data-view');
+                const targetView = seg.getAttribute('data-view');
                 if (targetView === this.currentView) return;
                 
                 this.currentView = targetView;
@@ -648,9 +600,20 @@ export default class ClinicalLedgerView {
                 const slider = this.container.querySelector('.segment-slider');
                 
                 // Update Slider
-                slider.style.transform = `translateX(${targetView === 'timeline' ? '0' : '100%'})`;
-                segments.forEach(s => s.classList.remove('active'));
-                e.target.classList.add('active');
+                if (targetView === 'timeline') {
+                    slider.style.left = '6px';
+                    slider.style.right = '50%';
+                } else {
+                    slider.style.left = '50%';
+                    slider.style.right = '6px';
+                }
+                
+                segments.forEach(s => {
+                    s.classList.remove('text-[#ffb88c]', 'drop-shadow-[0_0_15px_rgba(255,184,140,0.4)]');
+                    s.classList.add('text-white/30');
+                });
+                seg.classList.remove('text-white/30');
+                seg.classList.add('text-[#ffb88c]', 'drop-shadow-[0_0_15px_rgba(255,184,140,0.4)]');
 
                 // Animate out
                 content.style.opacity = '0';
@@ -675,9 +638,18 @@ export default class ClinicalLedgerView {
         const fab = this.container.querySelector('#fab-add-record');
         if (fab) {
             fab.addEventListener('click', () => {
-                alert("Add record modal (to be integrated).");
+                new AddRecordModal();
             });
         }
+
+        // Listen for global ledger update event from the Smart Form
+        document.addEventListener('ledgerUpdated', async () => {
+            await this.loadData();
+            const content = this.container.querySelector('#ledger-content');
+            if (content) {
+                content.innerHTML = this.currentView === 'timeline' ? this.renderTimelineView() : this.renderDiseasesView();
+            }
+        });
 
         // View Document Action
         this.container.addEventListener('click', (e) => {

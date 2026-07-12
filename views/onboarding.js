@@ -51,10 +51,10 @@ const COUNTRY_CODES = [
 export default class OnboardingView {
   async render() {
     this.container = document.createElement('div');
-    this.container.className = 'h-[100dvh] w-full flex flex-col items-center justify-start pt-12 pb-32 px-4 relative z-10 overflow-y-auto ';
+    this.container.className = 'h-[100dvh] w-full flex flex-col items-center justify-start pt-12 pb-32 px-4 md:px-8 lg:px-12 relative z-10 overflow-y-auto ';
 
     this.container.innerHTML = `
-      <div class="w-full max-w-2xl p-8 md:p-12 rounded-[2.5rem] bg-surface/60 backdrop-blur-3xl border border-border shadow-[0_20px_50px_rgba(0,0,0,0.7)] animate-fade-in-up">
+      <div class="w-full max-w-2xl md:max-w-4xl lg:max-w-5xl p-8 md:p-12 rounded-[2.5rem] bg-surface/60 backdrop-blur-3xl border border-border shadow-[0_20px_50px_rgba(0,0,0,0.7)] animate-fade-in-up">
         <div class="mb-10 border-b border-border pb-8">
           <span class="text-accent-primary font-mono text-xs uppercase tracking-widest">Final Step</span>
           <h2 class="text-3xl md:text-4xl font-display font-semibold text-text-primary mt-3">Clinical Profile</h2>

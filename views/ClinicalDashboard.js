@@ -9,9 +9,6 @@ export default class ClinicalDashboard {
   async render() {
     this.container = document.createElement('div');
     this.container.className = 'w-full h-full min-h-screen relative font-sans overflow-y-auto overflow-x-hidden pt-24';
-    this.container.style.background = '#0a0407';
-    // The exact background blob the user loved
-    this.container.style.backgroundImage = 'radial-gradient(circle at 100% 0%, rgba(255, 184, 140, 0.12) 0%, transparent 50%), radial-gradient(circle at 0% 100%, rgba(127, 47, 93, 0.08) 0%, transparent 50%)';
 
     const userName = (state.userProfile?.name || state.user?.displayName || 'User').split(' ')[0].toUpperCase();
     const todayStr = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }).toUpperCase();
@@ -101,6 +98,11 @@ export default class ClinicalDashboard {
 
     this.container.innerHTML = `
       ${styles}
+      <!-- Gradient background layer -->
+      <div class="fixed inset-0 z-0 pointer-events-none" style="background: radial-gradient(circle at 100% 0%, rgba(255, 184, 140, 0.12) 0%, transparent 50%), radial-gradient(circle at 0% 100%, rgba(127, 47, 93, 0.08) 0%, transparent 50%) #0a0407;"></div>
+      <!-- Frosted glass blur layer just like header -->
+      <div class="fixed inset-0 z-[1] pointer-events-none backdrop-blur-3xl bg-[#0a0407]/40"></div>
+      
       <div class="dashboard-root relative z-10 pt-4">
         
         <!-- Card 1: Taking Medicines -->

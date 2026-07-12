@@ -5,7 +5,7 @@ import WebGLLiquid from '../core/WebGLLiquid.js';
 export default class LoginView {
   async render() {
     this.container = document.createElement('div');
-    this.container.className = 'force-dark-theme min-h-[100dvh] w-full flex flex-col items-center justify-center p-4 py-6 relative z-10 overflow-y-auto';
+    this.container.className = 'force-dark-theme min-h-[100dvh] w-full flex flex-col items-center justify-center p-4 py-6 md:p-8 relative z-10 overflow-y-auto';
 
     this.currentStep = 1;
     this.emailValue = '';
@@ -108,10 +108,28 @@ export default class LoginView {
         <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(9,9,11,0.6)_100%)] pointer-events-none"></div>
       </div>
 
-      <div class="clay-glass-panel w-full max-w-md p-6 animate-fade-in-up relative z-10 border border-[var(--color-primary)]/30 shadow-[0_0_40px_rgba(255,184,140,0.15)]">
+      <div class="w-full max-w-md md:max-w-5xl md:flex rounded-[2rem] animate-fade-in-up relative z-10 shadow-[0_0_40px_rgba(255,184,140,0.15)] overflow-hidden">
+        <!-- Desktop Branding Panel (left col on md+) -->
+        <div class="hidden md:flex md:flex-col md:justify-center md:items-start md:w-1/2 md:p-12 relative" style="background: linear-gradient(135deg, rgba(10,4,7,0.97) 0%, rgba(127,47,93,0.18) 100%); border-right: 1px solid rgba(255,184,140,0.12);">
+          <div class="absolute -top-24 -left-24 w-72 h-72 blur-[80px] rounded-full pointer-events-none" style="background: var(--color-page-blob-1); opacity: 0.6;"></div>
+          <div class="absolute -bottom-24 -right-24 w-72 h-72 blur-[80px] rounded-full pointer-events-none" style="background: var(--color-page-blob-3); opacity: 0.4;"></div>
+          <div class="relative z-10">
+            <div class="w-16 h-16 rounded-2xl shadow-lg flex items-center justify-center mb-6" style="background: linear-gradient(to bottom right, rgba(255,184,140,0.15), var(--color-surface)); border: 1px solid rgba(255,184,140,0.4);">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <h1 class="text-4xl xl:text-5xl font-display font-bold tracking-tight bg-gradient-to-br from-[#ca5229] via-[#ffb88c] to-[#9a3915] bg-clip-text text-transparent leading-tight mb-4">MedCheck</h1>
+            <p class="text-white/60 text-sm font-mono uppercase tracking-widest mb-8">Clinical Health Sentinel</p>
+            <ul class="space-y-3">
+              <li class="flex items-center gap-3 text-white/50 text-xs font-mono"><span class="w-1.5 h-1.5 rounded-full bg-[#ffb88c] shrink-0"></span>Secure biomedical ledger</li>
+              <li class="flex items-center gap-3 text-white/50 text-xs font-mono"><span class="w-1.5 h-1.5 rounded-full bg-[#ffb88c] shrink-0"></span>AI drug interaction engine</li>
+              <li class="flex items-center gap-3 text-white/50 text-xs font-mono"><span class="w-1.5 h-1.5 rounded-full bg-[#ffb88c] shrink-0"></span>Offline-first, end-to-end encrypted</li>
+            </ul>
+          </div>
+        </div>
+        <!-- Form Panel (full width on mobile, right col on md+) -->
+        <div class="clay-glass-panel w-full md:w-1/2 p-6 md:p-10 md:rounded-none relative">
         <!-- Inner glow wrapper to safely isolate overflow-hidden without breaking Safari/WebKit rendering -->
         <div class="absolute inset-0 overflow-hidden pointer-events-none rounded-[inherit] z-0">
-          <div class="absolute inset-0 bg-overlay-bg z-0"></div>
           <div class="absolute -top-24 -left-24 w-48 h-48 blur-[50px] rounded-full z-10" style="background: var(--color-page-blob-1);"></div>
           <div class="absolute -bottom-24 -right-24 w-48 h-48 blur-[50px] rounded-full z-10" style="background: var(--color-page-blob-3);"></div>
         </div>
@@ -120,7 +138,7 @@ export default class LoginView {
           <div class="w-16 h-16 mx-auto rounded-2xl shadow-lg flex items-center justify-center mb-4 transition-transform hover:scale-105 duration-300" style="background: linear-gradient(to bottom right, rgba(255,184,140,0.15), var(--color-surface)); border: 1px solid rgba(255,184,140,0.4);">
              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           </div>
-          <h2 class="text-3xl font-display font-bold tracking-tight bg-gradient-to-br from-[#ca5229] via-[#ffb88c] to-[#9a3915] bg-clip-text text-transparent">Access Portal</h2>
+          <h2 class="text-3xl md:text-4xl font-display font-bold tracking-tight bg-gradient-to-br from-[#ca5229] via-[#ffb88c] to-[#9a3915] bg-clip-text text-transparent">Access Portal</h2>
           <p class="text-white text-xs mt-2 font-mono uppercase tracking-widest font-semibold">Verify Clinical Identity</p>
         </div>
 
@@ -192,6 +210,7 @@ export default class LoginView {
           <p class="mt-8 text-center text-xs font-mono uppercase tracking-widest relative z-10" style="color: var(--color-text-secondary);">
             New user? <a href="#/register" class="text-primary hover:text-secondary transition-colors font-bold ml-1">Register here</a>
           </p>
+        </div>
         </div>
       </div>
     `;

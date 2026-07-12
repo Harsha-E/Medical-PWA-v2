@@ -3,6 +3,7 @@ import state from '../core/state.js';
 import { showToast } from '../core/ui.js';
 import { escapeHTML } from '../core/utils.js';
 import app from '../app.js';
+import AvatarSelector from '../components/AvatarSelector.js';
 
 export default class FamilyProfilesView {
   async render() {
@@ -14,21 +15,18 @@ export default class FamilyProfilesView {
     const family = await db.family.filter(f => f.userId === state.user?.uid).toArray();
 
     this.container.innerHTML = `
-      <main class="scroll-area pt-[112px] md:pt-8" style="padding-left:0; padding-right:0;">
-<div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
-        <div class="grid grid-cols-1 gap-8 mt-4">
+      <main class="scroll-area pt-[112px] md:pt-8 md:pl-64 lg:pl-72 md:pt-8 md:pl-64" style="padding-left:0; padding-right:0;">
+<div class="px-4 md:px-8 w-full h-full max-w-5xl mx-auto flex flex-col flex-1">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mt-4">
             ${family.map(member => `
-              <div class="clay-glass-panel p-8 flex flex-col items-center text-center shadow-xl shadow-card-shadow">
-                  <div class="w-24 h-24 bg-text-primary text-surface rounded-4xl flex items-center justify-center font-display text-4xl italic mb-6 shadow-xl">
-                    ${member.name ? escapeHTML(member.name)[0].toUpperCase() : '?'}
-                  </div>
+              <div class="clay-glass-panel p-8 flex flex-col items-center text-center shadow-xl shadow-card-shadow cursor-pointer hover:scale-105 transition-transform" data-id="${member.id}">
+                  ${member.avatarUrl 
+                    ? `<div class="w-24 h-24 mb-6 shadow-xl rounded-full overflow-hidden border-2 border-border/50"><img src="${escapeHTML(member.avatarUrl)}" class="w-full h-full object-cover"></div>` 
+                    : `<div class="w-24 h-24 bg-text-primary text-surface rounded-4xl flex items-center justify-center font-display text-4xl italic mb-6 shadow-xl">${member.name ? escapeHTML(member.name)[0].toUpperCase() : '?'}</div>`
+                  }
                   <h3 class="font-bold text-xl leading-none">${escapeHTML(member.name)}</h3>
                   <p class="text-xs text-uppercase font-bold text-primary tracking-widest mt-2 uppercase">${escapeHTML(member.relation) || 'Unknown'} &bull; DOB: ${escapeHTML(member.dob) || 'Unknown'}</p>
                   ${member.conditions ? `<p class="text-xs text-muted mt-3 max-w-[90%] mx-auto">Conditions: ${escapeHTML(member.conditions)}</p>` : ''}
-                  <div class="flex gap-3 mt-8 w-full">
-                      <a href="#/medical-history?familyId=${member.id}" class="flex-1 py-3 bg-surface-deep text-text-primary border border-border rounded-xl text-xs uppercase font-bold tracking-widest active:scale-95 transition-all text-center">Records</a>
-                      <a href="#/medications?familyId=${member.id}" class="flex-1 py-3 bg-surface-deep text-text-primary border border-border rounded-xl text-xs uppercase font-bold tracking-widest active:scale-95 transition-all text-center">Prescriptions</a>
-                  </div>
               </div>
             `).join('')}
 
@@ -67,22 +65,35 @@ export default class FamilyProfilesView {
   attachListeners() {
     this.container.querySelector('#add-family-member')?.addEventListener('click', () => this.showAddModal());
     app.appHeader.on('add-family', () => this.showAddModal());
+
+    const cards = this.container.querySelectorAll('.clay-glass-panel[data-id]');
+    cards.forEach(card => {
+      card.addEventListener('click', async () => {
+        const id = card.getAttribute('data-id');
+        const member = await db.family.get(parseInt(id, 10)); // ID is auto-increment integer
+        if (member) {
+          state.setActiveProfileContext(member);
+          window.location.hash = '#/dashboard';
+        }
+      });
+    });
   }
 
   showAddModal() {
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 z-[9999] flex items-center justify-center bg-overlay-bg backdrop-blur-sm p-6';
     modal.innerHTML = `
-      <div class="bg-surface-elevated border border-border p-8 rounded-3xl max-w-sm w-full shadow-2xl">
-        <h3 class="text-lg font-display text-text-primary mb-6">Add Dependent</h3>
-        <form id="add-family-form" class="space-y-4">
+      <div class="bg-surface-elevated border border-border p-8 rounded-3xl max-w-sm w-full shadow-2xl flex flex-col max-h-[90vh]">
+        <h3 class="text-lg font-display text-text-primary mb-2">Add Dependent</h3>
+        <div id="avatar-mount-point" class="mb-4 -mx-4 h-32 flex-shrink-0"></div>
+        <form id="add-family-form" class="space-y-4 overflow-y-auto overflow-x-hidden p-1 scrollbar-hide">
           <div>
             <label class="block text-xs text-text-secondary uppercase tracking-widest mb-1 ml-1">Name</label>
-            <input type="text" id="f-name" required class="w-full px-4 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
+            <input type="text" id="f-name" required class="w-full px-4 md:px-8 lg:px-12 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
           </div>
           <div>
             <label class="block text-xs text-text-secondary uppercase tracking-widest mb-1 ml-1">Relation</label>
-            <select id="f-relation" required class="w-full px-4 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
+            <select id="f-relation" required class="w-full px-4 md:px-8 lg:px-12 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
               <option value="Child" class="bg-surface">Child</option>
               <option value="Parent" class="bg-surface">Parent</option>
               <option value="Spouse" class="bg-surface">Spouse</option>
@@ -91,11 +102,11 @@ export default class FamilyProfilesView {
           </div>
           <div>
             <label class="block text-xs text-text-secondary uppercase tracking-widest mb-1 ml-1">Date of Birth</label>
-            <input type="date" id="f-dob" required class="w-full px-4 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2[color-scheme:dark]">
+            <input type="date" id="f-dob" required class="w-full px-4 md:px-8 lg:px-12 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2[color-scheme:dark]">
           </div>
           <div>
             <label class="block text-xs text-text-secondary uppercase tracking-widest mb-1 ml-1">Known Allergies/Conditions</label>
-            <textarea id="f-conditions" rows="2" class="w-full px-4 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2" placeholder="Optional"></textarea>
+            <textarea id="f-conditions" rows="2" class="w-full px-4 md:px-8 lg:px-12 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2" placeholder="Optional"></textarea>
           </div>
           <div class="flex gap-3 mt-8">
             <button type="button" id="cancel-family" class="flex-1 py-3 rounded-xl text-text-primary text-xs uppercase font-bold tracking-widest transition-colors btn-neumorphic">Cancel</button>
@@ -106,7 +117,27 @@ export default class FamilyProfilesView {
     `;
     document.body.appendChild(modal);
 
-    modal.querySelector('#cancel-family').onclick = () => modal.remove();
+    let selectedAvatar = null;
+    const avatars = [
+        '../assets/avatars/001-barista.png', '../assets/avatars/002-editor.png', '../assets/avatars/003-trainers.png',
+        '../assets/avatars/004-woman.png', '../assets/avatars/005-teacher.png', '../assets/avatars/006-pastor.png',
+        '../assets/avatars/007-muslim.png', '../assets/avatars/008-homeless.png', '../assets/avatars/009-butcher.png',
+        '../assets/avatars/010-chinese.png', '../assets/avatars/011-coach.png', '../assets/avatars/012-designer.png',
+        '../assets/avatars/013-doctor.png', '../assets/avatars/dad.png', '../assets/avatars/dancer.png',
+        '../assets/avatars/graphic-designer.png', '../assets/avatars/man.png'
+    ];
+    
+    const avatarSelector = new AvatarSelector({
+        avatars,
+        onChange: (url) => selectedAvatar = url
+    });
+    modal.querySelector('#avatar-mount-point').appendChild(avatarSelector.container);
+
+    modal.querySelector('#cancel-family').onclick = () => {
+        avatarSelector.destroy();
+        modal.remove();
+    };
+    
     modal.querySelector('#add-family-form').onsubmit = async (e) => {
       e.preventDefault();
       const name = modal.querySelector('#f-name').value.trim();
@@ -114,7 +145,8 @@ export default class FamilyProfilesView {
       const dob = modal.querySelector('#f-dob').value;
       const conditions = modal.querySelector('#f-conditions').value.trim();
       
-      await db.family.add({ name, relation, dob, conditions, userId: state.user.uid });
+      await db.family.add({ name, relation, dob, conditions, avatarUrl: selectedAvatar, userId: state.user.uid });
+      avatarSelector.destroy();
       modal.remove();
       
       // Hard re-render to update the view seamlessly

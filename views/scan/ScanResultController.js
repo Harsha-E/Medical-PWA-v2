@@ -217,7 +217,7 @@ export default class ScanResultController {
           <div class="space-y-4">
             <div>
               <label class="text-xs text-[var(--color-text-secondary)] uppercase tracking-widest font-bold ml-2 mb-1 block">Detected Text</label>
-              <input type="text" id="conf-val" value="${drugStr}" class="w-full bg-white/5 border border-[#7f2f5d]/50 rounded-xl px-4 py-3 text-[var(--color-text-primary)] text-sm focus:outline-none focus:border-[#ffb88c]/50">
+              <input type="text" id="conf-val" value="${drugStr}" class="w-full bg-white/5 border border-[#7f2f5d]/50 rounded-xl px-4 md:px-8 lg:px-12 py-3 text-[var(--color-text-primary)] text-sm focus:outline-none focus:border-[#ffb88c]/50">
             </div>
           </div>
           <div class="flex gap-3 mt-8">

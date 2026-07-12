@@ -28,7 +28,7 @@ export default class AdminView {
     }
 
     this.container.innerHTML = `
-      <main class="scroll-area pt-[112px] md:pt-8 pb-12" style="padding-left:0; padding-right:0;">
+      <main class="scroll-area pt-[112px] md:pt-8 md:pl-64 lg:pl-72 md:pt-8 pb-12" style="padding-left:0; padding-right:0;">
 <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
         <div class="grid grid-cols-2 gap-4 mb-10">
           <div class="clay-glass-panel p-5">

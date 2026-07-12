@@ -81,7 +81,7 @@ export default class InteractionCheckerView {
       const sandboxProfiles = [];
 
       this.container.innerHTML = `
-        <div class="max-w-2xl mx-auto w-full px-4 md:px-6 pt-[112px] md:pt-8 pb-28">
+        <div class="max-w-2xl md:max-w-4xl lg:max-w-5xl mx-auto w-full px-4 md:px-6 pt-[112px] md:pt-8 md:pl-64 lg:pl-72 md:pt-8 pb-28">
 
           <section class="bg-surface-elevated/40 backdrop-blur-xl border border-white/5 rounded-[2.5rem] p-6 mb-8 shadow-[10px_10px_30px_rgba(0,0,0,0.6),-10px_-10px_30px_rgba(255,255,255,0.02),inset_2px_2px_5px_rgba(255,255,255,0.05)] relative overflow-visible">
             <span class="text-xs font-mono tracking-widest uppercase text-accent-primary block mb-1">Pre-purchase Screener</span>
@@ -92,7 +92,7 @@ export default class InteractionCheckerView {
             </p>
             
             <div class="relative z-50">
-              <input type="text" id="sandbox-input" placeholder="Search generic or brand name..." class="w-full btn-neumorphic py-4 px-4 text-sm font-bold flex items-center gap-2 mb-2 bg-surface focus:outline-none">
+              <input type="text" id="sandbox-input" placeholder="Search generic or brand name..." class="w-full btn-neumorphic py-4 px-4 md:px-8 lg:px-12 text-sm font-bold flex items-center gap-2 mb-2 bg-surface focus:outline-none">
               
               <!-- Autocomplete Dropdown -->
               <div id="autocomplete-dropdown" class="absolute w-full top-full mt-3 bg-surface-deep/95 backdrop-blur-3xl border border-white/10 rounded-xl shadow-[10px_10px_30px_rgba(0,0,0,0.8),-5px_-5px_15px_rgba(255,255,255,0.05),inset_1px_1px_2px_rgba(255,255,255,0.1)] hidden z-[9999] max-h-[300px] overflow-y-auto">
@@ -325,7 +325,7 @@ export default class InteractionCheckerView {
          const results = await engine.autocomplete(val);
          if (results.length > 0) {
            dropdown.innerHTML = results.map(r => `
-             <div class="px-4 py-3 hover:bg-surface-deep cursor-pointer text-sm font-bold border-b border-border/50 last:border-b-0 autocomplete-item">
+             <div class="px-4 md:px-8 lg:px-12 py-3 hover:bg-surface-deep cursor-pointer text-sm font-bold border-b border-border/50 last:border-b-0 autocomplete-item">
                ${r}
              </div>
            `).join('');
@@ -341,7 +341,7 @@ export default class InteractionCheckerView {
               });
            });
          } else {
-           dropdown.innerHTML = `<div class="px-4 py-3 text-sm text-text-secondary italic">No matches found... hit enter to check anyway</div>`;
+           dropdown.innerHTML = `<div class="px-4 md:px-8 lg:px-12 py-3 text-sm text-text-secondary italic">No matches found... hit enter to check anyway</div>`;
            dropdown.classList.remove('hidden');
          }
       }, 300);
@@ -434,7 +434,7 @@ export default class InteractionCheckerView {
 
   _getSkeletonUI() {
     return `
-      <div class="max-w-2xl mx-auto w-full px-4 md:px-6 pt-[112px] md:pt-8 pb-28">
+      <div class="max-w-2xl md:max-w-4xl lg:max-w-5xl mx-auto w-full px-4 md:px-6 pt-[112px] md:pt-8 md:pl-64 lg:pl-72 md:pt-8 pb-28">
         
         <!-- Animated Title Skeleton -->
         <div class="h-4 w-32 bg-surface-elevated/80 backdrop-blur-3xl rounded-full mb-10 overflow-hidden relative shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]">

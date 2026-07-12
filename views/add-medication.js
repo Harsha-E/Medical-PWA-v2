@@ -179,8 +179,9 @@ export default class AddMedicationView {
     }
 
     this.container.innerHTML = `
-      <main class="flex-1 pb-24" style="padding-left:0; padding-right:0; height: 100%; overflow-y: auto; overflow-x: hidden;">
-        <div class="px-6 w-full max-w-7xl mx-auto flex flex-col">
+      <main class="flex-1 pb-24 md:pb-12" style="padding-left:0; padding-right:0; height: 100%; overflow-y: auto; overflow-x: hidden;">
+        <div class="px-4 md:px-8 pt-[112px] md:pt-8 md:pl-64 lg:px-12 w-full max-w-7xl mx-auto flex flex-col">
+        <div class="w-full max-w-2xl md:max-w-4xl lg:max-w-5xl mx-auto">
         ${warningBannerHtml}
         ${ocrConfidenceHtml}
         <div class="clay-glass-panel p-6 mb-8 clay-glass-panel rounded-[2rem]">
@@ -194,7 +195,52 @@ export default class AddMedicationView {
             <div id="m-name-dropdown" class="hidden relative w-full max-h-48 overflow-y-auto bg-[#150a0f] border border-[rgba(255,255,255,0.06)] rounded-xl mt-3 shadow-[0_8px_32px_rgba(0,0,0,0.6)] z-[50] clay-glass-panel">
             </div>
           </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-6">
+          <!-- Dosage Section: Always separate from Name -->
+          <div class="form-group mt-4" id="compound-dosage-section">
+            <label class="form-label" id="label-dosage">Dosage</label>
+            ${(() => {
+              const compounds = this._parseCompoundDosage(
+                this.medData.genericName || '',
+                this.medData.dosage || ''
+              );
+              if (compounds.length > 1) {
+                // Multi-compound: each compound gets its own row with name + dose as separate fields
+                return `
+                  <div class="space-y-3 mt-2" id="compound-rows">
+                    <div class="grid grid-cols-[1fr_1fr_50px] gap-3 mb-1">
+                      <span class="text-[9px] font-bold text-text-secondary uppercase tracking-widest px-1">Compound</span>
+                      <span class="text-[9px] font-bold text-text-secondary uppercase tracking-widest px-1">Dosage</span>
+                      <span class="text-[9px] font-bold text-text-secondary uppercase tracking-widest px-1">Unit</span>
+                    </div>
+                    ${compounds.map((c, i) => `
+                      <div class="grid grid-cols-[1fr_1fr_50px] gap-3 items-center">
+                        <input type="text" id="m-compound-name-${i}" data-compound-name="${i}"
+                          class="form-input text-sm" value="${c.name}" readonly
+                          style="opacity:0.7;">
+                        <input type="text" id="m-compound-dose-${i}" data-compound="${i}"
+                          class="form-input text-center compound-dose-input" value="${c.amount}" placeholder="0">
+                        <span class="text-xs font-mono text-text-secondary flex items-center justify-center">${c.unit}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                  <input type="hidden" id="m-dosage" value="${this.medData.dosage || ''}">
+                  <input type="hidden" id="m-unit" value="${this.medData.dosageUnit || 'mg'}">
+                `;
+              } else {
+                // Single compound: dosage + unit side by side
+                return `
+                  <div class="grid grid-cols-[1fr_80px] gap-3 mt-2">
+                    <input type="text" id="m-dosage" autocomplete="off" class="form-input" value="${this.medData.dosage || ''}" placeholder="e.g. 500">
+                    <input type="text" list="dosage-units" id="m-unit" autocomplete="off" class="form-input text-center" value="${this.medData.dosageUnit || 'mg'}" placeholder="mg">
+                    <datalist id="dosage-units">
+                      ${['mg','g','kg','mcg','ml','L','units','drops','patches','puffs','sprays'].map(u => `<option value="${u}">`).join('')}
+                    </datalist>
+                  </div>
+                `;
+              }
+            })()}
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 sm:grid-cols-2 gap-5 mt-6">
             <div class="form-group">
               <label for="m-start" class="form-label">Start Date</label>
               <input type="date" id="m-start" class="form-input [color-scheme:dark]" value="${this.medData.startDate || new Date().toISOString().split('T')[0]}">
@@ -204,20 +250,7 @@ export default class AddMedicationView {
               <input type="date" id="m-end" class="form-input [color-scheme:dark]" value="${this.medData.endDate || ''}">
             </div>
           </div>
-          <div class="grid grid-cols-2 gap-5 mt-4">
-            <div class="form-group">
-              <label for="m-dosage" id="label-dosage" class="form-label">Dosage</label>
-              <input type="text" id="m-dosage" autocomplete="off" class="form-input" value="${this.medData.dosage || ''}" placeholder="20">
-            </div>
-            <div class="form-group">
-              <label for="m-unit" class="form-label">Unit</label>
-              <input type="text" list="dosage-units" id="m-unit" autocomplete="off" class="form-input" value="${this.medData.dosageUnit || ''}" placeholder="mg">
-              <datalist id="dosage-units">
-                ${['mg','g','kg','mcg','ml','L','units','drops','patches','puffs','sprays'].map(u => `<option value="${u}">`).join('')}
-              </datalist>
-            </div>
-          </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 sm:grid-cols-2 gap-5 mt-4">
             <div class="form-group">
               <label for="m-total" id="label-total" class="form-label">Total Quantity</label>
               <input type="number" id="m-total" autocomplete="off" class="form-input" value="${this.medData.totalQuantity || ''}" placeholder="e.g. 30">
@@ -237,7 +270,7 @@ export default class AddMedicationView {
 
         <div class="clay-glass-panel p-6 mb-8 clay-glass-panel rounded-[2rem]">
           <h3 class="form-label mb-6">Database Insights</h3>
-          <div class="grid grid-cols-1 gap-5">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             <div class="form-group">
               <label for="m-generic" class="form-label">Generic Name</label>
               <input type="text" id="m-generic" autocomplete="off" class="form-input text-sm" value="${this.medData.genericName || ''}" placeholder="e.g. Budesonide">
@@ -246,7 +279,7 @@ export default class AddMedicationView {
               <label for="m-thera" class="form-label">Therapeutic Category</label>
               <input type="text" id="m-thera" autocomplete="off" class="form-input text-sm" value="${this.medData.therapeuticCategory || ''}">
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-2">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-2">
               <div class="form-group">
                 <label for="m-manuf" class="form-label">Manufacturer</label>
                 <input type="text" id="m-manuf" autocomplete="off" class="form-input text-sm" value="${this.medData.manufacturer || ''}">
@@ -276,16 +309,51 @@ export default class AddMedicationView {
           <textarea id="m-notes" class="form-textarea" rows="4" placeholder="Any special instructions...">${this.medData.notes || ''}</textarea>
         </div>
 
-        <div id="save-error" class="hidden text-xs text-danger font-bold bg-red-50 border border-red-100 rounded-xl px-4 py-3 mb-4"></div>
+        <div id="save-error" class="hidden text-xs text-danger font-bold bg-red-50 border border-red-100 rounded-xl px-4 md:px-8 lg:px-12 py-3 mb-4"></div>
 
         <button id="save-btn" class="mb-8 w-full max-w-xl mx-auto block py-4 rounded-2xl bg-gradient-to-r from-secondary to-surface-deep text-accent-bright text-sm font-bold uppercase tracking-[0.2em] [0_0_20px_rgba(127,47,93,0.4)] active:scale-95 transition-all btn-neumorphic">
           ${this.isEdit ? 'Save Changes' : 'Add Medication'}
         </button>
-      </div></main>
+      </div></div></main>
     `;
 
     this.attachListeners();
     return this.container;
+  }
+
+  /**
+   * Parses compound medicine names + dosage string into individual compound/dose pairs.
+   * e.g. genericName: "Aceclofenac + Paracetamol", dosage: "100mg + 325mg"
+   *   → [{name:"Aceclofenac", amount:"100", unit:"mg"}, {name:"Paracetamol", amount:"325", unit:"mg"}]
+   */
+  _parseCompoundDosage(genericName, dosage) {
+    // Split on + or / delimiters
+    const names = genericName
+      ? genericName.split(/\s*[+\/]\s*/).map(s => s.trim()).filter(Boolean)
+      : [];
+
+    // Parse individual dose parts: "100mg", "325 mg", "4.5mcg" etc.
+    const doseParts = dosage
+      ? dosage.split(/\s*[+\/]\s*/).map(s => {
+          const m = s.trim().match(/^([\d.]+)\s*([a-zA-Zμ]+)?$/);
+          return m ? { amount: m[1], unit: (m[2] || 'mg').toLowerCase() } : { amount: s.trim(), unit: 'mg' };
+        })
+      : [];
+
+    if (names.length <= 1 || doseParts.length <= 1) {
+      // Single compound — return as-is for legacy input
+      if (doseParts.length === 1) {
+        return [{ name: names[0] || '', amount: doseParts[0].amount, unit: doseParts[0].unit }];
+      }
+      return [];
+    }
+
+    // Zip names with dose parts
+    return names.map((name, i) => ({
+      name,
+      amount: doseParts[i]?.amount || '',
+      unit: doseParts[i]?.unit || 'mg'
+    }));
   }
 
   attachListeners() {
@@ -576,11 +644,30 @@ export default class AddMedicationView {
     saveBtn.textContent = 'Saving...';
     errorEl.classList.add('hidden');
 
+    const compoundInputs = this.container.querySelectorAll('.compound-dose-input');
+    let dosageValue, dosageUnitValue;
+    if (compoundInputs.length > 0) {
+      const compounds = this._parseCompoundDosage(
+        this.medData.genericName || '',
+        this.medData.dosage || ''
+      );
+      const parts = Array.from(compoundInputs).map((inp, i) => {
+        const unit = compounds[i]?.unit || 'mg';
+        return `${inp.value.trim()}${unit}`;
+      });
+      dosageValue = parts.join(' + ');
+      dosageUnitValue = compounds[0]?.unit || 'mg';
+    } else {
+      dosageValue = this.container.querySelector('#m-dosage')?.value.trim() || '';
+      dosageUnitValue = this.container.querySelector('#m-unit')?.value || 'mg';
+    }
+
     const data = {
       userId: state.user?.uid || 'anonymous',
       name,
-      dosage: this.container.querySelector('#m-dosage').value.trim(),
-      dosageUnit: this.container.querySelector('#m-unit').value,
+      dosage: dosageValue,
+      dosageUnit: dosageUnitValue,
+      genericName: this.medData.genericName || '',
       totalQuantity: parseInt(this.container.querySelector('#m-total').value, 10) || 0,
       refillThreshold: parseInt(this.container.querySelector('#m-threshold').value, 10) || 5,
       category: this.container.querySelector('#m-category').value,
@@ -589,7 +676,6 @@ export default class AddMedicationView {
       notes: this.container.querySelector('#m-notes').value,
       active: true,
       
-      // FIX: Append strict temporal boundaries so the calendar knows when this started
       startDate: this.container.querySelector('#m-start')?.value || new Date().toISOString().split('T')[0],
       endDate: this.container.querySelector('#m-end')?.value || '',
     };

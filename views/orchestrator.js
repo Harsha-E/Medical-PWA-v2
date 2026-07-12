@@ -16,7 +16,7 @@ export default class OrchestratorView {
     }
 
     this.container.innerHTML = `
-      <main class="flex-1 overflow-y-auto pt-[112px] md:pt-8 space-y-6 flex flex-col no-scrollbar pb-32" style="padding-left:0; padding-right:0;">
+      <main class="flex-1 overflow-y-auto pt-[112px] md:pt-8 md:pl-64 lg:pl-72 md:pt-8 space-y-6 flex flex-col no-scrollbar pb-32" style="padding-left:0; padding-right:0;">
 <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1" id="chat-window">
         ${this.messages.map(msg => this._renderMessage(msg)).join('')}
       </div></main>

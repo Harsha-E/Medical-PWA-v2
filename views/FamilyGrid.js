@@ -19,7 +19,7 @@ export default class FamilyGrid {
 
   async render() {
     this.container = document.createElement('div');
-    this.container.className = 'w-full h-[100dvh] pb-[90px] flex flex-col relative overflow-hidden bg-[#0a050f] font-sans';
+    this.container.className = 'w-full h-[100dvh] pb-[90px] md:pb-0 flex flex-col relative overflow-hidden bg-[#0a050f] font-sans md:pl-64';
     // Infinite dotted grid
     this.container.style.backgroundImage = 'radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px)';
     this.container.style.backgroundSize = '20px 20px';
@@ -28,11 +28,11 @@ export default class FamilyGrid {
       <!-- Grid Area (Flex 1) -->
       <div class="flex-1 relative w-full flex items-center justify-center min-h-0">
         <!-- Snap Zones Container -->
-        <div class="relative w-[90vw] h-[90vw] max-w-[350px] max-h-[350px]">
+        <div class="relative w-[90vw] h-[90vw] max-w-[350px] max-h-[350px] md:max-w-[480px] md:max-h-[480px] lg:max-w-[560px] lg:max-h-[560px]">
           
           <!-- Center "ME" Orb -->
           <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center pointer-events-none">
-            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-surface shadow-[20px_20px_60px_#040206,-20px_-20px_60px_#100818] flex items-center justify-center border border-white/5 relative">
+            <div class="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full bg-surface shadow-[20px_20px_60px_#040206,-20px_-20px_60px_#100818] flex items-center justify-center border border-white/5 relative">
               <span class="text-lg sm:text-xl font-bold bg-gradient-to-br from-primary to-secondary bg-clip-text text-transparent">ME</span>
             </div>
           </div>
@@ -76,7 +76,7 @@ export default class FamilyGrid {
       </div>
 
       <!-- Manual Connection FAB -->
-      <button id="manual-connect-btn" class="absolute top-24 right-6 w-14 h-14 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all z-40">
+      <button id="manual-connect-btn" class="absolute top-24 md:top-8 right-6 md:right-8 w-14 h-14 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all z-40">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="12" y1="5" x2="12" y2="19"></line>
           <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -87,16 +87,16 @@ export default class FamilyGrid {
       <div id="manual-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
         <div class="bg-surface-elevated p-8 rounded-3xl border border-white/10 w-full max-w-sm">
           <h3 class="text-xl font-display mb-6 text-white">Manual Connection</h3>
-          <input type="text" id="manual-peer-id" placeholder="Enter Peer ID" class="w-full bg-surface px-4 py-3 rounded-xl border border-white/10 text-white mb-4 text-sm font-mono focus:outline-none focus:border-primary">
-          <select id="manual-relation" class="w-full bg-surface px-4 py-3 rounded-xl border border-white/10 text-white mb-8 text-sm focus:outline-none focus:border-primary">
+          <input type="text" id="manual-peer-id" placeholder="Enter Peer ID" class="w-full bg-surface px-4 md:px-8 lg:px-12 py-3 rounded-xl border border-white/10 text-white mb-4 text-sm font-mono focus:outline-none focus:border-primary">
+          <select id="manual-relation" class="w-full bg-surface px-4 md:px-8 lg:px-12 py-3 rounded-xl border border-white/10 text-white mb-8 text-sm focus:outline-none focus:border-primary">
             <option value="Parent">Parent</option>
             <option value="Child">Child</option>
             <option value="Spouse">Spouse</option>
             <option value="Caregiver">Caregiver</option>
           </select>
           <div class="flex gap-3">
-            <button id="modal-cancel" class="flex-1 px-4 py-3 rounded-xl bg-surface text-white text-xs font-bold uppercase tracking-widest border border-white/10">Cancel</button>
-            <button id="modal-connect" class="flex-1 px-4 py-3 rounded-xl bg-primary text-white text-xs font-bold uppercase tracking-widest">Connect</button>
+            <button id="modal-cancel" class="flex-1 px-4 md:px-8 lg:px-12 py-3 rounded-xl bg-surface text-white text-xs font-bold uppercase tracking-widest border border-white/10">Cancel</button>
+            <button id="modal-connect" class="flex-1 px-4 md:px-8 lg:px-12 py-3 rounded-xl bg-primary text-white text-xs font-bold uppercase tracking-widest">Connect</button>
           </div>
         </div>
       </div>

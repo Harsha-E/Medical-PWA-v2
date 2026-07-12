@@ -14,7 +14,6 @@ export default class PeerNetworkView {
         if (!this.container) {
             this.container = document.createElement('div');
             this.container.className = 'w-full h-full min-h-screen overflow-y-auto relative text-[#fefcff] font-sans';
-            this.container.style.backgroundColor = '#0a0407';
         }
 
         try {
@@ -63,16 +62,23 @@ export default class PeerNetworkView {
 
         this.container.innerHTML = `
             ${styles}
-            <main class="w-full max-w-md mx-auto px-6 pt-20 md:pt-28 pb-40 flex flex-col items-center space-y-8 z-10">
+            <!-- Gradient background layer -->
+            <div class="fixed inset-0 z-0 pointer-events-none" style="background: radial-gradient(circle at 100% 0%, rgba(255, 184, 140, 0.12) 0%, transparent 50%), radial-gradient(circle at 0% 100%, rgba(127, 47, 93, 0.08) 0%, transparent 50%) #0a0407;"></div>
+            <!-- Frosted glass blur layer -->
+            <div class="fixed inset-0 z-[1] pointer-events-none backdrop-blur-3xl bg-[#0a0407]/40"></div>
+            
+            <main class="w-full px-4 md:px-8 pt-[112px] md:pt-8 md:pl-64 lg:pl-72 md:pt-8 md:pl-64 pb-28 md:pb-12 z-10 max-w-5xl mx-auto relative">
+                <!-- Desktop 2-col on lg: QR left, roster right -->
+                <div class="flex flex-col lg:flex-row lg:items-start lg:gap-8">
                 
                 <!-- Main Neumorphic Card -->
-                <div class="w-full shrink-0 p-8 clay-glass-panel flex flex-col items-center relative overflow-hidden text-center space-y-6">
+                <div class="w-full lg:max-w-md shrink-0 p-8 clay-glass-panel flex flex-col items-center relative overflow-hidden text-center space-y-6">
                     <!-- Title -->
-                    <h2 class="text-2xl text-white font-bold font-display tracking-tight">Link Device</h2>
+                    <h2 class="text-2xl md:text-3xl text-white font-bold font-display tracking-tight">Link Device</h2>
                     
                     <!-- QR Code -->
                     <div class="bg-white p-5 rounded-2xl shadow-xl flex items-center justify-center">
-                        <img src="${qrUrl}" alt="Scan QR Code" class="w-40 h-40 qr-sharp-img" />
+                        <img src="${qrUrl}" alt="Scan QR Code" class="w-40 h-40 md:w-52 md:h-52 qr-sharp-img" />
                     </div>
                     
                     <div class="space-y-2 w-full">
@@ -102,7 +108,7 @@ export default class PeerNetworkView {
                 </div>
 
                 <!-- The Roster -->
-                <div class="w-full max-w-sm shrink-0 space-y-4">
+                <div class="w-full lg:flex-1 shrink-0 space-y-4 mt-8 lg:mt-0">
                     <div class="flex justify-between items-center px-2">
                         <h3 class="text-[10px] text-[#ffb88c] font-mono font-bold uppercase tracking-widest">CONNECTED NODES</h3>
                         <span class="text-[9px] text-[#10b981] font-mono font-bold uppercase tracking-widest border border-[#10b981]/40 bg-[#10b981]/10 rounded px-2.5 py-0.5">LIVE</span>
@@ -123,6 +129,8 @@ export default class PeerNetworkView {
                         `}
                     </div>
                 </div>
+
+                </div><!-- end 2-col flex -->
             </main>
         `;
 

@@ -23,7 +23,7 @@ import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/f
 import { datasetSyncManager } from './datasets/sync/DatasetSyncManager.js';
 import PeerMeshV2 from './services/PeerMeshV2.js';
 import QRManager from './utils/QRManager.js';
-
+import WidgetPublisher from './services/WidgetPublisher.js';
 // â”€â”€â”€ View imports â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 import SplashView           from './views/splash.js';
 import LandingView          from './views/landing.js';
@@ -82,8 +82,8 @@ const ROUTES = {
   '#/peer-hub': PeerNetworkView,
   '#/emergency': EmergencyView,
   '#/peer-dashboard': PeerDashboardView,
-  '#/appointments': ClinicalDashboard,
-  '#/calendar': ClinicalDashboard,
+  '#/appointments': AppointmentsView,
+  '#/calendar': CalendarView,
   '#/orchestrator': OrchestratorView,
   '#/medication-detail': MedicationDetailView,
   '#/clinical-ledger': ClinicalLedgerView,
@@ -166,6 +166,19 @@ class App {
     this._authReady = false;
   }
 
+  handleWidgetDeepLinks() {
+    const url = window.location.href;
+    if (url.includes('medcheck://medications/today')) {
+      console.log('[App] Intercepted widget deep link: medications/today');
+      window.location.hash = '#/medications/today';
+      window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+    } else if (url.includes('medcheck://emergency')) {
+      console.log('[App] Intercepted widget deep link: emergency');
+      window.location.hash = '#/emergency';
+      window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+    }
+  }
+
   async init() {
     // Intercept early deep links
     const urlParams = new URLSearchParams(window.location.search);
@@ -178,6 +191,12 @@ class App {
             window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
         }
     }
+
+    // Intercept Widget Deep Links
+    this.handleWidgetDeepLinks();
+
+    // Initialize Widget Publisher
+    WidgetPublisher.getInstance().init();
 
     // â”€â”€â”€ PWA NATIVE STANDARDS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     hapticEngine.init();

@@ -29,6 +29,33 @@
     {
       "protocol": "web+medcheck",
       "url": "/?connect=%s"
+    },
+    {
+      "protocol": "medcheck",
+      "url": "/?action=%s"
+    }
+  ],
+  "url_handlers": [
+    {
+      "origin": "medcheck://*"
+    }
+  ],
+  "widgets": [
+    {
+      "name": "Today's Medications",
+      "short_name": "Meds",
+      "tag": "medications_today",
+      "template": "widgets/meds-widget.html",
+      "ms_ac_template": "widgets/meds-widget.html",
+      "description": "Your upcoming medications for today."
+    },
+    {
+      "name": "Emergency Medical ID",
+      "short_name": "SOS ID",
+      "tag": "emergency_id",
+      "template": "widgets/sos-widget.html",
+      "ms_ac_template": "widgets/sos-widget.html",
+      "description": "Quick access to your medical emergency QR code."
     }
   ]
 }

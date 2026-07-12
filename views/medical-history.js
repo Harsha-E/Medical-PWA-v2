@@ -27,11 +27,11 @@ export default class MedicalHistoryView {
     const hospitals = records.filter(r => r.type === 'Hospital');
 
     this.container.innerHTML = `
-      <main class="scroll-area pt-[112px] md:pt-8" style="padding-left:0; padding-right:0;">
+      <main class="scroll-area pt-[112px] md:pt-8 md:pl-64 lg:pl-72 md:pt-8" style="padding-left:0; padding-right:0;">
 <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
         <div class="mb-6 flex gap-2">
-            <input type="text" id="ledger-search" placeholder="Search Clinical Vault..." class="flex-1 px-4 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
-            <button id="upload-doc-btn" class="px-4 py-3 rounded-xl bg-gradient-to-br from-secondary to-surface-deep text-accent-primary hover:brightness-125 transition-transform active:scale-95 btn-neumorphic">
+            <input type="text" id="ledger-search" placeholder="Search Clinical Vault..." class="flex-1 px-4 md:px-8 lg:px-12 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
+            <button id="upload-doc-btn" class="px-4 md:px-8 lg:px-12 py-3 rounded-xl bg-gradient-to-br from-secondary to-surface-deep text-accent-primary hover:brightness-125 transition-transform active:scale-95 btn-neumorphic">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             </button>
             <input type="file" id="ledger-upload" class="hidden" accept=".pdf,image/*">
@@ -210,7 +210,7 @@ export default class MedicalHistoryView {
         <form id="add-history-form" class="space-y-4">
           <div>
             <label class="block text-xs text-text-secondary uppercase tracking-widest mb-1 ml-1">Record Type</label>
-            <select id="h-type" required class="w-full px-4 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
+            <select id="h-type" required class="w-full px-4 md:px-8 lg:px-12 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
               <option value="Disease" class="bg-surface">Disease</option>
               <option value="Surgery" class="bg-surface">Surgery</option>
               <option value="Vaccination" class="bg-surface">Vaccination</option>
@@ -219,16 +219,16 @@ export default class MedicalHistoryView {
           </div>
           <div class="relative">
             <label class="block text-xs text-text-secondary uppercase tracking-widest mb-1 ml-1">Title/Name</label>
-            <input type="text" id="h-title" autocomplete="off" required class="w-full px-4 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
+            <input type="text" id="h-title" autocomplete="off" required class="w-full px-4 md:px-8 lg:px-12 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
             <div id="h-title-dropdown" class="absolute left-0 right-0 top-full mt-2 bg-surface-elevated border border-border rounded-xl shadow-lg z-[10000] hidden max-h-48 overflow-y-auto"></div>
           </div>
           <div>
             <label class="block text-xs text-text-secondary uppercase tracking-widest mb-1 ml-1">Date</label>
-            <input type="date" id="h-date" max="${todayStr}" required class="w-full px-4 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2[color-scheme:dark]">
+            <input type="date" id="h-date" max="${todayStr}" required class="w-full px-4 md:px-8 lg:px-12 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2[color-scheme:dark]">
           </div>
           <div>
             <label class="block text-xs text-text-secondary uppercase tracking-widest mb-1 ml-1">Clinical Notes</label>
-            <textarea id="h-notes" rows="2" class="w-full px-4 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2"></textarea>
+            <textarea id="h-notes" rows="2" class="w-full px-4 md:px-8 lg:px-12 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2"></textarea>
           </div>
           <div class="flex gap-3 mt-8">
             <button type="button" id="cancel-history" class="flex-1 py-3 rounded-xl text-text-primary text-xs uppercase font-bold tracking-widest transition-colors btn-neumorphic">Cancel</button>

@@ -36,7 +36,12 @@ export default class GlassNavbar {
 
     if (isAuthLayout) {
       this.root.innerHTML = `
-        <nav id="glass-nav" class="bottom-6 md:bottom-8 fixed z-[9999] left-1/2 -translate-x-1/2 w-[90%] max-w-[400px] px-4 py-3 rounded-full flex justify-between items-center transition-all duration-300" style="background: linear-gradient(145deg, rgba(30,15,22,0.85), rgba(15,7,11,0.9)); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.05); border-top: 1px solid rgba(255,255,255,0.15); box-shadow: 0 20px 40px rgba(0,0,0,0.8), inset 0 2px 4px rgba(255,255,255,0.05);">
+        <nav id="glass-nav" class="fixed z-[9999] bottom-6 md:bottom-0 left-1/2 md:left-0 -translate-x-1/2 md:translate-x-0 w-[90%] md:w-64 max-w-[400px] md:max-w-none md:h-screen px-4 md:px-5 py-3 md:py-8 rounded-full md:rounded-none flex md:flex-col justify-between md:justify-start items-center md:items-stretch transition-all duration-300 md:gap-3 md:border-t-0 md:border-r" style="background: linear-gradient(145deg, rgba(10,4,7,0.85), rgba(10,4,7,0.95)); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.08); box-shadow: 0 20px 40px rgba(0,0,0,0.8), inset 0 2px 4px rgba(255,255,255,0.05);">
+          <!-- Desktop Branding -->
+          <div class="hidden md:flex items-center gap-3 mb-10 pl-2 w-full">
+            <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><path d="M11 2a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2H2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h5a2 2 0 0 1 2 2v5a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-5a2 2 0 0 1 2-2h5a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-5a2 2 0 0 1-2-2V4a2 2 0 0 0-2-2h-4Z"></path></svg>
+            <span class="font-display text-2xl tracking-tight font-medium block mt-[2px]" style="color: var(--color-text-primary);">MedCheck</span>
+          </div>
           ${this.getAuthenticatedMenu(hash)}
         </nav>
       `;
@@ -110,10 +115,11 @@ export default class GlassNavbar {
       const activeBg = isActive ? 'is-active' : '';
 
       return `
-        <a href="${item.href}" class="nav-item flex items-center justify-center py-2 px-3 rounded-full relative overflow-hidden group ${activeBg} transition-all duration-300" ${textColor}>
-          <div class="relative z-10 flex items-center transition-transform ${isActive ? 'scale-110 drop-shadow-[0_0_10px_rgba(255,184,140,0.6)]' : ''}">
+        <a href="${item.href}" class="nav-item flex items-center justify-center md:justify-start py-2 md:py-3.5 px-3 md:px-5 md:w-full rounded-full md:rounded-2xl relative overflow-hidden group ${activeBg} transition-all duration-300 md:gap-4" ${textColor}>
+          <div class="relative z-10 flex items-center transition-transform ${isActive ? 'scale-110 md:scale-100 drop-shadow-[0_0_10px_rgba(255,184,140,0.6)]' : ''}">
             ${item.icon}
           </div>
+          <span class="nav-label hidden md:block font-mono text-[11px] font-bold tracking-widest uppercase mt-0.5">${item.label}</span>
         </a>
       `;
     }).join('');

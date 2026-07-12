@@ -181,7 +181,7 @@ export default class EmergencyView {
                 else console.error('QR Error:', error);
             });
         } else {
-            qrContainer.innerHTML = '<span class="text-xs text-danger text-center px-4">Failed to acquire Peer ID. Please check your network connection.</span>';
+            qrContainer.innerHTML = '<span class="text-xs text-danger text-center px-4 md:px-8 lg:px-12">Failed to acquire Peer ID. Please check your network connection.</span>';
         }
     } catch (e) {
         console.error('Mesh Init Error:', e);

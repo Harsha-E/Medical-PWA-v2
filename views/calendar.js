@@ -181,8 +181,8 @@ export default class CalendarView {
 
   renderBaseLayout(title, gridHTML) {
     this.container.innerHTML = `
-      <main class="scroll-area flex-1 pt-[112px] md:pt-8 pb-28 max-w-xl mx-auto w-full flex flex-col" style="padding-left:0; padding-right:0;">
-<div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
+      <main class="scroll-area flex-1 pt-[112px] md:pt-8 md:pl-64 lg:pl-72 md:pt-8 pb-28 max-w-xl mx-auto w-full flex flex-col" style="padding-left:0; padding-right:0;">
+<div class="px-6 w-full max-w-7xl mx-auto flex flex-col">
         <div class="flex items-center justify-between bg-surface-elevated/40 backdrop-blur-xl border border-border rounded-3xl p-4 mb-8 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
           <button id="prev-period" class="w-10 h-10 rounded-2xl flex items-center justify-center text-accent-primary active:scale-95 transition-all btn-neumorphic">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
@@ -193,7 +193,7 @@ export default class CalendarView {
           </button>
         </div>
 
-        <div id="calendar-swipe-zone" class="bg-surface-elevated/40 backdrop-blur-xl border border-border rounded-[2rem] p-4 lg:p-6 flex-1 shadow-[0_8px_32px_rgba(0,0,0,0.5)] relative overflow-hidden">
+        <div id="calendar-swipe-zone" class="bg-surface-elevated/40 backdrop-blur-xl border border-border rounded-[2rem] p-4 lg:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.5)] relative">
           ${gridHTML}
         </div>
 

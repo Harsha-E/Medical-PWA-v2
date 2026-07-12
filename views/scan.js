@@ -67,6 +67,45 @@ export default class ScanView {
           width: 54px; height: 54px; border-radius: 50%;
           background: rgba(255, 255, 255, 0.9);
         }
+        /* Desktop: center the camera feed and float controls to the right */
+        @media (min-width: 1024px) {
+          #sc-video {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: auto !important;
+            max-width: 512px;
+            height: 100%;
+            object-fit: cover;
+          }
+          .sc-bottom-controls-desktop {
+            position: absolute;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex !important;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+            background: rgba(10,15,25,0.5);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 2rem;
+            padding: 28px 20px;
+          }
+          .sc-bottom-bar { display: none !important; }
+        }
+        @media (min-width: 768px) and (max-width: 1023px) {
+          #sc-video {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: auto !important;
+            max-width: 448px;
+            height: 100%;
+            object-fit: cover;
+          }
+        }
       </style>
 
       <!-- Fullscreen Video -->
@@ -102,8 +141,8 @@ export default class ScanView {
         </button>
       </div>
 
-      <!-- Minimalist Bottom Controls -->
-      <div class="glass-panel" style="position: absolute; bottom: 0; left: 0; right: 0; padding: 30px 24px max(env(safe-area-inset-bottom), 40px); display: flex; justify-content: space-around; align-items: center;">
+      <!-- Minimalist Bottom Controls (mobile) -->
+      <div class="glass-panel sc-bottom-bar" style="position: absolute; bottom: 0; left: 0; right: 0; padding: 30px 24px max(env(safe-area-inset-bottom), 40px); display: flex; justify-content: space-around; align-items: center;">
         
         <input type="file" id="sc-gallery-input" accept="image/*" style="display: none;" />
         <button id="sc-gallery" class="glass-btn" style="width: 52px; height: 52px;">
@@ -120,6 +159,21 @@ export default class ScanView {
           </svg>
         </button>
 
+      </div>
+
+      <!-- Desktop Side Panel Controls (lg+) -->
+      <div class="sc-bottom-controls-desktop" style="display: none;">
+        <button id="sc-gallery-lg" class="glass-btn" style="width: 56px; height: 56px;" title="Gallery">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        </button>
+        <div id="sc-shutter-lg" class="shutter-btn" style="width: 80px; height: 80px;">
+          <div class="shutter-inner" style="width: 62px; height: 62px;"></div>
+        </div>
+        <button id="sc-switch-lg" class="glass-btn" style="width: 56px; height: 56px;" title="Flip Camera">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/>
+          </svg>
+        </button>
       </div>
     `;
   }
@@ -144,6 +198,14 @@ export default class ScanView {
     this._btnSwitch.onclick = () => this._switchCamera();
     this._btnTorch.onclick = () => this._toggleTorch();
     this._btnRequestCam.onclick = () => this._startCamera();
+
+    // Desktop side-panel mirrors
+    const btnShutterLg = this.container.querySelector('#sc-shutter-lg');
+    const btnGalleryLg = this.container.querySelector('#sc-gallery-lg');
+    const btnSwitchLg  = this.container.querySelector('#sc-switch-lg');
+    if (btnShutterLg) btnShutterLg.onclick = () => this._captureFromVideo();
+    if (btnGalleryLg) btnGalleryLg.onclick = () => this._galleryInput.click();
+    if (btnSwitchLg)  btnSwitchLg.onclick  = () => this._switchCamera();
   }
 
   async _startCamera() {

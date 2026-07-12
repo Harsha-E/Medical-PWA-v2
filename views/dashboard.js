@@ -13,7 +13,6 @@ import { clayComponentSystem } from '../experience/ClayComponentSystem.js';
 export default class DashboardView {
   async render() {
     visualLanguageEngine.applyTheme();
-    this.selectedDate = this.selectedDate || new Date();
 
     this.container = document.createElement('div');
     this.container.className = 'w-full h-full flex flex-col overflow-hidden';
@@ -52,6 +51,7 @@ export default class DashboardView {
       this.cachedData = { meds, doses, history, family };
 
       this._renderDashboardWidgets(meds, doses, history, family);
+
 
       // Trigger Onboarding Walkthrough if not completed (Disabled for now)
       // this.walkthrough = new WalkthroughManager();
@@ -131,7 +131,7 @@ export default class DashboardView {
 
     // --- 2. Today's Schedule Calculations ---
     const now = new Date();
-    const todayStr = this.selectedDate.toISOString().split('T')[0];
+    const todayStr = now.toISOString().split('T')[0];
     const todayDoses = doses.filter(d => d.takenAt && d.takenAt.startsWith(todayStr));
     const takenSlots = new Set(
       todayDoses.filter(d => d.status === 'taken' || !d.skipped).map(d => `${d.medicationId}-${d.scheduledTime}`)
@@ -324,25 +324,27 @@ export default class DashboardView {
     // Assemble final HTML inside the container
     mainContent.innerHTML = `
       ${bannerHTML}
-      <div class="md:grid md:grid-cols-12 md:gap-10 md:items-start w-full">
+      <div class="md:grid md:grid-cols-1 md:grid-cols-2 lg:grid-cols-32 md:gap-10 lg:gap-12 md:items-start w-full">
         <!-- Left Column -->
-        <div class="md:col-span-7 lg:col-span-8 flex flex-col gap-8">
+        <div class="md:col-span-7 lg:col-span-8 flex flex-col gap-6 lg:gap-8">
           
           <!-- Today's Medicines Widget -->
-          <section id="dashboard-schedule-section" class="clay-glass-panel rounded-3xl p-6 relative">
-            <div class="mb-6">
-              ${this._generateHorizontalCalendar(this.selectedDate)}
-            </div>
+          <section id="dashboard-schedule-section" class="clay-glass-panel rounded-3xl p-4 md:p-6 relative">
             <div class="flex items-center justify-between mb-6 pb-2 border-b border-border">
               <div>
                 <h2 class="text-xs text-accent-primary font-bold tracking-[0.2em] uppercase">Taking Medicines</h2>
                 <p class="text-[10px] text-text-secondary uppercase tracking-wider font-bold mt-1">
-                  ${this.selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+                  ${now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
                 </p>
               </div>
-              <span class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full ${remainingCount > 0 ? 'bg-accent-soft/30 text-accent-primary' : (schedule.length > 0 ? 'bg-success/20 text-success' : 'bg-surface-deep text-text-secondary')}">
-                ${remainingCount > 0 ? `${remainingCount} Remaining` : (schedule.length > 0 ? 'All Taken!' : 'No Schedule')}
-              </span>
+              <div class="flex items-center gap-3">
+                <span class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full ${remainingCount > 0 ? 'bg-accent-soft/30 text-accent-primary' : (schedule.length > 0 ? 'bg-success/20 text-success' : 'bg-surface-deep text-text-secondary')}">
+                  ${remainingCount > 0 ? `${remainingCount} Remaining` : (schedule.length > 0 ? 'All Taken!' : 'No Schedule')}
+                </span>
+                <a href="#/calendar" class="w-9 h-9 rounded-xl bg-accent-primary/10 border border-accent-primary/20 flex items-center justify-center text-accent-primary hover:bg-accent-primary/20 transition-all active:scale-95" title="Open Calendar">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                </a>
+              </div>
             </div>
 
             <div class="space-y-4">
@@ -383,7 +385,7 @@ export default class DashboardView {
                     <p class="text-sm font-bold text-text-primary">HbA1c Level</p>
                     <p class="text-xs text-text-secondary mt-0.5">Last test: ${hba1cStr}</p>
                   </div>
-                  <button class="add-followup-btn px-4 py-2 rounded-xl text-xs font-bold text-accent-primary uppercase tracking-widest border border-accent-primary/20 hover:border-accent-primary hover:bg-accent-soft/10 transition-all active:scale-95" data-type="hba1c">
+                  <button class="add-followup-btn px-4 md:px-8 lg:px-12 py-2 rounded-xl text-xs font-bold text-accent-primary uppercase tracking-widest border border-accent-primary/20 hover:border-accent-primary hover:bg-accent-soft/10 transition-all active:scale-95" data-type="hba1c">
                     Add
                   </button>
                 </div>
@@ -393,7 +395,7 @@ export default class DashboardView {
                     <p class="text-sm font-bold text-text-primary">Blood Pressure</p>
                     <p class="text-xs text-text-secondary mt-0.5">Last reading: ${bpStr}</p>
                   </div>
-                  <button class="add-followup-btn px-4 py-2 rounded-xl text-xs font-bold text-accent-primary uppercase tracking-widest border border-accent-primary/20 hover:border-accent-primary hover:bg-accent-soft/10 transition-all active:scale-95" data-type="bp">
+                  <button class="add-followup-btn px-4 md:px-8 lg:px-12 py-2 rounded-xl text-xs font-bold text-accent-primary uppercase tracking-widest border border-accent-primary/20 hover:border-accent-primary hover:bg-accent-soft/10 transition-all active:scale-95" data-type="bp">
                     Add
                   </button>
                 </div>
@@ -403,7 +405,7 @@ export default class DashboardView {
                     <p class="text-sm font-bold text-text-primary">Thyroid (TSH)</p>
                     <p class="text-xs text-text-secondary mt-0.5">Last test: ${thyroidStr}</p>
                   </div>
-                  <button class="add-followup-btn px-4 py-2 rounded-xl text-xs font-bold text-accent-primary uppercase tracking-widest border border-accent-primary/20 hover:border-accent-primary hover:bg-accent-soft/10 transition-all active:scale-95" data-type="thyroid">
+                  <button class="add-followup-btn px-4 md:px-8 lg:px-12 py-2 rounded-xl text-xs font-bold text-accent-primary uppercase tracking-widest border border-accent-primary/20 hover:border-accent-primary hover:bg-accent-soft/10 transition-all active:scale-95" data-type="thyroid">
                     Add
                   </button>
                 </div>
@@ -414,7 +416,7 @@ export default class DashboardView {
         </div>
 
         <!-- Right Column -->
-        <div class="md:col-span-5 lg:col-span-4 mt-10 md:mt-0 flex flex-col gap-6">
+        <div class="lg:col-span-1 w-full mt-8 lg:mt-0 flex flex-col gap-5 lg:gap-6">
           
           <!-- Health Progress (Streaks Replacement) Widget -->
           <section id="dashboard-progress-section">
@@ -582,7 +584,7 @@ export default class DashboardView {
           <span class="text-[10px] text-text-muted font-bold tracking-wider">${currentStep + 1} of ${steps.length}</span>
           <div class="flex gap-2">
             <button id="skip-walkthrough" class="px-3 py-1.5 rounded-xl text-[10px] font-bold text-text-muted uppercase tracking-widest hover:text-text-primary transition-colors">Skip</button>
-            <button id="next-walkthrough" class="px-4 py-1.5 rounded-xl bg-primary text-text-primary text-[10px] font-bold uppercase tracking-widest hover:brightness-110 transition-all">
+            <button id="next-walkthrough" class="px-4 md:px-8 lg:px-12 py-1.5 rounded-xl bg-primary text-text-primary text-[10px] font-bold uppercase tracking-widest hover:brightness-110 transition-all">
               ${currentStep === steps.length - 1 ? 'Finish' : 'Next'}
             </button>
           </div>
@@ -659,17 +661,17 @@ export default class DashboardView {
         <form id="followup-form" class="space-y-4">
           <div>
             <label class="block text-[10px] text-text-secondary uppercase tracking-widest mb-1 font-bold">Date of Reading</label>
-            <input type="date" id="fo-date" required value="${new Date().toISOString().split('T')[0]}" class="w-full px-4 py-2.5 rounded-xl border border-border bg-surface-deep text-text-primary font-bold text-xs uppercase tracking-widest [color-scheme:dark]">
+            <input type="date" id="fo-date" required value="${new Date().toISOString().split('T')[0]}" class="w-full px-4 md:px-8 lg:px-12 py-2.5 rounded-xl border border-border bg-surface-deep text-text-primary font-bold text-xs uppercase tracking-widest [color-scheme:dark]">
           </div>
           
           <div>
             <label class="block text-[10px] text-text-secondary uppercase tracking-widest mb-1 font-bold">${valueLabel}</label>
-            <input type="${type === 'bp' ? 'text' : 'number'}" id="fo-value" required step="${step}" placeholder="${placeholder}" class="w-full px-4 py-2.5 rounded-xl border border-border bg-surface-deep text-text-primary font-bold text-xs uppercase tracking-widest">
+            <input type="${type === 'bp' ? 'text' : 'number'}" id="fo-value" required step="${step}" placeholder="${placeholder}" class="w-full px-4 md:px-8 lg:px-12 py-2.5 rounded-xl border border-border bg-surface-deep text-text-primary font-bold text-xs uppercase tracking-widest">
           </div>
 
           <div>
             <label class="block text-[10px] text-text-secondary uppercase tracking-widest mb-1 font-bold">Lab / Provider</label>
-            <input type="text" id="fo-provider" placeholder="e.g. Self-Reported" class="w-full px-4 py-2.5 rounded-xl border border-border bg-surface-deep text-text-primary font-bold text-xs uppercase tracking-widest">
+            <input type="text" id="fo-provider" placeholder="e.g. Self-Reported" class="w-full px-4 md:px-8 lg:px-12 py-2.5 rounded-xl border border-border bg-surface-deep text-text-primary font-bold text-xs uppercase tracking-widest">
           </div>
 
           <div class="border-t border-border pt-4">
@@ -1014,16 +1016,16 @@ export default class DashboardView {
     `;
     return `
       <!-- Header removed -->
-      <div class="flex-1 overflow-y-auto px-6 md:px-12 pt-[112px] md:pt-8 pb-28 w-full max-w-7xl mx-auto" id="dashboard-main-content" style="overscroll-behavior-y: none;">
-        <div class="md:grid md:grid-cols-12 md:gap-10 md:items-start w-full">
+      <div class="flex-1 overflow-y-auto px-6 md:px-10 lg:px-12 pt-[112px] md:pt-10 md:pl-[280px] pb-28 w-full max-w-[1600px] mx-auto" id="dashboard-main-content" style="overscroll-behavior-y: none;">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start w-full">
           <!-- Left Column -->
-          <div class="md:col-span-7 lg:col-span-8 flex flex-col gap-8">
+          <div class="lg:col-span-2 w-full flex flex-col gap-8">
             ${card('200px')}
             ${card('100px')}
             ${card('160px')}
           </div>
           <!-- Right Column -->
-          <div class="md:col-span-5 lg:col-span-4 mt-10 md:mt-0 flex flex-col gap-6">
+          <div class="lg:col-span-1 w-full mt-10 lg:mt-0 flex flex-col gap-6">
             ${card('250px')}
             ${card('140px')}
             ${card('80px')}
@@ -1032,6 +1034,7 @@ export default class DashboardView {
       </div>
     `;
   }
+
 
   destroy() {
     if (this.helpSystem) {

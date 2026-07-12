@@ -20,7 +20,7 @@ export default class LandingView {
       </div>
 
       <main class="flex-1 flex items-center justify-center relative overflow-hidden pointer-events-auto z-10 w-full h-[100dvh] pt-20">
-        <div class="w-full max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div class="w-full max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           
           <!-- Left Content Panel -->
           <div class="relative z-20 flex flex-col items-start text-left">

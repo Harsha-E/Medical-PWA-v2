@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0a0407;
+            font-family: system-ui, -apple-system, sans-serif;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        a.widget-container {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            width: 100%;
+            height: 100%;
+            padding: 16px;
+            box-sizing: border-box;
+            border-radius: 24px;
+            background: #0a0407;
+            box-shadow: 
+                6px 6px 12px rgba(0,0,0,0.8), 
+                -4px -4px 10px rgba(255,255,255,0.04),
+                inset 1px 1px 2px rgba(255,255,255,0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .header {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 700;
+        }
+        .content {
+            margin: 16px 0;
+        }
+        .next-dose-label {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .next-dose-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: #ffb88c; /* Rose-Gold */
+        }
+        .next-dose-time {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 2px;
+            font-weight: 500;
+        }
+        .footer {
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.6);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .badge {
+            background: rgba(255, 184, 140, 0.15);
+            color: #ffb88c;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: 800;
+        }
+    </style>
+</head>
+<body>
+    <a href="medcheck://medications/today" class="widget-container">
+        <div class="header">Today's Plan</div>
+        
+        <div class="content">
+            <div class="next-dose-label">Next Dose</div>
+            <div class="next-dose-value">{{nextMedName}}</div>
+            <div class="next-dose-time">{{nextMedTime}}</div>
+        </div>
+        
+        <div class="footer">
+            <span class="badge">{{pendingCount}}</span> pending today
+        </div>
+    </a>
+</body>
+</html>
