@@ -128,7 +128,7 @@ export default class RegisterView {
           </div>
         </div>
         <!-- Form Panel (full width on mobile, right col on md+) -->
-        <div class="clay-glass-panel w-full md:w-1/2 p-6 md:p-10 md:rounded-none relative">
+        <div class="clay-glass-panel w-full md:w-1/2 p-6 md:p-10 md:rounded-none relative" style="background-color: rgba(74, 21, 37, 0.4); backdrop-filter: blur(16px);">
         <!-- Inner glow wrapper to safely isolate overflow-hidden without breaking Safari/WebKit rendering -->
         <div class="absolute inset-0 overflow-hidden pointer-events-none rounded-[inherit] z-0">
           <div class="absolute inset-0 bg-overlay-bg z-0"></div>

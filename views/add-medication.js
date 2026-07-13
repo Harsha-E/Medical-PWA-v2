@@ -604,14 +604,19 @@ export default class AddMedicationView {
               });
           }
       }
-      if (m.name) this.container.querySelector('#m-generic').value = m.name;
+      if (m.genericName) {
+          this.container.querySelector('#m-generic').value = m.genericName;
+      } else if (m.name) {
+          this.container.querySelector('#m-generic').value = m.name;
+      }
+      
       if (m.category) this.container.querySelector('#m-thera').value = m.category;
       if (m.manufacturer && m.manufacturer.length > 0) this.container.querySelector('#m-manuf').value = m.manufacturer[0];
       if (m.brandNames && m.brandNames.length > 0) this.container.querySelector('#m-alt').value = m.brandNames.join(', ');
       
       // Update medData and trigger draft save
       this.medData.name = m.name;
-      this.medData.genericName = m.name;
+      this.medData.genericName = m.genericName || m.name;
       if (m.category) this.medData.therapeuticCategory = m.category;
       if (m.manufacturer && m.manufacturer.length > 0) this.medData.manufacturer = m.manufacturer[0];
       if (m.brandNames && m.brandNames.length > 0) this.medData.alternativeBrands = m.brandNames.join(', ');
