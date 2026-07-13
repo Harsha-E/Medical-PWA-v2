@@ -17,7 +17,7 @@ export default class GhostFluid {
     this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
     this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, alpha: true, antialias: true });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this.renderer.setPixelRatio(1.0); // Keep soft and smooth on high DPI phones
 
     this.clock = new THREE.Clock();
 
@@ -104,6 +104,9 @@ export default class GhostFluid {
       void main() {
         vec2 st = gl_FragCoord.xy / u_resolution.xy;
         st.x *= u_resolution.x / u_resolution.y;
+        
+        // Zoom in to make patterns larger and reduce pareidolia (seeing faces)
+        st *= 0.6;
 
         // Cinematic Liquid Flow Calculation
         vec2 q = vec2(0.);
@@ -144,7 +147,7 @@ export default class GhostFluid {
         speed: { value: 0.85 },
         flowStrength: { value: 0.75 },
         grain: { value: 0.05 },
-        contrast: { value: 1.1 }
+        contrast: { value: 0.95 }
       },
       transparent: true
     });

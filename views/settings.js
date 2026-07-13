@@ -238,17 +238,45 @@ export default class SettingsView {
              const { deleteDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
              const user = auth.currentUser;
              if (user) {
-                 try {
+                    try {
                         const uid = user.uid;
-                        
-                        // 1. Delete Cloud Data FIRST
+                        const collectionsToPurge = [
+                            'medications', 'doses', 'history', 'family', 'appointments',
+                            'prescriptions', 'reminders', 'disease_ledger', 'attachments',
+                            'interactions', 'allergies', 'surgeries', 'active_problems'
+                        ];
+
+                        const deleteBtn = document.getElementById('delete-account-btn');
+                        if (deleteBtn) {
+                            deleteBtn.innerHTML = '<span class="text-sm font-bold tracking-wide text-danger uppercase">Purging Cloud Data...</span>';
+                            deleteBtn.disabled = true;
+                        }
+
+                        // 1. Delete Cloud Data FIRST (Subcollections)
+                        const { collection, getDocs } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+                        for (const colName of collectionsToPurge) {
+                            try {
+                                const colRef = collection(firestoreDB, 'users', uid, colName);
+                                const querySnapshot = await getDocs(colRef);
+                                const deletePromises = [];
+                                querySnapshot.forEach((documentSnap) => {
+                                    deletePromises.push(deleteDoc(documentSnap.ref));
+                                });
+                                await Promise.all(deletePromises);
+                            } catch (subErr) {
+                                console.warn(`Could not delete subcollection ${colName}:`, subErr);
+                            }
+                        }
+
+                        // 2. Delete Root User Document
                         try {
                             await deleteDoc(doc(firestoreDB, 'users', uid));
                         } catch (cloudErr) {
-                            console.warn("Could not delete cloud data:", cloudErr);
+                            console.warn("Could not delete root cloud data:", cloudErr);
                         }
 
-                        // 2. Wipe Service Worker Caches & Unregister
+                        // 3. Wipe Service Worker Caches & Unregister
+                        if (deleteBtn) deleteBtn.innerHTML = '<span class="text-sm font-bold tracking-wide text-danger uppercase">Wiping Local Caches...</span>';
                         if ('serviceWorker' in navigator) {
                             const regs = await navigator.serviceWorker.getRegistrations();
                             for(let reg of regs) { await reg.unregister(); }
@@ -258,11 +286,12 @@ export default class SettingsView {
                             for(let key of keys) { await caches.delete(key); }
                         }
                         
-                        // 3. Clear Storage
+                        // 4. Clear Storage
                         localStorage.clear();
                         sessionStorage.clear();
 
-                        // 4. Delete Local IndexedDB
+                        // 5. Delete Local IndexedDB Completely
+                        if (deleteBtn) deleteBtn.innerHTML = '<span class="text-sm font-bold tracking-wide text-danger uppercase">Destroying Local Databases...</span>';
                         try {
                             if (db.isOpen()) {
                                 db.close();
@@ -279,7 +308,8 @@ export default class SettingsView {
                             console.warn("Could not delete IndexedDB immediately:", dbErr);
                         }
 
-                        // 5. Delete Auth User and explicitly sign out
+                        // 6. Delete Auth User and explicitly sign out
+                        if (deleteBtn) deleteBtn.innerHTML = '<span class="text-sm font-bold tracking-wide text-danger uppercase">Terminating Auth Session...</span>';
                         await user.delete();
                         await auth.signOut();
                         

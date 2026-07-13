@@ -79,7 +79,7 @@ export default class DashboardView {
       document.addEventListener('keydown', this._resetInactivityTimerBound);
 
       const hour = new Date().getHours();
-      const greeting = hour < 12 ? 'Morning' : hour < 17 ? 'Afternoon' : 'Evening';
+      const greeting = hour < 12 ? 'Morning' : hour < 17 ? 'Afternoon' : hour < 21 ? 'Evening' : 'Night';
       const displayName = state.user?.displayName?.split(' ')[0] || 'User';
       document.dispatchEvent(new CustomEvent('view:ready', { detail: { hash: '#/dashboard', title: `Good ${greeting}, ${displayName}` } }));
     } catch (err) {

@@ -47,7 +47,14 @@
       "tag": "medications_today",
       "template": "widgets/meds-widget.html",
       "type": "text/html",
-      "description": "Your upcoming medications for today."
+      "description": "Your upcoming medications for today.",
+      "icons": [
+        {
+          "src": "/assets/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     },
     {
       "name": "Emergency Medical ID",
@@ -55,7 +62,14 @@
       "tag": "emergency_id",
       "template": "widgets/sos-widget.html",
       "type": "text/html",
-      "description": "Quick access to your medical emergency QR code."
+      "description": "Quick access to your medical emergency QR code.",
+      "icons": [
+        {
+          "src": "/assets/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }
