@@ -518,7 +518,6 @@ class App {
     const hasAvatar = !!(p.avatar);
     // If onboardingComplete flag is true OR the user already has all required details in Firebase, consider them complete
     const isComplete = (profile && profile.onboardingComplete) || hasAllDetails;
-    const needsAvatarSetup = isComplete && !hasAvatar;
 
     // ————————————————— Managed by individual views (GhostFluid instantiation removed) —————————————————
 
@@ -586,19 +585,13 @@ class App {
         }
       } else {
         const needsOnboarding = !isComplete;
-        
-        if (needsAvatarSetup && hash !== '#/avatar-setup') {
-          console.debug(`[App Guard] 👤 Avatar missing for legacy user. Redirecting to #/avatar-setup...`);
-          window.location.hash = '#/avatar-setup';
-          return;
-        }
 
         if (needsOnboarding && hash !== '#/onboarding') {
           console.debug(`[App Guard] 📝 Incomplete profile detected. Redirecting to #/onboarding...`);
           window.location.hash = '#/onboarding';
           return;
         }
-        if (!needsOnboarding && !needsAvatarSetup && (PUBLIC_ROUTES.has(hash) || hash === '#/onboarding')) {
+        if (!needsOnboarding && (PUBLIC_ROUTES.has(hash) || hash === '#/onboarding')) {
           console.debug(`[App Guard] 🔄 Authenticated user attempting to access public/onboarding route. Redirecting to #/dashboard...`);
           window.location.hash = '#/dashboard';
           return;
