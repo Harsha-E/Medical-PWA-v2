@@ -148,7 +148,7 @@ export default class InstallView {
                   <rect x="2" y="13" width="30" height="8" rx="2.5" fill="rgba(255,217,181,0.95)"></rect>
                 </svg>
               </div>
-              <div class="mc-brand">Med<em>Care</em></div>
+              <div class="mc-brand">Med<em>Check</em></div>
               <div class="mc-tagline">Clinical Environment</div>
               <div class="mc-trust">
                 <span class="mc-chip">Encrypted</span>

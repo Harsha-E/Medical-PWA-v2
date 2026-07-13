@@ -79,8 +79,8 @@ export default class PwaInstallManager {
               this._showBanner('Ready on Homescreen');
           } else {
               // Just show the banner but without assuming it's installed
-              this._showBanner('Install MedCare');
-          }
+              this._showBanner('Install MedCheck');
+            }
         }
       }, 1000); // reduced timeout so it shows up faster
     }
@@ -105,7 +105,7 @@ export default class PwaInstallManager {
         } else if (localStorage.getItem('pwa_installed') === 'true') {
           this._showBanner('Ready on Homescreen');
         } else {
-          this._showBanner('Install MedCare');
+          this._showBanner('Install MedCheck');
         }
       } else {
         if (btn && btn.textContent === 'Installed') {
@@ -201,9 +201,9 @@ export default class PwaInstallManager {
       </style>
       <div id="pwa-inner-card" class="flex items-center justify-between p-4 bg-[#0a040f]/90 backdrop-blur-xl border border-[#ffb88c]/30 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.8),inset_0_0_20px_rgba(255,184,140,0.05)] pointer-events-auto group">
         <div class="flex items-center gap-3 cursor-pointer" id="pwa-main-action-area">
-          <img src="./assets/logo.webp" class="w-10 h-10 rounded-xl border border-[#ffb88c]/20 object-cover shadow-inner" alt="MedCare Logo" />
+          <img src="./assets/logo.webp" class="w-10 h-10 rounded-xl border border-[#ffb88c]/20 object-cover shadow-inner" alt="MedCheck Logo" />
           <div class="flex flex-col">
-            <span class="text-white text-sm font-bold tracking-wide">MedCare App</span>
+            <span class="text-white text-sm font-bold tracking-wide">MedCheck App</span>
             <span id="pwa-banner-text" class="text-[#ffb88c] text-[10px] uppercase tracking-widest font-mono">Install Now</span>
           </div>
         </div>
