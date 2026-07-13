@@ -34,6 +34,7 @@ export default class SettingsView {
           </a>
           <a href="#/emergency" class="flex-1 block min-w-0 hover:opacity-80 transition-opacity pl-2">
             <p class="font-bold text-xl leading-tight text-text-primary truncate">${displayName}</p>
+            <p class="text-xs text-text-muted mt-1 truncate">${state.user?.email || 'No email linked'}</p>
             <p class="text-sm text-text-secondary mt-1 truncate">${state.userProfile?.profile?.phone || 'Phone not set'}</p>
             <p class="text-[10px] font-bold text-accent-primary mt-2 tracking-widest uppercase truncate">${bloodType} Clinical Node</p>
           </a>

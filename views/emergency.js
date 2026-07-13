@@ -18,7 +18,7 @@ export default class EmergencyView {
     const myPhone = state.userProfile?.profile?.phone || '';
 
     this.container.innerHTML = `
-      <main class="scroll-area bg-surface-elevated" style="padding-left:0; padding-right:0;">
+      <main class="scroll-area bg-surface-elevated" style="padding-left:0; padding-right:0; padding-top:96px;">
 <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
         
         <!-- Broadcast SOS Action (Absolute Highest Priority) -->
