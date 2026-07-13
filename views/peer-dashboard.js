@@ -1,5 +1,5 @@
 import state from '../core/state.js';
-import PeerMesh from '../services/PeerMesh.js';
+
 
 export default class PeerDashboardView {
   async render() {

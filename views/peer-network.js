@@ -1,11 +1,11 @@
 import state from '../core/state.js';
-import PeerMesh from '../services/PeerMesh.js';
+
 import { showToast } from '../core/ui.js';
 import { escapeHTML } from '../core/utils.js';
 
 export default class PeerNetworkView {
     constructor() {
-        this.mesh = PeerMesh.getInstance();
+        this.mesh = window.familyMesh;
         this.container = null;
         this.connectedPeer = null;
     }
@@ -16,13 +16,16 @@ export default class PeerNetworkView {
             this.container.className = 'w-full h-full min-h-screen overflow-y-auto relative text-[#fefcff] font-sans';
         }
 
-        try {
-            await this.mesh.init();
-        } catch (e) {
-            console.warn('[PeerMesh] init warning:', e);
-        }
-
-        this.myPeerId = this.mesh.peerId || (state.user && state.user.uid ? state.user.uid.slice(0, 12) : 'local_node');
+        this.mesh = window.familyMesh;
+        
+        this.myPeerId = this.mesh ? this.mesh.peerId : (state.user && state.user.uid ? state.user.uid.slice(0, 12) : 'local_node');
+        
+        window.addEventListener('peermesh:ready', (e) => {
+            this.myPeerId = e.detail.id;
+            if (this.container && this.container.parentNode) {
+                this.renderContent();
+            }
+        }, { once: true });
         this.renderContent();
         return this.container;
     }

@@ -8,7 +8,7 @@ import VisionPipeline from '../services/VisionPipeline.js';
 import ConfirmationGate from '../components/ConfirmationGate.js';
 import MultipleMatchGate from '../components/MultipleMatchGate.js';
 import { appAlert } from '../core/ui.js';
-import PeerMesh from '../services/PeerMesh.js';
+
 
 export default class ScanView {
   constructor() {
@@ -334,43 +334,56 @@ export default class ScanView {
     this.showProcessingSpinner("Analyzing 2D Frame...");
 
     // 1. Check for QR Code (Family Pairing)
+    let qrVal = null;
     if ('BarcodeDetector' in window) {
         try {
             const detector = new BarcodeDetector({ formats: ['qr_code'] });
             const barcodes = await detector.detect(this._canvas);
             if (barcodes.length > 0) {
-                const qrVal = barcodes[0].rawValue;
-                if (qrVal.includes('?connect=')) {
-                    let peerId = null;
-                    try {
-                        const url = new URL(qrVal);
-                        peerId = url.searchParams.get('connect');
-                    } catch(err) {
-                        const match = qrVal.match(/[?&]connect=([^&]+)/);
-                        if (match) peerId = decodeURIComponent(match[1]);
-                    }
-                    if (peerId) {
-                        try {
-                            if (window.familyMesh) {
-                                console.log("[ScanView] Intercepted PWA Deep Link. Connecting to:", peerId);
-                                if (typeof window.familyMesh.connect === 'function') {
-                                    window.familyMesh.connect(peerId);
-                                } else if (typeof window.familyMesh.connectToFamilyMember === 'function') {
-                                    window.familyMesh.connectToFamilyMember(peerId);
-                                } else if (typeof window.familyMesh.connectToPeer === 'function') {
-                                    window.familyMesh.connectToPeer(peerId);
-                                }
-                            }
-                            window.location.hash = '#/peer-hub';
-                        } catch (err) {
-                            console.error("[ScanView] Failed to connect via PeerMesh:", err);
-                        }
-                        this.hideProcessingSpinner();
-                        return; // Stop OCR pipeline
+                qrVal = barcodes[0].rawValue;
+            }
+        } catch (e) { console.warn('[ScanView] Native QR detection failed', e); }
+    }
+    
+    // Fallback to jsQR
+    if (!qrVal && typeof jsQR !== 'undefined') {
+        try {
+            const imageData = ctx.getImageData(0, 0, cropSize, cropSize);
+            const code = jsQR(imageData.data, imageData.width, imageData.height);
+            if (code) {
+                qrVal = code.data;
+            }
+        } catch (e) { console.warn('[ScanView] jsQR fallback failed', e); }
+    }
+
+    if (qrVal && qrVal.includes('connect=')) {
+        let peerId = null;
+        try {
+            const url = new URL(qrVal);
+            peerId = url.searchParams.get('connect');
+        } catch(err) {
+            const match = qrVal.match(/[?&]connect=([^&]+)/);
+            if (match) peerId = decodeURIComponent(match[1]);
+        }
+        if (peerId) {
+            try {
+                if (window.familyMesh) {
+                    console.log("[ScanView] Intercepted PWA Deep Link. Connecting to:", peerId);
+                    if (typeof window.familyMesh.connect === 'function') {
+                        window.familyMesh.connect(peerId);
+                    } else if (typeof window.familyMesh.connectToFamilyMember === 'function') {
+                        window.familyMesh.connectToFamilyMember(peerId);
+                    } else if (typeof window.familyMesh.connectToPeer === 'function') {
+                        window.familyMesh.connectToPeer(peerId);
                     }
                 }
+                window.location.hash = '#/peer-hub';
+            } catch (err) {
+                console.error("[ScanView] Failed to connect via PeerMesh:", err);
             }
-        } catch (e) { console.error('[ScanView] Native QR detection failed', e); }
+            this.hideProcessingSpinner();
+            return; // Stop OCR pipeline
+        }
     }
 
     // 2. OCR Medicine Extraction
