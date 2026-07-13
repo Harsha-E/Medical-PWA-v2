@@ -966,14 +966,14 @@ export default class DashboardView {
             if (!ptrContainer) {
                 ptrContainer = document.createElement('div');
                 Object.assign(ptrContainer.style, {
-                    position: 'fixed',
-                    top: '15px',
+                    position: 'absolute',
+                    top: '100px', // Just under the header height
                     left: '0',
                     width: '100%',
                     display: 'flex',
                     justifyContent: 'center',
-                    zIndex: '99999',
-                    transform: 'translateY(-100px)',
+                    zIndex: '40', // Below header (usually z-50)
+                    transform: 'translateY(-100px)', // Hide it underneath the header
                     transition: 'none'
                 });
                 
