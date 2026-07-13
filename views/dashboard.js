@@ -978,12 +978,13 @@ export default class DashboardView {
                 });
                 
                 ptrContainer.innerHTML = `
-                    <div class="p-3 bg-surface-elevated rounded-3xl border border-border shadow-[0_10px_30px_var(--color-card-shadow)] backdrop-blur-xl relative overflow-hidden" style="box-shadow: inset 0 2px 10px var(--color-border), 0 10px 30px var(--color-card-shadow);">
-                       <div class="w-8 h-8 relative flex items-center justify-center spinner-container">
-                          <div class="w-2.5 h-2.5 bg-primary-dark rounded-full absolute top-0 left-1/2 -translate-x-1/2 shadow-[0_0_15px_var(--color-primary-dark)]"></div>
-                          <div class="w-2.5 h-2.5 bg-secondary rounded-full absolute bottom-0 left-0 shadow-[0_0_15px_var(--color-secondary)]"></div>
-                          <div class="w-2.5 h-2.5 bg-accent-primary rounded-full absolute bottom-0 right-0 shadow-[0_0_15px_var(--color-accent-primary)]"></div>
+                    <div class="ptr-content px-5 py-2.5 bg-surface-elevated/80 rounded-full border border-white/10 shadow-[0_15px_35px_rgba(0,0,0,0.5),inset_0_2px_10px_rgba(255,255,255,0.05)] backdrop-blur-2xl flex items-center gap-3 transition-all duration-300">
+                       <div class="w-6 h-6 relative flex items-center justify-center spinner-container">
+                          <svg class="w-5 h-5 text-accent-primary ptr-icon transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                          </svg>
                        </div>
+                       <span class="text-xs font-mono font-bold tracking-widest text-text-primary uppercase ptr-text">Pull to refresh</span>
                     </div>
                 `;
                 this.container.appendChild(ptrContainer);
@@ -993,8 +994,20 @@ export default class DashboardView {
             ptrContainer.style.transform = `translateY(${Math.min(resistance - 80, 40)}px)`;
             
             const spinner = ptrContainer.querySelector('.spinner-container');
-            if (spinner) {
-                spinner.style.transform = `rotate(${resistance * 2}deg) scale(${Math.min(resistance / 100, 1)})`;
+            const icon = ptrContainer.querySelector('.ptr-icon');
+            const text = ptrContainer.querySelector('.ptr-text');
+            
+            if (icon && text) {
+                icon.style.transform = `rotate(${resistance * 2.5}deg)`;
+                if (resistance > 120) {
+                    text.textContent = "Release to refresh";
+                    icon.classList.add('text-success');
+                    icon.classList.remove('text-accent-primary');
+                } else {
+                    text.textContent = "Pull to refresh";
+                    icon.classList.add('text-accent-primary');
+                    icon.classList.remove('text-success');
+                }
             }
         }
     }, { passive: false });
@@ -1010,10 +1023,12 @@ export default class DashboardView {
                 ptrContainer.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
                 ptrContainer.style.transform = 'translateY(40px)';
                 
-                const spinner = ptrContainer.querySelector('.spinner-container');
-                if (spinner) {
-                    spinner.classList.add('animate-spin');
-                    spinner.style.animationDuration = '0.8s';
+                const icon = ptrContainer.querySelector('.ptr-icon');
+                const text = ptrContainer.querySelector('.ptr-text');
+                
+                if (icon && text) {
+                    icon.classList.add('animate-spin');
+                    text.textContent = "Refreshing...";
                 }
                 
                 const minAnimationTime = new Promise(resolve => setTimeout(resolve, 1500));
@@ -1025,6 +1040,18 @@ export default class DashboardView {
                 };
                 
                 await Promise.all([syncData(), minAnimationTime]);
+                
+                // Show "Refreshed!" success state
+                if (icon && text) {
+                    icon.classList.remove('animate-spin');
+                    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>';
+                    icon.className = 'w-5 h-5 text-success ptr-icon';
+                    text.textContent = "Refreshed!";
+                    text.classList.add('text-success');
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 800)); // Hold success state briefly
+                
                 ptrContainer.style.transform = 'translateY(-100px)';
                 setTimeout(() => {
                     if (ptrContainer && ptrContainer.parentNode) ptrContainer.remove();
