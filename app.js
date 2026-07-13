@@ -240,6 +240,12 @@ class App {
         const { initMedicalDatabase } = await import('./core/db.js');
         await initMedicalDatabase();
         
+        const { notificationEngine } = await import('./services/NotificationEngine.js');
+        await notificationEngine.syncAndSchedule();
+        
+        window.addEventListener('medcare:data-synced', () => notificationEngine.syncAndSchedule());
+        window.addEventListener('medcare:sync-queued', () => notificationEngine.syncAndSchedule());
+        
         // Unlock Router on Pipeline Error
         window.addEventListener('scan:pipeline-error', (e) => {
             console.warn(`[App][Router] Pipeline failed, unlocking scanner state. Reason: ${e.detail}`);

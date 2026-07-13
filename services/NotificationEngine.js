@@ -133,6 +133,20 @@ class NotificationEngine {
     }
   }
 
+  async syncAndSchedule() {
+    try {
+      const { default: db } = await import('../core/db.js');
+      if (db.medications) {
+        const meds = await db.medications.toArray();
+        const activeMeds = meds.filter(m => m.active !== false && !m.isDeleted);
+        await this.scheduleAllDoses(activeMeds);
+        this.startPollingScheduler(activeMeds);
+      }
+    } catch (e) {
+      console.error('[NotificationEngine] Error syncing DB for schedule:', e);
+    }
+  }
+
   /**
    * Triggers the native OS notification banner.
    * @private
@@ -149,26 +163,37 @@ class NotificationEngine {
     try {
       // Soft notifications: helpful, not demanding
       const title = `✓ Time for your ${category} medicine`;
-      const body = `Take ${medication.name || 'your medicine'} (${medication.dosage || 'Prescribed dose'}) to support your health progress.`;
+      const body = `Take ${medication.name || medication.genericName || 'your medicine'} (${medication.dosage || 'Prescribed dose'}) to support your health progress.`;
 
-      const notification = new Notification(title, {
+      const payload = {
+        title: title,
         body: body,
-        icon: './assets/icons/icon-192.png',
-        badge: './assets/icons/badge-72.png',
-        tag: `dose_${medication.id}`,
-        requireInteraction: true,
-        data: { medicationId: medication.id, scheduledAt: new Date().toISOString(), category }
-      });
-
-      notification.onclick = () => {
-        // Record interaction in NotificationProfile
-        this.profile.recordInteraction(category, 'open');
-        
-        window.focus();
-        window.location.hash = '#/dashboard';
-        notification.close();
+        url: '#/dashboard',
+        medicationId: medication.id,
+        category: category
       };
 
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage({
+              type: 'show_notification',
+              payload: payload
+          });
+      } else {
+        const notification = new Notification(title, {
+          body: body,
+          icon: './assets/icons/icon-192.png',
+          badge: './assets/icons/badge-72.png',
+          tag: `dose_${medication.id}`,
+          requireInteraction: true,
+          data: { medicationId: medication.id, scheduledAt: new Date().toISOString(), category }
+        });
+        notification.onclick = () => {
+          this.profile.recordInteraction(category, 'open');
+          window.focus();
+          window.location.hash = '#/dashboard';
+          notification.close();
+        };
+      }
     } catch (error) {
       console.error('[NotificationEngine] Failed to fire notification:', error);
     }
