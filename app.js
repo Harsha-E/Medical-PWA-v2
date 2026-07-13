@@ -128,7 +128,7 @@ const getGreeting = () => {
 const HEADER_CONFIGS = {
   '#/dashboard': { 
     eyebrow: 'DASHBOARD', 
-    title: () => 'Good Morning, ' + (state.userProfile?.name || state.user?.displayName || 'User').split(' ')[0].toUpperCase(), 
+    title: () => `Good ${getGreeting()}, ` + (state.userProfile?.name || state.user?.displayName || 'User').split(' ')[0].toUpperCase(), 
     actions: [{ id: 'add', icon: PLUS_ICON, href: '#/add-medication', label: 'Add', style: 'accent' }] 
   },
   '#/medications': { eyebrow: null, title: 'Medications', actions: [{ id: 'scan', icon: SCAN_ICON, href: '#/scan', label: 'Scan prescription', style: 'ghost' }, { id: 'add-med', icon: PLUS_ICON, href: '#/add-medication', label: 'Add medication', style: 'accent' }] },

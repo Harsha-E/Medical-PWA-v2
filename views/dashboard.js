@@ -87,7 +87,7 @@ export default class DashboardView {
     }
   }
 
-  _renderDashboardWidgets(meds, doses, history, family) {
+  async _renderDashboardWidgets(meds, doses, history, family) {
     const mainContent = this.container.querySelector('#dashboard-main-content');
     if (!mainContent) return;
 
@@ -883,7 +883,7 @@ export default class DashboardView {
               
               try {
                 const firestoreDb = getFirestore();
-                await setDoc(doc(firestoreDb, 'medications', id.toString()), { totalQuantity: medRecord.totalQuantity }, { merge: true });
+                await setDoc(doc(firestoreDb, `users/${medRecord.userId || state.user?.uid || 'anonymous'}/medications`, id.toString()), { totalQuantity: medRecord.totalQuantity }, { merge: true });
               } catch (fsErr) {}
 
               if (medRecord.refillThreshold !== undefined && medRecord.totalQuantity <= medRecord.refillThreshold) {

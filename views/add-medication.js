@@ -794,7 +794,7 @@ export default class AddMedicationView {
       // 2. DUAL-WRITE: Write to Firestore (Cloud Sync) - Do not await to avoid offline hanging
       const firestoreDb = getFirestore();
       const cloudDocId = `${data.userId}_${this.medId}`;
-      setDoc(doc(firestoreDb, 'medications', cloudDocId), data, { merge: true }).catch(console.error);
+      setDoc(doc(firestoreDb, `users/${data.userId || 'anonymous'}/medications`, cloudDocId), data, { merge: true }).catch(console.error);
 
       sessionStorage.removeItem('medcare_draft_form');
       window.location.hash = '#/medications';

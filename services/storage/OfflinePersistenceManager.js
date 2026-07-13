@@ -28,7 +28,7 @@ export default class OfflinePersistenceManager {
 
       // 1. Sync Medications
       const localMeds = await db.medications.where('userId').equals(userId).toArray();
-      const medsRef = collection(firestoreDb, `users/${userId}/medicines`);
+      const medsRef = collection(firestoreDb, `users/${userId}/medications`);
       const querySnapshot = await getDocs(medsRef);
       const remoteMedsMap = new Map();
       querySnapshot.forEach(docSnap => {
@@ -42,7 +42,7 @@ export default class OfflinePersistenceManager {
         const remote = remoteMedsMap.get(idStr);
         // Simple Last-Write-Wins or merge logic
         if (!remote || m.updatedAt > (remote.updatedAt || 0)) {
-          const docRef = doc(firestoreDb, `users/${userId}/medicines`, idStr);
+          const docRef = doc(firestoreDb, `users/${userId}/medications`, idStr);
           batch.set(docRef, { ...m, id: idStr }, { merge: true });
         }
       }

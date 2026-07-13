@@ -220,7 +220,7 @@ export default class AddRecordView {
     try {
       if (state.user && navigator.onLine) {
         const dbFirestore = getFirestore();
-        const docRef = await addDoc(collection(dbFirestore, 'history'), data);
+        const docRef = await addDoc(collection(dbFirestore, `users/${data.userId || 'anonymous'}/history`), data);
         data.id = docRef.id;
         await db.history.put(data);
       } else {
