@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="url(#gradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a78bfa" />
+      <stop offset="100%" stop-color="#6d28d9" />
+    </linearGradient>
+  </defs>
+  <!-- Canister -->
+  <path d="M7 11V4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v7" />
+  <!-- Body & Mouthpiece -->
+  <path d="M17 11v9a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2v-4H4a2 2 0 0 1-2-2v-3h15" />
+  <!-- Canister dividing line -->
+  <path d="M7 11h10" />
+</svg>

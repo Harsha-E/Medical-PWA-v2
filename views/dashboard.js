@@ -184,7 +184,7 @@ export default class DashboardView {
           </div>
         </div>
       `;
-    } else if (schedule.length > 0) {
+    } else if (schedule.length > 0 && remainingCount === 0) {
       nextReminderHTML = `
         <div class="clay-glass-panel rounded-3xl p-6 text-center animate-fade-in">
           <div class="w-10 h-10 rounded-full bg-success/10 border border-success/30 flex items-center justify-center mx-auto mb-3 text-success">
@@ -194,7 +194,7 @@ export default class DashboardView {
         </div>
       `;
     } else {
-      nextReminderHTML = ''; // Hide the redundant widget if no schedule exists
+      nextReminderHTML = ''; // Hide if no schedule or if there are missed past doses
     }
 
     // --- 4. Recent Health Reports ---
@@ -216,22 +216,33 @@ export default class DashboardView {
           </div>
         </div>
       `).join('');
-    } else if (family.length > 0) {
-      familyAlertsHTML = `
-        <div class="flex items-center gap-3 p-3 bg-success/5 border border-success/15 rounded-xl">
-          <div class="w-7 h-7 rounded-lg bg-success/10 flex items-center justify-center text-success shrink-0">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          </div>
-          <p class="text-[11px] text-text-secondary leading-relaxed">All family medicine stocks look healthy!</p>
-        </div>
-      `;
     } else {
-      familyAlertsHTML = `
-        <div class="text-center py-4 opacity-50">
-          <p class="text-[11px] text-text-muted uppercase tracking-widest font-bold">No active family nodes</p>
-          <a href="#/family-profiles" class="text-[10px] text-accent-primary font-bold uppercase tracking-widest mt-1 inline-block hover:underline">Add family member</a>
-        </div>
-      `;
+      let activePeersCount = 0;
+      try {
+        const { default: PeerMesh } = await import('../services/PeerMesh.js');
+        const mesh = PeerMesh.getInstance();
+        if (mesh._connections) {
+          activePeersCount = Array.from(mesh._connections.values()).filter(c => c.open).length;
+        }
+      } catch(e) {}
+
+      if (activePeersCount > 0) {
+        familyAlertsHTML = `
+          <div class="flex items-center gap-3 p-3 bg-success/5 border border-success/15 rounded-xl">
+            <div class="w-7 h-7 rounded-lg bg-success/10 flex items-center justify-center text-success shrink-0 animate-pulse">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
+            </div>
+            <p class="text-[11px] text-text-secondary leading-relaxed">Connected to ${activePeersCount} remote node${activePeersCount > 1 ? 's' : ''}. Syncing live.</p>
+          </div>
+        `;
+      } else {
+        familyAlertsHTML = `
+          <div class="text-center py-4 opacity-50">
+            <p class="text-[11px] text-text-muted uppercase tracking-widest font-bold">No active connections</p>
+            <a href="#/peer-hub" class="text-[10px] text-accent-primary font-bold uppercase tracking-widest mt-1 inline-block hover:underline">Link Device</a>
+          </div>
+        `;
+      }
     }
 
     // --- 6. Monthly Health Follow-Up ---
@@ -352,19 +363,37 @@ export default class DashboardView {
             </div>
 
             <div class="space-y-4">
-              ${schedule.length > 0 ? schedule.map(dose => `
-                <div class="flex items-center justify-between p-4 bg-surface/50 border ${dose.taken ? 'border-success/30 bg-success/5' : 'border-border'} rounded-2xl transition-all duration-300 ${dose.taken ? 'opacity-70' : ''}">
-                  <div class="flex items-center gap-4">
-                    <div class="checkbox-container cursor-pointer" data-med-id="${dose.id}" data-time="${dose.time}" data-taken="${dose.taken}">
-                      ${clayComponentSystem.renderOrb(dose.dosageUnit?.toLowerCase() === 'ml' ? 'drop' : 'pill', dose.taken ? 'completed' : 'active').outerHTML}
-                    </div>
-                    <div>
-                      <p class="text-sm font-bold text-text-primary ${dose.taken ? 'line-through text-text-muted' : ''}">${escapeHTML(dose.name)}</p>
-                      <p class="text-[10px] text-text-secondary mt-0.5 uppercase tracking-widest font-bold">${escapeHTML(dose.time)} &bull; ${escapeHTML(dose.dosage)} ${escapeHTML(dose.dosageUnit)}</p>
+              ${schedule.length > 0 ? schedule.map(dose => {
+                let iconSrc = 'assets/icons/pill.svg';
+                const unit = (dose.dosageUnit || '').toLowerCase();
+                const name = (dose.name || '').toLowerCase();
+                if (unit.includes('ml') || unit.includes('drop')) iconSrc = 'assets/icons/droplet.svg';
+                else if (unit.includes('puff') || unit.includes('mcg') || unit.includes('μg') || name.includes('inhaler') || name.includes('symbicort')) iconSrc = 'assets/icons/inhaler.svg';
+                else if (unit.includes('mg') || unit.includes('g') || unit.includes('tab') || unit.includes('cap')) iconSrc = 'assets/icons/pill.svg';
+
+                return `
+                <div class="flex items-center w-full p-4 bg-surface/50 border ${dose.taken ? 'border-success/30 bg-success/5' : 'border-border'} rounded-[20px] transition-all duration-300 ${dose.taken ? 'opacity-60' : 'hover:border-accent-primary/50'} group">
+                  
+                  <!-- Left: Icon -->
+                  <a href="#/medication-detail?id=${dose.id}" class="w-12 h-12 shrink-0 rounded-2xl bg-surface-deep flex items-center justify-center border border-white/5 shadow-inner transition-transform group-hover:scale-105">
+                    <img src="${iconSrc}" class="w-7 h-7 opacity-90" alt="icon">
+                  </a>
+                  
+                  <!-- Center: Text (Truncated to prevent overflow) -->
+                  <a href="#/medication-detail?id=${dose.id}" class="flex-1 min-w-0 px-4 block cursor-pointer">
+                    <p class="text-sm font-bold text-text-primary truncate ${dose.taken ? 'line-through text-text-muted' : 'group-hover:text-accent-primary transition-colors'}">${escapeHTML(dose.name)}</p>
+                    <p class="text-[10px] text-text-secondary mt-1 uppercase tracking-[0.15em] font-bold truncate">${escapeHTML(dose.time)} &bull; ${escapeHTML(dose.dosage)} ${escapeHTML(dose.dosageUnit)}</p>
+                  </a>
+                  
+                  <!-- Right: Action Button -->
+                  <div class="checkbox-container group/checkbox cursor-pointer shrink-0 flex items-center justify-center p-1" data-med-id="${dose.id}" data-time="${dose.time}" data-taken="${dose.taken}">
+                    <div class="w-10 h-10 rounded-2xl flex items-center justify-center transition-all duration-300 border-2 ${dose.taken ? 'border-success bg-success/20 text-success shadow-[0_0_15px_rgba(16,185,129,0.2)] scale-95' : 'border-white/20 bg-white/5 text-white/30 group-hover/checkbox:border-accent-primary/50 group-hover/checkbox:bg-accent-primary/10 group-hover/checkbox:text-accent-primary'}">
+                      <svg class="w-5 h-5 ${dose.taken ? 'opacity-100 scale-100' : 'opacity-40 scale-75 group-hover/checkbox:opacity-100 group-hover/checkbox:scale-110'} transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
                     </div>
                   </div>
+
                 </div>
-              `).join('') : `
+              `}).join('') : `
                 <div class="py-8 text-center border border-dashed border-border rounded-3xl">
                   <p class="text-xs text-text-muted font-mono uppercase tracking-widest">No scheduled doses today.</p>
                   <a href="#/add-medication" class="text-accent-primary text-xs font-bold mt-2 uppercase inline-block hover:underline">Add medication</a>
@@ -462,10 +491,10 @@ export default class DashboardView {
           <section id="dashboard-family-section">
             <div class="clay-glass-panel rounded-3xl p-6">
               <div class="flex items-center justify-between mb-4 pb-2 border-b border-border">
-                <h3 class="text-xs font-bold text-text-secondary uppercase tracking-[0.2em]">Family Updates</h3>
+                <h3 class="text-xs font-bold text-text-secondary uppercase tracking-[0.2em]">Network Status</h3>
                 <a href="#/peer-hub" class="text-[10px] font-bold text-accent-primary uppercase tracking-widest hover:text-text-primary">Manage Network</a>
               </div>
-              <div class="space-y-3">
+              <div class="space-y-3" id="network-status-container">
                 ${familyAlertsHTML}
               </div>
             </div>

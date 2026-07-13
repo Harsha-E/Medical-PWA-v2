@@ -683,15 +683,19 @@ html, body, #app-viewport {
 
 /* Responsive Auth Layout Padding */
 .auth-layout-active #app-viewport {
-  padding-top: 96px;
+  padding-top: 0px;
   padding-bottom: 0px;
 }
 
 @media (min-width: 768px) {
   .auth-layout-active #app-viewport {
-    padding-top: 96px;
+    padding-top: 0px;
     padding-bottom: 0px;
   }
+}
+body[data-route^="#/add-medication"] #app-viewport,
+body[data-route^="#/interaction-checker"] #app-viewport {
+  padding-top: 0px !important;
 }
 
 /* Timeline Utility */

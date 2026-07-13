@@ -82,7 +82,7 @@ export default class OnboardingView {
 
   async render() {
     this.container = document.createElement('div');
-    this.container.className = 'h-[100dvh] w-full flex flex-col items-center justify-start pt-12 pb-32 px-4 md:px-8 lg:px-12 relative z-10 overflow-y-auto ';
+    this.container.className = 'h-[100dvh] w-full flex flex-col items-center justify-start p-4 md:p-8 lg:p-12 relative z-10 overflow-y-auto';
 
     this._renderStep();
 
@@ -92,7 +92,8 @@ export default class OnboardingView {
   _renderStep() {
     if (this.step === 1) {
       this.container.innerHTML = `
-        <div class="w-full max-w-2xl md:max-w-4xl lg:max-w-5xl p-8 md:p-12 rounded-[2.5rem] bg-surface/60 backdrop-blur-3xl border border-border shadow-[0_20px_50px_rgba(0,0,0,0.7)] animate-fade-in-up">
+        <div class="flex-grow min-h-0"></div>
+        <div class="w-full max-w-2xl md:max-w-4xl lg:max-w-5xl mx-auto p-8 md:p-12 clay-glass-panel shrink-0 animate-fade-in-up">
           <div class="mb-10 text-center">
             <span class="text-accent-primary font-mono text-xs uppercase tracking-widest">Step 1 of 2</span>
             <h2 class="text-3xl md:text-4xl font-display font-semibold text-text-primary mt-3">Choose Your Avatar</h2>
@@ -106,6 +107,7 @@ export default class OnboardingView {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
           </button>
         </div>
+        <div class="flex-grow min-h-0"></div>
       `;
 
       const carouselContainer = this.container.querySelector('#avatar-carousel-container');
@@ -126,7 +128,8 @@ export default class OnboardingView {
 
     } else if (this.step === 2) {
       this.container.innerHTML = `
-        <div class="w-full max-w-2xl md:max-w-4xl lg:max-w-5xl p-8 md:p-12 rounded-[2.5rem] bg-surface/60 backdrop-blur-3xl border border-border shadow-[0_20px_50px_rgba(0,0,0,0.7)] animate-fade-in-up">
+        <div class="flex-grow min-h-0"></div>
+        <div class="w-full max-w-2xl md:max-w-4xl lg:max-w-5xl mx-auto p-8 md:p-12 clay-glass-panel shrink-0 animate-fade-in-up">
           <div class="mb-10 flex items-center justify-between border-b border-border pb-8">
             <div>
               <span class="text-accent-primary font-mono text-xs uppercase tracking-widest">Final Step</span>
@@ -134,7 +137,7 @@ export default class OnboardingView {
               <p class="text-text-secondary text-sm md:text-base mt-2">Establish your biological baseline to activate the safety engine.</p>
             </div>
             <div class="hidden sm:block">
-              <img src="${this.selectedAvatar}" class="w-20 h-20 rounded-full border border-border shadow-lg" alt="Avatar">
+              <img src="${this.selectedAvatar}" class="w-20 h-20 rounded-full border border-border shadow-lg object-cover scale-[1.15] translate-y-[8%]" alt="Avatar">
             </div>
           </div>
 
@@ -202,6 +205,7 @@ export default class OnboardingView {
             </div>
           </form>
         </div>
+        <div class="flex-grow min-h-0"></div>
       `;
       this.bindEvents();
     }

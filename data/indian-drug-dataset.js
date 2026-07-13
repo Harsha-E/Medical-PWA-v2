@@ -4322,7 +4322,8 @@ export const INDIAN_DRUG_DATASET = [
     "brandNames": [
       "Itraconazole XL",
       "NuItraconazole",
-      "Itraconazole Plus"
+      "Itraconazole Plus",
+      "Itratuf"
     ],
     "aliases": [
       "Itraconazole generic",

@@ -104,14 +104,22 @@ export default class CalendarView {
         } else {
           const isPartial = stats.status === 'partial';
           ringClass = `border-transparent ${isPartial ? 'bg-amber-500/5' : 'bg-red-500/5'}`;
-          const colorClass = isPartial ? 'text-amber-500/90' : 'text-danger/90';
+          const colorClass = isPartial ? 'text-amber-500' : 'text-red-500';
           
           const r = (range) => (Math.random() * range) - (range / 2);
           const rot = r(50); 
           
+          let pathD = '';
+          if (isPartial) {
+            pathD = `M ${65 + r(20)} ${15 + r(20)} C ${10 + r(30)} ${5 + r(30)}, ${-10 + r(30)} ${95 + r(30)}, ${50 + r(20)} ${95 + r(15)} C ${105 + r(30)} ${90 + r(30)}, ${105 + r(30)} ${15 + r(30)}, ${40 + r(25)} ${15 + r(20)} C ${20 + r(20)} ${15 + r(20)}, ${10 + r(20)} ${35 + r(20)}, ${15 + r(15)} ${50 + r(20)}`;
+          } else {
+            // Chaotic, kid-drawn scribble for missed doses
+            pathD = `M ${40+r(10)} ${10+r(10)} Q ${r(15)} ${r(15)}, ${10+r(10)} ${50+r(10)} T ${60+r(15)} ${95+r(10)} T ${95+r(10)} ${40+r(15)} Q ${95+r(10)} ${r(10)}, ${45+r(10)} ${10+r(10)} T ${5+r(10)} ${60+r(15)} Q ${-5+r(15)} ${95+r(10)}, ${50+r(15)} ${90+r(15)} T ${90+r(10)} ${60+r(10)} Q ${95+r(10)} ${-10+r(10)}, ${30+r(10)} ${15+r(10)}`;
+          }
+          
           bgIcon = `
-            <svg class="absolute inset-0 w-[140%] h-[140%] -left-[20%] -top-[20%] ${colorClass} pointer-events-none z-0" style="transform: rotate(${rot}deg);" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M ${65 + r(20)} ${15 + r(20)} C ${10 + r(30)} ${5 + r(30)}, ${-10 + r(30)} ${95 + r(30)}, ${50 + r(20)} ${95 + r(15)} C ${105 + r(30)} ${90 + r(30)}, ${105 + r(30)} ${15 + r(30)}, ${40 + r(25)} ${15 + r(20)} C ${20 + r(20)} ${15 + r(20)}, ${10 + r(20)} ${35 + r(20)}, ${15 + r(15)} ${50 + r(20)}" />
+            <svg class="absolute inset-0 w-[140%] h-[140%] -left-[20%] -top-[20%] ${colorClass} pointer-events-none z-0" style="transform: rotate(${rot}deg);" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="${pathD}" />
             </svg>
           `;
         }
@@ -126,7 +134,7 @@ export default class CalendarView {
       gridHTML += `
         <div class="calendar-day aspect-square rounded-full bg-surface-elevated/40 backdrop-blur-md border-2 ${ringClass} flex flex-col items-center justify-center relative cursor-pointer hover:bg-white/5 transition-all ${isToday && ringClass.includes('7f2f') ? 'bg-secondary/30' : ''}" data-date="${dateStr}">
           ${bgIcon}
-          <span class="text-base relative z-10 ${isToday ? 'text-accent-primary font-bold' : (stats.status === 'optimal') ? 'text-success font-bold' : 'text-text-secondary'}" style="${handStyle}">${day}</span>
+          <span class="text-base relative z-10 ${isToday ? 'text-accent-primary font-bold' : (stats.status === 'optimal') ? 'text-success font-bold' : (stats.status === 'missed') ? 'text-red-500 font-bold' : 'text-text-secondary'}" style="${handStyle}">${day}</span>
           ${isToday ? `<div class="absolute -bottom-1 w-2 h-2 bg-accent-primary rounded-full animate-pulse shadow-[0_0_8px_var(--color-accent-primary)] z-10"></div>` : ''}
         </div>
       `;
@@ -199,9 +207,9 @@ export default class CalendarView {
 
         ${this.viewMode === 'month' ? `
           <div class="mt-8 flex justify-center gap-5 px-2">
-            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-full bg-green-500/20 border border-green-500 flex items-center justify-center"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg></div><span class="text-xs font-bold text-text-secondary uppercase tracking-widest">Optimal</span></div>
-            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-full border border-amber-500 shadow-[0_0_5px_rgba(245,158,11,0.5)]"></div><span class="text-xs font-bold text-text-secondary uppercase tracking-widest">Partial</span></div>
-            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-full border border-red-500 shadow-[0_0_5px_rgba(239,68,68,0.5)]"></div><span class="text-xs font-bold text-text-secondary uppercase tracking-widest">Missed</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-4 h-4 relative flex items-center justify-center"><div class="absolute inset-0 bg-green-500/30 rounded-[40%_60%_70%_30%/40%_50%_60%_50%]"></div></div><span class="text-xs font-bold text-text-secondary uppercase tracking-widest">Optimal</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-4 h-4 relative"><svg class="absolute inset-0 w-[140%] h-[140%] -left-[20%] -top-[20%] text-amber-500" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"><path d="M 65 15 C 10 5, -10 95, 50 95 C 105 90, 105 15, 40 15 C 20 15, 10 35, 15 50" /></svg></div><span class="text-xs font-bold text-text-secondary uppercase tracking-widest">Partial</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-4 h-4 relative"><svg class="absolute inset-0 w-[140%] h-[140%] -left-[20%] -top-[20%] text-red-500" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"><path d="M 40 10 Q 0 0, 10 50 T 60 95 T 95 40 Q 95 0, 45 10 T 5 60 Q -5 95, 50 90 T 90 60 Q 95 -10, 30 15" /></svg></div><span class="text-xs font-bold text-text-secondary uppercase tracking-widest">Missed</span></div>
           </div>
         ` : ''}
       </div></main>
@@ -376,12 +384,18 @@ export default class CalendarView {
     if (schedule.length === 0) {
       list.innerHTML = '<div class="py-12 text-center border border-dashed border-border rounded-3xl"><p class="text-xs text-text-muted uppercase tracking-widest font-bold">No protocol logged</p></div>';
     } else {
-      // UPGRADED HAPTIC TOGGLE UI
-      list.innerHTML = schedule.map(dose => `
-        <div class="flex justify-between items-center bg-surface/80 border ${dose.taken ? 'border-green-500/30' : 'border-border'} rounded-2xl p-4 transition-all duration-300">
-          <div>
-            <span class="text-xs font-bold ${dose.taken ? 'text-success' : 'text-text-muted'} uppercase tracking-widest transition-colors duration-300">${dose.time}</span>
-            <h4 class="text-sm font-bold ${dose.taken ? 'text-text-primary' : 'text-text-secondary'} mt-0.5 transition-colors duration-300">${dose.name} <span class="text-xs text-gray-600 font-normal ml-1 tracking-widest">${dose.dosage}</span></h4>
+      // UPGRADED HAPTIC TOGGLE UI WITH EXPLICIT MISSED/TAKEN LABELS
+      list.innerHTML = schedule.map(dose => {
+        const isMissed = !dose.taken;
+        return `
+        <div class="flex justify-between items-center bg-surface/80 border ${dose.taken ? 'border-green-500/30 bg-green-500/5' : 'border-red-500/30 bg-red-500/5'} rounded-2xl p-4 transition-all duration-300 relative overflow-hidden">
+          ${isMissed ? '<div class="absolute left-0 top-0 bottom-0 w-1 bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]"></div>' : '<div class="absolute left-0 top-0 bottom-0 w-1 bg-green-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>'}
+          <div class="pl-2">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-xs font-bold ${dose.taken ? 'text-success' : 'text-danger'} uppercase tracking-widest">${dose.time}</span>
+              <span class="text-[9px] font-black uppercase tracking-[0.2em] px-2 py-0.5 rounded-md ${dose.taken ? 'bg-success/20 text-success' : 'bg-red-500/20 text-danger'}">${dose.taken ? 'Taken' : 'Missed'}</span>
+            </div>
+            <h4 class="text-sm font-bold ${dose.taken ? 'text-text-primary' : 'text-white'} mt-0.5 transition-colors duration-300">${dose.name} <span class="text-xs text-white/50 font-normal ml-1 tracking-widest">${dose.dosage}</span></h4>
           </div>
           
           <div class="relative inline-flex items-center cursor-pointer toggle-historical-dose group" data-id="${dose.id}" data-time="${dose.time}" data-date="${dateStr}" data-action="${dose.taken ? 'unmark' : 'mark'}">
@@ -395,7 +409,7 @@ export default class CalendarView {
             </div>
           </div>
         </div>
-      `).join('');
+      `}).join('');
     }
 
     modal.classList.remove('opacity-0', 'pointer-events-none');

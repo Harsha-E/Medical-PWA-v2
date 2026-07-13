@@ -158,7 +158,7 @@ export default class InstallView {
 
             <div class="mb-8 h-6 flex items-center justify-center relative z-20">
               <p class="text-text-secondary text-sm md:text-base leading-relaxed font-mono tracking-wide max-w-lg mx-auto">
-                <span class="typewriter-text" data-text="Install MedCare as a native app for faster startup, offline access and secure OS-level integration."></span><span class="typewriter-cursor text-accent-primary animate-pulse">|</span>
+                <span class="typewriter-text" data-text="Install MedCheck as a native app for faster startup, offline access and secure OS-level integration."></span><span class="typewriter-cursor text-accent-primary animate-pulse">|</span>
               </p>
             </div>
 
@@ -185,7 +185,7 @@ export default class InstallView {
     if (cardContainer) {
         const triggerBtn = document.createElement('button');
         triggerBtn.className = 'absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50';
-        triggerBtn.setAttribute('aria-label', 'Install MedCare');
+        triggerBtn.setAttribute('aria-label', 'Install MedCheck');
         
         triggerBtn.addEventListener('click', async () => {
             if (!_deferredPrompt) {

@@ -2,10 +2,8 @@
 self.importScripts('https://unpkg.com/dexie@4.0.8/dist/dexie.js');
 
 const db = new Dexie('MedCareDB');
-db.version(10).stores({
-    medicines: '++id, name, dosage, frequency, startDate, endDate, notes, active, userId, category, patientFriendlyUse, updatedAt, logicalClock, isDeleted, prescriptionId, genericName, manufacturer',
-    interactions: '++id, drug1, drug2, severity, description, checkedAt, userId, updatedAt, logicalClock, isDeleted',
-    disease_ledger: '++id, diseaseName, clinicalName, stage, status, doctor, userId, updatedAt, logicalClock, isDeleted'
+db.version(11).stores({
+    medicines: '++id, name, genericName, manufacturer'
 });
 
 self.onmessage = async (event) => {

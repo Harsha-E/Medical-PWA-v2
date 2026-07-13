@@ -42,7 +42,7 @@ import ScanResultView       from './views/scan-result.js';
 import ReportsView          from './views/reports.js';
 import SettingsView         from './views/settings.js';
 import ClinicalDashboard      from './views/ClinicalDashboard.js';
-import FamilyProfilesView   from './views/family-profiles.js';
+
 import EmergencyView        from './views/emergency.js';
 import PeerNetworkView      from './views/peer-network.js?v=3';
 import PeerDashboardView    from './views/peer-dashboard.js';
@@ -51,9 +51,10 @@ import AddRecordView          from './views/add-record.js';
 import InteractionGraphView from './views/interaction-graph.js';
 import AppointmentsView     from './views/appointments.js';
 import CalendarView         from './views/calendar.js';
+import AvatarSetupView      from './views/avatar-setup.js';
 
 import OrchestratorView     from './views/orchestrator.js';
-import FamilyTreeView       from './views/family-tree.js';
+
 import MedicalTimelineView  from './views/timeline.js';
 
 // â”€â”€â”€ Route map â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -67,7 +68,7 @@ const ROUTES = {
   '#/install': InstallView,
   '#/onboarding': OnboardingView,
   '#/dashboard': DashboardView,
-  '#/family-tree': FamilyTreeView,
+
   '#/timeline': MedicalTimelineView,
   '#/medications': MedicationsView,
   '#/add-medication': AddMedicationView,
@@ -78,7 +79,7 @@ const ROUTES = {
   '#/reports': ReportsView,
   '#/settings': SettingsView,
   '#/medical-history': ClinicalDashboard,
-  '#/family-profiles': FamilyProfilesView,
+
   '#/peer-hub': PeerNetworkView,
   '#/emergency': EmergencyView,
   '#/peer-dashboard': PeerDashboardView,
@@ -88,6 +89,7 @@ const ROUTES = {
   '#/medication-detail': MedicationDetailView,
   '#/clinical-ledger': ClinicalLedgerView,
   '#/add-record': AddRecordView,
+  '#/avatar-setup': AvatarSetupView,
 };
 
 /** Routes that don't require a logged-in user. */
@@ -95,10 +97,10 @@ const PUBLIC_ROUTES = new Set(['#/', '#/landing', '#/splash', '#/login', '#/regi
 
 /** Routes where the navbar should be hidden. */
 const HIDE_NAV_ROUTES = new Set([
-  '#/onboarding', '#/splash', '#/install', 
+  '#/onboarding', '#/splash', '#/install', '#/avatar-setup', 
   '#/add-medication', '#/medication-detail', '#/scan', '#/scan/3d', '#/scan/result',
   '#/interaction-checker', '#/interaction-graph',
-  '#/family-profiles', '#/reports', '#/emergency'
+  '#/reports', '#/emergency'
 ]);
 
 /** Routes where the WebGL liquid background is active. */
@@ -139,7 +141,7 @@ const HEADER_CONFIGS = {
   '#/medical-history': { back: true, title: 'Medical History', actions: [{ id: 'add-history', icon: PLUS_ICON, label: 'Add record', style: 'ghost' }] },
   '#/clinical-ledger': { eyebrow: 'PATIENT STATE', title: 'Clinical Ledger', actions: [{ id: 'add-record', icon: PLUS_ICON, label: 'Add record', style: 'accent', href: '#/add-record' }] },
   '#/add-record': { back: '#/clinical-ledger', eyebrow: 'PATIENT STATE', title: 'Add Record', skeleton: false },
-  '#/family-profiles': { back: true, eyebrow: 'Social Graph', title: 'Network Nodes', actions: [{ id: 'add-family', icon: PLUS_ICON, label: 'Add family member', style: 'accent' }] },
+
   '#/emergency': { back: true, eyebrow: 'Critical', title: 'Emergency Hub' },
   '#/peer-hub': { eyebrow: 'P2P NETWORK', title: 'The Handshake' },
   '#/peer-dashboard': { back: true, eyebrow: 'Remote Node', title: () => resolvePeerNameFromState() },
@@ -234,6 +236,9 @@ class App {
     // 1. Initialize Clinical Engines in the background (Non-blocking)
     (async () => {
       try {
+        const { initMedicalDatabase } = await import('./core/db.js');
+        await initMedicalDatabase();
+        
         // Unlock Router on Pipeline Error
         window.addEventListener('scan:pipeline-error', (e) => {
             console.warn(`[App][Router] Pipeline failed, unlocking scanner state. Reason: ${e.detail}`);
@@ -510,8 +515,10 @@ class App {
     const isAdmin = state.isAdmin;
     const p = (profile && profile.profile) ? profile.profile : {};
     const hasAllDetails = !!(p.phone && p.bloodType && p.dob && p.emergencyName && p.emergencyPhone);
+    const hasAvatar = !!(p.avatar);
     // If onboardingComplete flag is true OR the user already has all required details in Firebase, consider them complete
     const isComplete = (profile && profile.onboardingComplete) || hasAllDetails;
+    const needsAvatarSetup = isComplete && !hasAvatar;
 
     // ————————————————— Managed by individual views (GhostFluid instantiation removed) —————————————————
 
@@ -522,13 +529,14 @@ class App {
     }
 
     // â”€â”€ AppHeader visibility â”€â”€
+    // ——— AppHeader visibility ———
     const headerConfig = HEADER_CONFIGS[hash] ?? { hidden: true };
     // Show skeleton immediately for async views
     const needsSkeleton = ['#/dashboard', '#/reports', '#/appointments'].includes(hash);
     this.appHeader.configure({ ...headerConfig, skeleton: needsSkeleton });
 
-    // â”€â”€ Manage Pill Docking and Layout â”€â”€
-    if (user && isComplete && hash !== '#/install') {
+    // ─── Manage Pill Docking and Layout ───
+    if (user && isComplete && hash !== '#/install' && !headerConfig.hidden) {
       document.body.classList.add('auth-layout-active');
     } else {
       document.body.classList.remove('auth-layout-active');
@@ -540,6 +548,8 @@ class App {
     } else {
       document.body.classList.remove('has-navbar');
     }
+    
+    document.body.setAttribute('data-route', hash.split('?')[0]);
 
     // ─── Auth guard ───
     // App installation requirement
@@ -576,12 +586,19 @@ class App {
         }
       } else {
         const needsOnboarding = !isComplete;
+        
+        if (needsAvatarSetup && hash !== '#/avatar-setup') {
+          console.debug(`[App Guard] 👤 Avatar missing for legacy user. Redirecting to #/avatar-setup...`);
+          window.location.hash = '#/avatar-setup';
+          return;
+        }
+
         if (needsOnboarding && hash !== '#/onboarding') {
           console.debug(`[App Guard] 📝 Incomplete profile detected. Redirecting to #/onboarding...`);
           window.location.hash = '#/onboarding';
           return;
         }
-        if (!needsOnboarding && (PUBLIC_ROUTES.has(hash) || hash === '#/onboarding')) {
+        if (!needsOnboarding && !needsAvatarSetup && (PUBLIC_ROUTES.has(hash) || hash === '#/onboarding')) {
           console.debug(`[App Guard] 🔄 Authenticated user attempting to access public/onboarding route. Redirecting to #/dashboard...`);
           window.location.hash = '#/dashboard';
           return;

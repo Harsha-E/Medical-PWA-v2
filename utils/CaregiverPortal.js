@@ -12,7 +12,7 @@ export default class CaregiverPortal {
                 actorId: actorId,
                 timestamp: new Date().toISOString(),
                 nodeId: navigator.userAgent.substring(0, 20), // Placeholder for device ID
-                integrityHash: btoa(JSON.stringify(data) + Date.now()) // Simple proof of submission
+                integrityHash: btoa(unescape(encodeURIComponent(JSON.stringify(data) + Date.now()))) // Simple proof of submission, Unicode safe
             }
         };
     }

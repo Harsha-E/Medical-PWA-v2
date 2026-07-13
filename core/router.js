@@ -70,6 +70,18 @@ export class Router {
       const oldHash = this.currentHash;
       
       const newView = new ViewClass();
+      
+      if (oldHash) {
+          this.viewport.innerHTML = `
+            <div class="p-6 space-y-4 animate-pulse pt-24 w-full h-full" style="background: var(--color-surface, #1a0a12);">
+               <div class="h-8 bg-white/5 rounded w-1/3 mb-8"></div>
+               <div class="h-32 bg-white/5 rounded-2xl w-full mb-4"></div>
+               <div class="h-32 bg-white/5 rounded-2xl w-full mb-4"></div>
+               <div class="h-32 bg-white/5 rounded-2xl w-full"></div>
+            </div>
+          `;
+      }
+      
       const content = await newView.render();
       
       // ABORT CHECK: If user clicked another link while we were rendering, abort immediately.

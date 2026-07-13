@@ -59,7 +59,7 @@ class PortalLayout {
       exitBtn.textContent = 'Exit';
       exitBtn.onclick = () => {
         state.setActiveProfileContext(null);
-        window.location.hash = '#/family-profiles';
+        window.location.hash = '#/peer-hub';
       };
 
       this.bannerElement.appendChild(title);

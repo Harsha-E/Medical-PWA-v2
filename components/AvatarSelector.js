@@ -40,10 +40,10 @@ export default class AvatarSelector {
 
     _buildUI() {
         this.container.innerHTML = '';
-        this.container.className = (this.container.className || '') + ' relative overflow-hidden w-full h-48 select-none touch-none';
+        this.container.className = (this.container.className || '') + ' relative overflow-hidden w-full h-48 select-none touch-none my-auto';
         
         this.track = document.createElement('div');
-        this.track.className = 'absolute top-1/2 left-1/2 w-full h-full transform -translate-y-1/2';
+        this.track.className = 'absolute top-0 left-0 w-full h-full';
         this.track.style.willChange = 'transform';
         
         this.container.appendChild(this.track);
@@ -62,7 +62,7 @@ export default class AvatarSelector {
             
             const img = document.createElement('img');
             img.src = avatar;
-            img.className = 'w-full h-full object-cover pointer-events-none';
+            img.className = 'w-full h-full object-cover scale-[1.15] translate-y-[8%] pointer-events-none';
             item.appendChild(img);
             
             this.track.appendChild(item);

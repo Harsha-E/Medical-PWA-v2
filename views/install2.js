@@ -181,7 +181,7 @@ export default class InstallView2 {
 
               <div class="mb-8 h-6 flex items-center justify-center relative z-20">
                 <p class="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] text-sm md:text-base leading-relaxed font-mono tracking-wide max-w-lg mx-auto font-bold">
-                  <span class="typewriter-text" data-text="Install MedCare as a native app for faster startup, offline access and secure OS-level integration."></span><span class="typewriter-cursor text-accent-primary animate-pulse">|</span>
+                  <span class="typewriter-text" data-text="Install MedCheck as a native app for faster startup, offline access and secure OS-level integration."></span><span class="typewriter-cursor text-accent-primary animate-pulse">|</span>
                 </p>
               </div>
 
@@ -223,7 +223,7 @@ export default class InstallView2 {
     if (cardContainer) {
         const triggerBtn = document.createElement('button');
         triggerBtn.className = 'absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50';
-        triggerBtn.setAttribute('aria-label', 'Install MedCare');
+        triggerBtn.setAttribute('aria-label', 'Install MedCheck');
         triggerBtn.style.display = 'none'; // Hidden initially
         
         // Show install button only after blur has expanded

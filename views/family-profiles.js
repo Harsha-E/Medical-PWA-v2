@@ -21,7 +21,7 @@ export default class FamilyProfilesView {
             ${family.map(member => `
               <div class="clay-glass-panel p-8 flex flex-col items-center text-center shadow-xl shadow-card-shadow cursor-pointer hover:scale-105 transition-transform" data-id="${member.id}">
                   ${member.avatarUrl 
-                    ? `<div class="w-24 h-24 mb-6 shadow-xl rounded-full overflow-hidden border-2 border-border/50"><img src="${escapeHTML(member.avatarUrl)}" class="w-full h-full object-cover"></div>` 
+                    ? `<div class="w-24 h-24 mb-6 shadow-xl rounded-full overflow-hidden border-2 border-border/50"><img src="${escapeHTML(member.avatarUrl)}" class="w-full h-full object-cover scale-[1.15] translate-y-[8%]"></div>` 
                     : `<div class="w-24 h-24 bg-text-primary text-surface rounded-4xl flex items-center justify-center font-display text-4xl italic mb-6 shadow-xl">${member.name ? escapeHTML(member.name)[0].toUpperCase() : '?'}</div>`
                   }
                   <h3 class="font-bold text-xl leading-none">${escapeHTML(member.name)}</h3>

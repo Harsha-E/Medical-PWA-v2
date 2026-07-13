@@ -442,21 +442,23 @@ export default class ClinicalLedgerView {
                         ${this.getIconForType(record.entityType)}
                     </div>
                     
-                    <div class="unified-card p-5 relative ml-14">
+                    <div class="unified-card p-6 relative ml-14 border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)] transition-all hover:border-white/10">
                         ${record.documentUrl ? `
-                            <button class="absolute right-5 top-5 bottom-5 w-14 rounded-[18px] border border-white/5 bg-[#150a0f] text-[var(--theme-accent)] shadow-[2px_2px_8px_rgba(0,0,0,0.5),-1px_-1px_3px_rgba(255,255,255,0.03),inset_1px_1px_2px_rgba(255,255,255,0.02)] flex items-center justify-center active:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.8)] active:translate-y-[1px] transition-all z-20" data-action="view-doc" data-url="${escapeHTML(record.documentUrl)}">
+                            <button class="absolute right-4 top-4 w-12 h-12 rounded-2xl border border-white/10 bg-[#150a0f]/80 backdrop-blur-md text-[var(--theme-accent)] shadow-inner flex items-center justify-center hover:bg-white/5 hover:scale-105 active:scale-95 transition-all z-20" data-action="view-doc" data-url="${escapeHTML(record.documentUrl)}">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
                             </button>
                         ` : ''}
 
                         <div class="pr-16">
-                            <h4 class="text-lg font-bold text-white leading-tight mb-2">${escapeHTML(record.title)}</h4>
-                            <div class="flex items-center gap-2 mb-4">
-                                <span class="px-2 py-0.5 rounded bg-[var(--theme-accent-muted)] text-[var(--theme-accent)] text-[9px] uppercase font-bold tracking-widest">${escapeHTML(record.entityType)}</span>
-                                <span class="text-[10px] text-white/50 font-medium">• ${escapeHTML(record.subtitle || '')}</span>
+                            <h4 class="text-xl font-bold text-white leading-tight mb-3 tracking-wide">${escapeHTML(record.title)}</h4>
+                            <div class="flex flex-wrap items-center gap-3 mb-4">
+                                <span class="px-2.5 py-1 rounded-md bg-[var(--theme-accent-muted)] text-[var(--theme-accent)] text-[9px] uppercase font-black tracking-[0.2em] shadow-sm">${escapeHTML(record.entityType)}</span>
+                                ${record.subtitle ? `<span class="text-xs text-white/60 font-medium tracking-wide">${escapeHTML(record.subtitle)}</span>` : ''}
                             </div>
                             
-                            ${record.desc ? `<p class="text-sm text-white/80 leading-relaxed mb-1">${escapeHTML(record.desc)}</p>` : ''}
+                            ${record.desc ? `<div class="p-3.5 rounded-xl bg-white/5 border border-white/5 mt-2">
+                                <p class="text-sm text-white/80 leading-relaxed">${escapeHTML(record.desc)}</p>
+                            </div>` : ''}
                         </div>
                     </div>
                 </div>

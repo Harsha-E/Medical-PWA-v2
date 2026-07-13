@@ -11,6 +11,7 @@ export default class SettingsView {
     const displayName = state.user?.displayName || state.userProfile?.name || state.user?.email || 'Unknown User';
     const initials = displayName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'U';
     const bloodType = state.userProfile?.profile?.bloodType || 'O+';
+    const avatarUrl = state.userProfile?.profile?.avatar;
     
     // Emergency Data Migration
     const family = await db.family.toArray();
@@ -23,15 +24,20 @@ export default class SettingsView {
       <main class="scroll-area pt-[112px] md:pt-8 md:pl-64 lg:pl-72 md:pt-8 bg-transparent pb-40" style="padding-left:0; padding-right:0;">
 <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
         <div class="clay-glass-panel p-8 mb-12 flex items-center gap-4 shadow-[0_8px_32px_var(--color-card-shadow)] border-border backdrop-blur-xl relative z-10">
-          <a href="#/emergency" class="w-20 h-20 rounded-full flex items-center justify-center font-display italic text-3xl font-bold shadow-[0_0_20px_var(--color-primary)] border border-accent-primary/40 bg-gradient-to-br from-primary/80 to-secondary/80 text-accent-bright backdrop-blur-md shrink-0 ring-4 ring-surface-elevated/50 hover:scale-105 transition-transform">
-            ${initials}
+          <a href="#/avatar-setup" class="w-20 h-20 rounded-full flex items-center justify-center font-display italic text-3xl font-bold shadow-[0_0_20px_var(--color-primary)] border border-accent-primary/40 bg-gradient-to-br from-primary/80 to-secondary/80 text-accent-bright backdrop-blur-md shrink-0 ring-4 ring-surface-elevated/50 hover:scale-105 transition-transform overflow-hidden relative group">
+            ${avatarUrl 
+              ? `<img src="${avatarUrl}" class="w-full h-full object-cover scale-[1.15] translate-y-[8%]" alt="Avatar">` 
+              : `${initials}`}
+            <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-white"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+            </div>
           </a>
           <a href="#/emergency" class="flex-1 block min-w-0 hover:opacity-80 transition-opacity pl-2">
             <p class="font-bold text-xl leading-tight text-text-primary truncate">${displayName}</p>
             <p class="text-sm text-text-secondary mt-1 truncate">${state.userProfile?.profile?.phone || 'Phone not set'}</p>
             <p class="text-[10px] font-bold text-accent-primary mt-2 tracking-widest uppercase truncate">${bloodType} Clinical Node</p>
           </a>
-          <button id="edit-profile-btn" class="shrink-0 p-3 rounded-2xl active:scale-90 transition-all text-text-primary backdrop-blur-md relative z-20 btn-neumorphic">
+          <button id="edit-profile-btn" class="shrink-0 p-3 rounded-2xl active:scale-90 transition-all text-text-primary backdrop-blur-md relative z-20 btn-neumorphic flex items-center justify-center">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
           </button>
         </div>

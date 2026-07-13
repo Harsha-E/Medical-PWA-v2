@@ -128,44 +128,6 @@ export default class AddMedicationView {
       }
     }
 
-    // 6. Interaction Engine Initialization & Check
-    let warningBannerHtml = '';
-    try {
-      const engine = new InteractionEngine();
-      await engine.init('./data/indian_pharma_interactions.json');
-      
-      const mockPatientProfile = {
-        conditions: ['heart failure'],
-        activeMeds: ['atorvastatin']
-      };
-
-      const targetDrug = this.medData.genericName || this.medData.name;
-      
-      if (targetDrug) {
-        const warnings = await engine.analyze(targetDrug, mockPatientProfile);
-        
-        if (warnings && warnings.length > 0) {
-          const warningsHtml = warnings.map(w => 
-            `<div class="mb-2"><strong class="uppercase text-[10px] tracking-wider">${w.type} (${w.severity}):</strong> ${w.message}</div>`
-          ).join('');
-
-          warningBannerHtml = `
-            <div class="mb-6 p-5 rounded-3xl bg-red-950/40 border border-red-500/30 backdrop-blur-xl animate-[pulseWarning_2s_infinite]" style="box-shadow: inset 4px 4px 10px rgba(0,0,0,0.5), inset -4px -4px 10px rgba(255, 100, 100, 0.1), 0 0 20px rgba(239, 68, 68, 0.3);">
-              <div class="flex items-center gap-3 mb-3">
-                <span class="text-red-400 text-xl">⚠️</span>
-                <h4 class="text-red-200 font-bold tracking-wide text-xs">CLINICAL WARNING DETECTED</h4>
-              </div>
-              <div class="text-sm text-red-200/80">
-                ${warningsHtml}
-              </div>
-            </div>
-          `;
-        }
-      }
-    } catch (e) {
-      console.error('[AddMedication] InteractionEngine execution failed:', e);
-    }
-
     let ocrConfidenceHtml = '';
     if (this.medData.ocrConfidence) {
         ocrConfidenceHtml = `
@@ -182,7 +144,7 @@ export default class AddMedicationView {
       <main class="flex-1 pb-24 md:pb-12" style="padding-left:0; padding-right:0; height: 100%; overflow-y: auto; overflow-x: hidden;">
         <div class="px-4 md:px-8 pt-[112px] md:pt-8 md:pl-64 lg:px-12 w-full max-w-7xl mx-auto flex flex-col">
         <div class="w-full max-w-2xl md:max-w-4xl lg:max-w-5xl mx-auto">
-        ${warningBannerHtml}
+        <div id="inline-warning-container"></div>
         ${ocrConfidenceHtml}
         <div class="clay-glass-panel p-6 mb-8 clay-glass-panel rounded-[2rem]">
           <h3 class="form-label mb-6">Medication Details</h3>
@@ -359,6 +321,17 @@ export default class AddMedicationView {
   attachListeners() {
     this.attachAutocompleteListeners();
 
+    const nameInput = this.container.querySelector('#m-name');
+    nameInput?.addEventListener('blur', () => {
+        if (nameInput.value.trim()) {
+            this._runInlineInteractionCheck(nameInput.value.trim());
+        }
+    });
+
+    if (this.medData.name) {
+        this._runInlineInteractionCheck(this.medData.name);
+    }
+
     this.container.querySelector('#save-btn').addEventListener('click', () => this.save());
     
     // Auto-save form draft to sessionStorage on input or change
@@ -527,52 +500,65 @@ export default class AddMedicationView {
   }
 
   attachAutocompleteListeners() {
-    import('../data/indian-drug-dataset.js').then(module => {
-       const dataset = module.INDIAN_DRUG_DATASET;
+    import('../core/db.js').then(module => {
+       const db = module.default;
        const nameInput = this.container.querySelector('#m-name');
        const ghostInput = this.container.querySelector('#m-name-ghost');
        const dropdown = this.container.querySelector('#m-name-dropdown');
        
        let currentMatchStr = null;
 
-       nameInput.addEventListener('input', (e) => {
-           const val = e.target.value.toLowerCase();
+       nameInput.addEventListener('input', async (e) => {
+           const val = e.target.value;
+           const lowerVal = val.toLowerCase();
            dropdown.innerHTML = '';
            currentMatchStr = null;
            ghostInput.value = '';
+           
+           // Clear any existing interaction warning while typing
+           const warningContainer = this.container.querySelector('#inline-warning-container');
+           if (warningContainer) warningContainer.innerHTML = '';
            
            if (!val) {
                dropdown.classList.add('hidden');
                return;
            }
            
-           const matches = dataset.filter(d => 
-              d.name.toLowerCase().startsWith(val) || 
-              (d.brandNames && d.brandNames.some(b => b.toLowerCase().startsWith(val)))
-           ).slice(0, 10);
-           
-           if (matches.length > 0) {
-               dropdown.classList.remove('hidden');
-               // set ghost text
-               const bestMatchStr = matches[0].name.toLowerCase().startsWith(val) ? matches[0].name : matches[0].brandNames.find(b => b.toLowerCase().startsWith(val));
-               if (bestMatchStr) {
-                  ghostInput.value = e.target.value + bestMatchStr.slice(val.length);
-                  currentMatchStr = ghostInput.value;
-               }
+           try {
+               // Query IndexedDB for matching medicines (brand names)
+               const matches = await db.medicines
+                   .where('name')
+                   .startsWithIgnoreCase(val)
+                   .limit(10)
+                   .toArray();
                
-               matches.forEach(m => {
-                  const div = document.createElement('div');
-                  div.className = 'p-4 hover:bg-primary/20 cursor-pointer border-b border-border/50 text-sm transition-colors text-left';
-                  div.innerHTML = `<div class="font-bold text-text-primary text-base">${m.name}</div>
-                                   <div class="text-xs text-text-secondary mt-1">${m.brandNames?.join(', ') || ''} &bull; ${m.category || ''}</div>`;
-                  div.addEventListener('click', () => {
-                      this.autofillMedication(m);
-                      dropdown.classList.add('hidden');
-                  });
-                  dropdown.appendChild(div);
-               });
-           } else {
-               dropdown.classList.add('hidden');
+               if (matches.length > 0) {
+                   dropdown.classList.remove('hidden');
+                   
+                   // Set ghost text
+                   const bestMatchStr = matches[0].name;
+                   if (bestMatchStr && bestMatchStr.toLowerCase().startsWith(lowerVal)) {
+                       ghostInput.value = val + bestMatchStr.slice(val.length);
+                       currentMatchStr = ghostInput.value;
+                   }
+                   
+                   matches.forEach(m => {
+                       const div = document.createElement('div');
+                       div.className = 'p-4 hover:bg-primary/20 cursor-pointer border-b border-border/50 text-sm transition-colors text-left';
+                       div.innerHTML = `<div class="font-bold text-text-primary text-base">${m.name}</div>
+                                        <div class="text-xs text-text-secondary mt-1">${m.genericName || 'Generic'} &bull; ${m.manufacturer || ''}</div>`;
+                       div.addEventListener('mousedown', (e) => {
+                           e.preventDefault(); // Prevent input blur
+                           this.autofillMedication(m);
+                           dropdown.classList.add('hidden');
+                       });
+                       dropdown.appendChild(div);
+                   });
+               } else {
+                   dropdown.classList.add('hidden');
+               }
+           } catch (error) {
+               console.warn('[AddMedication] Typeahead search error:', error);
            }
        });
        
@@ -581,17 +567,20 @@ export default class AddMedicationView {
              if (ghostInput.value && ghostInput.value.length > nameInput.value.length) {
                  e.preventDefault();
                  nameInput.value = ghostInput.value;
-                 nameInput.dispatchEvent(new Event('input')); // trigger update
+                 // Manually trigger input event so UI can react (though dropdown might close)
+                 const event = new Event('input', { bubbles: true });
+                 nameInput.dispatchEvent(event);
              }
           }
        });
-
+       
+       // Close dropdown when clicking outside
        document.addEventListener('click', (e) => {
-           if (!nameInput.contains(e.target) && !dropdown.contains(e.target)) {
-               dropdown.classList.add('hidden');
-           }
+          if (!nameInput.contains(e.target) && !dropdown.contains(e.target)) {
+             dropdown.classList.add('hidden');
+          }
        });
-    }).catch(e => console.error('Failed to load dataset for autocomplete', e));
+    });
   }
 
   autofillMedication(m) {
@@ -627,6 +616,9 @@ export default class AddMedicationView {
       if (m.manufacturer && m.manufacturer.length > 0) this.medData.manufacturer = m.manufacturer[0];
       if (m.brandNames && m.brandNames.length > 0) this.medData.alternativeBrands = m.brandNames.join(', ');
       this.saveDraftState();
+      
+      // Dynamically run interaction check
+      this._runInlineInteractionCheck(m.name);
   }
 
   async save() {
@@ -662,7 +654,7 @@ export default class AddMedicationView {
       dosageUnitValue = this.container.querySelector('#m-unit')?.value || 'mg';
     }
 
-    const data = {
+    let data = {
       userId: state.user?.uid || 'anonymous',
       name,
       dosage: dosageValue,
@@ -723,6 +715,66 @@ export default class AddMedicationView {
       }
     }
 
+    // Trigger Pre-Save Interaction Check
+    try {
+      const engine = new InteractionEngine();
+      await engine.init('./data/indian_pharma_interactions.json');
+      
+      const { default: stateModule } = await import('../core/state.js');
+      const { default: dbModule } = await import('../core/db.js');
+      const userId = stateModule.user?.uid || 'anonymous';
+      
+      const rawMeds = await dbModule.medications.toArray();
+      const activeMeds = rawMeds.filter(m => (m.userId === userId || !m.userId) && m.active !== false && m.id !== this.medId);
+      const currentDrugNames = activeMeds.map(m => (m.genericName || m.name || '').trim()).filter(n => n.length > 0);
+      
+      const diseaseRecords = await dbModule.disease_ledger ? await dbModule.disease_ledger.filter(d => d.userId === userId).toArray() : [];
+      const userConditions = diseaseRecords.map(d => d.clinicalName);
+      
+      const patientProfile = { activeMeds: currentDrugNames, activeDiseases: userConditions, allergies: [] };
+      const targetDrug = data.genericName || data.name;
+      
+      if (targetDrug) {
+        const warnings = await engine.analyze(targetDrug, patientProfile);
+        const severeWarnings = warnings.filter(w => w.severity.toLowerCase() === 'severe' || w.severity.toLowerCase() === 'critical');
+        
+        if (severeWarnings.length > 0) {
+          const confirmInteractionOverride = await new Promise((resolve) => {
+            const div = document.createElement('div');
+            div.className = 'fixed inset-0 z-[9999] bg-red-900/90 backdrop-blur-sm flex items-center justify-center p-4';
+            div.innerHTML = `
+              <div class="bg-surface-elevated border border-red-500/50 rounded-[2rem] p-6 w-full max-w-sm shadow-2xl">
+                <h2 class="text-xl font-display text-text-primary mb-2 flex items-center gap-2">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-danger)" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                  Severe Interaction Detected
+                </h2>
+                <p class="text-sm text-text-secondary mb-4 font-mono">This medication has severe interactions with your current profile:</p>
+                <div class="mb-6 space-y-2 max-h-48 overflow-y-auto">
+                  ${severeWarnings.map(w => `<div class="text-xs text-red-200 bg-red-950/50 p-3 rounded-xl border border-red-500/30"><strong>${w.type}:</strong> ${w.text}</div>`).join('')}
+                </div>
+                <div class="flex gap-3">
+                  <button id="int-cancel" class="flex-1 py-3 rounded-xl text-text-primary font-bold tracking-wider btn-neumorphic">Cancel</button>
+                  <button id="int-override" class="flex-1 py-3 rounded-xl bg-red-500/20 text-danger font-bold tracking-wider btn-neumorphic">Override</button>
+                </div>
+              </div>
+            `;
+            document.body.appendChild(div);
+            window.medcareAlertLock = true;
+            div.querySelector('#int-cancel').onclick = () => { window.medcareAlertLock = false; div.remove(); resolve(false); };
+            div.querySelector('#int-override').onclick = () => { window.medcareAlertLock = false; div.remove(); resolve(true); };
+          });
+          
+          if (!confirmInteractionOverride) {
+            saveBtn.disabled = false;
+            saveBtn.textContent = this.isEdit ? 'Save Changes' : 'Add Medication';
+            return;
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('[AddMedication] Interaction check failed during save:', e);
+    }
+
     data.createdAt = new Date().toISOString();
     data.updatedAt = new Date().toISOString();
     
@@ -756,5 +808,65 @@ export default class AddMedicationView {
   }
 
   destroy() {}
-}
 
+  async _runInlineInteractionCheck(drugName) {
+    if (!drugName) return;
+    
+    const container = this.container.querySelector('#inline-warning-container');
+    if (!container) return;
+
+    try {
+      const { default: InteractionEngine } = await import('../services/InteractionEngine.js');
+      const engine = new InteractionEngine();
+      await engine.init('./data/indian_pharma_interactions.json');
+      
+      const { default: stateModule } = await import('../core/state.js');
+      const { default: dbModule } = await import('../core/db.js');
+      const userId = stateModule.user?.uid || 'anonymous';
+      
+      const rawMeds = await dbModule.medications.toArray();
+      const activeMeds = rawMeds.filter(m => (m.userId === userId || !m.userId) && m.active !== false && m.id !== this.medId);
+      const currentDrugNames = activeMeds.map(m => (m.genericName || m.name || '').trim()).filter(n => n.length > 0);
+      
+      const diseaseRecords = await dbModule.disease_ledger ? await dbModule.disease_ledger.filter(d => d.userId === userId).toArray() : [];
+      const userConditions = diseaseRecords.map(d => d.clinicalName);
+      
+      const patientProfile = { activeMeds: currentDrugNames, activeDiseases: userConditions, allergies: [] };
+      
+      const warnings = await engine.analyze(drugName, patientProfile);
+      
+      if (warnings && warnings.length > 0) {
+        const warningsHtml = warnings.map(w => 
+          `<div class="mb-4 bg-red-950/30 p-4 rounded-2xl border border-red-500/20">
+              <div class="flex items-center gap-2 mb-1">
+                  <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                  <strong class="uppercase text-[10px] tracking-widest text-red-300">${w.type} • ${w.severity} SEVERITY</strong>
+              </div>
+              <p class="text-sm font-semibold text-red-50 my-2">${w.text}</p>
+              
+              <div class="mt-3 pt-3 border-t border-red-500/20 text-[11px] text-red-200/70 leading-relaxed flex gap-2">
+                  <svg class="w-4 h-4 shrink-0 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  <span><strong>How we found this:</strong> Our Clinical Engine cross-referenced the active ingredients in <em>${drugName}</em> against your current profile (allergies, conditions, and active medications).</span>
+              </div>
+          </div>`
+        ).join('');
+
+        container.innerHTML = `
+          <div class="mb-6 p-5 rounded-3xl bg-red-950/40 border border-red-500/30 backdrop-blur-xl" style="box-shadow: inset 4px 4px 10px rgba(0,0,0,0.5), inset -4px -4px 10px rgba(255, 100, 100, 0.1), 0 0 20px rgba(239, 68, 68, 0.3);">
+            <div class="flex items-center gap-3 mb-4">
+              <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+              <h4 class="text-red-200 font-bold tracking-widest text-xs uppercase">Clinical Warning Detected</h4>
+            </div>
+            <div class="space-y-2">
+              ${warningsHtml}
+            </div>
+          </div>
+        `;
+      } else {
+        container.innerHTML = '';
+      }
+    } catch (e) {
+      console.warn('[AddMedication] Inline Interaction check failed:', e);
+    }
+  }
+}

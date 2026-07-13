@@ -29,7 +29,6 @@ export default class WidgetPublisher {
                 this.publishMedicationsWidget();
                 this.publishEmergencyWidget();
             } else {
-                console.warn('[WidgetPublisher] Waiting for active Service Worker controller...');
                 navigator.serviceWorker.addEventListener('controllerchange', () => {
                     this.publishMedicationsWidget();
                     this.publishEmergencyWidget();

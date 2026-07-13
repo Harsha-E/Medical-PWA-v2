@@ -6,7 +6,7 @@
 
 export default class InteractionEngine {
     constructor() {
-        this.dbName = 'MedCheck_Interactions_DB';
+        this.dbName = 'MedCheck_Interactions_DB_v2';
         this.storeName = 'interactions_store';
         this.isReady = false;
         this.db = null;
@@ -48,8 +48,47 @@ export default class InteractionEngine {
         const warnings = [];
         if (!newMedGeneric) return warnings;
 
-        const targetDrug = this._normalize(newMedGeneric);
-        console.log(`[InteractionEngine] 🧬 Normalized drug name: "${targetDrug}"`);
+        let targetDrug = this._normalize(newMedGeneric);
+        let activeMedsResolved = [];
+
+        // Attempt to resolve brand names to generic names using Dexie IndexedDB
+        try {
+            const { default: db } = await import('../core/db.js');
+            
+            const resolveName = async (name) => {
+                if (!name) return name;
+                const match = await db.medicines.where('name').equalsIgnoreCase(name).first();
+                if (match && match.genericName) {
+                    return this._normalize(match.genericName);
+                }
+                return this._normalize(name);
+            };
+
+            targetDrug = await resolveName(newMedGeneric);
+            if (patientProfile.activeMeds) {
+                const resolvedPromises = patientProfile.activeMeds.map(med => resolveName(med));
+                activeMedsResolved = await Promise.all(resolvedPromises);
+            }
+        } catch (e) {
+            console.warn('[InteractionEngine] Could not connect to Dexie for brand resolution.', e);
+            targetDrug = this._normalize(newMedGeneric);
+            if (patientProfile.activeMeds) activeMedsResolved = patientProfile.activeMeds.map(m => this._normalize(m));
+        }
+
+        console.log(`[InteractionEngine] 🧬 Resolved target drug name: "${targetDrug}"`);
+
+        // 0. Duplicate Therapy Check
+        if (activeMedsResolved.length > 0) {
+            const isDuplicate = activeMedsResolved.some(current => current === targetDrug);
+            if (isDuplicate) {
+                console.warn(`[InteractionEngine] 🚨 DUPLICATE THERAPY DETECTED: ${newMedGeneric}`);
+                warnings.push({
+                    type: 'Duplicate Therapy',
+                    severity: 'Critical',
+                    text: `You are already taking a medication containing ${newMedGeneric}. Taking multiple medications with the same active compound can lead to a dangerous overdose!`
+                });
+            }
+        }
 
         // 1. Check Allergies
         if (patientProfile.allergies && Array.isArray(patientProfile.allergies)) {
@@ -73,20 +112,19 @@ export default class InteractionEngine {
         console.log(`[InteractionEngine] 📊 Drug profile found. Checking ${drugData.interactsWith?.length || 0} known interactions...`);
 
         // 3. Check Drug-Drug Interactions
-        if (patientProfile.activeMeds && Array.isArray(drugData.interactsWith)) {
-            patientProfile.activeMeds.forEach(currentMed => {
-                const current = this._normalize(currentMed);
+        if (activeMedsResolved.length > 0 && Array.isArray(drugData.interactsWith)) {
+            activeMedsResolved.forEach(current => {
                 const interaction = drugData.interactsWith.find(dd => {
                     const dbDrug = this._normalize(dd.drug);
                     return current.includes(dbDrug) || dbDrug.includes(current);
                 });
                 
                 if (interaction) {
-                    console.warn(`[InteractionEngine] 🚨 DRUG INTERACTION DETECTED: ${currentMed} + ${newMedGeneric}`);
+                    console.warn(`[InteractionEngine] 🚨 DRUG INTERACTION DETECTED: ${current} + ${newMedGeneric}`);
                     warnings.push({ 
                         type: 'Drug Interaction', 
                         severity: interaction.severity, 
-                        text: `Interaction with ${currentMed}: ${interaction.warning}` 
+                        text: `Interaction with ${current}: ${interaction.warning || interaction.mechanism || interaction.recommendation || 'Potential adverse effect detected.'}` 
                     });
                 }
             });
@@ -113,6 +151,64 @@ export default class InteractionEngine {
         }
 
         console.log(`[InteractionEngine] ✅ Analysis complete. Found ${warnings.length} warnings.`);
+        return warnings;
+    }
+
+    async analyzeProfile(patientProfile) {
+        console.log(`[InteractionEngine] 🔬 Analyzing entire patient profile...`);
+        if (!this.isReady) return [];
+        const warnings = [];
+        const meds = patientProfile.activeMeds || [];
+        
+        for (let i = 0; i < meds.length; i++) {
+            const drug1 = meds[i];
+            
+            // 1. Check Diseases and Allergies for drug1
+            const profileWithoutMeds = { activeMeds: [], activeDiseases: patientProfile.activeDiseases, allergies: patientProfile.allergies };
+            const specificWarnings = await this.analyze(drug1, profileWithoutMeds);
+            specificWarnings.forEach(w => {
+                warnings.push({ ...w, drug1: drug1, drug2: 'Profile' });
+            });
+            
+            // 2. Check Drug-Drug against remaining meds (to avoid A->B and B->A duplicates)
+            const drugData = await this._getDrugData(this._normalize(drug1));
+            if (drugData && Array.isArray(drugData.interactsWith)) {
+                for (let j = i + 1; j < meds.length; j++) {
+                    const drug2 = meds[j];
+                    const target = this._normalize(drug2);
+                    const interaction = drugData.interactsWith.find(dd => {
+                        const dbDrug = this._normalize(dd.drug);
+                        return target.includes(dbDrug) || dbDrug.includes(target);
+                    });
+                    if (interaction) {
+                        warnings.push({
+                            type: 'Drug Interaction',
+                            severity: interaction.severity,
+                            text: `Interaction between ${drug1} and ${drug2}: ${interaction.warning}`,
+                            drug1: drug1,
+                            drug2: drug2
+                        });
+                    }
+                }
+            }
+            
+            // 3. Duplicate Therapy Check
+            const targetDrug = this._normalize(drug1);
+            for (let j = i + 1; j < meds.length; j++) {
+                const current = this._normalize(meds[j]);
+                if (current === targetDrug) {
+                    warnings.push({
+                        type: 'Duplicate Therapy',
+                        severity: 'Critical',
+                        text: `You are taking multiple medications containing ${targetDrug}. Taking multiple medications with the same active compound can lead to a dangerous overdose!`,
+                        drug1: drug1,
+                        drug2: meds[j]
+                    });
+                }
+            }
+        }
+        
+        console.log(`[InteractionEngine] ✅ Profile Analysis complete. Found ${warnings.length} warnings.`);
         return warnings;
     }
 

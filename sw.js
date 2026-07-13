@@ -67,6 +67,13 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
+  if (event.data && event.data.type === 'UPDATE_WIDGET') {
+    if (self.widgets && self.widgets.updateByTag) {
+      self.widgets.updateByTag(event.data.tag, {
+        data: JSON.stringify(event.data.payload)
+      });
+    }
+  }
 });
 
 self.addEventListener('activate', (event) => {
@@ -134,6 +141,37 @@ self.addEventListener('push', (event) => {
             console.error('Failed to parse push data:', e);
         }
     }
+});
+
+// --- PWA WIDGETS EXPERIMENTAL LIFECYCLE EVENTS ---
+
+self.addEventListener('widgetinstall', event => {
+  console.log(`[SW] Widget installed: ${event.widget.tag}`);
+  event.waitUntil(
+    self.clients.matchAll().then(clients => {
+      clients.forEach(client => client.postMessage({ type: 'WIDGET_INSTALLED', tag: event.widget.tag }));
+    })
+  );
+});
+
+self.addEventListener('widgetresume', event => {
+  console.log(`[SW] Widget resumed: ${event.widget.tag}`);
+  event.waitUntil(
+    self.clients.matchAll().then(clients => {
+      clients.forEach(client => client.postMessage({ type: 'WIDGET_RESUMED', tag: event.widget.tag }));
+    })
+  );
+});
+
+self.addEventListener('widgetclick', event => {
+  console.log(`[SW] Widget clicked: ${event.widget.tag}, action: ${event.action}`);
+  event.waitUntil(
+    self.clients.openWindow('/')
+  );
+});
+
+self.addEventListener('widgetuninstall', event => {
+  console.log(`[SW] Widget uninstalled: ${event.widget.tag}`);
 });
 
 self.addEventListener('notificationclick', (event) => {

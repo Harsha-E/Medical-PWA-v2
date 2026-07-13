@@ -28,7 +28,7 @@ export default class InteractionCheckerView {
       const activeMeds = rawMeds.filter(m => (m.userId === userId || !m.userId) && m.active !== false);
 
       const currentDrugNames = activeMeds
-        .map(m => (m.name || m.genericName || '').trim())
+        .map(m => (m.genericName || m.name || '').trim())
         .filter(n => n.length > 0);
 
       // Fetch user's disease ledger
@@ -72,57 +72,42 @@ export default class InteractionCheckerView {
               else if (mappedItem.severity === 'moderate') summary.moderate.push(mappedItem);
               else summary.mild.push(mappedItem);
           });
+      } else {
+          // No new medicines, just analyze current profile
+          const profileWarnings = await engine.analyzeProfile(patientProfile);
+          profileWarnings.forEach(w => {
+              const severityKey = w.severity.toLowerCase() === 'critical' || w.severity.toLowerCase() === 'severe' ? 'severe' : 
+                                  w.severity.toLowerCase() === 'moderate' ? 'moderate' : 'mild';
+              
+              const exists = summary[severityKey].some(i => i.drug1 === w.drug1 && (i.drug2 === w.drug2 || i.details?.mechanism === w.text));
+              if (!exists) {
+                  summary[severityKey].push({
+                      drug1: w.drug1,
+                      drug2: w.drug2 || 'Profile Context',
+                      severity: severityKey,
+                      details: { mechanism: w.text },
+                      recommendation: "Consult Physician",
+                      alternatives: []
+                  });
+              }
+          });
       }
 
-      // Legacy fallback / Sandbox processing (For demo flexibility)
-      const evaluationList = [...currentDrugNames, ...this.sandboxMeds];
-      
-      // Optional: Fetch Drug Profiles for sandbox meds (can leave empty for hackathon to save time)
-      const sandboxProfiles = [];
-
       this.container.innerHTML = `
-        <div class="max-w-2xl md:max-w-4xl lg:max-w-5xl mx-auto w-full px-4 md:px-6 pt-[112px] md:pt-8 md:pl-64 lg:pl-72 md:pt-8 pb-28">
+        <div class="max-w-2xl md:max-w-4xl lg:max-w-5xl mx-auto w-full px-4 md:px-6 mt-20 md:mt-8 md:pl-64 lg:pl-72 md:mt-8 pb-28" style="padding-top: 0;">
 
           <section class="bg-surface-elevated/40 backdrop-blur-xl border border-white/5 rounded-[2.5rem] p-6 mb-8 shadow-[10px_10px_30px_rgba(0,0,0,0.6),-10px_-10px_30px_rgba(255,255,255,0.02),inset_2px_2px_5px_rgba(255,255,255,0.05)] relative overflow-visible">
-            <span class="text-xs font-mono tracking-widest uppercase text-accent-primary block mb-1">Pre-purchase Screener</span>
-            <h3 class="text-sm font-bold text-text-primary mb-3">Evaluated Pharmacy Track</h3>
-            <p class="text-xs text-text-secondary mb-4 leading-relaxed">
-              We run a comprehensive Pre-Purchase Screener against your clinical ledger, evaluating potential adverse effects across the entire pharmacy track! 
-              Add multiple drugs to your sandbox below to simulate complex interactions before confirming them to your permanent profile.
+            <span class="text-xs font-mono tracking-widest uppercase text-accent-primary block mb-1">Clinical Ledger</span>
+            <h3 class="text-sm font-bold text-text-primary mb-3">Current Regimen Analysis</h3>
+            <p class="text-xs text-text-secondary mb-2 leading-relaxed">
+              This is a comprehensive evaluation of your active pharmacy track. Our Clinical Engine cross-references all your active medications against each other, as well as your logged conditions and allergies, to identify potential adverse effects.
             </p>
-            
-            <div class="relative z-50">
-              <input type="text" id="sandbox-input" placeholder="Search generic or brand name..." class="w-full btn-neumorphic py-4 px-4 md:px-8 lg:px-12 text-sm font-bold flex items-center gap-2 mb-2 bg-surface focus:outline-none">
-              
-              <!-- Autocomplete Dropdown -->
-              <div id="autocomplete-dropdown" class="absolute w-full top-full mt-3 bg-surface-deep/95 backdrop-blur-3xl border border-white/10 rounded-xl shadow-[10px_10px_30px_rgba(0,0,0,0.8),-5px_-5px_15px_rgba(255,255,255,0.05),inset_1px_1px_2px_rgba(255,255,255,0.1)] hidden z-[9999] max-h-[300px] overflow-y-auto">
-                 <!-- Populated by JS -->
-              </div>
-            </div>
-
-            <!-- Staged Sandbox Meds -->
-            ${this.sandboxMeds.length > 0 ? `
-              <div class="mt-4 pt-4 border-t border-border/50">
-                <h4 class="text-xs font-mono tracking-widest text-text-muted uppercase mb-3">Virtual Sandbox</h4>
-                <div class="flex flex-wrap gap-2 mb-4">
-                  ${this.sandboxMeds.map((drug, idx) => `
-                    <div class="px-3 py-1.5 rounded-xl bg-blue-900/20 border border-blue-500/30 flex items-center gap-2">
-                      <span class="text-xs font-mono text-blue-200">💊 ${drug}</span>
-                      <button class="remove-sandbox-btn text-blue-400 hover:text-red-400 p-1" data-idx="${idx}">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                      </button>
-                    </div>
-                  `).join('')}
-                </div>
-                
-              </div>
-            ` : ''}
           </section>
 
           <div class="space-y-6">
-            ${this._renderSeverityBlock('Severe Conflicts', summary.severe, 'border-red-500/40 bg-red-950/20 backdrop-blur-xl text-red-200', '🔴 SEVERE')}
-            ${this._renderSeverityBlock('Moderate Warnings', summary.moderate, 'border-amber-500/30 bg-amber-950/20 backdrop-blur-xl text-amber-200', '🟡 WARNING')}
-            ${this._renderSeverityBlock('Mild Reactions', summary.mild, 'border-blue-500/30 bg-blue-950/20 backdrop-blur-xl text-blue-300', '🔵 INFO')}
+            ${this._renderSeverityBlock('Severe Conflicts', summary.severe, 'border-red-500/40 bg-red-950/20 backdrop-blur-xl text-red-200', '<svg class="w-3 h-3 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg> SEVERE')}
+            ${this._renderSeverityBlock('Moderate Warnings', summary.moderate, 'border-amber-500/30 bg-amber-950/20 backdrop-blur-xl text-amber-200', '<svg class="w-3 h-3 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg> WARNING')}
+            ${this._renderSeverityBlock('Mild Reactions', summary.mild, 'border-blue-500/30 bg-blue-950/20 backdrop-blur-xl text-blue-300', '<svg class="w-3 h-3 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> INFO')}
             
             ${summary.severe.length === 0 && summary.moderate.length === 0 && summary.mild.length === 0 ? `
               <div class="text-center p-8 bg-green-900/10 backdrop-blur-md border border-green-500/20 rounded-[2rem] shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
@@ -143,59 +128,13 @@ export default class InteractionCheckerView {
               ` : ''}
             `}
 
-            ${sandboxProfiles.map(profile => profile.data ? `
-              <div class="mt-8 border border-white/5 rounded-[2rem] p-6 bg-surface-elevated/40 backdrop-blur-xl shadow-[10px_10px_30px_rgba(0,0,0,0.6),-10px_-10px_30px_rgba(255,255,255,0.03),inset_2px_2px_5px_rgba(255,255,255,0.05)] relative overflow-hidden">
-                <div class="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-                  <svg class="w-24 h-24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-                </div>
-                <h3 class="text-xs font-mono tracking-[0.2em] uppercase text-text-secondary mb-4 border-b border-border pb-2 relative z-10">Drug Profile: ${profile.name.toUpperCase()}</h3>
-                
-                ${profile.data.compositions?.length > 0 ? `
-                  <div class="mb-4 relative z-10">
-                    <h4 class="text-xs text-text-muted font-bold mb-2">Compositions</h4>
-                    <div class="flex flex-wrap gap-1">
-                      ${profile.data.compositions.map(c => `<span class="px-2 py-1 bg-surface-deep text-xs rounded border border-border/50 shadow-inner">${c}</span>`).join('')}
-                    </div>
-                  </div>
-                ` : ''}
-
-                <div class="mb-4 relative z-10 grid grid-cols-2 gap-4">
-                  <div>
-                    <h4 class="text-xs text-text-muted font-bold mb-2">Pregnancy Safety</h4>
-                    <span class="px-3 py-1 bg-green-900/20 text-green-300 text-xs rounded border border-green-500/20 flex items-center w-fit"><svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg> FDA Cat B</span>
-                  </div>
-                  <div>
-                    <h4 class="text-xs text-text-muted font-bold mb-2">Food / Lifestyle</h4>
-                    <span class="px-3 py-1 bg-amber-900/20 text-amber-300 text-xs rounded border border-amber-500/20 flex items-center w-fit"><svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg> Avoid Alcohol</span>
-                  </div>
-                </div>
-
-                ${profile.data.sideEffects?.length > 0 ? `
-                  <div class="mb-4 relative z-10">
-                    <h4 class="text-xs text-text-muted font-bold mb-2">Clinical Side Effects</h4>
-                    <div class="flex flex-wrap gap-1">
-                      ${profile.data.sideEffects.slice(0, 10).map(se => `<span class="px-2 py-1 bg-amber-900/20 text-amber-200 text-xs rounded border border-amber-500/20">${se}</span>`).join('')}
-                    </div>
-                  </div>
-                ` : ''}
-
-                ${profile.data.substitutes?.length > 0 ? `
-                  <div class="relative z-10">
-                    <h4 class="text-xs text-text-muted font-bold mb-2">Brand Substitutes</h4>
-                    <div class="flex flex-wrap gap-1">
-                      ${profile.data.substitutes.map(sub => `<span class="px-2 py-1 bg-blue-900/20 text-blue-200 text-xs rounded border border-blue-500/20 shadow-inner">${sub}</span>`).join('')}
-                    </div>
-                  </div>
-                ` : ''}
-              </div>
-            ` : '').join('')}
-
             <section class="mt-8 pt-6 border-t border-border">
               <h4 class="text-xs font-mono tracking-widest text-text-muted uppercase mb-3">Evaluated Pharmacy Track</h4>
               <div class="flex flex-wrap gap-2">
                 ${currentDrugNames.map(drug => `
-                  <span class="px-3 py-1.5 rounded-xl bg-surface-elevated border border-border font-mono text-xs text-text-secondary shadow-inner">
-                    💊 ${drug}
+                  <span class="px-3 py-1.5 rounded-xl bg-surface-elevated border border-border font-mono text-xs text-text-secondary shadow-inner flex items-center gap-1">
+                    <svg class="w-3 h-3 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                    ${drug}
                   </span>
                 `).join('')}
                 ${currentDrugNames.length === 0 ? '<span class="text-xs text-gray-600 italic">No drugs queued. Add items to your active map.</span>' : ''}
@@ -207,8 +146,7 @@ export default class InteractionCheckerView {
       `;
 
       document.dispatchEvent(new CustomEvent('view:ready', { detail: { hash: '#/interaction-checker' } }));
-      this._attachListeners(newMedicines);
-      this._drawNetworkGraph(evaluationList, summary);
+      this._drawNetworkGraph(currentDrugNames, summary);
 
     } catch (err) {
       console.error('[InteractionChecker] Execution broken:', err);
@@ -285,84 +223,6 @@ export default class InteractionCheckerView {
         </div>
       </section>
     `;
-  }
-
-  _attachListeners(newMedicines = []) {
-    const input = this.container.querySelector('#sandbox-input');
-    const dropdown = this.container.querySelector('#autocomplete-dropdown');
-    
-    const btnProceed = this.container.querySelector('#btn-proceed-anyway');
-    if (btnProceed) {
-        btnProceed.onclick = () => {
-            if (newMedicines.length > 0) {
-                sessionStorage.setItem('medcheck_scanned_data', JSON.stringify(newMedicines[0]));
-            }
-            window.location.hash = '#/add-medication';
-        };
-    }
-    
-    // Remove sandbox chips
-    this.container.querySelectorAll('.remove-sandbox-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const idx = e.currentTarget.getAttribute('data-idx');
-        this.sandboxMeds.splice(idx, 1);
-        this.render();
-      });
-    });
-
-    let debounceTimeout = null;
-    
-    input?.addEventListener('input', (e) => {
-      const val = e.target.value;
-      if (val.length < 2) {
-         dropdown.innerHTML = '';
-         dropdown.classList.add('hidden');
-         return;
-      }
-      
-      clearTimeout(debounceTimeout);
-      debounceTimeout = setTimeout(async () => {
-         const results = await engine.autocomplete(val);
-         if (results.length > 0) {
-           dropdown.innerHTML = results.map(r => `
-             <div class="px-4 md:px-8 lg:px-12 py-3 hover:bg-surface-deep cursor-pointer text-sm font-bold border-b border-border/50 last:border-b-0 autocomplete-item">
-               ${r}
-             </div>
-           `).join('');
-           dropdown.classList.remove('hidden');
-           
-           dropdown.querySelectorAll('.autocomplete-item').forEach(item => {
-              item.addEventListener('click', (ev) => {
-                 const selected = ev.target.innerText.trim();
-                 if (!this.sandboxMeds.includes(selected)) {
-                   this.sandboxMeds.push(selected);
-                 }
-                 this.render();
-              });
-           });
-         } else {
-           dropdown.innerHTML = `<div class="px-4 md:px-8 lg:px-12 py-3 text-sm text-text-secondary italic">No matches found... hit enter to check anyway</div>`;
-           dropdown.classList.remove('hidden');
-         }
-      }, 300);
-    });
-
-    input?.addEventListener('keydown', (e) => {
-       if (e.key === 'Enter') {
-          const val = input.value.trim();
-          if (val && !this.sandboxMeds.includes(val)) {
-             this.sandboxMeds.push(val);
-             this.render();
-          }
-       }
-    });
-
-    // Close dropdown on click outside
-    document.addEventListener('click', (e) => {
-      if (input && dropdown && !input.contains(e.target) && !dropdown.contains(e.target)) {
-        dropdown.classList.add('hidden');
-      }
-    });
   }
 
   _drawNetworkGraph(nodesList, summary) {

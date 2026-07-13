@@ -24559,6 +24559,49 @@
           "warning": "Ayurvedic caution: High doses of Licorice should be monitored in Bleeding Disorder."
         }
       ]
+    },
+    {
+      "genericName": "itraconazole",
+      "contraindications": [
+        {
+          "disease": "Liver Disease",
+          "severity": "High",
+          "warning": "Hepatotoxicity risk."
+        }
+      ],
+      "interactsWith": [
+        {
+          "drug": "symbicort",
+          "severity": "Severe",
+          "mechanism": "Itraconazole strongly inhibits CYP3A4, significantly increasing systemic exposure to budesonide (in Symbicort), leading to corticosteroid toxicity and adrenal suppression.",
+          "recommendation": "Avoid concurrent use.",
+          "alternatives": [
+            "Beclomethasone",
+            "Flunisolide"
+          ]
+        },
+        {
+          "drug": "budesonide",
+          "severity": "Severe",
+          "mechanism": "Strong CYP3A4 inhibition by itraconazole increases budesonide levels.",
+          "recommendation": "Avoid concurrent use.",
+          "alternatives": [
+            "Beclomethasone"
+          ]
+        }
+      ]
+    },
+    {
+      "genericName": "symbicort",
+      "contraindications": [],
+      "interactsWith": [
+        {
+          "drug": "itraconazole",
+          "severity": "Severe",
+          "mechanism": "CYP3A4 inhibition by itraconazole increases systemic budesonide exposure, risking adrenal suppression.",
+          "recommendation": "Avoid concurrent use."
+        }
+      ]
     }
   ]
 }
