@@ -18,6 +18,32 @@ export default class InteractionCheckerView {
     this.container.innerHTML = this._getSkeletonUI();
 
     try {
+      // WAIT FOR ENGINE BEFORE PROCEEDING
+      let waitTime = 0;
+      const maxWait = 5000;
+      if (!engine.isReady) {
+        console.log('[InteractionChecker] Waiting for InteractionEngine to boot...');
+        // Update skeleton UI to show "Loading Database..." state
+        const skeletonContainer = this.container.querySelector('.max-w-2xl');
+        if (skeletonContainer) {
+            const bootMsg = document.createElement('div');
+            bootMsg.className = 'text-accent-primary font-mono text-sm mb-4 animate-pulse flex items-center gap-2';
+            bootMsg.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Booting Clinical Engine & Loading Database...';
+            skeletonContainer.prepend(bootMsg);
+        }
+
+        while (!engine.isReady && waitTime < maxWait) {
+          await new Promise(r => setTimeout(r, 200));
+          waitTime += 200;
+        }
+
+        if (!engine.isReady) {
+          console.warn('[InteractionChecker] Engine boot timeout. Proceeding anyway.');
+        } else {
+          console.log('[InteractionChecker] Engine is ready!');
+        }
+      }
+
       const { default: state } = await import('../core/state.js');
       const { default: db } = await import('../core/db.js');
       const { default: IntelligenceOrchestrator } = await import('../services/IntelligenceOrchestrator.js');

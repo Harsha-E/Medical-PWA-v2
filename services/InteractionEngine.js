@@ -93,7 +93,7 @@ export default class InteractionEngine {
         // 1. Check Allergies
         if (patientProfile.allergies && Array.isArray(patientProfile.allergies)) {
             const isAllergic = patientProfile.allergies.some(allergy => 
-                this._normalize(allergy).includes(targetDrug) || targetDrug.includes(this._normalize(allergy))
+                this._isMatch(this._normalize(allergy), targetDrug)
             );
             if (isAllergic) {
                 console.warn(`[InteractionEngine] 🚨 ALLERGY DETECTED: ${newMedGeneric}`);
@@ -116,7 +116,7 @@ export default class InteractionEngine {
             activeMedsResolved.forEach(current => {
                 const interaction = drugData.interactsWith.find(dd => {
                     const dbDrug = this._normalize(dd.drug);
-                    return current.includes(dbDrug) || dbDrug.includes(current);
+                    return this._isMatch(current, dbDrug);
                 });
                 
                 if (interaction) {
@@ -136,7 +136,7 @@ export default class InteractionEngine {
                 const dName = this._normalize(disease);
                 const contraindication = drugData.contraindications.find(dc => {
                     const dbDisease = this._normalize(dc.disease);
-                    return dName.includes(dbDisease) || dbDisease.includes(dName);
+                    return this._isMatch(dName, dbDisease);
                 });
                 
                 if (contraindication) {
@@ -178,7 +178,7 @@ export default class InteractionEngine {
                     const target = this._normalize(drug2);
                     const interaction = drugData.interactsWith.find(dd => {
                         const dbDrug = this._normalize(dd.drug);
-                        return target.includes(dbDrug) || dbDrug.includes(target);
+                        return this._isMatch(target, dbDrug);
                     });
                     if (interaction) {
                         warnings.push({
@@ -215,6 +215,15 @@ export default class InteractionEngine {
     _normalize(str) {
         if (!str) return '';
         return String(str).toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim();
+    }
+
+    _isMatch(str1, str2) {
+        if (!str1 || !str2) return false;
+        if (str1 === str2) return true;
+        // _normalize strips regex special chars, making this safe
+        const regex1 = new RegExp(`\\b${str1}\\b`, 'i');
+        const regex2 = new RegExp(`\\b${str2}\\b`, 'i');
+        return regex1.test(str2) || regex2.test(str1);
     }
 
     // --- IndexedDB Management ---
@@ -297,24 +306,24 @@ export default class InteractionEngine {
             let index = 0;
 
             const processChunk = () => {
-                const chunk = dataset.slice(index, index + chunkSize);
-                
-                if (chunk.length === 0) {
+                if (index >= dataset.length) {
                     console.log(`[InteractionEngine] ✅ DB Write Complete: All ${dataset.length} records safely inserted.`);
                     resolve();
                     return;
                 }
 
-                console.log(`[InteractionEngine] 💾 Writing chunk ${index} to ${index + chunk.length}...`);
+                const end = Math.min(index + chunkSize, dataset.length);
+                console.log(`[InteractionEngine] 💾 Writing chunk ${index} to ${end}...`);
                 const transaction = this.db.transaction([this.storeName], 'readwrite');
                 const store = transaction.objectStore(this.storeName);
                 
-                chunk.forEach(record => {
+                for (let i = index; i < end; i++) {
+                    const record = dataset[i];
                     if (record && record.genericName) {
                         record.genericName = this._normalize(record.genericName);
                         store.put(record);
                     }
-                });
+                }
 
                 transaction.oncomplete = () => {
                     index += chunkSize;
