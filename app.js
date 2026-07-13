@@ -23,6 +23,7 @@ import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/f
 import { datasetSyncManager } from './datasets/sync/DatasetSyncManager.js';
 import PeerMeshV2 from './services/PeerMeshV2.js';
 import QRManager from './utils/QRManager.js';
+import OfflinePersistenceManager from './services/storage/OfflinePersistenceManager.js';
 import WidgetPublisher from './services/WidgetPublisher.js';
 // â”€â”€â”€ View imports â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 import SplashView           from './views/splash.js';
@@ -456,6 +457,11 @@ class App {
       try {
         if (user) {
           await state.hydrate(user); // Must be strictly awaited
+          
+          // TRIGGER SYNC HERE (do not await to avoid blocking boot)
+          const syncManager = new OfflinePersistenceManager();
+          syncManager.synchronize().catch(e => console.error('[Sync] Failed:', e));
+          
           // Check for QR deep links once hydrated
           setTimeout(() => {
               if (window.familyMesh) {
