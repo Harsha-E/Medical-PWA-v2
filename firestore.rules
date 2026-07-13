@@ -4,75 +4,100 @@ service cloud.firestore {
     
     // 1. Global Helpers
     function isSignedIn() { return request.auth != null; }
-    function isEmailVerified() { return request.auth.token.email_verified == true; }
+    function isAdmin() { return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)); }
     function isOwner(userId) { return isSignedIn() && request.auth.uid == userId; }
+    function isOwnerOrAdmin(data) { return isSignedIn() && (data.userId == request.auth.uid || isAdmin()); }
+    
     function incoming() { return request.resource.data; }
     function existing() { return resource.data; }
     function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
-    function isAdmin() { return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)); }
 
-    // Default Deny
+    // 2. Default Deny
     match /{document=**} {
       allow read, write: if false;
     }
 
-    // Connectivity Check
     match /test/connection {
       allow read: if true;
     }
 
-    // 2. User Profiles and Subcollections
+    // 3. User Profiles & Subcollections
     match /users/{userId} {
       allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
       allow create: if isOwner(userId) 
-        && incoming().keys().hasAll(['userId', 'name', 'email'])
-        && incoming().keys().size() <= 10
-        && incoming().role == 'user' // Force user role
-        && incoming().userId == userId;
-      allow update: if (isOwner(userId) || isAdmin())
-        && isValidUser(incoming())
-        && (
-          incoming().diff(existing()).affectedKeys().hasAny(['name', 'profile', 'onboardingComplete', 'avatar'])
-          || isAdmin()
-        );
-
-      // Subcollection: Medications
-      match /medications/{medicationId} {
-        allow get: if isSignedIn() && (isAdmin() || existing().userId == request.auth.uid);
-        allow list: if isSignedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
-        allow create: if isSignedIn() && isValidId(medicationId)
-          && isValidMedication(incoming())
-          && incoming().userId == request.auth.uid;
-        allow update: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin())
-          && isValidMedication(incoming())
-          && incoming().userId == existing().userId; // Immutable owner
-        allow delete: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
-      }
-
-      // Subcollection: History (Clinical Ledger)
-      match /history/{historyId} {
-        allow read, write: if isSignedIn() && (isAdmin() || request.auth.uid == userId);
-      }
-
-      // Subcollection: Appointments
-      match /appointments/{appointmentId} {
-        allow get, update, delete: if isSignedIn() && (isAdmin() || existing().userId == request.auth.uid);
-        allow list: if isSignedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
-        allow create: if isSignedIn() && isValidId(appointmentId)
-          && incoming().userId == request.auth.uid
-          && incoming().title is string && incoming().title.size() <= 100;
+        && incoming().userId == userId 
+        && incoming().role == 'user'
+        && incoming().keys().hasAll(['userId', 'name', 'email']);
+      allow update: if (isOwner(userId) || isAdmin()) && isValidUser(incoming());
+      
+      // Allow syncing user profile state via CRDT 
+      match /{subcollection=**} {
+        allow read, write: if isOwner(userId) || isAdmin();
       }
     }
 
     function isValidUser(data) {
       return data.name is string && data.name.size() <= 100
-        && (data.email is string && data.email.size() <= 100);
+        && (data.bloodType == null || (data.bloodType is string && data.bloodType.size() <= 5))
+        && data.email is string;
+    }
+
+    // 4. Core Collections (Medications, Doses, Appointments, History, Family, Prescriptions)
+    
+    match /medications/{id} {
+      allow get, list: if isOwnerOrAdmin(existing());
+      allow create: if isSignedIn() && isValidId(id) && incoming().userId == request.auth.uid && isValidMedication(incoming());
+      allow update: if isOwnerOrAdmin(existing()) && isValidMedication(incoming()) && incoming().userId == existing().userId;
+      allow delete: if isOwnerOrAdmin(existing());
+    }
+
+    match /doses/{id} {
+      allow get, list, update, delete: if isOwnerOrAdmin(existing());
+      allow create: if isSignedIn() && isValidId(id) && incoming().userId == request.auth.uid && incoming().medicationId is string;
+    }
+
+    match /appointments/{id} {
+      allow get, list, update, delete: if isOwnerOrAdmin(existing());
+      allow create: if isSignedIn() && isValidId(id) && incoming().userId == request.auth.uid && incoming().title is string;
+    }
+
+    // Includes cryptographic Subresource Integrity Hashes from DocLedger.js
+    match /history/{id} {
+      allow get, list, update, delete: if isOwnerOrAdmin(existing());
+      allow create: if isSignedIn() && isValidId(id) && incoming().userId == request.auth.uid && incoming().title is string;
+    }
+
+    // Family Profile mesh network CRDT syncing
+    match /family/{id} {
+      allow get, list, update, delete: if isOwnerOrAdmin(existing());
+      allow create: if isSignedIn() && isValidId(id) && incoming().userId == request.auth.uid && incoming().name is string;
+    }
+
+    // OCR Scanning Pipeline auto-extraction DB
+    match /prescriptions/{id} {
+      allow get, list, update, delete: if isOwnerOrAdmin(existing());
+      allow create: if isSignedIn() && isValidId(id) && incoming().userId == request.auth.uid;
     }
 
     // 5. Admins Collection
     match /admins/{adminId} {
       allow read: if isSignedIn();
-      allow write: if false; // Only manageable via Console or secure server
+      allow write: if false;
+    }
+
+    // 6. Helper Validators
+    function isValidMedication(data) {
+      return data.name is string && data.name.size() <= 100
+        && data.userId is string; // Dosage removed from mandatory since OCR might not parse exact dosages
+    }
+
+    // 7. Hybrid Offline Sync Queue (Phase 3)
+    match /sync_queue/{peerId} {
+      // Allow any authenticated user to read/write to the queue. 
+      // Since peerId is a random UUID generated by PeerJS, it doesn't map directly to a userId.
+      // Payloads are encrypted client-side by CryptoVault before being written here.
+      allow read, write: if isSignedIn();
     }
   }
 }
