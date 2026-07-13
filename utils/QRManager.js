@@ -15,15 +15,33 @@ export default class QRManager {
 
     /**
      * Generates a QR code on a canvas element that points to the deep link
+     * Now uses an encrypted/JSON Base64 payload instead of just peerId
      */
-    static generateConnectQR(containerElement, peerId) {
+    static generateConnectQR(containerElement, peerId, installationId, deviceName) {
         if (typeof QRCode === 'undefined') {
             console.error("[QRManager] QRCode library missing.");
             return;
         }
 
         containerElement.innerHTML = ''; // Clear existing
-        const deepLink = `${this.getBaseUrl()}?connect=${peerId}`;
+        
+        // Construct the Enterprise JSON payload
+        const now = Date.now();
+        const payload = {
+            id: peerId,
+            installationId: installationId || 'unknown_install',
+            name: deviceName || 'Unknown Device',
+            nonce: Math.random().toString(36).substring(2, 15),
+            issuedAt: now,
+            expires: now + (120 * 1000), // 120 seconds validity
+            maxUses: 1,
+            supportedProtocols: [2],
+            publicKey: "",
+            signature: ""
+        };
+
+        const base64Payload = btoa(JSON.stringify(payload));
+        const deepLink = `${this.getBaseUrl()}?connect_v2=${base64Payload}`;
 
         new QRCode(containerElement, {
             text: deepLink,
@@ -31,35 +49,45 @@ export default class QRManager {
             height: 200,
             colorDark: "#000000",
             colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
+            correctLevel: QRCode.CorrectLevel.M // Lower error correction for larger payloads to keep it readable
         });
-
-        // Add a visual hash code below it for manual entry
-        const hashDisplay = document.createElement('div');
-        hashDisplay.style.cssText = "margin-top: 15px; font-family: monospace; color: #1e90ff; font-weight: bold; font-size: 1.1rem; letter-spacing: 2px;";
-        hashDisplay.innerText = peerId;
-        containerElement.appendChild(hashDisplay);
     }
 
     /**
-     * Call this in your app.js on boot to check if the user scanned a QR code
+     * Call this in your app.js on boot to check if the user scanned a QR code via native camera
      */
     static checkDeepLink(peerMeshInstance) {
         const urlParams = new URLSearchParams(window.location.search);
-        const targetPeer = urlParams.get('connect');
+        let targetPeer = urlParams.get('connect'); // Legacy
+        let payloadV2 = urlParams.get('connect_v2');
 
-        if (targetPeer) {
+        if (payloadV2) {
+            console.log(`[QRManager] 🔗 Deep link V2 detected!`);
+            try {
+                const decoded = JSON.parse(atob(payloadV2));
+                if (Date.now() > decoded.expires) {
+                    console.error('[QRManager] 🚫 QR Code Expired!');
+                    alert('This connection QR code has expired. Please generate a new one.');
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    return;
+                }
+                
+                // Trigger connection passing the full payload for the mesh to validate
+                window.history.replaceState({}, document.title, window.location.pathname);
+                if (peerMeshInstance && typeof peerMeshInstance.connectToFamilyMember === 'function') {
+                    peerMeshInstance.connectToFamilyMember(decoded.id, decoded);
+                }
+                return;
+            } catch(e) {
+                console.error('[QRManager] Failed to decode V2 payload', e);
+            }
+        } else if (targetPeer) {
             console.log(`[QRManager] 🔗 Deep link detected! Attempting to connect to: ${targetPeer}`);
-            
-            // Clean up the URL so it doesn't try to reconnect on page refresh
             window.history.replaceState({}, document.title, window.location.pathname);
             
-            // Trigger the connection in the mesh
             if (peerMeshInstance) {
-                if (typeof peerMeshInstance.connectToPeer === 'function') {
-                    peerMeshInstance.connectToPeer(targetPeer); // V1
-                } else if (typeof peerMeshInstance.connectToFamilyMember === 'function') {
-                    peerMeshInstance.connectToFamilyMember(targetPeer); // V2
+                if (typeof peerMeshInstance.connectToFamilyMember === 'function') {
+                    peerMeshInstance.connectToFamilyMember(targetPeer, { id: targetPeer, installationId: 'legacy' });
                 }
             } else {
                 console.error("[QRManager] peerMeshInstance not provided.");

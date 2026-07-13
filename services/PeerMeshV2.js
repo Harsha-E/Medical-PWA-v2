@@ -127,25 +127,69 @@ export default class PeerMeshV2 {
         }
     }
 
-    connectToFamilyMember(targetPeerId) {
+    connectToFamilyMember(targetPeerId, payload) {
         if (this.connections.has(targetPeerId)) {
             console.log(`[PeerMeshV2] Already connected to ${targetPeerId}`);
             return;
         }
         console.log(`[PeerMeshV2] Attempting to dial ${targetPeerId}...`);
-        const conn = this.peer.connect(targetPeerId);
-        this.manageConnection(conn);
+        
+        // Stage 2: CONNECTING
+        const conn = this.peer.connect(targetPeerId, {
+            metadata: {
+                v2Handshake: true,
+                installationId: window.state?.installationId || localStorage.getItem('medcheck_installation_id'),
+                name: window.state?.userProfile?.name || window.state?.user?.displayName || 'Unknown Device',
+                nonce: payload?.nonce || 'legacy'
+            }
+        });
+        
+        this.manageConnection(conn, payload);
     }
 
-    manageConnection(conn) {
-        conn.on('open', () => {
+    manageConnection(conn, scannedPayload = null) {
+        // State tracking for this specific connection
+        conn._meshState = 'DISCOVERED';
+        
+        conn.on('open', async () => {
             console.log(`[PeerMeshV2] ✅ Secure channel opened with ${conn.peer}`);
             this.connections.set(conn.peer, conn);
-
-            // Flush offline queue on new connection
-            import('./SyncBridge.js').then(module => {
-                module.default.processQueue(this);
-            }).catch(err => console.error("Failed to load SyncBridge for flush", err));
+            
+            // Stage 3: CONNECTED_UNTRUSTED
+            conn._meshState = 'CONNECTED_UNTRUSTED';
+            
+            // We need to check if we trust this device
+            const incomingMetadata = conn.metadata || {};
+            const remoteInstallId = incomingMetadata.installationId;
+            
+            if (remoteInstallId) {
+                // Check local DB for trust
+                import('../core/db.js').then(async (dbModule) => {
+                    const localDb = dbModule.default;
+                    const trustedDevice = await localDb.trusted_devices.get(remoteInstallId);
+                    
+                    if (trustedDevice) {
+                        console.log(`[PeerMeshV2] Device ${remoteInstallId} is TRUSTED. Moving to AUTHENTICATING...`);
+                        this.transitionToAuthenticating(conn, trustedDevice);
+                    } else if (scannedPayload && scannedPayload.installationId === remoteInstallId) {
+                        // We initiated the connection by scanning their QR code. We implicitly trust them based on the QR scan.
+                        console.log(`[PeerMeshV2] Device matches scanned QR payload. Initiating trust...`);
+                        this.transitionToAuthenticating(conn, null, scannedPayload);
+                    } else {
+                        // They initiated the connection, but we don't know them. Request user approval.
+                        console.log(`[PeerMeshV2] Device is UNKNOWN. Requesting user approval...`);
+                        window.dispatchEvent(new CustomEvent('peermesh:incoming-request', {
+                            detail: { conn: conn, payload: incomingMetadata }
+                        }));
+                    }
+                }).catch(err => console.error("Failed to check trusted devices", err));
+            } else {
+                // Legacy connection fallback
+                console.log(`[PeerMeshV2] Legacy connection detected. Skipping v2 handshake.`);
+                conn._meshState = 'SYNC_ACTIVE';
+                window.dispatchEvent(new CustomEvent('peermesh:connection-accepted', { detail: { peer: conn.peer } }));
+                this.flushQueue();
+            }
         });
 
         conn.on('data', async (encryptedPayload) => {
@@ -163,6 +207,31 @@ export default class PeerMeshV2 {
                 }
             } catch (e) {
                 console.error('[PeerMeshV2] Failed to decrypt payload:', e);
+                return;
+            }
+
+            console.log(`[PeerMeshV2] 📦 Decrypted data received from ${conn.peer}:`, payload);
+
+            if (payload && payload.type === 'HANDSHAKE_ACK') {
+                if (conn._meshState === 'AUTHENTICATING' || conn._meshState === 'CONNECTED_UNTRUSTED') {
+                    console.log(`[PeerMeshV2] Handshake ACK received. Moving to AUTHORIZED...`);
+                    conn._meshState = 'AUTHORIZED';
+                    
+                    // We can now negotiate sync
+                    this.negotiateSync(conn, payload.permissions);
+                }
+                return;
+            }
+
+            // Reject payload if not SYNC_ACTIVE (unless it's a legacy peer)
+            if (conn._meshState !== 'SYNC_ACTIVE' && conn.metadata && conn.metadata.v2Handshake) {
+                console.warn(`[PeerMeshV2] Rejected payload from ${conn.peer} because state is ${conn._meshState}`);
+                return;
+            }
+            
+            // Check if they are allowed to send to us (we receive it)
+            if (conn.metadata && conn.metadata.v2Handshake && conn._meshPermissions?.sync?.send === false) {
+                console.warn(`[PeerMeshV2] Rejected payload from ${conn.peer} due to permission constraint (they are not allowed to send)`);
                 return;
             }
 
@@ -202,6 +271,76 @@ export default class PeerMeshV2 {
         });
     }
 
+    // Called by UI when user clicks "ACCEPT" on the modal
+    async acceptConnection(conn, permissions, incomingPayload) {
+        if (!conn || !conn.open) return;
+        
+        console.log(`[PeerMeshV2] User approved connection. Saving to trusted_devices...`);
+        
+        // Save to DB
+        const remoteInstallId = incomingPayload.installationId;
+        if (remoteInstallId) {
+            import('../core/db.js').then(async (dbModule) => {
+                const localDb = dbModule.default;
+                await localDb.trusted_devices.put({
+                    installationId: remoteInstallId,
+                    deviceName: incomingPayload.name || 'Unknown Device',
+                    peerId: conn.peer,
+                    firstSeen: new Date().toISOString(),
+                    lastSeen: new Date().toISOString(),
+                    permissions: permissions,
+                    protocolVersion: 2
+                });
+            }).catch(e => console.error("Error saving trusted device", e));
+        }
+
+        this.transitionToAuthenticating(conn, { permissions: permissions }, null, true);
+    }
+
+    async transitionToAuthenticating(conn, trustedRecord, scannedPayload = null, isApprover = false) {
+        conn._meshState = 'AUTHENTICATING';
+        
+        // Send our permissions / ack
+        const ackPayload = {
+            type: 'HANDSHAKE_ACK',
+            installationId: window.state?.installationId || localStorage.getItem('medcheck_installation_id'),
+            permissions: trustedRecord ? trustedRecord.permissions : null,
+            nonceResponse: (conn.metadata && conn.metadata.nonce) ? conn.metadata.nonce : (scannedPayload ? scannedPayload.nonce : null)
+        };
+        
+        if (cryptoVault.isUnlocked()) {
+            const enc = await cryptoVault.encryptObject(ackPayload);
+            conn.send(enc);
+        } else {
+            conn.send(ackPayload);
+        }
+        
+        // If we are the one who scanned, we wait for their ACK to move to AUTHORIZED.
+        // If we are the approver, we can assume authorized.
+        if (isApprover) {
+            conn._meshState = 'AUTHORIZED';
+            this.negotiateSync(conn, trustedRecord.permissions);
+        }
+    }
+
+    negotiateSync(conn, theirPermissions) {
+        conn._meshState = 'SYNC_NEGOTIATION';
+        // Enforce capabilities based on what they permit
+        conn._meshPermissions = theirPermissions || { sync: { send: true, receive: true, auto: true } };
+        
+        conn._meshState = 'SYNC_ACTIVE';
+        console.log(`[PeerMeshV2] 🟢 SYNC_ACTIVE for ${conn.peer} with permissions:`, conn._meshPermissions);
+        
+        window.dispatchEvent(new CustomEvent('peermesh:connection-accepted', { detail: { peer: conn.peer } }));
+        this.flushQueue();
+    }
+    
+    flushQueue() {
+        import('./SyncBridge.js').then(module => {
+            module.default.processQueue(this);
+        }).catch(err => console.error("Failed to load SyncBridge for flush", err));
+    }
+
     async sendMessage(peerId, message) {
         let encrypted = message;
         if (cryptoVault.isUnlocked()) {
@@ -211,8 +350,23 @@ export default class PeerMeshV2 {
         }
 
         const conn = this.connections.get(peerId);
+        
+        // State machine & permission enforcement
         if (conn && conn.open) {
-            conn.send(encrypted);
+            if (!conn.metadata || !conn.metadata.v2Handshake) {
+                conn.send(encrypted); // Legacy bypass
+            } else if (conn._meshState === 'SYNC_ACTIVE') {
+                // If we are sending to them, we check if they gave us permission to SEND to them.
+                // Or if we are sending, it means they are RECEIVING.
+                // If they said receive=false, we shouldn't send.
+                if (conn._meshPermissions?.sync?.receive === false) {
+                     console.warn(`[PeerMeshV2] Dropping message to ${peerId} due to permission constraint (they rejected receiving)`);
+                     return;
+                }
+                conn.send(encrypted);
+            } else {
+                console.warn(`[PeerMeshV2] Dropping message to ${peerId} because connection is in state ${conn._meshState}`);
+            }
         } else {
             console.log(`[PeerMeshV2] Peer ${peerId} offline. Hybrid Sync: Falling back to Firestore...`);
             try {
@@ -249,13 +403,16 @@ export default class PeerMeshV2 {
         let sentCount = 0;
         this.connections.forEach((conn, peerId) => {
             if (conn.open) {
-                conn.send(outPayload);
-                sentCount++;
-                
-                // Dispatch global event for UI visual data pulses
-                window.dispatchEvent(new CustomEvent('peermesh:data-sent', {
-                    detail: { to: peerId, payload: payload } // keep plain for UI
-                }));
+                if (!conn.metadata || !conn.metadata.v2Handshake) {
+                    conn.send(outPayload);
+                    sentCount++;
+                    window.dispatchEvent(new CustomEvent('peermesh:data-sent', { detail: { to: peerId, payload: payload } }));
+                } else if (conn._meshState === 'SYNC_ACTIVE' && conn._meshPermissions?.sync?.receive !== false && conn._meshPermissions?.sync?.auto !== false) {
+                    // Only broadcast if they are allowed to receive AND auto-sync is allowed
+                    conn.send(outPayload);
+                    sentCount++;
+                    window.dispatchEvent(new CustomEvent('peermesh:data-sent', { detail: { to: peerId, payload: payload } }));
+                }
             }
         });
         

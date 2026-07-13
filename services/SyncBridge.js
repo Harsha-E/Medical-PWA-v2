@@ -61,8 +61,8 @@ export default class SyncBridge {
      * Flushes the offline queue and sends payloads over the provided peer connection.
      */
     static async processQueue(meshInstance) {
-        if (!meshInstance || !meshInstance._connections) return;
-        const peers = Array.from(meshInstance._connections.keys());
+        if (!meshInstance || !meshInstance.connections) return;
+        const peers = Array.from(meshInstance.connections.keys());
         if (peers.length === 0) return;
 
         const pending = await db.sync_queue.where('status').equals('pending').toArray();

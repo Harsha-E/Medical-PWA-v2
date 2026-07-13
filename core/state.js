@@ -29,6 +29,18 @@ class State {
     this.themePref = 'dark';
     localStorage.setItem('medcare_theme_pref', 'dark');
     this._applyThemePref();
+
+    // ─── Device Identity ─────────────────────────────────────────────────────
+    this._initInstallationId();
+  }
+
+  _initInstallationId() {
+    let iid = localStorage.getItem('medcheck_installation_id');
+    if (!iid) {
+      iid = crypto.randomUUID ? crypto.randomUUID() : 'inst_' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('medcheck_installation_id', iid);
+    }
+    this.installationId = iid;
   }
 
   // ─── Theme Management ────────────────────────────────────────────────────────

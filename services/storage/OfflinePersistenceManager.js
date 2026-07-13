@@ -39,7 +39,8 @@ export default class OfflinePersistenceManager {
       const batch = writeBatch(firestoreDb);
       for (const m of localMeds) {
         const idStr = m.id.toString();
-        const remote = remoteMedsMap.get(idStr);
+        // Check if remote exists either under new ID format or legacy format
+        const remote = remoteMedsMap.get(idStr) || remoteMedsMap.get(`${userId}_${idStr}`);
         // Simple Last-Write-Wins or merge logic
         if (!remote || m.updatedAt > (remote.updatedAt || 0)) {
           const docRef = doc(firestoreDb, `users/${userId}/medications`, idStr);
@@ -50,9 +51,17 @@ export default class OfflinePersistenceManager {
 
       // Import remote medicines to local Dexie
       for (const [idStr, remoteMed] of remoteMedsMap.entries()) {
-        const local = localMeds.find(m => m.id.toString() === idStr);
+        // Handle legacy IDs like "uid_12345" by extracting just the numeric part
+        const cleanIdStr = idStr.includes('_') ? idStr.split('_')[1] : idStr;
+        const local = localMeds.find(m => m.id.toString() === cleanIdStr);
+        
         if (!local || (remoteMed.updatedAt || 0) > (local.updatedAt || 0)) {
-          const record = { ...remoteMed, id: parseInt(idStr, 10) };
+          const parsedId = parseInt(cleanIdStr, 10);
+          if (isNaN(parsedId)) {
+            console.warn(`[OfflinePersistenceManager] Skipping invalid remote document ID: ${idStr}`);
+            continue;
+          }
+          const record = { ...remoteMed, id: parsedId };
           await db.medications.put(record);
         }
       }
