@@ -101,15 +101,26 @@ export default class DashboardView {
     }
 
     let showBanner = false;
-    if (!isNotificationsEnabled) {
-      const dismissedAt = localStorage.getItem('notifications-banner-dismissed');
-      if (!dismissedAt) {
+    let bannerTitle = 'Medicine Reminders Off';
+    let bannerText = "Medicine reminders are currently turned off. Turn them on in settings if you'd like help remembering medicines and health checks.";
+    let bannerAction = '';
+    let notificationPerm = 'Notification' in window ? Notification.permission : 'denied';
+
+    const dismissedAt = localStorage.getItem('notifications-banner-dismissed');
+    const isDismissedRecently = dismissedAt && (Date.now() - Number(dismissedAt) < 30 * 24 * 60 * 60 * 1000);
+
+    if (!isDismissedRecently) {
+      if (notificationPerm === 'default') {
         showBanner = true;
-      } else {
-        const thirtyDays = 30 * 24 * 60 * 60 * 1000;
-        if (Date.now() - Number(dismissedAt) > thirtyDays) {
-          showBanner = true;
-        }
+        bannerTitle = 'Enable Notifications';
+        bannerText = 'MedCheck needs permission to send you timely medicine reminders.';
+        bannerAction = `<button id="request-notification-btn" class="mt-3 text-[10px] font-bold text-amber-600 bg-amber-500/20 px-4 py-1.5 rounded-lg border border-amber-500/30 uppercase tracking-widest hover:bg-amber-500/30 transition-colors">Grant Permission</button>`;
+      } else if (notificationPerm === 'denied') {
+        showBanner = true;
+        bannerTitle = 'Notifications Blocked';
+        bannerText = 'Your browser is blocking notifications. Please enable them in your browser settings or site settings to receive reminders.';
+      } else if (!isNotificationsEnabled) {
+        showBanner = true;
       }
     }
 
@@ -122,15 +133,16 @@ export default class DashboardView {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
             </div>
             <div>
-              <p class="text-xs font-bold text-text-primary uppercase tracking-wider">Medicine Reminders Off</p>
-              <p class="text-[11px] text-text-secondary mt-1 leading-relaxed">Medicine reminders are currently turned off. Turn them on in settings if you'd like help remembering medicines and health checks.</p>
+              <p class="text-xs font-bold text-text-primary uppercase tracking-wider">${bannerTitle}</p>
+              <p class="text-[11px] text-text-secondary mt-1 leading-relaxed">${bannerText}</p>
+              ${bannerAction}
             </div>
           </div>
-          <button id="dismiss-banner-btn" class="text-text-secondary hover:text-text-primary p-1 rounded-lg transition-colors">
+          <button id="dismiss-banner-btn" class="text-text-secondary hover:text-text-primary p-1 rounded-lg transition-colors shrink-0">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
-      `;
+      \`;
     }
 
     // --- 2. Today's Schedule Calculations ---
@@ -836,7 +848,36 @@ export default class DashboardView {
 
   attachListeners() {
     this.container.addEventListener('click', async (e) => {
-      // 1. Dismiss Notification Banner
+      // 1a. Request Notification Permission
+      const requestBtn = e.target.closest('#request-notification-btn');
+      if (requestBtn) {
+        e.preventDefault();
+        requestBtn.textContent = 'Requesting...';
+        requestBtn.classList.add('opacity-50');
+        
+        try {
+          const { notificationEngine } = await import('../services/NotificationEngine.js');
+          // requestPermission() requires user gesture, this is perfect inside a click handler
+          const granted = await notificationEngine.requestPermission();
+          
+          if (granted) {
+            localStorage.setItem('setting-notifications', 'true');
+            this._showNotification('Notifications enabled successfully!');
+            // Re-render dashboard to hide banner
+            const router = document.querySelector('medcare-app').router;
+            if (router) router.navigate('/');
+          } else {
+            requestBtn.textContent = 'Denied';
+            this._showNotification('Notification permission was denied.', 'error');
+          }
+        } catch (err) {
+          console.error(err);
+          this._showNotification('Error requesting permissions.', 'error');
+        }
+        return;
+      }
+
+      // 1b. Dismiss Notification Banner
       const dismissBtn = e.target.closest('#dismiss-banner-btn');
       if (dismissBtn) {
         localStorage.setItem('notifications-banner-dismissed', Date.now().toString());
