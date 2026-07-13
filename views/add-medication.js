@@ -371,17 +371,13 @@ export default class AddMedicationView {
 
     const estimateEndDate = () => {
       const totalStr = this.container.querySelector('#m-total').value;
-      const dosageStr = this.container.querySelector('#m-dosage').value;
       const freq = freqSelect.value;
       const startStr = this.container.querySelector('#m-start').value;
       const endInput = this.container.querySelector('#m-end');
 
       const total = parseFloat(totalStr);
-      // Extract the first number from dosage (e.g. "2 puffs" -> 2)
-      const dosageMatch = dosageStr.match(/\d+(\.\d+)?/);
-      const dosage = dosageMatch ? parseFloat(dosageMatch[0]) : NaN;
 
-      if (isNaN(total) || isNaN(dosage) || !startStr || total <= 0 || dosage <= 0 || freq === 'As needed') {
+      if (isNaN(total) || !startStr || total <= 0 || freq === 'As needed') {
           return;
       }
 
@@ -389,7 +385,8 @@ export default class AddMedicationView {
       if (freq === 'Twice daily') dailyMultiplier = 2;
       else if (freq === 'Three times daily') dailyMultiplier = 3;
 
-      const dailyUsage = dosage * dailyMultiplier;
+      // Assuming 1 unit (tablet/puff) per dose
+      const dailyUsage = 1 * dailyMultiplier;
       const daysDuration = Math.ceil(total / dailyUsage);
 
       const startDate = new Date(startStr);
@@ -401,21 +398,16 @@ export default class AddMedicationView {
     const estimateTotalQuantity = () => {
       const startStr = this.container.querySelector('#m-start').value;
       const endStr = this.container.querySelector('#m-end').value;
-      const dosageStr = this.container.querySelector('#m-dosage').value;
       const freq = freqSelect.value;
       const totalInput = this.container.querySelector('#m-total');
 
       if (!startStr || !endStr || freq === 'As needed') return;
 
-      const dosageMatch = dosageStr.match(/\d+(\.\d+)?/);
-      const dosage = dosageMatch ? parseFloat(dosageMatch[0]) : NaN;
-      if (isNaN(dosage) || dosage <= 0) return;
-
       let dailyMultiplier = 1;
       if (freq === 'Twice daily') dailyMultiplier = 2;
       else if (freq === 'Three times daily') dailyMultiplier = 3;
 
-      const dailyUsage = dosage * dailyMultiplier;
+      const dailyUsage = 1 * dailyMultiplier;
       
       const startD = new Date(startStr);
       const endD = new Date(endStr);
