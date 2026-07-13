@@ -966,14 +966,14 @@ export default class DashboardView {
             if (!ptrContainer) {
                 ptrContainer = document.createElement('div');
                 Object.assign(ptrContainer.style, {
-                    position: 'absolute',
-                    top: '0px',
+                    position: 'fixed',
+                    top: '15px',
                     left: '0',
                     width: '100%',
                     display: 'flex',
                     justifyContent: 'center',
-                    zIndex: '100',
-                    transform: 'translateY(-80px)',
+                    zIndex: '99999',
+                    transform: 'translateY(-100px)',
                     transition: 'none'
                 });
                 
@@ -991,7 +991,7 @@ export default class DashboardView {
             }
             
             const resistance = pullDistance < 150 ? pullDistance : 150 + (pullDistance - 150) * 0.3;
-            ptrContainer.style.transform = `translateY(${Math.min(resistance - 80, 40)}px)`;
+            ptrContainer.style.transform = `translateY(${Math.min(resistance - 100, 40)}px)`;
             
             const spinner = ptrContainer.querySelector('.spinner-container');
             const icon = ptrContainer.querySelector('.ptr-icon');
