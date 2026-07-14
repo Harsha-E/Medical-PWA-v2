@@ -296,14 +296,17 @@ export default class PeerMeshV2 {
                     // Finalize trust establishment (Initiator Side)
                     // The device that generated the QR code (the Approver) is the Patient.
                     // The device that scanned the QR code (us, the Initiator) is the Caregiver.
-                    if (state.user && payload.firebaseUid) {
+                    let localUid = window.appState?.user?.uid || state.user?.uid;
+                    if (localUid && payload.firebaseUid) {
                         await TrustManager.establishTrust(
                             payload.firebaseUid, // They are the Patient
-                            state.user.uid, // We are the Caregiver
-                            conn.metadata?.name || 'Unknown', // Their name
-                            state.userProfile?.name, // Our name
+                            localUid, // We are the Caregiver
+                            conn.metadata?.name || 'Unknown Patient', // Their name
+                            window.appState?.userProfile?.name || state.userProfile?.name || 'Caregiver', // Our name
                             'CAREGIVER'
                         );
+                    } else {
+                        console.warn(`[PeerMeshV2] Initiator SKIPPED establishTrust! localUid (${localUid}) or payload.firebaseUid (${payload.firebaseUid}) is missing.`);
                     }
                     // Success! Transition to SYNC_ACTIVE for data sync or presence.
                     conn._meshState = 'SYNC_ACTIVE';

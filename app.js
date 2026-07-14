@@ -384,11 +384,14 @@ class App {
       header.classList.remove('-translate-y-full');
       
       if (viewport) {
-        viewport.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease, border-radius 0.3s ease, border 0.3s ease';
-        viewport.style.transform = 'scale(0.96) translateY(20px)';
-        viewport.style.borderRadius = '24px';
-        viewport.style.border = '6px solid #6366f1'; // Indigo-500
-        viewport.style.boxShadow = '0 0 40px rgba(99, 102, 241, 0.4)';
+        viewport.style.transition = 'all 0.3s ease';
+        viewport.style.height = 'calc(100dvh - 70px)';
+        viewport.style.marginTop = '60px';
+        viewport.style.transform = 'scale(0.98)';
+        viewport.style.transformOrigin = 'center top';
+        viewport.style.borderRadius = '32px';
+        viewport.style.border = '4px solid #818cf8'; // Highlighted Indigo border
+        viewport.style.boxShadow = '0 0 50px rgba(99, 102, 241, 0.6), inset 0 0 20px rgba(0,0,0,0.5)';
         viewport.style.overflow = 'hidden';
       }
       
@@ -396,8 +399,10 @@ class App {
     } else {
       header.classList.add('-translate-y-full');
       if (viewport) {
-        viewport.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease, border-radius 0.3s ease, border 0.3s ease';
-        viewport.style.transform = 'scale(1) translateY(0)';
+        viewport.style.transition = 'all 0.3s ease';
+        viewport.style.height = '100dvh';
+        viewport.style.marginTop = '0px';
+        viewport.style.transform = 'scale(1)';
         viewport.style.borderRadius = '0px';
         viewport.style.border = 'none';
         viewport.style.boxShadow = 'none';
