@@ -264,7 +264,7 @@ export default class AddRecordView {
     saveBtn.textContent = 'Saving Record...';
 
     const data = {
-      userId: state.user?.uid || 'anonymous',
+      userId: window.appState?.activeProfileContext?.id || state.activeProfileContext?.id || state.user?.uid || 'anonymous',
       type: this.container.querySelector('#r-type').value,
       title: title,
       date: this.container.querySelector('#r-date').value,

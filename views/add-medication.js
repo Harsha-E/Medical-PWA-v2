@@ -652,7 +652,7 @@ export default class AddMedicationView {
     }
 
     let data = {
-      userId: state.user?.uid || 'anonymous',
+      userId: window.appState?.activeProfileContext?.id || state.activeProfileContext?.id || state.user?.uid || 'anonymous',
       name,
       dosage: dosageValue,
       dosageUnit: dosageUnitValue,
@@ -719,7 +719,7 @@ export default class AddMedicationView {
       
       const { default: stateModule } = await import('../core/state.js');
       const { default: dbModule } = await import('../core/db.js');
-      const userId = stateModule.user?.uid || 'anonymous';
+      const userId = window.appState?.activeProfileContext?.id || stateModule.activeProfileContext?.id || stateModule.user?.uid || 'anonymous';
       
       const rawMeds = await dbModule.medications.toArray();
       const activeMeds = rawMeds.filter(m => (m.userId === userId || !m.userId) && m.active !== false && m.id !== this.medId);
@@ -814,7 +814,7 @@ export default class AddMedicationView {
       
       const { default: stateModule } = await import('../core/state.js');
       const { default: dbModule } = await import('../core/db.js');
-      const userId = stateModule.user?.uid || 'anonymous';
+      const userId = window.appState?.activeProfileContext?.id || stateModule.activeProfileContext?.id || stateModule.user?.uid || 'anonymous';
       
       const rawMeds = await dbModule.medications.toArray();
       const activeMeds = rawMeds.filter(m => (m.userId === userId || !m.userId) && m.active !== false && m.id !== this.medId);
