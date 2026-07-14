@@ -26,44 +26,62 @@ export default class OfflinePersistenceManager {
       if (!getFirestore) return;
       const firestoreDb = getFirestore();
 
-      // 1. Sync Medications
-      const localMeds = await db.medications.where('userId').equals(userId).toArray();
-      const medsRef = collection(firestoreDb, `users/${userId}/medications`);
-      const querySnapshot = await getDocs(medsRef);
-      const remoteMedsMap = new Map();
-      querySnapshot.forEach(docSnap => {
-        remoteMedsMap.set(docSnap.id, docSnap.data());
-      });
+      // Generic table synchronizer
+      const syncTable = async (tableName) => {
+        try {
+          const localRecords = await db[tableName].where('userId').equals(userId).toArray();
+          const tableRef = collection(firestoreDb, `users/${userId}/${tableName}`);
+          const querySnapshot = await getDocs(tableRef);
+          
+          const remoteMap = new Map();
+          querySnapshot.forEach(docSnap => {
+            remoteMap.set(docSnap.id, docSnap.data());
+          });
 
-      // Write local changes to firestore
-      const batch = writeBatch(firestoreDb);
-      for (const m of localMeds) {
-        const idStr = m.id.toString();
-        // Check if remote exists either under new ID format or legacy format
-        const remote = remoteMedsMap.get(idStr) || remoteMedsMap.get(`${userId}_${idStr}`);
-        // Simple Last-Write-Wins or merge logic
-        if (!remote || m.updatedAt > (remote.updatedAt || 0)) {
-          const docRef = doc(firestoreDb, `users/${userId}/medications`, idStr);
-          batch.set(docRef, { ...m, id: idStr }, { merge: true });
-        }
-      }
-      await batch.commit();
-
-      // Import remote medicines to local Dexie
-      for (const [idStr, remoteMed] of remoteMedsMap.entries()) {
-        // Handle legacy IDs like "uid_12345" by extracting just the numeric part
-        const cleanIdStr = idStr.includes('_') ? idStr.split('_')[1] : idStr;
-        const local = localMeds.find(m => m.id.toString() === cleanIdStr);
-        
-        if (!local || (remoteMed.updatedAt || 0) > (local.updatedAt || 0)) {
-          const parsedId = parseInt(cleanIdStr, 10);
-          if (isNaN(parsedId)) {
-            console.warn(`[OfflinePersistenceManager] Skipping invalid remote document ID: ${idStr}`);
-            continue;
+          // Write local changes to firestore
+          const batch = writeBatch(firestoreDb);
+          for (const local of localRecords) {
+            const idStr = local.id.toString();
+            // Check if remote exists either under new ID format or legacy format
+            const remote = remoteMap.get(idStr) || remoteMap.get(`${userId}_${idStr}`);
+            // Simple Last-Write-Wins or merge logic
+            if (!remote || local.updatedAt > (remote.updatedAt || 0)) {
+              const docRef = doc(firestoreDb, `users/${userId}/${tableName}`, idStr);
+              batch.set(docRef, { ...local, id: idStr }, { merge: true });
+            }
           }
-          const record = { ...remoteMed, id: parsedId };
-          await db.medications.put(record);
+          await batch.commit();
+
+          // Import remote records to local Dexie
+          for (const [idStr, remoteRec] of remoteMap.entries()) {
+            // Handle legacy IDs like "uid_12345" by extracting just the numeric part
+            const cleanIdStr = idStr.includes('_') ? idStr.split('_')[1] : idStr;
+            const local = localRecords.find(r => r.id.toString() === cleanIdStr);
+            
+            if (!local || (remoteRec.updatedAt || 0) > (local.updatedAt || 0)) {
+              const parsedId = parseInt(cleanIdStr, 10);
+              if (isNaN(parsedId)) continue;
+              const record = { ...remoteRec, id: parsedId };
+              await db[tableName].put(record);
+            }
+          }
+        } catch (tableErr) {
+          console.warn(`[OfflinePersistenceManager] Sync failed for table: ${tableName}`, tableErr);
         }
+      };
+
+      // 1. Sync All Core Tables
+      const tablesToSync = [
+        'medications',
+        'disease_ledger',
+        'history',
+        'allergies',
+        'surgeries',
+        'appointments'
+      ];
+
+      for (const table of tablesToSync) {
+        await syncTable(table);
       }
 
       console.log('[OfflinePersistenceManager] Data synchronization successful.');

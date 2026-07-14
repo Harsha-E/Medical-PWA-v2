@@ -87,11 +87,14 @@ export default class AvatarSetupView {
             
             // Get latest profile map from state
             const currentProfile = state.userProfile?.profile || {};
-            const newProfile = { ...currentProfile, avatar: this.selectedAvatar };
+            // Deep clone to strip out any Vue/State proxies that cause Firebase internal assertions
+            const newProfile = JSON.parse(JSON.stringify({ ...currentProfile, avatar: this.selectedAvatar }));
 
-            // Update Firestore
-            const docRef = doc(db, 'users', user.uid);
-            await updateDoc(docRef, { profile: newProfile });
+            // Update Firestore using setDoc with merge to be safe
+            const { getFirestore, setDoc, doc: fsDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+            const firestoreDb = getFirestore();
+            const docRef = fsDoc(firestoreDb, 'users', user.uid);
+            await setDoc(docRef, { profile: newProfile }, { merge: true });
 
             // Update local state
             if (state.patchProfile) {
