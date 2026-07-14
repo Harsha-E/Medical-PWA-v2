@@ -142,6 +142,14 @@ export default class PeerNetworkView {
                             </svg>
                             SCAN QR CODE
                         </button>
+
+                        <!-- Manual Entry -->
+                        <div class="w-full pt-4 border-t border-white/10 flex items-center gap-2">
+                            <input type="text" id="pairing-code" placeholder="Enter Peer ID..." class="flex-1 bg-black/50 border border-white/10 rounded-full px-4 py-3 text-sm text-white placeholder-white/40 focus:outline-none focus:border-[#ffb88c] transition-colors font-mono">
+                            <button id="btn-connect" class="px-5 py-3 rounded-full bg-[#ffb88c] text-[#0a0407] text-xs font-mono font-bold tracking-widest hover:bg-[#ffcba8] transition-colors shadow-lg shadow-[#ffb88c]/20 shrink-0">
+                                LINK
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Inline Scanner View -->
@@ -353,7 +361,9 @@ export default class PeerNetworkView {
                                 const meshInstance = this.mesh || window.familyMesh || window.peerMeshV2;
                                 if (meshInstance && typeof meshInstance.connectToFamilyMember === 'function') {
                                     showToast('QR Scanned! Initiating secure link...', 'success');
-                                    meshInstance.connectToFamilyMember(decoded.id, decoded);
+                                    meshInstance.connectToFamilyMember(decoded.id, decoded).catch(err => {
+                                        showToast(err.message, 'error');
+                                    });
                                 } else {
                                     showToast('Network not ready yet. Try again.', 'error');
                                 }
@@ -368,7 +378,9 @@ export default class PeerNetworkView {
                             const meshInstance = this.mesh || window.familyMesh || window.peerMeshV2;
                             if (meshInstance && typeof meshInstance.connectToFamilyMember === 'function') {
                                 showToast('QR Scanned! Initiating secure link...', 'success');
-                                meshInstance.connectToFamilyMember(peerId, { id: peerId, installationId: 'legacy' });
+                                meshInstance.connectToFamilyMember(peerId, { id: peerId, installationId: 'legacy' }).catch(err => {
+                                    showToast(err.message, 'error');
+                                });
                             } else {
                                 showToast('Network not ready yet. Try again.', 'error');
                             }
@@ -426,11 +438,16 @@ export default class PeerNetworkView {
                 btnConnect.disabled = true;
 
                 try {
-                    if (this.mesh && typeof this.mesh.connectToFamilyMember === 'function') {
-                        await this.mesh.connectToFamilyMember(code, { id: code, installationId: 'manual' });
+                    const meshInstance = this.mesh || window.familyMesh || window.peerMeshV2;
+                    if (meshInstance && typeof meshInstance.connectToFamilyMember === 'function') {
+                        await meshInstance.connectToFamilyMember(code, { id: code, installationId: 'manual' });
+                        showToast('Initiating secure link...', 'success');
+                    } else {
+                        showToast('Network not ready yet. Try again later!', 'error');
                     }
                 } catch (e) {
                     console.warn('[Handshake Connection]', e);
+                    showToast(e.message || 'Connection failed', 'error');
                 }
 
                 btnConnect.innerText = "LINK";

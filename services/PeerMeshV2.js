@@ -92,6 +92,9 @@ export default class PeerMeshV2 {
 
 
     async connectToFamilyMember(targetPeerId, payload) {
+        if (!this.peer) {
+            throw new Error("Network not ready yet. Try again later!");
+        }
         if (this.peer.disconnected && !this.peer.destroyed) {
             console.warn(`[PeerMeshV2] Disconnected from signaling server. Auto-reconnecting...`);
             this.peer.reconnect();
