@@ -277,7 +277,7 @@ export default class PeerNetworkView {
                 profileCard.className = 'p-4 rounded-2xl bg-gray-800/50 border border-gray-700/50 flex items-center justify-between hover:bg-gray-800 transition-colors cursor-pointer group';
                 profileCard.onclick = () => {
                     // Update state to view this trusted profile
-                    const myUid = window.state?.user?.uid;
+                    const myUid = state?.user?.uid;
                     const otherUid = profile.patientUid === myUid ? profile.trustedUid : profile.patientUid;
                     window.appState.setActiveProfileContext({ id: otherUid, name: profile.name });
                     window.location.hash = '#/dashboard'; // Route to dashboard with the active context

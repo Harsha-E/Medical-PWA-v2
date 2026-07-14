@@ -101,6 +101,40 @@ class ClinicalLogger {
     await this._queueSync('UPDATE', 'disease_ledger', diseaseId, { ...record, id: diseaseId });
   }
 
+  // ─── Surgeries ────────────────────────────────────────────────────────────
+
+  async addSurgery(surgeryData) {
+    const record = this._prepareRecord({
+      ...surgeryData
+    });
+    const id = await db.surgeries.add(record);
+    await this._queueSync('ADD', 'surgeries', id, { ...record, id });
+    return id;
+  }
+
+  async updateSurgery(id, updateData) {
+    const record = this._prepareRecord(updateData);
+    await db.surgeries.update(id, record);
+    await this._queueSync('UPDATE', 'surgeries', id, { ...record, id });
+  }
+
+  // ─── Allergies ────────────────────────────────────────────────────────────
+
+  async addAllergy(allergyData) {
+    const record = this._prepareRecord({
+      ...allergyData
+    });
+    const id = await db.allergies.add(record);
+    await this._queueSync('ADD', 'allergies', id, { ...record, id });
+    return id;
+  }
+
+  async updateAllergy(id, updateData) {
+    const record = this._prepareRecord(updateData);
+    await db.allergies.update(id, record);
+    await this._queueSync('UPDATE', 'allergies', id, { ...record, id });
+  }
+
   // ─── Medications ──────────────────────────────────────────────────────────
 
   async addMedication(medData) {

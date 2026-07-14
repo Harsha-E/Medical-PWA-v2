@@ -107,13 +107,13 @@ export default class ClinicalLedgerView {
 
         // Prepare Timeline Records
         const combined = [];
-        filtered.history.forEach(h => combined.push({ id: `hist_${h.id}`, rawDate: new Date(h.date || Date.now()), entityType: h.type || 'History', title: h.title, subtitle: h.provider || 'Clinical Log', desc: h.notes, documentUrl: h.documentUrl, linkCount: getLinkCount('history', h.id) }));
-        filtered.diseases.forEach(d => combined.push({ id: `dis_${d.id}`, rawDate: new Date(d.updatedAt || Date.now()), entityType: 'Disease', title: d.diseaseName, subtitle: `Stage: ${d.stage || 'Active'}`, desc: `Dr: ${d.doctor || 'Primary Care'}`, linkCount: getLinkCount('disease_ledger', d.id) }));
+        filtered.history.forEach(h => combined.push({ id: `hist_${h.id}`, originalId: h.id, rawDate: new Date(h.date || Date.now()), entityType: h.type || 'History', title: h.title, subtitle: h.provider || 'Clinical Log', desc: h.notes, documentUrl: h.documentUrl, linkCount: getLinkCount('history', h.id) }));
+        filtered.diseases.forEach(d => combined.push({ id: `dis_${d.id}`, originalId: d.id, rawDate: new Date(d.updatedAt || Date.now()), entityType: 'Disease', title: d.diseaseName, subtitle: `Stage: ${d.stage || 'Active'}`, desc: `Dr: ${d.doctor || 'Primary Care'}`, linkCount: getLinkCount('disease_ledger', d.id) }));
         filtered.meds.forEach(m => {
-            if (m.startDate) combined.push({ id: `med_${m.id}`, rawDate: new Date(m.startDate), entityType: 'Medicine', title: m.name, subtitle: `${m.dosage} — ${m.frequency}`, desc: m.notes, linkCount: getLinkCount('medications', m.id) });
+            if (m.startDate) combined.push({ id: `med_${m.id}`, originalId: m.id, rawDate: new Date(m.startDate), entityType: 'Medicine', title: m.name, subtitle: `${m.dosage} — ${m.frequency}`, desc: m.notes, linkCount: getLinkCount('medications', m.id) });
         });
-        filtered.allergies.forEach(a => combined.push({ id: `alg_${a.id}`, rawDate: new Date(a.updatedAt || Date.now()), entityType: 'Allergy', title: a.allergy, subtitle: `Severity: ${a.severity}`, desc: `Reaction: ${a.reaction}`, linkCount: getLinkCount('allergies', a.id) }));
-        filtered.surgeries.forEach(s => combined.push({ id: `surg_${s.id}`, rawDate: new Date(s.date), entityType: 'Surgery', title: s.outcome, subtitle: `${s.hospital}`, desc: `Doctor: ${s.doctor}`, linkCount: getLinkCount('surgeries', s.id) }));
+        filtered.allergies.forEach(a => combined.push({ id: `alg_${a.id}`, originalId: a.id, rawDate: new Date(a.updatedAt || Date.now()), entityType: 'Allergy', title: a.allergy, subtitle: `Severity: ${a.severity}`, desc: `Reaction: ${a.reaction}`, linkCount: getLinkCount('allergies', a.id) }));
+        filtered.surgeries.forEach(s => combined.push({ id: `surg_${s.id}`, originalId: s.id, rawDate: new Date(s.date), entityType: 'Surgery', title: s.outcome, subtitle: `${s.hospital}`, desc: `Doctor: ${s.doctor}`, linkCount: getLinkCount('surgeries', s.id) }));
 
         combined.sort((a, b) => a.rawDate - b.rawDate); // Ascending order (oldest first)
         this.timelineRecords = combined;
@@ -758,13 +758,9 @@ export default class ClinicalLedgerView {
         let tableName = '';
         const prefixEndIndex = record.id.indexOf('_');
         const prefix = record.id.substring(0, prefixEndIndex);
-        const rawId = record.id.substring(prefixEndIndex + 1);
         
-        let recordId = parseInt(rawId, 10);
-        // Fallback to string if it's not a pure integer
-        if (isNaN(recordId) || recordId.toString() !== rawId) {
-            recordId = rawId;
-        }
+        // Use the originalId stored during mapping to avoid string/number type mismatch errors in Dexie
+        const recordId = record.originalId;
 
         if (prefix === 'hist') tableName = 'history';
         else if (prefix === 'dis') tableName = 'disease_ledger';

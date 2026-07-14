@@ -8,6 +8,7 @@
 import { cryptoVault } from './CryptoVault.js';
 import { TrustManager } from './TrustManager.js';
 import { registry, ConnectionState } from './ConnectionRegistry.js';
+import state from '../core/state.js';
 
 export default class PeerMeshV2 {
     constructor(onSyncReceived) {
@@ -125,9 +126,9 @@ export default class PeerMeshV2 {
         const conn = this.peer.connect(targetPeerId, {
             metadata: {
                 v2Handshake: true,
-                firebaseUid: window.state?.user?.uid, // Send our Firebase UID for trust
-                installationId: window.state?.installationId || localStorage.getItem('medcheck_installation_id'),
-                name: window.state?.userProfile?.name || window.state?.user?.displayName || 'Unknown Device',
+                firebaseUid: state.user?.uid, // Send our Firebase UID for trust
+                installationId: state.installationId || localStorage.getItem('medcheck_installation_id'),
+                name: state.userProfile?.name || state.user?.displayName || 'Unknown Device',
                 nonce: payload?.nonce || 'legacy'
             }
         });
@@ -151,7 +152,7 @@ export default class PeerMeshV2 {
             if (existingConn && existingConn.open && existingConn !== conn) {
                 console.warn(`[PeerMeshV2] Collision detected for ${conn.peer}! Resolving using installationId tie-breaker...`);
                 
-                const myInstallId = window.state?.installationId || localStorage.getItem('medcheck_installation_id');
+                const myInstallId = state.installationId || localStorage.getItem('medcheck_installation_id');
                 const incomingMetadata = conn.metadata || {};
                 const theirInstallId = context.direction === 'outgoing' 
                     ? (context.remote ? context.remote.installationId : null)
@@ -262,12 +263,12 @@ export default class PeerMeshV2 {
                     // Finalize trust establishment (Initiator Side)
                     // The device that generated the QR code (the Approver) is the Patient.
                     // The device that scanned the QR code (us, the Initiator) is the Caregiver.
-                    if (window.state?.user && payload.firebaseUid) {
+                    if (state.user && payload.firebaseUid) {
                         await TrustManager.establishTrust(
                             payload.firebaseUid, // They are the Patient
-                            window.state.user.uid, // We are the Caregiver
+                            state.user.uid, // We are the Caregiver
                             conn.metadata?.name || 'Unknown', // Their name
-                            window.state.userProfile?.name, // Our name
+                            state.userProfile?.name, // Our name
                             'CAREGIVER'
                         );
                     }
@@ -275,7 +276,11 @@ export default class PeerMeshV2 {
                     // Success! Close connection. PeerJS is only for pairing now.
                     console.log(`[PeerMeshV2] 🟢 Pairing complete. Terminating temporary WebRTC channel.`);
                     window.dispatchEvent(new CustomEvent('peermesh:pairing-complete'));
-                    conn.close();
+                    
+                    // Small delay to ensure SCTP packet delivery
+                    setTimeout(() => {
+                        if (conn && conn.open) conn.close();
+                    }, 1000);
                 }
                 return;
             }
@@ -338,11 +343,11 @@ export default class PeerMeshV2 {
         
         console.log(`[PeerMeshV2] User approved connection. Finalizing trust...`);
         
-        if (window.state?.user && incomingPayload.firebaseUid) {
+        if (state.user && incomingPayload.firebaseUid) {
             await TrustManager.establishTrust(
-                window.state.user.uid,
+                state.user.uid,
                 incomingPayload.firebaseUid,
-                window.state.userProfile?.name,
+                state.userProfile?.name,
                 incomingPayload.name,
                 'CAREGIVER'
             );
@@ -357,8 +362,8 @@ export default class PeerMeshV2 {
         // Send our ack + UID
         const ackPayload = {
             type: 'HANDSHAKE_ACK',
-            firebaseUid: window.state?.user?.uid, // Send our UID back
-            installationId: window.state?.installationId || localStorage.getItem('medcheck_installation_id'),
+            firebaseUid: state.user?.uid, // Send our UID back
+            installationId: state.installationId || localStorage.getItem('medcheck_installation_id'),
             permissions: trustedRecord ? trustedRecord.permissions : null,
             nonceResponse: (conn.metadata && conn.metadata.nonce) ? conn.metadata.nonce : (scannedPayload ? scannedPayload.nonce : null)
         };
@@ -375,7 +380,11 @@ export default class PeerMeshV2 {
             registry.setState(conn.peer, ConnectionState.AUTHORIZED);
             console.log(`[PeerMeshV2] 🟢 Pairing complete (Approver side). Terminating temporary WebRTC channel.`);
             window.dispatchEvent(new CustomEvent('peermesh:pairing-complete'));
-            conn.close();
+            
+            // Allow time for the ACK packet to be sent across the WebRTC SCTP channel before destroying the socket
+            setTimeout(() => {
+                if (conn && conn.open) conn.close();
+            }, 1000);
         }
     }
 

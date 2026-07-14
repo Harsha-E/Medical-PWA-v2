@@ -1,6 +1,6 @@
 import db from '../core/db.js';
 import state from '../core/state.js';
-import { getFirestore, collection, addDoc, doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import ClinicalLogger from '../services/ClinicalLogger.js';
 
 export default class AddRecordView {
   constructor() {
@@ -281,15 +281,43 @@ export default class AddRecordView {
     }
 
     try {
-      if (state.user && navigator.onLine) {
-        const dbFirestore = getFirestore();
-        const docRef = await addDoc(collection(dbFirestore, `users/${data.userId || 'anonymous'}/history`), data);
-        data.id = docRef.id;
-        await db.history.put(data);
+      if (data.type === 'Disease') {
+          await ClinicalLogger.addDisease({
+              diseaseName: data.title,
+              clinicalName: data.title,
+              stage: data.stage,
+              status: data.status,
+              notes: data.notes,
+              date: data.date,
+              documentUrl: data.documentUrl
+          });
+      } else if (data.type === 'Surgery') {
+          await ClinicalLogger.addSurgery({
+              outcome: data.title,
+              hospital: 'Unknown',
+              doctor: 'Unknown',
+              date: data.date,
+              recoveryStatus: data.status,
+              notes: data.notes,
+              documentUrl: data.documentUrl
+          });
+      } else if (data.type === 'Allergy') {
+          await ClinicalLogger.addAllergy({
+              allergy: data.title,
+              severity: data.stage || 'Unknown',
+              reaction: data.notes || 'Unknown',
+              firstObserved: data.date,
+              documentUrl: data.documentUrl
+          });
       } else {
-        // Offline / No Auth
-        data.id = 'temp_' + Date.now();
-        await db.history.put(data);
+          await ClinicalLogger.addHistory({
+              type: data.type,
+              title: data.title,
+              date: data.date,
+              provider: 'Self',
+              notes: data.notes,
+              documentUrl: data.documentUrl
+          });
       }
 
       window.location.hash = '#/clinical-ledger';
