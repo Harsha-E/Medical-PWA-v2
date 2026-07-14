@@ -468,8 +468,33 @@ class App {
     });
     window.addEventListener('offline', updateStatus);
 
+    let unsubSync = null;
+    const setupRealtimeSync = (uid) => {
+        if (unsubSync) { unsubSync(); unsubSync = null; }
+        if (!uid || !navigator.onLine) return;
+        
+        import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js').then(({ getFirestore, collection, onSnapshot }) => {
+            const db = getFirestore();
+            unsubSync = onSnapshot(collection(db, `users/${uid}/medications`), (snapshot) => {
+                if (snapshot.metadata.hasPendingWrites) return; // Ignore local cache writes
+                console.log(`[RealtimeSync] Remote changes detected for ${uid}`);
+                const syncManager = new OfflinePersistenceManager();
+                syncManager.synchronize().catch(e => console.warn('[RealtimeSync] Sync failed', e));
+            }, (err) => console.warn('[RealtimeSync] Listener failed:', err));
+        }).catch(e => console.warn('[RealtimeSync] Module load failed', e));
+    };
+
+    window.addEventListener('online', () => {
+        const uid = state.activeProfileContext ? (state.activeProfileContext.id || state.activeProfileContext) : (state.user ? state.user.uid : null);
+        setupRealtimeSync(uid);
+    });
+
     // Sync immediately when caregiver switches active profile context
-    window.addEventListener('medcare:profile-context-changed', async () => {
+    window.addEventListener('medcare:profile-context-changed', async (e) => {
+      const profile = e.detail;
+      const uid = profile ? profile.id : (state.user ? state.user.uid : null);
+      setupRealtimeSync(uid);
+      
       try {
         const syncManager = new OfflinePersistenceManager();
         await syncManager.synchronize();
@@ -477,6 +502,9 @@ class App {
         console.error('[Network] Context Sync failed:', err);
       }
     });
+
+    // Store globally so auth state change can trigger it
+    this._setupRealtimeSync = setupRealtimeSync;
   }
 
   async onAuthStateChanged(user) {
@@ -487,6 +515,11 @@ class App {
           // TRIGGER SYNC HERE (do not await to avoid blocking boot)
           const syncManager = new OfflinePersistenceManager();
           syncManager.synchronize().catch(e => console.error('[Sync] Failed:', e));
+          
+          if (this._setupRealtimeSync) {
+              const uid = state.activeProfileContext ? (state.activeProfileContext.id || state.activeProfileContext) : user.uid;
+              this._setupRealtimeSync(uid);
+          }
           
           // Check for QR deep links once hydrated
           setTimeout(() => {

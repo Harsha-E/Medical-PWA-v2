@@ -13,11 +13,27 @@ export default class MedicationsView {
   constructor() {
     this.container = document.createElement('div');
     this.container.className = 'viewport-container pb-safe min-h-screen text-text-primary';
+    
+    // Auto-refresh handler for instant CRDT/Offline sync updates
+    this.onSyncComplete = () => {
+        console.log('[MedicationsView] Real-time data sync detected. Re-rendering automatically.');
+        this.render();
+    };
+    
+    window.addEventListener('medcare:sync-complete', this.onSyncComplete);
+    window.addEventListener('medcare:data-synced', this.onSyncComplete);
+  }
+
+  destroy() {
+    window.removeEventListener('medcare:sync-complete', this.onSyncComplete);
+    window.removeEventListener('medcare:data-synced', this.onSyncComplete);
   }
 
   async render() {
     // Inject visible, standard loading placeholder state immediately
-    this.container.innerHTML = this._getSkeletonUI();
+    if (this.container.innerHTML === '') {
+        this.container.innerHTML = this._getSkeletonUI();
+    }
 
     try {
       const targetUserId = state.activeProfileContext ? String(state.activeProfileContext.id) : (state.user?.uid || 'anonymous');
