@@ -212,8 +212,11 @@ export default class SettingsView {
                 }
                 
                 div.remove();
+                const oldContainer = this.container;
                 const newHtml = await this.render();
-                this.container.parentNode.replaceChild(newHtml, this.container);
+                if (oldContainer && oldContainer.parentNode) {
+                    oldContainer.parentNode.replaceChild(newHtml, oldContainer);
+                }
             }
         };
     });

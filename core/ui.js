@@ -128,12 +128,16 @@ export function setupPullToRefresh(scrollArea, onRefresh) {
                 
                 await new Promise(resolve => setTimeout(resolve, 800)); // Hold success state briefly
                 
-                ptrContainer.style.transform = 'translateY(-100px)';
-                setTimeout(() => {
-                    if (ptrContainer && ptrContainer.parentNode) ptrContainer.remove();
-                    ptrContainer = null;
+                if (ptrContainer) {
+                    ptrContainer.style.transform = 'translateY(-100px)';
+                    setTimeout(() => {
+                        if (ptrContainer && ptrContainer.parentNode) ptrContainer.remove();
+                        ptrContainer = null;
+                        isRefreshing = false;
+                    }, 300);
+                } else {
                     isRefreshing = false;
-                }, 300);
+                }
             }
         } else if (ptrContainer) {
             ptrContainer.style.transition = 'transform 0.3s ease-out';
