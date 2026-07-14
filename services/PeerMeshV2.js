@@ -150,7 +150,13 @@ export default class PeerMeshV2 {
         }
     }
 
-    connectToFamilyMember(targetPeerId, payload) {
+    async connectToFamilyMember(targetPeerId, payload) {
+        if (this.peer.disconnected && !this.peer.destroyed) {
+            console.warn(`[PeerMeshV2] Disconnected from signaling server. Auto-reconnecting...`);
+            this.peer.reconnect();
+            await new Promise(resolve => setTimeout(resolve, 1500)); // Wait for signaling server handshake
+        }
+
         if (this.connections.has(targetPeerId)) {
             console.log(`[PeerMeshV2] Already connected to ${targetPeerId}`);
             return;
