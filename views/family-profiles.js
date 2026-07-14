@@ -1,6 +1,6 @@
 import db from '../core/db.js';
 import state from '../core/state.js';
-import { showToast } from '../core/ui.js';
+import { showToast, setupPullToRefresh } from '../core/ui.js';
 import { escapeHTML } from '../core/utils.js';
 import app from '../app.js';
 import AvatarSelector from '../components/AvatarSelector.js';
@@ -54,13 +54,7 @@ export default class FamilyProfilesView {
     return this.container;
   }
 
-  _showToast(msg, type = 'success') {
-    const t = document.createElement('div');
-    t.className = `fixed bottom-24 left-1/2 -translate-x-1/2 px-6 py-3 rounded-2xl text-xs font-mono uppercase tracking-widest z-[99999] shadow-xl transition-all ${type === 'error' ? 'bg-red-900/80 border border-red-500/40 text-red-200' : 'bg-success/10 border border-success/30 text-success'}`;
-    t.textContent = msg;
-    document.body.appendChild(t);
-    setTimeout(() => t.remove(), 3500);
-  }
+
 
   attachListeners() {
     this.container.querySelector('#add-family-member')?.addEventListener('click', () => this.showAddModal());

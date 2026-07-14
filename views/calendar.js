@@ -1,6 +1,7 @@
 import db from '../core/db.js';
 import state from '../core/state.js';
 import app from '../app.js';
+import { setupPullToRefresh } from '../core/ui.js';
 
 export default class CalendarView {
   constructor() {

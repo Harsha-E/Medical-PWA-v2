@@ -772,27 +772,22 @@ export default class AddMedicationView {
       console.warn('[AddMedication] Interaction check failed during save:', e);
     }
 
-    data.createdAt = new Date().toISOString();
-    data.updatedAt = new Date().toISOString();
+    try {
+      data.createdAt = new Date().toISOString();
+      data.updatedAt = new Date().toISOString();
     
     // Cryptographically sign the payload for the audit trail
     data = CaregiverPortal.signPayload(data, window.activeProfileContext || 'self');
 
-    try {
-      // 1. Write to local database and Queue for P2P Sync (Offline-First CRDT)
+      // Route all writes through the centralized ClinicalLogger (Phase 3)
+      const { default: ClinicalLogger } = await import('../services/ClinicalLogger.js');
+      
       if (this.isEdit && this.medId) {
-        data.id = this.medId;
-        await SyncBridge.queueMutation('UPDATE', 'medications', data);
+        await ClinicalLogger.updateMedication(this.medId, data);
       } else {
-        await SyncBridge.queueMutation('ADD', 'medications', data);
-        this.medId = data.id; // queueMutation adds 'id' to payload if ADD
+        this.medId = await ClinicalLogger.addMedication(data);
       }
-
-      // 2. DUAL-WRITE: Write to Firestore (Cloud Sync) - Do not await to avoid offline hanging
-      const firestoreDb = getFirestore();
-      const cloudDocId = this.medId.toString();
-      setDoc(doc(firestoreDb, `users/${data.userId || 'anonymous'}/medications`, cloudDocId), data, { merge: true }).catch(console.error);
-
+      
       sessionStorage.removeItem('medcare_draft_form');
       window.location.hash = '#/medications';
     } catch (e) {

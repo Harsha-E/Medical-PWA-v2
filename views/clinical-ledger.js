@@ -11,6 +11,7 @@ export default class ClinicalLedgerView {
         this.timelineRecords = [];
         this.activeDiseases = [];
         this.resolvedDiseases = [];
+        this.diseaseFilter = 'active'; // 'active' or 'past'
         this.isCaregiver = false;
         this.targetUserId = null;
     }
@@ -78,6 +79,7 @@ export default class ClinicalLedgerView {
         let allMeds = await db.medications.filter(m => !m.isDeleted).toArray();
         let allAppts = await db.appointments.filter(a => !a.isDeleted).toArray();
         let allHistory = await db.history.filter(h => !h.isDeleted).toArray();
+        let allLinks = (db.clinical_links) ? await db.clinical_links.filter(l => !l.isDeleted).toArray() : [];
 
         let filtered = {
             diseases: [], allergies: [], surgeries: [], problems: [], meds: [], appts: [], history: []
@@ -96,22 +98,30 @@ export default class ClinicalLedgerView {
             filtered = { diseases: allDiseases, allergies: allAllergies, surgeries: allSurgeries, problems: allProblems, meds: allMeds, appts: allAppts, history: allHistory };
         }
 
+        // Helper to count links for a specific entity
+        const getLinkCount = (entity, id) => {
+            return allLinks.filter(l => 
+                (l.sourceEntity === entity && l.sourceId === id) || 
+                (l.targetEntity === entity && l.targetId === id)
+            ).length;
+        };
+
         // Prepare Timeline Records
         const combined = [];
-        filtered.history.forEach(h => combined.push({ id: `hist_${h.id}`, rawDate: new Date(h.date || Date.now()), entityType: h.type || 'History', title: h.title, subtitle: h.provider || 'Clinical Log', desc: h.notes, documentUrl: h.documentUrl }));
-        filtered.diseases.forEach(d => combined.push({ id: `dis_${d.id}`, rawDate: new Date(d.updatedAt || Date.now()), entityType: 'Disease', title: d.diseaseName, subtitle: `Stage: ${d.stage || 'Active'}`, desc: `Dr: ${d.doctor || 'Primary Care'}` }));
+        filtered.history.forEach(h => combined.push({ id: `hist_${h.id}`, rawDate: new Date(h.date || Date.now()), entityType: h.type || 'History', title: h.title, subtitle: h.provider || 'Clinical Log', desc: h.notes, documentUrl: h.documentUrl, linkCount: getLinkCount('history', h.id) }));
+        filtered.diseases.forEach(d => combined.push({ id: `dis_${d.id}`, rawDate: new Date(d.updatedAt || Date.now()), entityType: 'Disease', title: d.diseaseName, subtitle: `Stage: ${d.stage || 'Active'}`, desc: `Dr: ${d.doctor || 'Primary Care'}`, linkCount: getLinkCount('disease_ledger', d.id) }));
         filtered.meds.forEach(m => {
-            if (m.startDate) combined.push({ id: `med_${m.id}`, rawDate: new Date(m.startDate), entityType: 'Medicine', title: m.name, subtitle: `${m.dosage} — ${m.frequency}`, desc: m.notes });
+            if (m.startDate) combined.push({ id: `med_${m.id}`, rawDate: new Date(m.startDate), entityType: 'Medicine', title: m.name, subtitle: `${m.dosage} — ${m.frequency}`, desc: m.notes, linkCount: getLinkCount('medications', m.id) });
         });
-        filtered.allergies.forEach(a => combined.push({ id: `alg_${a.id}`, rawDate: new Date(a.updatedAt || Date.now()), entityType: 'Allergy', title: a.allergy, subtitle: `Severity: ${a.severity}`, desc: `Reaction: ${a.reaction}` }));
-        filtered.surgeries.forEach(s => combined.push({ id: `surg_${s.id}`, rawDate: new Date(s.date), entityType: 'Surgery', title: s.outcome, subtitle: `${s.hospital}`, desc: `Doctor: ${s.doctor}` }));
+        filtered.allergies.forEach(a => combined.push({ id: `alg_${a.id}`, rawDate: new Date(a.updatedAt || Date.now()), entityType: 'Allergy', title: a.allergy, subtitle: `Severity: ${a.severity}`, desc: `Reaction: ${a.reaction}`, linkCount: getLinkCount('allergies', a.id) }));
+        filtered.surgeries.forEach(s => combined.push({ id: `surg_${s.id}`, rawDate: new Date(s.date), entityType: 'Surgery', title: s.outcome, subtitle: `${s.hospital}`, desc: `Doctor: ${s.doctor}`, linkCount: getLinkCount('surgeries', s.id) }));
 
-        combined.sort((a, b) => b.rawDate - a.rawDate);
+        combined.sort((a, b) => a.rawDate - b.rawDate); // Ascending order (oldest first)
         this.timelineRecords = combined;
 
         // Prepare Diseases List
-        this.activeDiseases = filtered.diseases.filter(d => d.status !== 'Resolved');
-        this.resolvedDiseases = filtered.diseases.filter(d => d.status === 'Resolved');
+        this.activeDiseases = filtered.diseases.filter(d => (d.status || '').toLowerCase() !== 'resolved');
+        this.resolvedDiseases = filtered.diseases.filter(d => (d.status || '').toLowerCase() === 'resolved');
     }
 
     async uploadToSupabase(file) {
@@ -442,7 +452,7 @@ export default class ClinicalLedgerView {
                         ${this.getIconForType(record.entityType)}
                     </div>
                     
-                    <div class="unified-card p-6 relative ml-14 border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)] transition-all hover:border-white/10">
+                    <div class="unified-card p-6 relative ml-14 border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)] transition-all hover:border-white/10 cursor-pointer" data-action="view-detail" data-index="${index}">
                         ${record.documentUrl ? `
                             <button class="absolute right-4 top-4 w-12 h-12 rounded-2xl border border-white/10 bg-[#150a0f]/80 backdrop-blur-md text-[var(--theme-accent)] shadow-inner flex items-center justify-center hover:bg-white/5 hover:scale-105 active:scale-95 transition-all z-20" data-action="view-doc" data-url="${escapeHTML(record.documentUrl)}">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
@@ -453,6 +463,7 @@ export default class ClinicalLedgerView {
                             <h4 class="text-xl font-bold text-white leading-tight mb-3 tracking-wide">${escapeHTML(record.title)}</h4>
                             <div class="flex flex-wrap items-center gap-3 mb-4">
                                 <span class="px-2.5 py-1 rounded-md bg-[var(--theme-accent-muted)] text-[var(--theme-accent)] text-[9px] uppercase font-black tracking-[0.2em] shadow-sm">${escapeHTML(record.entityType)}</span>
+                                ${record.linkCount > 0 ? `<span class="px-2.5 py-1 rounded-md bg-blue-500/20 text-blue-400 border border-blue-500/30 text-[9px] uppercase font-black tracking-[0.2em] shadow-sm flex items-center gap-1 cursor-pointer hover:bg-blue-500/30 transition-colors" data-action="view-links" data-entity="${record.entityType}" data-id="${record.id}"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg> ${record.linkCount} Linked</span>` : ''}
                                 ${record.subtitle ? `<span class="text-xs text-white/60 font-medium tracking-wide">${escapeHTML(record.subtitle)}</span>` : ''}
                             </div>
                             
@@ -470,18 +481,49 @@ export default class ClinicalLedgerView {
     }
 
     renderDiseasesView() {
-        if (this.activeDiseases.length === 0 && this.resolvedDiseases.length === 0) {
-            return this.renderEmptyState('diseases');
+        const isPast = this.diseaseFilter === 'past';
+        const displayList = isPast ? this.resolvedDiseases : this.activeDiseases;
+
+        let html = `
+            <div class="flex justify-between items-end mb-6">
+                <h3 class="text-xs font-mono text-[var(--theme-accent)] uppercase tracking-widest px-2">
+                    ${isPast ? 'Past / Resolved' : 'Active Conditions'}
+                </h3>
+                <div class="relative">
+                    <select id="disease-filter-select" class="appearance-none bg-white/5 backdrop-blur-md border border-[var(--theme-border)] rounded-full py-1.5 pl-4 pr-8 text-[9px] font-black uppercase tracking-[0.2em] text-[var(--theme-accent)] hover:bg-white/10 focus:outline-none transition-colors cursor-pointer">
+                        <option value="active" class="bg-[#150a0f]" ${!isPast ? 'selected' : ''}>Active</option>
+                        <option value="past" class="bg-[#150a0f]" ${isPast ? 'selected' : ''}>Past</option>
+                    </select>
+                    <svg class="w-3 h-3 absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--theme-accent)] pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+            </div>
+        `;
+
+        if (displayList.length === 0) {
+            html += this.renderEmptyState(isPast ? 'past' : 'diseases');
+            return html;
         }
 
-        let html = `<div class="space-y-6">`;
+        html += `<div class="space-y-4">`;
 
-        // Active Diseases
-        if (this.activeDiseases.length > 0) {
-            html += `<h3 class="text-xs font-mono text-[var(--theme-accent)] uppercase tracking-widest px-2">Active Conditions</h3>
-                     <div class="space-y-4">`;
-            
-            this.activeDiseases.forEach(d => {
+        displayList.forEach(d => {
+            if (isPast) {
+                html += `
+                    <div class="unified-card disease-card-resolved p-5">
+                        <div class="flex justify-between items-start mb-3">
+                            <h4 class="text-xl font-bold text-white/60">${escapeHTML(d.diseaseName)}</h4>
+                            <span class="px-2 py-1 rounded bg-white/5 text-white/40 text-[10px] uppercase font-bold tracking-widest border border-white/10">Resolved</span>
+                        </div>
+                        <p class="text-sm text-white/40 mb-4">${escapeHTML(d.notes || 'No notes available.')}</p>
+                        
+                        ${!this.isCaregiver ? `
+                            <div class="flex gap-3 mt-4 pt-4 border-t border-white/5">
+                                <button class="flex-1 py-2 rounded-lg border border-white/10 text-xs uppercase tracking-widest font-bold text-white/50 hover:bg-white/5 transition-colors" data-action="reactivate-disease" data-id="${d.id}">Reactivate</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            } else {
                 html += `
                     <div class="unified-card disease-card-active p-5">
                         <div class="flex justify-between items-start mb-3">
@@ -514,52 +556,36 @@ export default class ClinicalLedgerView {
                         ` : ''}
                     </div>
                 `;
-            });
-            html += `</div>`;
-        }
-
-        // Resolved Diseases
-        if (this.resolvedDiseases.length > 0) {
-            html += `<h3 class="text-xs font-mono text-white/40 uppercase tracking-widest px-2 mt-8">Resolved Conditions</h3>
-                     <div class="space-y-4">`;
-            
-            this.resolvedDiseases.forEach(d => {
-                html += `
-                    <div class="unified-card disease-card-resolved p-5">
-                        <div class="flex justify-between items-start mb-3">
-                            <h4 class="text-xl font-bold text-white/60">${escapeHTML(d.diseaseName)}</h4>
-                            <span class="px-2 py-1 rounded bg-white/5 text-white/40 text-[10px] uppercase font-bold tracking-widest border border-white/10">Resolved</span>
-                        </div>
-                        <p class="text-sm text-white/40 mb-4">${escapeHTML(d.notes || 'No notes available.')}</p>
-                        
-                        ${!this.isCaregiver ? `
-                            <div class="flex gap-3 mt-4 pt-4 border-t border-white/5">
-                                <button class="flex-1 py-2 rounded-lg border border-white/10 text-xs uppercase tracking-widest font-bold text-white/50 hover:bg-white/5 transition-colors" data-action="reactivate-disease" data-id="${d.id}">Reactivate</button>
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
-            });
-            html += `</div>`;
-        }
+            }
+        });
 
         html += `</div>`;
         return html;
     }
 
     renderEmptyState(viewType) {
+        let title = 'No Medical History';
+        let desc = this.isCaregiver ? 'This user has no records logged yet.' : 'Your ledger is empty. Tap the button below to log your first record.';
+        
+        if (viewType === 'diseases') {
+            title = 'No Active Conditions';
+        } else if (viewType === 'past') {
+            title = 'No Past Conditions';
+            desc = 'You have no resolved conditions in your ledger.';
+        }
+
         return `
-            <div class="flex flex-col items-center justify-center py-20 text-center px-4 md:px-8 lg:px-12">
+            <div class="flex flex-col items-center justify-center py-20 text-center px-4 md:px-8 lg:px-12 mt-4">
                 <div class="w-20 h-20 rounded-full border border-[var(--theme-border)] bg-[var(--theme-accent-muted)] flex items-center justify-center mb-6 shadow-[0_0_30px_var(--theme-accent-glow)]">
                     <svg class="w-10 h-10 text-[var(--theme-accent)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                         <path d="M12 4v16m8-8H4"/>
                     </svg>
                 </div>
                 <h3 class="text-2xl font-bold font-display text-white mb-2">
-                    ${viewType === 'timeline' ? 'No Medical History' : 'No Active Conditions'}
+                    ${title}
                 </h3>
                 <p class="text-sm text-white/50 font-mono max-w-xs mx-auto leading-relaxed">
-                    ${this.isCaregiver ? 'This user has no records logged yet.' : 'Your ledger is empty. Tap the button below to log your first record.'}
+                    ${desc}
                 </p>
             </div>
         `;
@@ -637,6 +663,17 @@ export default class ClinicalLedgerView {
             });
         });
 
+        // Filter Select
+        this.container.addEventListener('change', (e) => {
+            if (e.target.id === 'disease-filter-select') {
+                this.diseaseFilter = e.target.value;
+                const content = this.container.querySelector('#ledger-content');
+                if (content && this.currentView === 'diseases') {
+                    content.innerHTML = this.renderDiseasesView();
+                }
+            }
+        });
+
         // FAB Click
         const fab = this.container.querySelector('#fab-add-record');
         if (fab) {
@@ -668,15 +705,20 @@ export default class ClinicalLedgerView {
             const resolveBtn = e.target.closest('[data-action="resolve-disease"]');
             const reactivateBtn = e.target.closest('[data-action="reactivate-disease"]');
             
-            if (resolveBtn) {
-                const id = parseInt(resolveBtn.getAttribute('data-id'));
-                await db.disease_ledger.update(id, { status: 'Resolved', updatedAt: Date.now() });
-                this.render(); // Re-render whole view
-            }
-            if (reactivateBtn) {
-                const id = parseInt(reactivateBtn.getAttribute('data-id'));
-                await db.disease_ledger.update(id, { status: 'Active', updatedAt: Date.now() });
-                this.render();
+            if (resolveBtn || reactivateBtn) {
+                const { default: ClinicalLogger } = await import('../services/ClinicalLogger.js');
+                
+                if (resolveBtn) {
+                    const id = parseInt(resolveBtn.getAttribute('data-id'));
+                    await ClinicalLogger.closeDisease(id);
+                    this.render(); // Re-render whole view
+                }
+                if (reactivateBtn) {
+                    const id = parseInt(reactivateBtn.getAttribute('data-id'));
+                    // Note: ClinicalLogger sets it back to Active via updateDisease
+                    await ClinicalLogger.updateDisease(id, { status: 'Active' });
+                    this.render();
+                }
             }
         });
 
@@ -689,6 +731,112 @@ export default class ClinicalLedgerView {
                 this.container.querySelector('#document-viewer-content').innerHTML = ''; // clear object
             });
         }
+
+        // View Detail Action
+        this.container.addEventListener('click', (e) => {
+            const detailBtn = e.target.closest('[data-action="view-detail"]');
+            if (detailBtn) {
+                // Do not trigger if the user clicked the standalone view-doc button inside the card
+                if (e.target.closest('[data-action="view-doc"]')) return;
+                
+                const index = parseInt(detailBtn.getAttribute('data-index'));
+                const record = this.timelineRecords[index];
+                if (record) {
+                    this.openDetailModal(record);
+                }
+            }
+        });
+    }
+
+    openDetailModal(record) {
+        const modalId = 'timeline-detail-modal';
+        let modal = document.getElementById(modalId);
+        if (modal) modal.remove();
+
+        modal = document.createElement('div');
+        modal.id = modalId;
+        // The user specifically requested "remove padding-top" on this screen
+        modal.className = `fixed inset-0 z-[9999] bg-background flex flex-col pt-0 transition-transform duration-300 translate-y-full`;
+        
+        // Map prefix to DB table
+        let tableName = '';
+        const idParts = record.id.split('_');
+        const prefix = idParts[0];
+        const numericId = parseInt(idParts[1]);
+        if (prefix === 'hist') tableName = 'history';
+        else if (prefix === 'dis') tableName = 'disease_ledger';
+        else if (prefix === 'med') tableName = 'medications';
+        else if (prefix === 'alg') tableName = 'allergies';
+        else if (prefix === 'surg') tableName = 'surgeries';
+
+        const isImage = record.documentUrl && (record.documentUrl.match(/\.(jpeg|jpg|gif|png)$/i) || record.documentUrl.includes('alt=media'));
+
+        modal.innerHTML = `
+            <div class="flex-1 overflow-y-auto pb-24 relative bg-surface-deep">
+                <div class="sticky top-0 z-50 flex items-center justify-between p-4 bg-surface-deep/80 backdrop-blur-md border-b border-white/5">
+                    <button type="button" id="close-detail-btn" class="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 text-white/60 hover:bg-white/10 active:scale-95 transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                    <div class="text-xs font-bold uppercase tracking-widest text-white/50">Details</div>
+                    <button type="button" id="delete-record-btn" class="w-10 h-10 rounded-full flex items-center justify-center bg-red-500/10 text-red-500 hover:bg-red-500/20 active:scale-95 transition-all" aria-label="Delete">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </button>
+                </div>
+                <div class="p-6 max-w-2xl mx-auto space-y-6">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <span class="px-3 py-1 rounded-md bg-[var(--theme-accent-muted)] text-[var(--theme-accent)] text-[10px] uppercase font-black tracking-[0.2em] shadow-sm">${escapeHTML(record.entityType)}</span>
+                        <span class="text-xs text-white/40 font-mono">${this.formatExactDate(record.rawDate)}</span>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-white mb-2 leading-tight">${escapeHTML(record.title)}</h2>
+                        ${record.subtitle ? `<h3 class="text-sm font-medium text-[var(--theme-accent)] mb-4">${escapeHTML(record.subtitle)}</h3>` : ''}
+                    </div>
+                    ${record.desc ? `
+                        <div class="p-4 rounded-2xl bg-white/5 border border-white/5">
+                            <p class="text-sm text-white/70 leading-relaxed">${escapeHTML(record.desc)}</p>
+                        </div>
+                    ` : ''}
+
+                    ${record.documentUrl ? `
+                        <div class="mt-8">
+                            <h4 class="text-xs uppercase tracking-widest text-white/50 mb-3 font-bold">Attached Document</h4>
+                            <div class="rounded-2xl overflow-hidden border border-white/10 bg-black/40">
+                                ${isImage ? `
+                                    <img src="${escapeHTML(record.documentUrl)}" alt="Document" class="w-full h-auto object-contain max-h-[60vh]">
+                                ` : `
+                                    <iframe src="${escapeHTML(record.documentUrl)}" class="w-full h-[60vh] border-0" title="Document PDF"></iframe>
+                                `}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        requestAnimationFrame(() => {
+            modal.classList.remove('translate-y-full');
+        });
+
+        modal.querySelector('#close-detail-btn').onclick = () => {
+            modal.classList.add('translate-y-full');
+            setTimeout(() => modal.remove(), 300);
+        };
+
+        modal.querySelector('#delete-record-btn').onclick = async () => {
+            if (confirm(`Are you sure you want to delete this ${record.entityType}?`)) {
+                try {
+                    const { default: ClinicalLogger } = await import('../services/ClinicalLogger.js');
+                    await ClinicalLogger.deleteRecord(tableName, numericId);
+                    modal.classList.add('translate-y-full');
+                    setTimeout(() => modal.remove(), 300);
+                    this.loadData().then(() => this.render());
+                } catch (e) {
+                    console.error('Failed to delete:', e);
+                    alert('Deletion failed');
+                }
+            }
+        };
     }
 
     openDocumentViewer(url) {

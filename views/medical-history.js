@@ -152,8 +152,8 @@ export default class MedicalHistoryView {
       const file = e.target.files[0];
       if (!file) return;
       try {
-        const ledger = DocLedger.getInstance();
-        await ledger.ingestDocument(file, { type: 'Document', title: file.name, provider: 'Upload', notes: 'Secure cryptographic vault entry' });
+        const { default: ClinicalLogger } = await import('../services/ClinicalLogger.js');
+        await ClinicalLogger.attachDocument(file, { type: 'Document', title: file.name, provider: 'Upload', notes: 'Secure cryptographic vault entry' });
 
         const fresh = new MedicalHistoryView();
         const content = await fresh.render();
@@ -230,6 +230,23 @@ export default class MedicalHistoryView {
             <label class="block text-xs text-text-secondary uppercase tracking-widest mb-1 ml-1">Clinical Notes</label>
             <textarea id="h-notes" rows="2" class="w-full px-4 md:px-8 lg:px-12 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2"></textarea>
           </div>
+          <div id="h-disease-extras" class="hidden space-y-4 pt-2">
+            <div>
+              <label class="block text-xs text-text-secondary uppercase tracking-widest mb-1 ml-1">Status</label>
+              <select id="h-status" class="w-full px-4 md:px-8 lg:px-12 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
+                <option value="Active" class="bg-surface">Ongoing (Active)</option>
+                <option value="Resolved" class="bg-surface">Cured (Past)</option>
+              </select>
+            </div>
+            <div id="h-end-date-container" class="hidden">
+              <label class="block text-xs text-text-secondary uppercase tracking-widest mb-1 ml-1">End Date</label>
+              <input type="date" id="h-end-date" max="${todayStr}" class="w-full px-4 md:px-8 lg:px-12 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2[color-scheme:dark]">
+            </div>
+          </div>
+          <div class="pt-2">
+            <label class="block text-xs text-text-secondary uppercase tracking-widest mb-1 ml-1">Attach Evidence (Optional)</label>
+            <input type="file" id="h-doc" class="w-full text-xs text-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[var(--theme-accent-muted)] file:text-[var(--theme-accent)]">
+          </div>
           <div class="flex gap-3 mt-8">
             <button type="button" id="cancel-history" class="flex-1 py-3 rounded-xl text-text-primary text-xs uppercase font-bold tracking-widest transition-colors btn-neumorphic">Cancel</button>
             <button type="submit" class="flex-1 py-3 rounded-xl bg-linear-to-r from-secondary to-surface-deep text-accent-primary text-xs uppercase font-bold tracking-widest hover:brightness-125 transition-all btn-neumorphic">Save Record</button>
@@ -280,6 +297,26 @@ export default class MedicalHistoryView {
         });
     });
 
+    const diseaseExtras = modal.querySelector('#h-disease-extras');
+    const statusSelect = modal.querySelector('#h-status');
+    const endDateContainer = modal.querySelector('#h-end-date-container');
+
+    typeSelect.addEventListener('change', (e) => {
+        if (e.target.value === 'Disease') {
+            diseaseExtras.classList.remove('hidden');
+        } else {
+            diseaseExtras.classList.add('hidden');
+        }
+    });
+
+    statusSelect.addEventListener('change', (e) => {
+        if (e.target.value === 'Resolved') {
+            endDateContainer.classList.remove('hidden');
+        } else {
+            endDateContainer.classList.add('hidden');
+        }
+    });
+
     document.addEventListener('click', (e) => {
         if (!titleInput.contains(e.target) && !dropdown.contains(e.target)) {
             dropdown.classList.add('hidden');
@@ -294,9 +331,19 @@ export default class MedicalHistoryView {
       const date = modal.querySelector('#h-date').value;
       const notes = modal.querySelector('#h-notes').value.trim();
       
+      const status = modal.querySelector('#h-status').value;
+      const endDate = modal.querySelector('#h-end-date').value;
+      const file = modal.querySelector('#h-doc').files[0];
+      
       if (!title || !/^[a-zA-Z0-9\s\-_]+$/.test(title)) {
           await appAlert('Please enter a valid alphanumeric title.', 'Invalid Title');
           return;
+      }
+
+      const { default: ClinicalLogger } = await import('../services/ClinicalLogger.js');
+      let docId = null;
+      if (file) {
+          docId = await ClinicalLogger.attachDocument(file, { type: 'Document', title: file.name, provider: 'Upload', notes: 'Secure cryptographic vault entry' });
       }
 
       if (type === 'Disease') {
@@ -305,15 +352,30 @@ export default class MedicalHistoryView {
               return;
           }
           title = selectedClinicalName;
-          await db.disease_ledger.add({ diseaseName: title, clinicalName: title, userId: state.user.uid });
+          const diseaseId = await ClinicalLogger.addDisease({
+              diseaseName: title,
+              clinicalName: title,
+              status: status,
+              createdAt: new Date(date).getTime(),
+              closureDate: status === 'Resolved' && endDate ? new Date(endDate).getTime() : null,
+              notes: notes
+          });
+          
+          if (docId) {
+              await ClinicalLogger.linkEntities('history', docId, 'disease_ledger', diseaseId, 'EVIDENCE');
+          }
       } else {
           const spellCheck = fuse.search(title);
           if (spellCheck.length > 0) {
               title = spellCheck[0].item;
           }
+          
+          const historyId = await db.history.add({ type, title, date, notes, userId: state.user.uid, provider: 'Self-Reported' });
+          if (docId) {
+              await ClinicalLogger.linkEntities('history', docId, 'history', historyId, 'EVIDENCE');
+          }
       }
       
-      await db.history.add({ type, title, date, notes, userId: state.user.uid, provider: 'Self-Reported' });
       modal.remove();
       
       // Trigger re-render directly to apply new updates seamlessly

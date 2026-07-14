@@ -105,6 +105,20 @@ export class Router {
         this.viewport.appendChild(incomingNode);
         this.currentView = newView;
         this.currentHash = newHash;
+        
+        if (baseRoute !== '#/scan') {
+          import('./ui.js').then(({ setupPullToRefresh }) => {
+              const scrollArea = incomingNode.querySelector('.scroll-area') || incomingNode.querySelector('.overflow-y-auto') || incomingNode;
+              setupPullToRefresh(scrollArea, async () => {
+                  if (navigator.onLine) {
+                      const st = (await import('./state.js')).default;
+                      if (st.user) await st.hydrate(st.user).catch(console.warn);
+                  }
+                  this.handleRoute(); // re-render current route
+              });
+          }).catch(console.warn);
+        }
+
         this.viewport.style.opacity = '1';
         this.viewport.style.visibility = 'visible';
         return;
@@ -115,6 +129,19 @@ export class Router {
       this.viewport.appendChild(incomingNode);
       this.currentView = newView;
       this.currentHash = newHash;
+
+      if (baseRoute !== '#/scan') {
+          import('./ui.js').then(({ setupPullToRefresh }) => {
+              const scrollArea = incomingNode.querySelector('.scroll-area') || incomingNode.querySelector('.overflow-y-auto') || incomingNode;
+              setupPullToRefresh(scrollArea, async () => {
+                  if (navigator.onLine && import('./state.js').then(m => m.default.user)) {
+                      const st = (await import('./state.js')).default;
+                      await st.hydrate(st.user).catch(console.warn);
+                  }
+                  this.handleRoute(); // re-render current route
+              });
+          }).catch(console.warn);
+      }
 
       // Clean up old view
       if (oldView?.destroy) {
