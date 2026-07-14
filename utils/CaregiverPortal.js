@@ -86,26 +86,30 @@ export default class CaregiverPortal {
         document.body.style.border = `4px solid ${themeColor}`;
         document.body.style.boxShadow = `inset 0 0 30px ${themeColor}40`; // 40 is hex for 25% opacity
         document.body.style.transition = 'all 0.4s ease';
+        
+        // Push content down so the banner doesn't cover the screen
+        document.body.style.paddingTop = '50px';
 
-        // 2. Inject the Sticky Pill Header
+        // 2. Inject the Sticky Header
         let header = document.getElementById('caregiver-portal-header');
         if (!header) {
             header = document.createElement('div');
             header.id = 'caregiver-portal-header';
             header.style.cssText = `
-                position: fixed; top: 15px; left: 50%; transform: translateX(-50%);
-                z-index: 100000; display: flex; flex-direction: column; align-items: center; gap: 5px;
-                padding: 10px 20px; border-radius: 30px; font-family: 'Inter', sans-serif;
-                font-weight: bold; cursor: pointer; backdrop-filter: blur(20px);
-                box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden;
+                position: fixed; top: 0; left: 0; width: 100%; z-index: 10000;
+                display: flex; align-items: center; justify-content: space-between;
+                padding: 10px 15px; font-family: 'Inter', sans-serif;
+                backdrop-filter: blur(20px); background-color: rgba(15, 20, 30, 0.9);
+                border-bottom: 2px solid ${themeColor};
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
             `;
             
             // The session progress bar at the top of the header
             const pb = document.createElement('div');
             pb.id = 'session-progress';
             pb.style.cssText = `
-                position: absolute; top: 0; left: 0; height: 3px; width: 100%;
-                background-color: #3b82f6; border-radius: 3px 3px 0 0;
+                position: absolute; bottom: -2px; left: 0; height: 2px; width: 100%;
+                background-color: ${themeColor};
             `;
             header.appendChild(pb);
             
@@ -117,20 +121,30 @@ export default class CaregiverPortal {
             document.body.appendChild(header);
         }
 
-        header.style.background = `${themeColor}30`;
-        header.style.border = `1px solid ${themeColor}`;
-        header.style.color = themeColor;
+        header.style.borderBottom = `2px solid ${themeColor}`;
         
         const content = document.getElementById('caregiver-portal-content');
         if (content) {
+            // Using the user's requested layout for the banner
             content.innerHTML = `
-                <span>👁️ Managing: ${peerName}</span>
-                <div style="background: ${themeColor}; color: #000; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem;">Exit</div>
+                <div class="text-white font-bold text-sm uppercase tracking-wider flex items-center gap-2">
+                    <span>👁️</span> 
+                    <span>Managing: <span id="portal-banner-name" style="color: ${themeColor}">${peerName}</span></span>
+                </div>
+                <button id="exit-portal-btn" class="bg-red-500/20 text-red-300 border border-red-500/50 px-4 py-1.5 rounded font-bold text-xs uppercase tracking-widest active:scale-95 transition-all">
+                    Exit
+                </button>
             `;
         }
 
         // Click to exit portal and return to your own timeline
-        header.onclick = () => this.exitPortal();
+        const exitBtn = document.getElementById('exit-portal-btn');
+        if (exitBtn) {
+            exitBtn.onclick = (e) => {
+                e.stopPropagation();
+                this.exitPortal();
+            };
+        }
 
         // 3. Initialize the Idle Timer
         if (this._cleanupTimer) this._cleanupTimer(); // Cleanup existing if any
@@ -146,6 +160,7 @@ export default class CaregiverPortal {
         // Remove borders and shadows
         document.body.style.border = 'none';
         document.body.style.boxShadow = 'none';
+        document.body.style.paddingTop = '0';
         
         // Remove header
         const header = document.getElementById('caregiver-portal-header');

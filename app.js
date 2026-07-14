@@ -468,32 +468,19 @@ class App {
     });
     window.addEventListener('offline', updateStatus);
 
-    let unsubSync = null;
-    const setupRealtimeSync = (uid) => {
-        if (unsubSync) { unsubSync(); unsubSync = null; }
-        if (!uid || !navigator.onLine) return;
-        
-        import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js').then(({ getFirestore, collection, onSnapshot }) => {
-            const db = getFirestore();
-            unsubSync = onSnapshot(collection(db, `users/${uid}/medications`), (snapshot) => {
-                if (snapshot.metadata.hasPendingWrites) return; // Ignore local cache writes
-                console.log(`[RealtimeSync] Remote changes detected for ${uid}`);
-                const syncManager = new OfflinePersistenceManager();
-                syncManager.synchronize().catch(e => console.warn('[RealtimeSync] Sync failed', e));
-            }, (err) => console.warn('[RealtimeSync] Listener failed:', err));
-        }).catch(e => console.warn('[RealtimeSync] Module load failed', e));
+    const setupRealtimeSync = () => {
+        if (!navigator.onLine) return;
+        const syncManager = new OfflinePersistenceManager();
+        syncManager.attachRealtimeListeners().catch(e => console.warn('[RealtimeSync] Listener failed', e));
     };
 
     window.addEventListener('online', () => {
-        const uid = state.activeProfileContext ? (state.activeProfileContext.id || state.activeProfileContext) : (state.user ? state.user.uid : null);
-        setupRealtimeSync(uid);
+        setupRealtimeSync();
     });
 
     // Sync immediately when caregiver switches active profile context
     window.addEventListener('medcare:profile-context-changed', async (e) => {
-      const profile = e.detail;
-      const uid = profile ? profile.id : (state.user ? state.user.uid : null);
-      setupRealtimeSync(uid);
+      setupRealtimeSync();
       
       try {
         const syncManager = new OfflinePersistenceManager();

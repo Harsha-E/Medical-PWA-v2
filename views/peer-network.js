@@ -197,32 +197,17 @@ export default class PeerNetworkView {
                         <h4 class="text-[10px] text-white/50 uppercase tracking-widest font-bold">Permissions</h4>
                         
                         <label class="flex items-start gap-3 cursor-pointer group">
-                            <div class="relative flex items-center justify-center mt-0.5">
-                                <input type="checkbox" id="perm-send" checked class="peer sr-only">
-                                <div class="w-4 h-4 rounded border border-white/20 bg-black/50 peer-checked:bg-[#ffb88c] peer-checked:border-[#ffb88c] flex items-center justify-center transition-all">
-                                    <svg class="w-3 h-3 text-black opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                                </div>
-                            </div>
+                            <input type="checkbox" id="perm-send" checked class="w-4 h-4 mt-0.5 accent-[#ffb88c] bg-gray-800 border-gray-600 rounded cursor-pointer">
                             <span class="text-xs text-white/80 group-hover:text-white transition-colors">View my shared medical records</span>
                         </label>
                         
                         <label class="flex items-start gap-3 cursor-pointer group">
-                            <div class="relative flex items-center justify-center mt-0.5">
-                                <input type="checkbox" id="perm-receive" class="peer sr-only">
-                                <div class="w-4 h-4 rounded border border-white/20 bg-black/50 peer-checked:bg-[#ffb88c] peer-checked:border-[#ffb88c] flex items-center justify-center transition-all">
-                                    <svg class="w-3 h-3 text-black opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                                </div>
-                            </div>
+                            <input type="checkbox" id="perm-receive" class="w-4 h-4 mt-0.5 accent-[#ffb88c] bg-gray-800 border-gray-600 rounded cursor-pointer">
                             <span class="text-xs text-white/80 group-hover:text-white transition-colors">Send records to this device</span>
                         </label>
                         
                         <label class="flex items-start gap-3 cursor-pointer group">
-                            <div class="relative flex items-center justify-center mt-0.5">
-                                <input type="checkbox" id="perm-auto" class="peer sr-only">
-                                <div class="w-4 h-4 rounded border border-white/20 bg-black/50 peer-checked:bg-[#ffb88c] peer-checked:border-[#ffb88c] flex items-center justify-center transition-all">
-                                    <svg class="w-3 h-3 text-black opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                                </div>
-                            </div>
+                            <input type="checkbox" id="perm-auto" class="w-4 h-4 mt-0.5 accent-[#ffb88c] bg-gray-800 border-gray-600 rounded cursor-pointer">
                             <span class="text-xs text-white/80 group-hover:text-white transition-colors">Automatically sync future changes</span>
                         </label>
                     </div>
@@ -276,6 +261,28 @@ export default class PeerNetworkView {
             const rosterList = this.container.querySelector('#roster-list');
             
             console.log(`[PeerNetworkView] refreshFamilyList: fetched ${trustedProfiles.length} profiles from Dexie.`, trustedProfiles);
+
+            // Sync names from profile
+            const myUid = state?.user?.uid;
+            if (myUid) {
+                import('../core/firebase.js').then(({ db: firestoreDb }) => {
+                    import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js').then(async ({ doc, getDoc }) => {
+                        let changed = false;
+                        for (const p of trustedProfiles) {
+                            const targetUid = (p.patientUid === myUid) ? p.trustedUid : p.patientUid;
+                            try {
+                                const snap = await getDoc(doc(firestoreDb, 'users', targetUid));
+                                if (snap.exists() && snap.data().name && snap.data().name !== p.name) {
+                                    p.name = snap.data().name;
+                                    await db.family.update(p.id, { name: p.name });
+                                    changed = true;
+                                }
+                            } catch(e) {}
+                        }
+                        if (changed) this.refreshFamilyList(); // Re-render once updated
+                    });
+                });
+            }
 
             if (!rosterList) return;
 

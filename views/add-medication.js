@@ -578,24 +578,55 @@ export default class AddMedicationView {
   autofillMedication(m) {
       this.container.querySelector('#m-name').value = m.name;
       this.container.querySelector('#m-name-ghost').value = '';
+      
+      // Parse dosage and unit
       if (m.commonDoses && m.commonDoses.length > 0) {
           const doseStr = m.commonDoses[0];
           const amount = doseStr.replace(/[^\d.]/g, '');
           const unit = doseStr.replace(/[\d.]/g, '').trim();
           this.container.querySelector('#m-dosage').value = amount;
           if (unit) this.container.querySelector('#m-unit').value = unit.toLowerCase();
+      } else if (m.strength) {
+          // Format from db.medicines
+          const strength = String(m.strength);
+          if (strength.includes('ml')) {
+              this.container.querySelector('#m-unit').value = 'ml';
+              this.container.querySelector('#m-dosage').value = '5';
+          } else {
+              // Extract first number and unit (e.g. "500mg + 125mg" -> "500" and "mg")
+              const firstPart = strength.split('+')[0].trim();
+              const amount = firstPart.replace(/[^\d.]/g, '');
+              let unit = firstPart.replace(/[\d.]/g, '').trim().toLowerCase();
+              if (amount) this.container.querySelector('#m-dosage').value = amount;
+              if (unit) this.container.querySelector('#m-unit').value = unit;
+          }
       }
-      if (m.dosageForms && m.dosageForms.length > 0) {
-          const form = m.dosageForms[0];
-          const catMap = { 'Tablet': 'Tablet', 'Capsule': 'Capsule', 'Syrup': 'Liquid', 'Injection': 'Injection', 'Patch': 'Patch', 'Inhaler': 'Inhaler', 'Spray': 'Spray', 'IV Infusion': 'Injection' };
-          const mapped = catMap[form] || form;
+
+      // Parse Category / Dosage Form
+      let formToMap = null;
+      if (m.dosageForms && m.dosageForms.length > 0) formToMap = m.dosageForms[0];
+      else if (m.dosageForm) formToMap = m.dosageForm;
+      
+      if (formToMap) {
+          const catMap = { 'tablet': 'Tablet', 'capsule': 'Capsule', 'syrup': 'Liquid', 'suspension': 'Liquid', 'drops': 'Liquid', 'injection': 'Injection', 'patch': 'Patch', 'inhaler': 'Inhaler', 'spray': 'Spray' };
+          let mapped = 'Tablet';
+          Object.keys(catMap).forEach(k => {
+              if (formToMap.toLowerCase().includes(k)) mapped = catMap[k];
+          });
           const select = this.container.querySelector('#m-category');
           if (select) {
               Array.from(select.options).forEach(o => {
                   if (o.value.toLowerCase() === mapped.toLowerCase()) select.value = o.value;
               });
+              if (mapped === 'Liquid' || mapped === 'Injection') {
+                  this.container.querySelector('#m-unit').value = 'ml';
+                  if (!this.container.querySelector('#m-dosage').value) {
+                      this.container.querySelector('#m-dosage').value = '5'; // Default 5ml
+                  }
+              }
           }
       }
+
       if (m.genericName) {
           this.container.querySelector('#m-generic').value = m.genericName;
       } else if (m.name) {
@@ -603,14 +634,24 @@ export default class AddMedicationView {
       }
       
       if (m.category) this.container.querySelector('#m-thera').value = m.category;
-      if (m.manufacturer && m.manufacturer.length > 0) this.container.querySelector('#m-manuf').value = Array.isArray(m.manufacturer) ? m.manufacturer[0] : m.manufacturer;
+      
+      // Fix Manufacturer formatting
+      let manuf = '';
+      if (m.manufacturer) {
+          manuf = Array.isArray(m.manufacturer) ? m.manufacturer[0] : String(m.manufacturer);
+          if (manuf.length === 1 && m.manufacturerName) {
+             manuf = m.manufacturerName; // Fallback just in case
+          }
+      }
+      if (manuf) this.container.querySelector('#m-manuf').value = manuf;
+      
       if (m.brandNames && m.brandNames.length > 0) this.container.querySelector('#m-alt').value = m.brandNames.join(', ');
       
       // Update medData and trigger draft save
       this.medData.name = m.name;
       this.medData.genericName = m.genericName || m.name;
       if (m.category) this.medData.therapeuticCategory = m.category;
-      if (m.manufacturer && m.manufacturer.length > 0) this.medData.manufacturer = Array.isArray(m.manufacturer) ? m.manufacturer[0] : m.manufacturer;
+      if (manuf) this.medData.manufacturer = manuf;
       if (m.brandNames && m.brandNames.length > 0) this.medData.alternativeBrands = m.brandNames.join(', ');
       this.saveDraftState();
       

@@ -8,6 +8,7 @@ service cloud.firestore {
     function isOwner(userId) { return isSignedIn() && request.auth.uid == userId; }
     function isOwnerOrAdmin(data) { return isSignedIn() && (data.userId == request.auth.uid || isAdmin()); }
     function isTrusted(targetUid) { return get(/databases/$(database)/documents/users/$(targetUid)/trustedUsers/$(request.auth.uid)).data.status == 'ACTIVE'; }
+    function isOwnerAdminOrTrusted(data) { return isSignedIn() && (data.userId == request.auth.uid || isAdmin() || isTrusted(data.userId)); }
     
     function incoming() { return request.resource.data; }
     function existing() { return resource.data; }
@@ -24,9 +25,8 @@ service cloud.firestore {
 
     // 3. User Profiles & Subcollections
     match /users/{userId} {
-      allow get: if isOwner(userId) || isAdmin() || isTrusted(userId);
-      allow list: if isAdmin();
-      allow create: if isOwner(userId) 
+      allow read: if isOwner(userId) || isAdmin() || isTrusted(userId);
+      allow create: if isSignedIn() 
         && incoming().userId == userId 
         && incoming().role == 'user'
         && incoming().keys().hasAll(['userId', 'name', 'email']);
@@ -47,44 +47,44 @@ service cloud.firestore {
     function isValidUser(data) {
       return data.name is string && data.name.size() <= 100
         && (!('bloodType' in data) || data.bloodType == null || (data.bloodType is string && data.bloodType.size() <= 5))
-        && data.email is string;
+        && (!('email' in data) || data.email == null || data.email is string);
     }
 
     // 4. Core Collections (Medications, Doses, Appointments, History, Family, Prescriptions)
     
     match /medications/{id} {
-      allow get, list: if isOwnerOrAdmin(existing());
-      allow create: if isSignedIn() && isValidId(id) && incoming().userId == request.auth.uid && isValidMedication(incoming());
-      allow update: if isOwnerOrAdmin(existing()) && isValidMedication(incoming()) && incoming().userId == existing().userId;
-      allow delete: if isOwnerOrAdmin(existing());
+      allow get, list: if isOwnerAdminOrTrusted(existing());
+      allow create: if isSignedIn() && isValidId(id) && (incoming().userId == request.auth.uid || isTrusted(incoming().userId)) && isValidMedication(incoming());
+      allow update: if isOwnerAdminOrTrusted(existing()) && isValidMedication(incoming()) && incoming().userId == existing().userId;
+      allow delete: if isOwnerAdminOrTrusted(existing());
     }
 
     match /doses/{id} {
-      allow get, list, update, delete: if isOwnerOrAdmin(existing());
-      allow create: if isSignedIn() && isValidId(id) && incoming().userId == request.auth.uid && incoming().medicationId is string;
+      allow get, list, update, delete: if isOwnerAdminOrTrusted(existing());
+      allow create: if isSignedIn() && isValidId(id) && (incoming().userId == request.auth.uid || isTrusted(incoming().userId)) && incoming().medicationId is string;
     }
 
     match /appointments/{id} {
-      allow get, list, update, delete: if isOwnerOrAdmin(existing());
-      allow create: if isSignedIn() && isValidId(id) && incoming().userId == request.auth.uid && incoming().title is string;
+      allow get, list, update, delete: if isOwnerAdminOrTrusted(existing());
+      allow create: if isSignedIn() && isValidId(id) && (incoming().userId == request.auth.uid || isTrusted(incoming().userId)) && incoming().title is string;
     }
 
     // Includes cryptographic Subresource Integrity Hashes from DocLedger.js
     match /history/{id} {
-      allow get, list, update, delete: if isOwnerOrAdmin(existing());
-      allow create: if isSignedIn() && isValidId(id) && incoming().userId == request.auth.uid && incoming().title is string;
+      allow get, list, update, delete: if isOwnerAdminOrTrusted(existing());
+      allow create: if isSignedIn() && isValidId(id) && (incoming().userId == request.auth.uid || isTrusted(incoming().userId)) && incoming().title is string;
     }
 
     // Family Profile mesh network CRDT syncing
     match /family/{id} {
-      allow get, list, update, delete: if isOwnerOrAdmin(existing());
-      allow create: if isSignedIn() && isValidId(id) && incoming().userId == request.auth.uid && incoming().name is string;
+      allow get, list, update, delete: if isOwnerAdminOrTrusted(existing());
+      allow create: if isSignedIn() && isValidId(id) && (incoming().userId == request.auth.uid || isTrusted(incoming().userId)) && incoming().name is string;
     }
 
     // OCR Scanning Pipeline auto-extraction DB
     match /prescriptions/{id} {
-      allow get, list, update, delete: if isOwnerOrAdmin(existing());
-      allow create: if isSignedIn() && isValidId(id) && incoming().userId == request.auth.uid;
+      allow get, list, update, delete: if isOwnerAdminOrTrusted(existing());
+      allow create: if isSignedIn() && isValidId(id) && (incoming().userId == request.auth.uid || isTrusted(incoming().userId));
     }
 
     // 5. Admins Collection
