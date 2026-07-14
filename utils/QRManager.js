@@ -33,7 +33,7 @@ export default class QRManager {
             name: deviceName || 'Unknown Device',
             nonce: Math.random().toString(36).substring(2, 15),
             issuedAt: now,
-            expires: now + (120 * 1000), // 120 seconds validity
+            expires: now + (15 * 60 * 1000), // 15 minutes validity
             maxUses: 1,
             supportedProtocols: [2],
             publicKey: "",
