@@ -283,7 +283,7 @@ export default class PeerMeshV2 {
                     
                     // Verify installationId exactly once during HANDSHAKE_ACK
                     const expectedInstallId = conn._expectedRemoteInstallId;
-                    if (expectedInstallId && payload.installationId && payload.installationId !== expectedInstallId) {
+                    if (expectedInstallId && expectedInstallId !== 'manual' && payload.installationId && payload.installationId !== expectedInstallId) {
                         console.error(`[PeerMeshV2] ❌ IDENTITY MISMATCH in ACK! Expected ${expectedInstallId} but got ${payload.installationId}. Dropping connection.`);
                         conn.close();
                         return;
