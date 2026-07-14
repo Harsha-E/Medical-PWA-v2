@@ -336,7 +336,7 @@ class App {
       console.log('[App] Global context switched to:', e.detail ? e.detail.name : 'Self');
       const currentHash = window.location.hash || '#/';
       this.appHeader.configure(HEADER_CONFIGS[currentHash]);
-      this.router.handleRouteChange();
+      this.router.handleRoute();
     });
 
     // Listen to Firebase Auth state

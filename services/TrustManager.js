@@ -105,6 +105,29 @@ export class TrustManager {
         }
     }
 
+    static async revokeTrust(patientUid, trustedUid) {
+        console.log(`[TrustManager] revokeTrust called: patient=${patientUid}, trusted=${trustedUid}`);
+        
+        try {
+            // 1. Mark inactive in Dexie
+            const existing = await db.family.filter(f => f.patientUid === patientUid && f.trustedUid === trustedUid).first();
+            if (existing) {
+                await db.family.update(existing.id, { status: 'REVOKED', updatedAt: new Date().toISOString() });
+            }
+
+            // 2. Remove from Firestore if online
+            const patientRef = doc(firestoreDb, `users/${patientUid}/trustedUsers`, trustedUid);
+            await setDoc(patientRef, { status: 'REVOKED', updatedAt: new Date().toISOString() }, { merge: true });
+            
+            const caregiverRef = doc(firestoreDb, `users/${trustedUid}/trustedUsers`, patientUid);
+            await setDoc(caregiverRef, { status: 'REVOKED', updatedAt: new Date().toISOString() }, { merge: true });
+            
+            console.log(`[TrustManager] Trust revoked successfully.`);
+        } catch(e) {
+            console.warn('[TrustManager] Trust revocation failed or delayed (offline/rules).', e);
+        }
+    }
+
     static async getTrustedProfiles() {
         const myUid = state.user?.uid;
         if (!myUid) {

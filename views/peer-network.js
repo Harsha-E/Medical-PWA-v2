@@ -299,12 +299,27 @@ export default class PeerNetworkView {
                         </div>
                     </div>
                 </div>
-                <div class="w-10 h-10 rounded-full bg-gray-700/50 flex items-center justify-center group-hover:bg-indigo-500/20 group-hover:text-indigo-400 text-gray-400 transition-all border border-gray-600/50">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m-7-7l7 7-7 7"/></svg>
+                <div class="flex items-center gap-3">
+                    <button class="btn-remove-peer w-9 h-9 rounded-full bg-red-500/10 flex items-center justify-center text-red-400 hover:bg-red-500/20 transition-all border border-red-500/20" title="Remove Connection">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    </button>
+                    <div class="w-10 h-10 rounded-full bg-gray-700/50 flex items-center justify-center group-hover:bg-indigo-500/20 group-hover:text-indigo-400 text-gray-400 transition-all border border-gray-600/50">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m-7-7l7 7-7 7"/></svg>
+                    </div>
                 </div>
                 `;
                 
                 rosterList.appendChild(profileCard);
+                
+                const removeBtn = profileCard.querySelector('.btn-remove-peer');
+                removeBtn.onclick = async (e) => {
+                    e.stopPropagation(); // Don't trigger the card's onclick (dashboard navigation)
+                    if (confirm(`Are you sure you want to remove the connection to ${profile.name}?`)) {
+                        await TrustManager.revokeTrust(profile.patientUid, profile.trustedUid);
+                        import('../core/ui.js').then(({ showToast }) => showToast(`Removed connection to ${profile.name}`, 'info'));
+                        this.refreshFamilyList();
+                    }
+                };
             });
             
         } catch (err) {

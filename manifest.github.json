@@ -29,10 +29,6 @@
     {
       "protocol": "web+medcheck",
       "url": "/Medical-PWA-v2/?connect=%s"
-    },
-    {
-      "protocol": "medcheck",
-      "url": "/Medical-PWA-v2/?action=%s"
     }
   ],
   "url_handlers": [
