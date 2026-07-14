@@ -25,19 +25,12 @@ export default class QRManager {
 
         containerElement.innerHTML = ''; // Clear existing
         
-        // Construct the Enterprise JSON payload
-        const now = Date.now();
+        // Construct a static, permanent JSON payload (Safe because connections still require manual approval)
         const payload = {
             id: peerId,
             installationId: installationId || 'unknown_install',
             name: deviceName || 'Unknown Device',
-            nonce: Math.random().toString(36).substring(2, 15),
-            issuedAt: now,
-            expires: now + (15 * 60 * 1000), // 15 minutes validity
-            maxUses: 1,
-            supportedProtocols: [2],
-            publicKey: "",
-            signature: ""
+            supportedProtocols: [2]
         };
 
         const base64Payload = btoa(JSON.stringify(payload));
@@ -65,12 +58,6 @@ export default class QRManager {
             console.log(`[QRManager] 🔗 Deep link V2 detected!`);
             try {
                 const decoded = JSON.parse(atob(payloadV2));
-                if (Date.now() > decoded.expires) {
-                    console.error('[QRManager] 🚫 QR Code Expired!');
-                    alert('This connection QR code has expired. Please generate a new one.');
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                    return;
-                }
                 
                 // Trigger connection passing the full payload for the mesh to validate
                 window.history.replaceState({}, document.title, window.location.pathname);

@@ -279,11 +279,6 @@ export default class PeerNetworkView {
                             let payloadV2 = qrVal.split('connect_v2=')[1];
                             try {
                                 const decoded = JSON.parse(atob(payloadV2));
-                                if (Date.now() > decoded.expires) {
-                                    showToast('QR Code Expired. Please generate a new one on the peer device.', 'error');
-                                    stopCamera();
-                                    return;
-                                }
                                 if (this.mesh && typeof this.mesh.connectToFamilyMember === 'function') {
                                     showToast('QR Scanned! Initiating secure link...', 'success');
                                     this.mesh.connectToFamilyMember(decoded.id, decoded);
