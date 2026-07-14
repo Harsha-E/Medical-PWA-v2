@@ -145,7 +145,7 @@ const HEADER_CONFIGS = {
   '#/add-record': { back: '#/clinical-ledger', eyebrow: 'PATIENT STATE', title: 'Add Record', skeleton: false },
 
   '#/emergency': { back: true, eyebrow: 'Critical', title: 'Emergency Hub' },
-  '#/peer-hub': { eyebrow: 'P2P NETWORK', title: 'The Handshake' },
+  '#/peer-hub': { eyebrow: 'RELATIONSHIP MANAGER', title: 'Trusted Profiles' },
   '#/peer-dashboard': { back: true, eyebrow: 'Remote Node', title: () => resolvePeerNameFromState() },
   '#/settings': { eyebrow: 'Configuration', title: 'System Profile' },
   '#/admin': { back: true, eyebrow: 'Super-User Console', title: 'Admin Portal' },
@@ -238,11 +238,19 @@ class App {
     // 1. Initialize Clinical Engines in the background (Non-blocking)
     (async () => {
       try {
-        // Initialize PeerMesh Sandbox background sync immediately so the UI doesn't block QR connections
-        window.familyMesh = new PeerMeshV2((incomingData) => {
-            console.log("Family member updated their medicine cabinet!", incomingData);
-            // This will later be wired into IndexedDB or KnowledgeGraph
-        });
+        // [HACKATHON] One-time database flush for architecture pivot
+        if (!localStorage.getItem('hackathon_flush_trust_v1')) {
+            const dbModule = await import('./core/db.js');
+            const localDb = dbModule.default;
+            try {
+                await localDb.trusted_devices.clear();
+                await localDb.sync_queue.clear();
+                console.log('✅ FLUSHED trusted_devices and sync_queue for Trust Architecture Pivot!');
+                localStorage.setItem('hackathon_flush_trust_v1', 'true');
+            } catch (err) {
+                console.error('Failed to flush DB', err);
+            }
+        }
 
         const { initMedicalDatabase } = await import('./core/db.js');
         await initMedicalDatabase();
@@ -281,21 +289,7 @@ class App {
         console.log('[App] Synchronizing Medicine Knowledge Graph...');
         await datasetSyncManager.syncAll();
 
-        // Immediately trigger connection if deep link is present and app is installed
-        if (connectPeerId) {
-            const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-            if (isStandaloneMode) {
-                if (typeof window.familyMesh.connect === 'function') {
-                    window.familyMesh.connect(connectPeerId);
-                } else if (typeof window.familyMesh.connectToFamilyMember === 'function') {
-                    window.familyMesh.connectToFamilyMember(connectPeerId);
-                } else if (typeof window.familyMesh.connectToPeer === 'function') {
-                    window.familyMesh.connectToPeer(connectPeerId);
-                }
-                window.location.hash = '#/peer-hub';
-                window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
-            }
-        }
+        // Removed legacy deep-link direct connection here because PeerMesh is now on-demand
       } catch (err) {
         console.error('Failed to boot clinical engines:', err);
       }
@@ -370,14 +364,14 @@ class App {
     if (!header) {
       header = document.createElement('div');
       header.id = 'caregiver-header';
-      header.className = 'fixed top-0 left-0 right-0 z-[10000] bg-[var(--danger-crimson,#7f2f5d)] text-[#fefcff] font-mono text-xs uppercase font-bold tracking-widest py-3 px-6 flex items-center justify-between shadow-2xl transition-transform duration-300 -translate-y-full';
+      header.className = 'fixed top-0 left-0 right-0 z-[10000] bg-indigo-900 border-b-4 border-indigo-500 text-white font-mono text-sm uppercase font-bold tracking-widest py-4 px-6 flex items-center justify-between shadow-2xl transition-transform duration-300 -translate-y-full';
       header.innerHTML = `
-        <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-red-400 animate-ping"></span>
-          <span id="caregiver-header-text">🔴 CAREGIVER MODE ACTIVE</span>
+        <div class="flex items-center gap-3">
+          <span class="w-3 h-3 rounded-full bg-indigo-400 animate-pulse shadow-[0_0_12px_#818cf8]"></span>
+          <span id="caregiver-header-text">VIEWING PATIENT MEDICAL RECORD</span>
         </div>
-        <button id="exit-caregiver-btn" class="bg-[#ffb88c] text-[#0a0407] font-bold px-3 py-1 rounded-full text-[10px] hover:bg-white transition-all">
-          Exit Caregiver Mode
+        <button id="exit-caregiver-btn" class="bg-indigo-500 hover:bg-white hover:text-indigo-900 text-white font-bold px-4 py-2 rounded-full text-xs transition-all shadow-md">
+          Exit Patient View
         </button>
       `;
       document.body.appendChild(header);
@@ -397,39 +391,31 @@ class App {
     
     if (activeContext) {
       const textEl = header.querySelector('#caregiver-header-text');
-      
-      // Dynamic Name Fetching from IndexedDB (cross-referencing db.family)
-      const peerId = typeof activeContext === 'string' ? activeContext : (activeContext.id || activeContext);
-      let contextName = activeContext.name || 'Remote Record';
-      
-      db.family.where('peerId').equals(peerId).first().then(familyMember => {
-        if (familyMember && familyMember.name) {
-          contextName = familyMember.name;
-        }
-        if (textEl) textEl.textContent = `🔴 CAREGIVER MODE: Watching ${contextName}'s screen!`;
-      }).catch(err => {
-        if (textEl) textEl.textContent = `🔴 CAREGIVER MODE: Watching ${contextName}'s screen!`;
-      });
+      const contextName = activeContext.name || 'Unknown';
+      if (textEl) textEl.textContent = `VIEWING ${contextName} MEDICAL RECORD`;
       
       header.classList.remove('-translate-y-full');
       
       if (viewport) {
         viewport.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease, border-radius 0.3s ease, border 0.3s ease';
-        viewport.style.transform = 'scale(0.96)';
+        viewport.style.transform = 'scale(0.96) translateY(20px)';
         viewport.style.borderRadius = '24px';
-        viewport.style.border = '4px solid var(--danger-crimson, #e63946)';
-        viewport.style.boxShadow = '0 0 30px rgba(127, 47, 93, 0.6)';
+        viewport.style.border = '6px solid #6366f1'; // Indigo-500
+        viewport.style.boxShadow = '0 0 40px rgba(99, 102, 241, 0.4)';
         viewport.style.overflow = 'hidden';
       }
+      
+      document.body.style.backgroundColor = '#1e1b4b'; // Indigo-950 for background to contrast
     } else {
       header.classList.add('-translate-y-full');
       if (viewport) {
         viewport.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease, border-radius 0.3s ease, border 0.3s ease';
-        viewport.style.transform = 'scale(1)';
+        viewport.style.transform = 'scale(1) translateY(0)';
         viewport.style.borderRadius = '0px';
         viewport.style.border = 'none';
         viewport.style.boxShadow = 'none';
       }
+      document.body.style.backgroundColor = '';
     }
   }
 

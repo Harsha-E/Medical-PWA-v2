@@ -27,10 +27,10 @@ export default class OfflinePersistenceManager {
       const firestoreDb = getFirestore();
 
       // Generic table synchronizer
-      const syncTable = async (tableName) => {
+      const syncTable = async (tableName, targetUid) => {
         try {
-          const localRecords = await db[tableName].where('userId').equals(userId).toArray();
-          const tableRef = collection(firestoreDb, `users/${userId}/${tableName}`);
+          const localRecords = await db[tableName].where('userId').equals(targetUid).toArray();
+          const tableRef = collection(firestoreDb, `users/${targetUid}/${tableName}`);
           const querySnapshot = await getDocs(tableRef);
           
           const remoteMap = new Map();
@@ -38,15 +38,15 @@ export default class OfflinePersistenceManager {
             remoteMap.set(docSnap.id, docSnap.data());
           });
 
-          // Write local changes to firestore
+          // Write local changes to firestore (only for our own data, unless we have write permission - for now write everything since we have roles)
           const batch = writeBatch(firestoreDb);
           for (const local of localRecords) {
             const idStr = local.id.toString();
             // Check if remote exists either under new ID format or legacy format
-            const remote = remoteMap.get(idStr) || remoteMap.get(`${userId}_${idStr}`);
+            const remote = remoteMap.get(idStr) || remoteMap.get(`${targetUid}_${idStr}`);
             // Simple Last-Write-Wins or merge logic
             if (!remote || local.updatedAt > (remote.updatedAt || 0)) {
-              const docRef = doc(firestoreDb, `users/${userId}/${tableName}`, idStr);
+              const docRef = doc(firestoreDb, `users/${targetUid}/${tableName}`, idStr);
               batch.set(docRef, { ...local, id: idStr }, { merge: true });
             }
           }
@@ -61,7 +61,7 @@ export default class OfflinePersistenceManager {
             if (!local || (remoteRec.updatedAt || 0) > (local.updatedAt || 0)) {
               const parsedId = parseInt(cleanIdStr, 10);
               if (isNaN(parsedId)) continue;
-              const record = { ...remoteRec, id: parsedId };
+              const record = { ...remoteRec, id: parsedId, userId: targetUid };
               await db[tableName].put(record);
             }
           }
@@ -70,7 +70,18 @@ export default class OfflinePersistenceManager {
         }
       };
 
-      // 1. Sync All Core Tables
+      // 1. Determine which profiles to sync (Self + Active Context)
+      const profilesToSync = [userId];
+      if (state.activeProfileContext) {
+          const patientUid = typeof state.activeProfileContext === 'string' 
+              ? state.activeProfileContext 
+              : state.activeProfileContext.id;
+          if (patientUid && patientUid !== userId) {
+              profilesToSync.push(patientUid);
+          }
+      }
+
+      // 2. Sync All Core Tables
       const tablesToSync = [
         'medications',
         'disease_ledger',
@@ -80,8 +91,11 @@ export default class OfflinePersistenceManager {
         'appointments'
       ];
 
-      for (const table of tablesToSync) {
-        await syncTable(table);
+      for (const targetUid of profilesToSync) {
+          console.log(`[OfflinePersistenceManager] Syncing records for UID: ${targetUid}`);
+          for (const table of tablesToSync) {
+            await syncTable(table, targetUid);
+          }
       }
 
       console.log('[OfflinePersistenceManager] Data synchronization successful.');

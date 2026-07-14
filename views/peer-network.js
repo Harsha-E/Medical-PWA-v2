@@ -156,41 +156,15 @@ export default class PeerNetworkView {
                 <!-- The Roster -->
                 <div class="w-full lg:flex-1 shrink-0 space-y-4 mt-8 lg:mt-0">
                     <div class="flex justify-between items-center px-2">
-                        <h3 class="text-[10px] text-[#ffb88c] font-mono font-bold uppercase tracking-widest">CONNECTED NODES</h3>
-                        <span class="text-[9px] text-[#10b981] font-mono font-bold uppercase tracking-widest border border-[#10b981]/40 bg-[#10b981]/10 rounded px-2.5 py-0.5">LIVE</span>
+                        <h3 class="text-[10px] text-[#ffb88c] font-mono font-bold uppercase tracking-widest">TRUSTED CAREGIVERS & PATIENTS</h3>
+                        <span class="text-[9px] text-[#10b981] font-mono font-bold uppercase tracking-widest border border-[#10b981]/40 bg-[#10b981]/10 rounded px-2.5 py-0.5">SECURE</span>
                     </div>
 
                     <!-- Active Connections or Empty State -->
-                    <div id="roster-list" class="w-full">
-                        ${this.connectedPeer ? (() => {
-                            const connState = typeof registry !== 'undefined' ? registry.getState(this.connectedPeer) : null;
-                            if (connState === ConnectionState.WAITING_FOR_REMOTE || connState === ConnectionState.RETRYING) {
-                                return `
-                                    <div id="active-peer-card" class="p-6 rounded-[2rem] border border-[#fbbf24]/40 bg-[#fbbf24]/10 text-center space-y-1 cursor-pointer hover:bg-[#fbbf24]/20 transition-colors relative group">
-                                        <span class="text-[10px] font-mono text-[#fbbf24] uppercase tracking-widest block animate-pulse">🟡 RECONNECTING...</span>
-                                        <h4 class="text-2xl font-bold font-display text-white group-hover:text-[#fbbf24] transition-colors">${escapeHTML(this.connectedPeer)}</h4>
-                                        <p class="text-[10px] font-mono text-[#fbbf24] mt-2 flex items-center justify-center gap-2">
-                                            <svg class="animate-spin h-3 w-3 text-[#fbbf24]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                            Reconnecting to trusted device...
-                                        </p>
-                                    </div>
-                                `;
-                            }
-                            return `
-                            <div id="active-peer-card" class="p-6 rounded-[2rem] border border-[#10b981]/40 bg-[#10b981]/10 text-center space-y-1 cursor-pointer hover:bg-[#10b981]/20 transition-colors relative group">
-                                <span class="text-[10px] font-mono text-[#10b981] uppercase tracking-widest block">🟢 CONNECTED PEER NODE</span>
-                                <h4 class="text-2xl font-bold font-display text-white group-hover:text-[#10b981] transition-colors">${escapeHTML(this.connectedPeer)}</h4>
-                                <p class="text-[10px] font-mono text-white/50">P2P Encrypted Data Channel Active</p>
-                                <div class="absolute right-6 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <svg class="w-6 h-6 text-[#10b981]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"></path></svg>
-                                </div>
-                            </div>
-                            `;
-                        })() : `
-                            <div class="w-full py-10 rounded-[2rem] border border-dashed border-white/20 flex flex-col items-center justify-center">
-                                <p class="text-[10px] text-white/40 uppercase tracking-widest font-mono">NO ACTIVE CONNECTIONS</p>
-                            </div>
-                        `}
+                    <div id="roster-list" class="w-full space-y-3">
+                        <div class="w-full py-10 rounded-[2rem] border border-dashed border-white/20 flex flex-col items-center justify-center">
+                            <p class="text-[10px] text-white/40 uppercase tracking-widest font-mono text-center">NO TRUSTED PROFILES YET<br/><span class="opacity-50">Scan a QR code to link a device</span></p>
+                        </div>
                     </div>
                 </div>
 
@@ -257,13 +231,69 @@ export default class PeerNetworkView {
                             peerId: this.connectedPeer,
                             name: this.connectedPeer // Will update to use real name if available later
                         };
-                        window.location.hash = '#/peer-dashboard';
+                        window.appState.setActiveProfileContext({ id: this.connectedPeer, name: this.connectedPeer });
+                        window.location.hash = '#/dashboard';
                     });
                 }
             });
         }
 
+        this.refreshFamilyList();
         this.bindEvents();
+    }
+
+    async refreshFamilyList() {
+        try {
+            const { TrustManager } = await import('../services/TrustManager.js');
+            const trustedProfiles = await TrustManager.getTrustedProfiles();
+            const rosterList = this.container.querySelector('#roster-list');
+            
+            if (!rosterList) return;
+
+            if (trustedProfiles.length === 0) {
+                rosterList.innerHTML = `
+                    <div class="w-full py-10 rounded-[2rem] border border-dashed border-white/20 flex flex-col items-center justify-center">
+                        <p class="text-[10px] text-white/40 uppercase tracking-widest font-mono text-center">NO TRUSTED PROFILES YET<br/><span class="opacity-50">Scan a QR code to link a device</span></p>
+                    </div>
+                `;
+                return;
+            }
+
+            rosterList.innerHTML = '';
+            trustedProfiles.forEach(profile => {
+                const profileCard = document.createElement('div');
+                profileCard.className = 'p-4 rounded-2xl bg-gray-800/50 border border-gray-700/50 flex items-center justify-between hover:bg-gray-800 transition-colors cursor-pointer group';
+                profileCard.onclick = () => {
+                    // Update state to view this trusted profile
+                    window.appState.setActiveProfileContext({ id: profile.patientUid, name: profile.name });
+                    window.location.hash = '#/dashboard'; // Route to dashboard with the active context
+                };
+
+                const peerIdStr = profile.patientUid ? profile.patientUid.substring(0, 8) : 'unknown';
+                
+                profileCard.innerHTML = `
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full bg-indigo-500/20 flex items-center justify-center border border-indigo-500/50">
+                        <span class="text-lg font-bold text-indigo-400">${profile.name.charAt(0).toUpperCase()}</span>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-bold tracking-wide">${escapeHTML(profile.name)}</h4>
+                        <div class="text-emerald-400 text-xs font-bold tracking-widest mt-1 uppercase flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> ${profile.role || 'CAREGIVER'}
+                        </div>
+                    </div>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-gray-700/50 flex items-center justify-center group-hover:bg-indigo-500/20 group-hover:text-indigo-400 text-gray-400 transition-all border border-gray-600/50">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m-7-7l7 7-7 7"/></svg>
+                </div>
+                `;
+                
+                rosterList.appendChild(profileCard);
+            });
+            
+        } catch (err) {
+            console.error("Failed to load trusted profiles:", err);
+        }
     }
 
     bindEvents() {
