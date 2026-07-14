@@ -38,6 +38,21 @@ export default class OfflinePersistenceManager {
             remoteMap.set(docSnap.id, docSnap.data());
           });
 
+          // Helper to recursively remove undefined values from objects/arrays
+          const stripUndefined = (obj) => {
+              if (obj === null || typeof obj !== 'object') return obj;
+              if (Array.isArray(obj)) {
+                  return obj.map(item => stripUndefined(item)).filter(item => item !== undefined);
+              }
+              const result = {};
+              for (const [k, v] of Object.entries(obj)) {
+                  if (v !== undefined) {
+                      result[k] = stripUndefined(v);
+                  }
+              }
+              return result;
+          };
+
           // Write local changes to firestore (only for our own data, unless we have write permission - for now write everything since we have roles)
           const batch = writeBatch(firestoreDb);
           for (const local of localRecords) {
@@ -47,7 +62,8 @@ export default class OfflinePersistenceManager {
             // Simple Last-Write-Wins or merge logic
             if (!remote || local.updatedAt > (remote.updatedAt || 0)) {
               const docRef = doc(firestoreDb, `users/${targetUid}/${tableName}`, idStr);
-              batch.set(docRef, { ...local, id: idStr }, { merge: true });
+              const cleanLocal = stripUndefined({ ...local, id: idStr });
+              batch.set(docRef, cleanLocal, { merge: true });
             }
           }
           await batch.commit();

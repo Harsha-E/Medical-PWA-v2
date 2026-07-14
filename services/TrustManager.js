@@ -111,7 +111,10 @@ export class TrustManager {
             console.log(`[TrustManager] getTrustedProfiles: myUid is null or undefined!`);
             return [];
         }
-        const profiles = await db.family.filter(f => f.userId === myUid && f.status === 'ACTIVE').toArray();
+        const allFamily = await db.family.toArray();
+        console.log(`[TrustManager] DB Dump for family table:`, allFamily);
+        
+        const profiles = allFamily.filter(f => f.userId === myUid && f.status === 'ACTIVE');
         console.log(`[TrustManager] getTrustedProfiles found ${profiles.length} profiles for userId ${myUid}.`);
         return profiles;
     }

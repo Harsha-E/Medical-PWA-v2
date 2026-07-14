@@ -123,10 +123,18 @@ export default class PeerMeshV2 {
         }
         console.log(`[PeerMeshV2] Attempting to dial ${targetPeerId}...`);
         
+        let uid = window.appState?.user?.uid || state.user?.uid;
+        if (!uid) {
+            try {
+                const { auth } = await import('../core/firebase.js');
+                uid = auth?.currentUser?.uid;
+            } catch(e) {}
+        }
+        
         const conn = this.peer.connect(targetPeerId, {
             metadata: {
                 v2Handshake: true,
-                firebaseUid: state.user?.uid, // Send our Firebase UID for trust
+                firebaseUid: uid, // Send our Firebase UID for trust
                 installationId: state.installationId || localStorage.getItem('medcheck_installation_id'),
                 name: state.userProfile?.name || state.user?.displayName || 'Unknown Device',
                 nonce: payload?.nonce || 'legacy'
@@ -194,15 +202,57 @@ export default class PeerMeshV2 {
             console.log(`[PeerMeshV2] 🔍 Authenticating. Direction: ${context.direction}, Peer ID: ${conn.peer}`);
 
             if (context.direction === 'outgoing') {
-                // We initiated the connection by scanning their QR code.
-                console.log(`[PeerMeshV2] Device matches scanned QR payload. Initiating trust...`);
-                this.transitionToAuthenticating(conn, null, context.remote);
+                // We initiated the connection by scanning their QR code, or retrying.
+                console.log(`[PeerMeshV2] Device matches scanned QR payload. Waiting for approver to accept...`);
+                conn._meshState = 'AUTHENTICATING';
             } else {
-                // They initiated the connection. Request user approval.
-                console.log(`[PeerMeshV2] Device is UNKNOWN. Requesting user approval...`);
-                window.dispatchEvent(new CustomEvent('peermesh:incoming-request', {
-                    detail: { conn: conn, payload: incomingMetadata }
-                }));
+                // They initiated the connection. Check if they are already trusted.
+                import('../services/TrustManager.js').then(async ({ TrustManager }) => {
+                    const trustedProfiles = await TrustManager.getTrustedProfiles();
+                    const incomingUid = incomingMetadata ? incomingMetadata.firebaseUid : null;
+                    const isTrusted = incomingUid && trustedProfiles.some(p => p.patientUid === incomingUid || p.trustedUid === incomingUid);
+
+                    if (isTrusted) {
+                        console.log(`[PeerMeshV2] Device is KNOWN (${incomingUid}). Auto-Authorizing incoming connection...`);
+                        
+                        let uid = window.appState?.user?.uid || state.user?.uid;
+                        if (!uid) {
+                            try {
+                                const { auth } = await import('../core/firebase.js');
+                                uid = auth?.currentUser?.uid;
+                            } catch(e) {}
+                        }
+                        
+                        // We are the Approver, but we auto-approve.
+                        // We must send our HANDSHAKE_ACK to let the Initiator know we accept.
+                        const ackPayload = {
+                            type: 'HANDSHAKE_ACK',
+                            firebaseUid: uid,
+                            installationId: state.installationId || localStorage.getItem('medcheck_installation_id'),
+                            permissions: null,
+                            nonceResponse: incomingMetadata ? incomingMetadata.nonce : null
+                        };
+                        conn.send(ackPayload);
+                        
+                        conn._meshState = 'AUTHORIZED';
+                        registry.setState(conn.peer, ConnectionState.AUTHORIZED);
+                        
+                        // Transition to SYNC_ACTIVE to allow data exchange
+                        setTimeout(() => {
+                            if (conn && conn.open) {
+                                conn._meshState = 'SYNC_ACTIVE';
+                                registry.setState(conn.peer, ConnectionState.SYNC_ACTIVE);
+                                window.dispatchEvent(new CustomEvent('peermesh:connection-established', { detail: { peer: conn.peer } }));
+                            }
+                        }, 500);
+
+                    } else {
+                        console.log(`[PeerMeshV2] Device is UNKNOWN. Requesting user approval...`);
+                        window.dispatchEvent(new CustomEvent('peermesh:incoming-request', {
+                            detail: { conn: conn, payload: incomingMetadata }
+                        }));
+                    }
+                }).catch(e => console.error('[PeerMeshV2] Error checking trust:', e));
             }
         });
 
@@ -225,25 +275,8 @@ export default class PeerMeshV2 {
             }
         });
 
-        conn.on('data', async (encryptedPayload) => {
-            if (!cryptoVault.isUnlocked()) {
-                console.warn('[PeerMeshV2] Received data but vault is locked. Cannot decrypt.');
-                return;
-            }
-
-            let payload;
-            try {
-                if (typeof encryptedPayload === 'string' && encryptedPayload.includes('.')) {
-                    payload = await cryptoVault.decryptObject(encryptedPayload);
-                } else {
-                    payload = encryptedPayload; // Fallback for unencrypted local dev traffic
-                }
-            } catch (e) {
-                console.error('[PeerMeshV2] Failed to decrypt payload:', e);
-                return;
-            }
-
-            console.log(`[PeerMeshV2] 📦 Decrypted data received from ${conn.peer}:`, payload);
+        conn.on('data', async (payload) => {
+            console.log(`[PeerMeshV2] 📦 Data received from ${conn.peer}:`, payload);
 
             if (payload && payload.type === 'HANDSHAKE_ACK') {
                 if (conn._meshState === 'AUTHENTICATING' || conn._meshState === 'CONNECTED_UNTRUSTED') {
@@ -272,15 +305,13 @@ export default class PeerMeshV2 {
                             'CAREGIVER'
                         );
                     }
-
-                    // Success! Close connection. PeerJS is only for pairing now.
-                    console.log(`[PeerMeshV2] 🟢 Pairing complete. Terminating temporary WebRTC channel.`);
-                    window.dispatchEvent(new CustomEvent('peermesh:pairing-complete'));
+                    // Success! Transition to SYNC_ACTIVE for data sync or presence.
+                    conn._meshState = 'SYNC_ACTIVE';
+                    registry.setState(conn.peer, ConnectionState.SYNC_ACTIVE);
+                    console.log(`[PeerMeshV2] 🟢 Pairing complete. Transitioned to SYNC_ACTIVE.`);
                     
-                    // Small delay to ensure SCTP packet delivery
-                    setTimeout(() => {
-                        if (conn && conn.open) conn.close();
-                    }, 1000);
+                    window.dispatchEvent(new CustomEvent('peermesh:connection-established', { detail: { peer: conn.peer } }));
+                    window.dispatchEvent(new CustomEvent('peermesh:pairing-complete'));
                 }
                 return;
             }
@@ -337,20 +368,30 @@ export default class PeerMeshV2 {
         });
     }
 
-    // Called by UI when user clicks "ACCEPT" on the modal
     async acceptConnection(conn, permissions, incomingPayload) {
         if (!conn || !conn.open) return;
         
         console.log(`[PeerMeshV2] User approved connection. Finalizing trust...`);
+        let localUid = window.appState?.user?.uid || state.user?.uid;
+        if (!localUid) {
+            try {
+                const { auth } = await import('../core/firebase.js');
+                localUid = auth?.currentUser?.uid;
+            } catch(e) {}
+        }
+        console.log(`[PeerMeshV2] Resolved local UID:`, localUid);
+        console.log(`[PeerMeshV2] incomingPayload:`, incomingPayload);
         
-        if (state.user && incomingPayload.firebaseUid) {
+        if (localUid && incomingPayload && incomingPayload.firebaseUid) {
             await TrustManager.establishTrust(
-                state.user.uid,
+                localUid,
                 incomingPayload.firebaseUid,
-                state.userProfile?.name,
+                window.appState?.userProfile?.name || state.userProfile?.name || 'Unknown',
                 incomingPayload.name,
                 'CAREGIVER'
             );
+        } else {
+            console.warn(`[PeerMeshV2] SKIPPED establishTrust! localUid (${localUid}) or incomingPayload.firebaseUid is missing.`);
         }
 
         this.transitionToAuthenticating(conn, { permissions: permissions }, null, true);
@@ -359,32 +400,39 @@ export default class PeerMeshV2 {
     async transitionToAuthenticating(conn, trustedRecord, scannedPayload = null, isApprover = false) {
         conn._meshState = 'AUTHENTICATING';
         
+        let uid = window.appState?.user?.uid || state.user?.uid;
+        if (!uid) {
+            try {
+                const { auth } = await import('../core/firebase.js');
+                uid = auth?.currentUser?.uid;
+            } catch(e) {}
+        }
+        
         // Send our ack + UID
         const ackPayload = {
             type: 'HANDSHAKE_ACK',
-            firebaseUid: state.user?.uid, // Send our UID back
+            firebaseUid: uid, // Send our UID back
             installationId: state.installationId || localStorage.getItem('medcheck_installation_id'),
             permissions: trustedRecord ? trustedRecord.permissions : null,
             nonceResponse: (conn.metadata && conn.metadata.nonce) ? conn.metadata.nonce : (scannedPayload ? scannedPayload.nonce : null)
         };
         
-        if (cryptoVault.isUnlocked()) {
-            const enc = await cryptoVault.encryptObject(ackPayload);
-            conn.send(enc);
-        } else {
-            conn.send(ackPayload);
-        }
+        // WebRTC data channels are already secured by DTLS. Do not use local-only CryptoVault here.
+        conn.send(ackPayload);
         
         if (isApprover) {
             conn._meshState = 'AUTHORIZED';
             registry.setState(conn.peer, ConnectionState.AUTHORIZED);
-            console.log(`[PeerMeshV2] 🟢 Pairing complete (Approver side). Terminating temporary WebRTC channel.`);
-            window.dispatchEvent(new CustomEvent('peermesh:pairing-complete'));
+            console.log(`[PeerMeshV2] 🟢 Pairing complete (Approver side). Transitioned to SYNC_ACTIVE.`);
             
-            // Allow time for the ACK packet to be sent across the WebRTC SCTP channel before destroying the socket
             setTimeout(() => {
-                if (conn && conn.open) conn.close();
-            }, 1000);
+                if (conn && conn.open) {
+                    conn._meshState = 'SYNC_ACTIVE';
+                    registry.setState(conn.peer, ConnectionState.SYNC_ACTIVE);
+                    window.dispatchEvent(new CustomEvent('peermesh:connection-established', { detail: { peer: conn.peer } }));
+                    window.dispatchEvent(new CustomEvent('peermesh:pairing-complete'));
+                }
+            }, 500);
         }
     }
 

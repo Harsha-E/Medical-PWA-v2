@@ -289,7 +289,7 @@ export default class AddRecordView {
               status: data.status,
               notes: data.notes,
               date: data.date,
-              documentUrl: data.documentUrl
+              documentUrl: data.documentUrl || null
           });
       } else if (data.type === 'Surgery') {
           await ClinicalLogger.addSurgery({
@@ -299,7 +299,7 @@ export default class AddRecordView {
               date: data.date,
               recoveryStatus: data.status,
               notes: data.notes,
-              documentUrl: data.documentUrl
+              documentUrl: data.documentUrl || null
           });
       } else if (data.type === 'Allergy') {
           await ClinicalLogger.addAllergy({
@@ -307,7 +307,7 @@ export default class AddRecordView {
               severity: data.stage || 'Unknown',
               reaction: data.notes || 'Unknown',
               firstObserved: data.date,
-              documentUrl: data.documentUrl
+              documentUrl: data.documentUrl || null
           });
       } else {
           await ClinicalLogger.addHistory({
@@ -316,7 +316,7 @@ export default class AddRecordView {
               date: data.date,
               provider: 'Self',
               notes: data.notes,
-              documentUrl: data.documentUrl
+              documentUrl: data.documentUrl || null
           });
       }
 
