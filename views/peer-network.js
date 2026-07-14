@@ -19,7 +19,11 @@ export default class PeerNetworkView {
             this.container.className = 'w-full h-full min-h-screen overflow-y-auto relative text-[#fefcff] font-sans';
         }
 
-        this.mesh = window.familyMesh || window.peerMeshV2;
+        if (!window.peerMeshV2) {
+            const { default: PeerMeshV2 } = await import('../services/PeerMeshV2.js');
+            window.peerMeshV2 = new PeerMeshV2();
+        }
+        this.mesh = window.peerMeshV2;
         
         const fallbackId = state.user && state.user.uid ? "MED-" + state.user.uid.replace(/[^a-zA-Z0-9]/g, '').substring(0, 8).toUpperCase() : 'LOADING...';
         this.myPeerId = (this.mesh && this.mesh.peerId) ? this.mesh.peerId : fallbackId;
@@ -507,6 +511,13 @@ export default class PeerNetworkView {
         if (this.cameraStream) {
             this.cameraStream.getTracks().forEach(track => track.stop());
             this.cameraStream = null;
+        }
+        if (window.peerMeshV2) {
+            if (window.peerMeshV2.peer) {
+                window.peerMeshV2.peer.destroy();
+            }
+            window.peerMeshV2 = null;
+            this.mesh = null;
         }
     }
 }
