@@ -451,24 +451,35 @@ export default class ClinicalLedgerView {
                         ${this.getIconForType(record.entityType)}
                     </div>
                     
-                    <div class="unified-card p-6 relative ml-14 border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)] transition-all hover:border-white/10 cursor-pointer" data-action="view-detail" data-index="${index}">
-                        ${record.documentUrl ? `
-                            <button class="absolute right-4 top-4 w-12 h-12 rounded-2xl border border-white/10 bg-[#150a0f]/80 backdrop-blur-md text-[var(--theme-accent)] shadow-inner flex items-center justify-center hover:bg-white/5 hover:scale-105 active:scale-95 transition-all z-20" data-action="view-doc" data-url="${escapeHTML(record.documentUrl)}">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                            </button>
-                        ` : ''}
+                    <div class="unified-card p-5 relative ml-12 border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)] transition-all hover:border-white/10 cursor-pointer group" data-action="view-detail" data-index="${index}">
+                        <div class="flex items-start gap-4">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h4 class="text-[17px] sm:text-lg font-bold text-white leading-tight tracking-wide group-hover:text-[var(--theme-accent)] transition-colors pr-2">${escapeHTML(record.title)}</h4>
+                                    
+                                    ${record.documentUrl ? `
+                                        <button class="shrink-0 w-10 h-10 rounded-xl border border-white/10 bg-[#150a0f]/80 backdrop-blur-md text-[var(--theme-accent)] shadow-inner flex items-center justify-center hover:bg-white/5 hover:scale-105 active:scale-95 transition-all z-20" data-action="view-doc" data-url="${escapeHTML(record.documentUrl)}">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                                        </button>
+                                    ` : ''}
+                                </div>
 
-                        <div class="pr-16">
-                            <h4 class="text-xl font-bold text-white leading-tight mb-3 tracking-wide">${escapeHTML(record.title)}</h4>
-                            <div class="flex flex-wrap items-center gap-3 mb-4">
-                                <span class="px-2.5 py-1 rounded-md bg-[var(--theme-accent-muted)] text-[var(--theme-accent)] text-[9px] uppercase font-black tracking-[0.2em] shadow-sm">${escapeHTML(record.entityType)}</span>
-                                ${record.linkCount > 0 ? `<span class="px-2.5 py-1 rounded-md bg-blue-500/20 text-blue-400 border border-blue-500/30 text-[9px] uppercase font-black tracking-[0.2em] shadow-sm flex items-center gap-1 cursor-pointer hover:bg-blue-500/30 transition-colors" data-action="view-links" data-entity="${record.entityType}" data-id="${record.id}"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg> ${record.linkCount} Linked</span>` : ''}
-                                ${record.subtitle ? `<span class="text-xs text-white/60 font-medium tracking-wide">${escapeHTML(record.subtitle)}</span>` : ''}
+                                <div class="flex flex-wrap items-center gap-2 mb-3">
+                                    <span class="px-2 py-0.5 rounded flex items-center justify-center bg-[var(--theme-accent-muted)] text-[var(--theme-accent)] text-[9px] uppercase font-bold tracking-widest border border-[var(--theme-border)] shadow-sm">${escapeHTML(record.entityType)}</span>
+                                    
+                                    ${record.subtitle ? `<span class="text-xs text-white/50 font-medium tracking-wide flex items-center gap-1.5 before:content-[''] before:block before:w-1 before:h-1 before:rounded-full before:bg-white/20">${escapeHTML(record.subtitle)}</span>` : ''}
+                                    
+                                    ${record.linkCount > 0 ? `<span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[9px] uppercase font-bold tracking-widest shadow-sm flex items-center gap-1 ml-auto cursor-pointer hover:bg-blue-500/20 transition-colors" data-action="view-links" data-entity="${record.entityType}" data-id="${record.id}">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg> ${record.linkCount}
+                                    </span>` : ''}
+                                </div>
+                                
+                                ${record.desc ? `
+                                    <div class="mt-3">
+                                        <p class="text-sm text-white/70 leading-relaxed font-normal">${escapeHTML(record.desc)}</p>
+                                    </div>
+                                ` : ''}
                             </div>
-                            
-                            ${record.desc ? `<div class="p-3.5 rounded-xl bg-white/5 border border-white/5 mt-2">
-                                <p class="text-sm text-white/80 leading-relaxed">${escapeHTML(record.desc)}</p>
-                            </div>` : ''}
                         </div>
                     </div>
                 </div>
@@ -616,13 +627,21 @@ export default class ClinicalLedgerView {
         if (!wrapper || !progressBar) return;
 
         const updateGlow = () => {
-            const rect = wrapper.getBoundingClientRect();
-            // Calculate how far the wrapper has scrolled past the top of the viewport (offset by 200px for visual weight)
-            const scrollPx = (window.innerHeight / 2) - rect.top; 
-            const totalHeight = rect.height;
+            const container = this.container;
+            if (!container) return;
             
-            let percentage = (scrollPx / totalHeight) * 100;
-            percentage = Math.max(0, Math.min(100, percentage));
+            const maxScroll = container.scrollHeight - container.clientHeight;
+            let percentage = 0;
+            
+            if (maxScroll <= 0) {
+                // If there's no scroll space, just fill it to 100% so it doesn't look broken
+                percentage = 100;
+            } else {
+                percentage = (container.scrollTop / maxScroll) * 100;
+            }
+            
+            // Give it a minimum of 5% so it's visible at the top, max 100%
+            percentage = Math.max(5, Math.min(100, percentage));
             
             progressBar.style.height = `${percentage}%`;
         };
