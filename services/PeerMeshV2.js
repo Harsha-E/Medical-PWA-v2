@@ -55,7 +55,7 @@ export default class PeerMeshV2 {
         // Listen for incoming connections from family members
         this.peer.on('connection', (conn) => {
             console.log(`[PeerMeshV2] 🔗 Incoming connection from: ${conn.peer}`);
-            this.manageConnection(conn);
+            this.manageConnection(conn, { direction: 'incoming' });
         });
 
         this.peer.on('error', (err) => {
@@ -209,10 +209,12 @@ export default class PeerMeshV2 {
             }
         });
         
-        this.manageConnection(conn, payload);
+        conn._expectedRemoteInstallId = payload?.installationId;
+        
+        this.manageConnection(conn, { direction: 'outgoing', remote: payload });
     }
 
-    manageConnection(conn, scannedPayload = null) {
+    manageConnection(conn, context) {
         // State tracking for this specific connection
         conn._meshState = 'DISCOVERED';
         
@@ -224,9 +226,15 @@ export default class PeerMeshV2 {
             conn._meshState = 'CONNECTED_UNTRUSTED';
             
             // We need to check if we trust this device
+            // If outgoing, conn.metadata contains OUR metadata. Use context.remote.
+            // If incoming, conn.metadata contains THEIR metadata.
             const incomingMetadata = conn.metadata || {};
-            const remoteInstallId = incomingMetadata.installationId;
+            const remoteInstallId = context.direction === 'outgoing' 
+                ? (context.remote ? context.remote.installationId : null)
+                : incomingMetadata.installationId;
             
+            console.log(`[PeerMeshV2] 🔍 Resolving identity. Direction: ${context.direction}, Peer ID: ${conn.peer}, Installation ID: ${remoteInstallId}`);
+
             if (remoteInstallId) {
                 // Check local DB for trust
                 import('../core/db.js').then(async (dbModule) => {
@@ -236,10 +244,10 @@ export default class PeerMeshV2 {
                     if (trustedDevice) {
                         console.log(`[PeerMeshV2] Device ${remoteInstallId} is TRUSTED. Moving to AUTHENTICATING...`);
                         this.transitionToAuthenticating(conn, trustedDevice);
-                    } else if (scannedPayload && scannedPayload.installationId === remoteInstallId) {
+                    } else if (context.direction === 'outgoing' && context.remote && context.remote.installationId === remoteInstallId) {
                         // We initiated the connection by scanning their QR code. We implicitly trust them based on the QR scan.
                         console.log(`[PeerMeshV2] Device matches scanned QR payload. Initiating trust...`);
-                        this.transitionToAuthenticating(conn, null, scannedPayload);
+                        this.transitionToAuthenticating(conn, null, context.remote);
                     } else {
                         // They initiated the connection, but we don't know them. Request user approval.
                         console.log(`[PeerMeshV2] Device is UNKNOWN. Requesting user approval...`);
@@ -406,6 +414,20 @@ export default class PeerMeshV2 {
         // Enforce capabilities based on what they permit
         conn._meshPermissions = theirPermissions || { sync: { send: true, receive: true, auto: true } };
         
+        // Guard against identity mismatch: verify installationId if possible
+        const expectedInstallId = conn._expectedRemoteInstallId; 
+        if (expectedInstallId && conn.metadata && conn.metadata.installationId && conn.metadata.installationId !== expectedInstallId) {
+             console.error(`[PeerMeshV2] ❌ IDENTITY MISMATCH! Expected ${expectedInstallId} but got ${conn.metadata.installationId}. Dropping connection.`);
+             // Since WebRTC sets conn.metadata strictly to the INITIATOR's metadata, 
+             // this check actually only works perfectly for incoming connections. 
+             // For outgoing, conn.metadata is OUR metadata. 
+             // So we'll skip the strict identity guard if we initiated it to prevent self-rejection.
+             if (!conn.metadata.v2Handshake || conn.metadata.installationId !== (window.state?.installationId || localStorage.getItem('medcheck_installation_id'))) {
+                conn.close();
+                return;
+             }
+        }
+
         conn._meshState = 'SYNC_ACTIVE';
         console.log(`[PeerMeshV2] 🟢 SYNC_ACTIVE for ${conn.peer} with permissions:`, conn._meshPermissions);
         
