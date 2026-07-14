@@ -467,6 +467,16 @@ class App {
       }
     });
     window.addEventListener('offline', updateStatus);
+
+    // Sync immediately when caregiver switches active profile context
+    window.addEventListener('medcare:profile-context-changed', async () => {
+      try {
+        const syncManager = new OfflinePersistenceManager();
+        await syncManager.synchronize();
+      } catch (err) {
+        console.error('[Network] Context Sync failed:', err);
+      }
+    });
   }
 
   async onAuthStateChanged(user) {

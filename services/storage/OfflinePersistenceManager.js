@@ -115,6 +115,7 @@ export default class OfflinePersistenceManager {
       }
 
       console.log('[OfflinePersistenceManager] Data synchronization successful.');
+      window.dispatchEvent(new CustomEvent('medcare:sync-complete'));
     } catch (e) {
       console.error('[OfflinePersistenceManager] Data synchronization failed:', e);
     }

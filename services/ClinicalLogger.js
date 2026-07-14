@@ -50,7 +50,12 @@ class ClinicalLogger {
     const { userId, createdBy } = this._getContext();
     const timestamp = Date.now();
     
+    // Generate a highly-unique 15-digit integer to prevent CRDT collisions across devices
+    // while remaining compatible with Dexie's auto-increment (++id) schema
+    const safeId = parseInt(timestamp.toString() + String(Math.floor(Math.random() * 100)).padStart(2, '0'), 10);
+    
     return {
+      id: safeId,
       ...data,
       userId,
       createdBy, // useful for auditing caregiver edits
