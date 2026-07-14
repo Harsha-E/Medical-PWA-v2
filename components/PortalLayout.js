@@ -42,34 +42,12 @@ class PortalLayout {
     document.body.style.boxSizing = 'border-box';
 
     // Inject frosted-glass header if not exists
-    if (!this.bannerElement) {
-      this.bannerElement = document.createElement('div');
-      this.bannerElement.className = 'fixed top-0 left-0 w-full z-[10000] flex items-center justify-between px-4 py-3 shadow-lg';
-      this.bannerElement.style.backdropFilter = 'blur(20px)';
-      this.bannerElement.style.WebkitBackdropFilter = 'blur(20px)';
-      this.bannerElement.style.backgroundColor = 'rgba(15, 20, 30, 0.8)';
-      this.bannerElement.style.borderBottom = `2px solid ${color}`;
-      
-      const title = document.createElement('div');
-      title.className = 'text-white font-bold text-sm uppercase tracking-wider flex items-center gap-2';
-      title.innerHTML = `<span>👁️</span> <span>Managing: <span id="portal-banner-name"></span></span>`;
-      
-      const exitBtn = document.createElement('button');
-      exitBtn.className = 'bg-red-500/20 text-red-300 border border-red-500/50 px-4 py-1.5 rounded font-bold text-xs uppercase tracking-widest active:scale-95 transition-all';
-      exitBtn.textContent = 'Exit';
-      exitBtn.onclick = () => {
-        state.setActiveProfileContext(null);
-        window.location.hash = '#/peer-hub';
-      };
-
-      this.bannerElement.appendChild(title);
-      this.bannerElement.appendChild(exitBtn);
-      document.body.appendChild(this.bannerElement);
+    // (Removed: the main AppHeader now handles the Proxy badge gracefully without layout overlap)
+    if (this.bannerElement) {
+        this.bannerElement.remove();
+        this.bannerElement = null;
     }
     
-    // Update name and color
-    this.bannerElement.style.borderBottom = `2px solid ${color}`;
-    this.bannerElement.querySelector('#portal-banner-name').textContent = profile.name || 'Unknown';
   }
 }
 

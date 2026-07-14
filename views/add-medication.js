@@ -581,7 +581,7 @@ export default class AddMedicationView {
       if (m.commonDoses && m.commonDoses.length > 0) {
           const doseStr = m.commonDoses[0];
           const amount = doseStr.replace(/[^\d.]/g, '');
-          const unit = doseStr.replace(/[\d.]/g, '');
+          const unit = doseStr.replace(/[\d.]/g, '').trim();
           this.container.querySelector('#m-dosage').value = amount;
           if (unit) this.container.querySelector('#m-unit').value = unit.toLowerCase();
       }
@@ -603,14 +603,14 @@ export default class AddMedicationView {
       }
       
       if (m.category) this.container.querySelector('#m-thera').value = m.category;
-      if (m.manufacturer && m.manufacturer.length > 0) this.container.querySelector('#m-manuf').value = m.manufacturer[0];
+      if (m.manufacturer && m.manufacturer.length > 0) this.container.querySelector('#m-manuf').value = Array.isArray(m.manufacturer) ? m.manufacturer[0] : m.manufacturer;
       if (m.brandNames && m.brandNames.length > 0) this.container.querySelector('#m-alt').value = m.brandNames.join(', ');
       
       // Update medData and trigger draft save
       this.medData.name = m.name;
       this.medData.genericName = m.genericName || m.name;
       if (m.category) this.medData.therapeuticCategory = m.category;
-      if (m.manufacturer && m.manufacturer.length > 0) this.medData.manufacturer = m.manufacturer[0];
+      if (m.manufacturer && m.manufacturer.length > 0) this.medData.manufacturer = Array.isArray(m.manufacturer) ? m.manufacturer[0] : m.manufacturer;
       if (m.brandNames && m.brandNames.length > 0) this.medData.alternativeBrands = m.brandNames.join(', ');
       this.saveDraftState();
       
