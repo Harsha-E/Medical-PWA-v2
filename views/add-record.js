@@ -62,6 +62,17 @@ export default class AddRecordView {
                     </div>
                 </div>
 
+                <div class="form-group mb-6">
+                    <label class="block text-xs text-text-secondary uppercase tracking-widest mb-1 ml-1">Attachment (Image / PDF)</label>
+                    <div class="relative w-full">
+                        <input type="file" id="r-file" accept="image/*,application/pdf,.pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                        <div class="bg-transparent w-full px-4 md:px-8 lg:px-12 py-3 rounded-xl border border-[rgba(255,255,255,0.06)] text-white text-sm flex items-center gap-3 focus-within:border-[var(--theme-accent)] transition-colors">
+                            <svg class="w-5 h-5 text-white/50" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            <span id="r-file-name" class="text-white/50">Tap to upload a document...</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label for="r-notes" class="block text-xs text-text-secondary uppercase tracking-widest mb-1 ml-1">Clinical Notes (Optional)</label>
                     <textarea id="r-notes" rows="4" class="form-textarea bg-transparent w-full px-4 md:px-8 lg:px-12 py-3 rounded-xl border border-[rgba(255,255,255,0.06)] text-white text-sm focus:border-[var(--theme-accent)] transition-colors" placeholder="Any special instructions or clinical notes...">${this.recordData.notes || ''}</textarea>
@@ -84,6 +95,20 @@ export default class AddRecordView {
   attachListeners() {
     this.container.querySelector('#save-btn').addEventListener('click', () => this.save());
     this.attachAutocompleteListeners();
+
+    const fileInput = this.container.querySelector('#r-file');
+    const fileNameDisplay = this.container.querySelector('#r-file-name');
+    if (fileInput && fileNameDisplay) {
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                fileNameDisplay.textContent = e.target.files[0].name;
+                fileNameDisplay.classList.replace('text-white/50', 'text-white');
+            } else {
+                fileNameDisplay.textContent = 'Tap to upload a document...';
+                fileNameDisplay.classList.replace('text-white', 'text-white/50');
+            }
+        });
+    }
   }
 
   async attachAutocompleteListeners() {
@@ -204,6 +229,40 @@ export default class AddRecordView {
     saveBtn.textContent = 'Saving...';
     errorEl.classList.add('hidden');
 
+    const fileInput = this.container.querySelector('#r-file');
+    const file = fileInput && fileInput.files.length > 0 ? fileInput.files[0] : null;
+    let documentUrl = null;
+
+    if (file) {
+        saveBtn.textContent = 'Uploading...';
+        try {
+            const SUPABASE_URL = state.supabaseUrl || window.SUPABASE_URL || 'https://ujiviocutexqbigsorol.supabase.co';
+            const SUPABASE_KEY = state.supabaseAnonKey || window.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVqaXZpb2N1dGV4cWJpZ3Nvcm9sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4NzU4NzgsImV4cCI6MjA5NzQ1MTg3OH0.AR7N-h-FJ5iE12EUqp3j8HyuskOoU1od8XekcbqtX-4';
+            const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+
+            const response = await fetch(`${SUPABASE_URL}/storage/v1/object/medical-records/${fileName}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${SUPABASE_KEY}`,
+                    'apikey': SUPABASE_KEY,
+                    'Content-Type': file.type || 'application/octet-stream'
+                },
+                body: file
+            });
+            if (response.ok) {
+                documentUrl = `${SUPABASE_URL}/storage/v1/object/public/medical-records/${fileName}`;
+            } else {
+                console.warn('[AddRecord] Supabase upload failed, falling back to local blob URL');
+                documentUrl = URL.createObjectURL(file);
+            }
+        } catch (e) {
+            console.warn('[AddRecord] Supabase upload error:', e);
+            documentUrl = URL.createObjectURL(file);
+        }
+    }
+    
+    saveBtn.textContent = 'Saving Record...';
+
     const data = {
       userId: state.user?.uid || 'anonymous',
       type: this.container.querySelector('#r-type').value,
@@ -216,6 +275,10 @@ export default class AddRecordView {
       active: this.container.querySelector('#r-status').value !== 'Past',
       createdAt: new Date().toISOString()
     };
+    
+    if (documentUrl) {
+      data.documentUrl = documentUrl;
+    }
 
     try {
       if (state.user && navigator.onLine) {
