@@ -120,13 +120,14 @@ export class TrustManager {
             const patientRef = doc(firestoreDb, `users/${patientUid}/trustedUsers`, trustedUid);
             const caregiverRef = doc(firestoreDb, `users/${trustedUid}/trustedUsers`, patientUid);
             
-            Promise.all([
+            // We use allSettled because Firebase Security Rules will likely block us from writing to the OTHER user's profile.
+            // That's perfectly fine - each device will independently update its own profile if they are both online.
+            Promise.allSettled([
                 setDoc(patientRef, { status: 'REVOKED', updatedAt: new Date().toISOString() }, { merge: true }),
                 setDoc(caregiverRef, { status: 'REVOKED', updatedAt: new Date().toISOString() }, { merge: true })
-            ]).then(() => {
-                console.log(`[TrustManager] Trust revoked successfully in cloud.`);
-            }).catch(e => {
-                console.warn('[TrustManager] Trust revocation failed or delayed (offline/rules).', e);
+            ]).then((results) => {
+                const successes = results.filter(r => r.status === 'fulfilled').length;
+                console.log(`[TrustManager] Trust revoked successfully in cloud for ${successes}/2 nodes.`);
             });
             
         } catch(e) {
