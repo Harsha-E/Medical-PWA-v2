@@ -62,10 +62,12 @@ export default class PeerMeshV2 {
             }
             console.error('[PeerMeshV2] Network Error:', err);
             if (err.type === 'unavailable-id' || (err.message && err.message.includes('is taken'))) {
-                console.warn('[PeerMeshV2] ID was taken (ghost connection). Generating a new ID...');
-                localStorage.removeItem('medcheck_peer_v2_id');
+                console.warn('[PeerMeshV2] ID was taken (ghost connection). Generating a new fallback ID...');
+                const failedId = this.peer.id || 'MED-RND';
+                let baseId = failedId.split('-').slice(0, 2).join('-'); // Keep MED-XXXXXXXX
+                const newId = `${baseId}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
                 this.peer.destroy();
-                this.peer = new Peer();
+                this.peer = new Peer(newId);
                 this.setupListeners();
             }
         });
