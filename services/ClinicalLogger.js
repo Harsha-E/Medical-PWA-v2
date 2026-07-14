@@ -70,6 +70,7 @@ class ClinicalLogger {
       status: 'pending',
       retryCount: 0
     });
+    window.dispatchEvent(new CustomEvent('medcare:sync-queued'));
   }
 
   // ─── Diseases ─────────────────────────────────────────────────────────────

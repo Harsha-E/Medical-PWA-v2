@@ -24,6 +24,7 @@ import { datasetSyncManager } from './datasets/sync/DatasetSyncManager.js';
 import PeerMeshV2 from './services/PeerMeshV2.js';
 import QRManager from './utils/QRManager.js';
 import OfflinePersistenceManager from './services/storage/OfflinePersistenceManager.js';
+import SyncBridge from './services/SyncBridge.js';
 import WidgetPublisher from './services/WidgetPublisher.js';
 // â”€â”€â”€ View imports â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 import SplashView           from './views/splash.js';
@@ -455,7 +456,38 @@ class App {
       }
     };
 
-    window.addEventListener('online', updateStatus);
+    window.addEventListener('online', async () => {
+      updateStatus();
+      
+      // 1. PeerMesh reconnects first
+      if (window.peerMeshV2) {
+        try {
+          if (window.peerMeshV2.peer) {
+            window.peerMeshV2.peer.reconnect();
+          }
+          window.peerMeshV2.autoConnectTrustedDevices();
+        } catch (err) {
+          console.error('[Network] PeerMesh reconnect failed:', err);
+        }
+      }
+      
+      // 2. SyncBridge flushing
+      try {
+        if (window.peerMeshV2) {
+          await SyncBridge.processQueue(window.peerMeshV2);
+        }
+      } catch (err) {
+        console.error('[Network] SyncBridge flush failed:', err);
+      }
+      
+      // 3. OfflinePersistenceManager sync
+      try {
+        const syncManager = new OfflinePersistenceManager();
+        await syncManager.synchronize();
+      } catch (err) {
+        console.error('[Network] OfflinePersistenceManager sync failed:', err);
+      }
+    });
     window.addEventListener('offline', updateStatus);
   }
 

@@ -1,4 +1,5 @@
 import state from '../core/state.js';
+import { registry, ConnectionState } from '../services/ConnectionRegistry.js';
 
 import { showToast } from '../core/ui.js';
 import { escapeHTML } from '../core/utils.js';
@@ -161,7 +162,21 @@ export default class PeerNetworkView {
 
                     <!-- Active Connections or Empty State -->
                     <div id="roster-list" class="w-full">
-                        ${this.connectedPeer ? `
+                        ${this.connectedPeer ? (() => {
+                            const connState = typeof registry !== 'undefined' ? registry.getState(this.connectedPeer) : null;
+                            if (connState === ConnectionState.WAITING_FOR_REMOTE || connState === ConnectionState.RETRYING) {
+                                return `
+                                    <div id="active-peer-card" class="p-6 rounded-[2rem] border border-[#fbbf24]/40 bg-[#fbbf24]/10 text-center space-y-1 cursor-pointer hover:bg-[#fbbf24]/20 transition-colors relative group">
+                                        <span class="text-[10px] font-mono text-[#fbbf24] uppercase tracking-widest block animate-pulse">🟡 RECONNECTING...</span>
+                                        <h4 class="text-2xl font-bold font-display text-white group-hover:text-[#fbbf24] transition-colors">${escapeHTML(this.connectedPeer)}</h4>
+                                        <p class="text-[10px] font-mono text-[#fbbf24] mt-2 flex items-center justify-center gap-2">
+                                            <svg class="animate-spin h-3 w-3 text-[#fbbf24]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                            Reconnecting to trusted device...
+                                        </p>
+                                    </div>
+                                `;
+                            }
+                            return `
                             <div id="active-peer-card" class="p-6 rounded-[2rem] border border-[#10b981]/40 bg-[#10b981]/10 text-center space-y-1 cursor-pointer hover:bg-[#10b981]/20 transition-colors relative group">
                                 <span class="text-[10px] font-mono text-[#10b981] uppercase tracking-widest block">🟢 CONNECTED PEER NODE</span>
                                 <h4 class="text-2xl font-bold font-display text-white group-hover:text-[#10b981] transition-colors">${escapeHTML(this.connectedPeer)}</h4>
@@ -170,7 +185,8 @@ export default class PeerNetworkView {
                                     <svg class="w-6 h-6 text-[#10b981]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"></path></svg>
                                 </div>
                             </div>
-                        ` : `
+                            `;
+                        })() : `
                             <div class="w-full py-10 rounded-[2rem] border border-dashed border-white/20 flex flex-col items-center justify-center">
                                 <p class="text-[10px] text-white/40 uppercase tracking-widest font-mono">NO ACTIVE CONNECTIONS</p>
                             </div>
@@ -425,10 +441,32 @@ export default class PeerNetworkView {
 
         window.addEventListener('peermesh:connection-closed', (e) => {
              if (this.connectedPeer === e.detail.peer) {
+                 const currentState = typeof registry !== 'undefined' ? registry.getState(e.detail.peer) : null;
+                 if (currentState === ConnectionState.WAITING_FOR_REMOTE || currentState === ConnectionState.RETRYING) {
+                     return;
+                 }
                  this.connectedPeer = null;
                  showToast('Peer node disconnected.', 'error');
                  this.renderContent();
              }
+        }, { signal: this.abortController.signal });
+
+        window.addEventListener('peermesh:state-changed', (e) => {
+            const { peerId, state } = e.detail;
+            if (this.connectedPeer === peerId || (!this.connectedPeer && (state === ConnectionState.WAITING_FOR_REMOTE || state === ConnectionState.RETRYING))) {
+                if (state === ConnectionState.WAITING_FOR_REMOTE || state === ConnectionState.RETRYING) {
+                    this.connectedPeer = peerId;
+                    this.renderContent();
+                } else if (state === ConnectionState.CONNECTED) {
+                    this.connectedPeer = peerId;
+                    this.renderContent();
+                } else if (state === ConnectionState.DISCONNECTED || state === ConnectionState.FAILED) {
+                    if (this.connectedPeer === peerId) {
+                        this.connectedPeer = null;
+                        this.renderContent();
+                    }
+                }
+            }
         }, { signal: this.abortController.signal });
     }
 
