@@ -259,13 +259,15 @@ export default class PeerMeshV2 {
                     conn._meshState = 'AUTHORIZED';
                     registry.setState(conn.peer, ConnectionState.AUTHORIZED);
                     
-                    // Finalize trust establishment
+                    // Finalize trust establishment (Initiator Side)
+                    // The device that generated the QR code (the Approver) is the Patient.
+                    // The device that scanned the QR code (us, the Initiator) is the Caregiver.
                     if (window.state?.user && payload.firebaseUid) {
                         await TrustManager.establishTrust(
-                            window.state.user.uid,
-                            payload.firebaseUid,
-                            window.state.userProfile?.name,
-                            conn.metadata?.name || 'Unknown',
+                            payload.firebaseUid, // They are the Patient
+                            window.state.user.uid, // We are the Caregiver
+                            conn.metadata?.name || 'Unknown', // Their name
+                            window.state.userProfile?.name, // Our name
                             'CAREGIVER'
                         );
                     }

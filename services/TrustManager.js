@@ -98,6 +98,6 @@ export class TrustManager {
     static async getTrustedProfiles() {
         const myUid = state.user?.uid;
         if (!myUid) return [];
-        return await db.family.filter(f => f.trustedUid === myUid && f.status === 'ACTIVE').toArray();
+        return await db.family.filter(f => f.userId === myUid && f.status === 'ACTIVE').toArray();
     }
 }
