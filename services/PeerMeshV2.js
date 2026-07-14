@@ -62,7 +62,11 @@ export default class PeerMeshV2 {
             if (err.type === 'peer-unavailable') {
                 const match = err.message.match(/peer (MED-[A-Z0-9\-]+)/);
                 if (match && match[1]) {
-                    console.log(`[PeerMeshV2] Peer ${match[1]} unavailable. Handled by Reconnect Manager.`);
+                    const targetPeer = match[1];
+                    console.log(`[PeerMeshV2] Peer ${targetPeer} unavailable. Triggering Reconnect Manager.`);
+                    registry.scheduleReconnect(targetPeer, null, null, (pid) => {
+                        this.connectToFamilyMember(pid, { id: pid, installationId: 'retry' }).catch(e => console.warn(e));
+                    });
                 }
                 return; // Suppress immediate UI error toast, ConnectionRegistry will handle state.
             }
