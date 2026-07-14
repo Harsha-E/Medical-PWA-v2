@@ -484,7 +484,7 @@ export default class ClinicalLedgerView {
         const displayList = isPast ? this.resolvedDiseases : this.activeDiseases;
 
         let html = `
-            <div class="mb-6 px-2">
+            <div class="mb-6 px-2 flex justify-end">
                 <button type="button" id="disease-filter-toggle" class="text-[var(--theme-accent)] hover:text-white transition-colors" title="Toggle Active/Past">
                     ${isPast 
                         ? `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`
@@ -502,50 +502,74 @@ export default class ClinicalLedgerView {
         html += `<div class="space-y-4">`;
 
         displayList.forEach(d => {
+            const formattedDate = this.formatExactDate(d.createdAt);
+            const hasDate = !!formattedDate;
+            const hasStage = d.stage && d.stage.trim() !== '' && d.stage.toLowerCase() !== 'n/a';
+            
             if (isPast) {
                 html += `
-                    <div class="unified-card disease-card-resolved p-5">
-                        <div class="flex justify-between items-start mb-3">
-                            <h4 class="text-xl font-bold text-white/60">${escapeHTML(d.diseaseName)}</h4>
+                    <div class="unified-card disease-card-resolved p-5 cursor-pointer hover:bg-white/5 transition-colors group" data-action="view-disease" data-id="${d.id}">
+                        <div class="flex justify-between items-start mb-3 pointer-events-none">
+                            <h4 class="text-xl font-bold text-white/60 group-hover:text-white/80 transition-colors">${escapeHTML(d.diseaseName)}</h4>
                             <span class="px-2 py-1 rounded bg-white/5 text-white/40 text-[10px] uppercase font-bold tracking-widest border border-white/10">Resolved</span>
                         </div>
-                        <p class="text-sm text-white/40 mb-4">${escapeHTML(d.notes || 'No notes available.')}</p>
+                        
+                        ${(hasDate || hasStage) ? `
+                        <div class="grid grid-cols-2 gap-4 mb-4 pointer-events-none">
+                            ${hasDate ? `
+                            <div>
+                                <p class="text-[10px] text-white/40 uppercase font-mono tracking-widest mb-1">Diagnosed</p>
+                                <p class="text-sm text-white/60">${formattedDate}</p>
+                            </div>` : ''}
+                            ${hasStage ? `
+                            <div>
+                                <p class="text-[10px] text-white/40 uppercase font-mono tracking-widest mb-1">Severity / Stage</p>
+                                <p class="text-sm text-white/60">${escapeHTML(d.stage)}</p>
+                            </div>` : ''}
+                        </div>
+                        ` : ''}
+                        
+                        ${d.notes ? `<p class="text-sm text-white/40 mb-4 pointer-events-none line-clamp-2">${escapeHTML(d.notes)}</p>` : ''}
                         
                         ${!this.isCaregiver ? `
-                            <div class="flex gap-3 mt-4 pt-4 border-t border-white/5">
-                                <button class="flex-1 py-2 rounded-lg border border-white/10 text-xs uppercase tracking-widest font-bold text-white/50 hover:bg-white/5 transition-colors" data-action="reactivate-disease" data-id="${d.id}">Reactivate</button>
+                            <div class="flex gap-3 mt-4 pt-4 border-t border-white/5 relative z-10">
+                                <button class="flex-1 py-2 rounded-lg border border-white/10 text-xs uppercase tracking-widest font-bold text-white/50 hover:bg-white/10 transition-colors" data-action="reactivate-disease" data-id="${d.id}">Reactivate</button>
                             </div>
                         ` : ''}
                     </div>
                 `;
             } else {
                 html += `
-                    <div class="unified-card disease-card-active p-5">
-                        <div class="flex justify-between items-start mb-3">
-                            <h4 class="text-xl font-bold text-white">${escapeHTML(d.diseaseName)}</h4>
+                    <div class="unified-card disease-card-active p-5 cursor-pointer hover:bg-white/5 transition-colors group" data-action="view-disease" data-id="${d.id}">
+                        <div class="flex justify-between items-start mb-3 pointer-events-none">
+                            <h4 class="text-xl font-bold text-white group-hover:text-[var(--theme-accent)] transition-colors">${escapeHTML(d.diseaseName)}</h4>
                             <span class="px-2 py-1 rounded bg-[var(--theme-accent-muted)] text-[var(--theme-accent)] text-[10px] uppercase font-bold tracking-widest border border-[var(--theme-border)]">Active</span>
                         </div>
                         
-                        <div class="grid grid-cols-2 gap-4 mb-4">
+                        ${(hasDate || hasStage) ? `
+                        <div class="grid grid-cols-2 gap-4 mb-4 pointer-events-none">
+                            ${hasDate ? `
                             <div>
                                 <p class="text-[10px] text-white/40 uppercase font-mono tracking-widest mb-1">Diagnosed</p>
-                                <p class="text-sm text-white/80">${this.formatExactDate(d.createdAt)}</p>
-                            </div>
+                                <p class="text-sm text-white/80">${formattedDate}</p>
+                            </div>` : ''}
+                            ${hasStage ? `
                             <div>
                                 <p class="text-[10px] text-white/40 uppercase font-mono tracking-widest mb-1">Severity / Stage</p>
-                                <p class="text-sm text-white/80">${escapeHTML(d.stage || 'N/A')}</p>
-                            </div>
+                                <p class="text-sm text-white/80">${escapeHTML(d.stage)}</p>
+                            </div>` : ''}
                         </div>
+                        ` : ''}
                         
                         ${d.notes ? `
-                            <div class="mb-4">
+                            <div class="mb-4 pointer-events-none">
                                 <p class="text-[10px] text-white/40 uppercase font-mono tracking-widest mb-1">Notes</p>
-                                <p class="text-sm text-white/70 leading-relaxed">${escapeHTML(d.notes)}</p>
+                                <p class="text-sm text-white/70 leading-relaxed line-clamp-2">${escapeHTML(d.notes)}</p>
                             </div>
                         ` : ''}
 
                         ${!this.isCaregiver ? `
-                            <div class="flex gap-3 mt-4 pt-4 border-t border-white/5">
+                            <div class="flex gap-3 mt-4 pt-4 border-t border-white/5 relative z-10">
                                 <button class="flex-1 py-2 rounded-lg border border-[var(--theme-border)] text-xs uppercase tracking-widest font-bold text-[var(--theme-accent)] hover:bg-[var(--theme-accent-muted)] transition-colors" data-action="resolve-disease" data-id="${d.id}">Mark Resolved</button>
                             </div>
                         ` : ''}
@@ -731,12 +755,22 @@ export default class ClinicalLedgerView {
         // View Detail Action
         this.container.addEventListener('click', (e) => {
             const detailBtn = e.target.closest('[data-action="view-detail"]');
+            const diseaseBtn = e.target.closest('[data-action="view-disease"]');
+
             if (detailBtn) {
                 // Do not trigger if the user clicked the standalone view-doc button inside the card
                 if (e.target.closest('[data-action="view-doc"]')) return;
                 
                 const index = parseInt(detailBtn.getAttribute('data-index'));
                 const record = this.timelineRecords[index];
+                if (record) {
+                    this.openDetailModal(record);
+                }
+            } else if (diseaseBtn) {
+                if (e.target.closest('button')) return; // ignore resolve/reactivate clicks
+
+                const id = parseInt(diseaseBtn.getAttribute('data-id'));
+                const record = this.timelineRecords.find(r => r.originalId === id && r.entityType === 'Disease');
                 if (record) {
                     this.openDetailModal(record);
                 }

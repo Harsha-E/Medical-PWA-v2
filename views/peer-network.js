@@ -260,6 +260,8 @@ export default class PeerNetworkView {
             const trustedProfiles = await TrustManager.getTrustedProfiles();
             const rosterList = this.container.querySelector('#roster-list');
             
+            console.log(`[PeerNetworkView] refreshFamilyList: fetched ${trustedProfiles.length} profiles from Dexie.`, trustedProfiles);
+
             if (!rosterList) return;
 
             if (trustedProfiles.length === 0) {
@@ -463,20 +465,30 @@ export default class PeerNetworkView {
             modalPeerName.innerText = (payload && payload.name) ? payload.name : conn.peer;
             approvalModal.classList.add('active');
             
-            btnAcceptConn.onclick = () => {
-                approvalModal.classList.remove('active');
+            btnAcceptConn.onclick = async () => {
+                btnAcceptConn.disabled = true;
+                btnAcceptConn.innerText = "CONNECTING...";
+                
                 if (this.mesh && typeof this.mesh.acceptConnection === 'function') {
-                    this.mesh.acceptConnection(conn, {
-                        sync: {
-                            receive: permSend.checked, // From receiver's perspective: "View my shared medical records" = Send
-                            send: permReceive.checked, // "Send records to this device" = Receive
-                            auto: permAuto.checked
-                        },
-                        records: { medications: true, reports: true, appointments: false, documents: false }
-                    }, payload);
+                    try {
+                        await this.mesh.acceptConnection(conn, {
+                            sync: {
+                                receive: permSend.checked,
+                                send: permReceive.checked,
+                                auto: permAuto.checked
+                            },
+                            records: { medications: true, reports: true, appointments: false, documents: false }
+                        }, payload);
+                    } catch (e) {
+                        console.error('[Handshake Approval Failed]', e);
+                    }
                 }
+                
+                approvalModal.classList.remove('active');
                 this.connectedPeer = conn.peer;
                 showToast(`Connected to ${modalPeerName.innerText}`, 'success');
+                
+                // Now safely re-render because Dexie writes are definitely finished
                 this.renderContent();
             };
             

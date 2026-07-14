@@ -31,6 +31,7 @@ export class TrustManager {
      * Called after WebRTC one-time pairing.
      */
     static async establishTrust(patientUid, trustedUid, patientName, trustedName, role = 'CAREGIVER') {
+        console.log(`[TrustManager] establishTrust called: patient=${patientUid}, trusted=${trustedUid}, patientName=${patientName}, trustedName=${trustedName}`);
         const relationshipId = `${patientUid}_${trustedUid}`;
         const permissions = this.getDefaultPermissionsForRole(role);
         
@@ -48,8 +49,12 @@ export class TrustManager {
             lastAccess: new Date().toISOString()
         };
 
+        console.log(`[TrustManager] Payload constructed, syncing to Dexie FIRST:`, payload);
+
         // Save locally to Dexie FIRST (Offline-first approach)
         await this.syncToDexie(payload);
+
+        console.log(`[TrustManager] Dexie sync complete, now syncing to Firestore...`);
 
         try {
             // Save to Patient's Firestore Profile (Who they trust)
@@ -59,6 +64,7 @@ export class TrustManager {
             // Save to Caregiver's Firestore Profile (Who trusts them)
             const caregiverRef = doc(firestoreDb, `users/${trustedUid}/trustedUsers`, patientUid);
             await setDoc(caregiverRef, payload, { merge: true });
+            console.log(`[TrustManager] Firestore sync complete.`);
         } catch (err) {
             console.warn('[TrustManager] Firestore write failed or delayed (offline/rules).', err);
         }
@@ -101,7 +107,12 @@ export class TrustManager {
 
     static async getTrustedProfiles() {
         const myUid = state.user?.uid;
-        if (!myUid) return [];
-        return await db.family.filter(f => f.userId === myUid && f.status === 'ACTIVE').toArray();
+        if (!myUid) {
+            console.log(`[TrustManager] getTrustedProfiles: myUid is null or undefined!`);
+            return [];
+        }
+        const profiles = await db.family.filter(f => f.userId === myUid && f.status === 'ACTIVE').toArray();
+        console.log(`[TrustManager] getTrustedProfiles found ${profiles.length} profiles for userId ${myUid}.`);
+        return profiles;
     }
 }
