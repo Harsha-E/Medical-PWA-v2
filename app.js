@@ -238,19 +238,6 @@ class App {
     // 1. Initialize Clinical Engines in the background (Non-blocking)
     (async () => {
       try {
-        // [HACKATHON] One-time database flush for architecture pivot
-        if (!localStorage.getItem('hackathon_flush_trust_v1')) {
-            const dbModule = await import('./core/db.js');
-            const localDb = dbModule.default;
-            try {
-                await localDb.trusted_devices.clear();
-                await localDb.sync_queue.clear();
-                console.log('✅ FLUSHED trusted_devices and sync_queue for Trust Architecture Pivot!');
-                localStorage.setItem('hackathon_flush_trust_v1', 'true');
-            } catch (err) {
-                console.error('Failed to flush DB', err);
-            }
-        }
 
         const { initMedicalDatabase } = await import('./core/db.js');
         await initMedicalDatabase();
