@@ -18,6 +18,7 @@ export default class PeerMeshV2 {
 
         this.onSyncReceived = onSyncReceived; // Callback when another device sends data
         this.connections = new Map();
+        this._silentConnections = new Set();
         this.peer = null;
         
         // Initialize Peer deterministically using the authenticated User's UID
@@ -65,16 +66,30 @@ export default class PeerMeshV2 {
             }
             console.error('[PeerMeshV2] Network Error:', err);
             
-            // Pop errors to UI
-            import('../core/ui.js').then(({ showToast }) => {
-                if (err.type === 'peer-unavailable') {
-                    showToast("Device is offline or Peer ID is invalid.", 'error');
-                } else if (err.type === 'browser-incompatible') {
-                    showToast("Browser does not support WebRTC.", 'error');
-                } else if (err.type !== 'unavailable-id') {
-                    showToast(err.message || "Connection failed.", 'error');
+            // Check if this error was caused by a background auto-reconnect
+            let isSilent = false;
+            if (err.type === 'peer-unavailable') {
+                const match = err.message.match(/peer (MED-[A-Z0-9\-]+)/);
+                if (match && match[1] && this._silentConnections && this._silentConnections.has(match[1])) {
+                    isSilent = true;
+                    console.log(`[PeerMeshV2] Suppressing offline error for auto-reconnected peer: ${match[1]}`);
+                    // Only suppress it once so if the user clicks a manual reconnect later, they get the toast.
+                    this._silentConnections.delete(match[1]);
                 }
-            }).catch(e => console.warn(e));
+            }
+            
+            if (!isSilent) {
+                // Pop errors to UI
+                import('../core/ui.js').then(({ showToast }) => {
+                    if (err.type === 'peer-unavailable') {
+                        showToast("Device is offline or Peer ID is invalid.", 'error');
+                    } else if (err.type === 'browser-incompatible') {
+                        showToast("Browser does not support WebRTC.", 'error');
+                    } else if (err.type !== 'unavailable-id') {
+                        showToast(err.message || "Connection failed.", 'error');
+                    }
+                }).catch(e => console.warn(e));
+            }
             
             if (err.type === 'unavailable-id' || (err.message && err.message.includes('is taken'))) {
                 console.warn('[PeerMeshV2] ID was taken (ghost connection). Generating a new fallback ID...');
@@ -164,6 +179,12 @@ export default class PeerMeshV2 {
                 for (const device of trustedDevices) {
                     // Slight delay to prevent stampeding the signaling server
                     await new Promise(r => setTimeout(r, 500));
+                    
+                    // Mark as a silent background connection attempt
+                    if (this._silentConnections) {
+                        this._silentConnections.add(device.peerId);
+                    }
+                    
                     this.connectToFamilyMember(device.peerId, { 
                         id: device.peerId,
                         installationId: device.installationId, 
