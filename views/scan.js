@@ -355,35 +355,51 @@ export default class ScanView {
             }
         } catch (e) { console.warn('[ScanView] jsQR fallback failed', e); }
     }
-
-    if (qrVal && qrVal.includes('connect=')) {
-        let peerId = null;
-        try {
-            const url = new URL(qrVal);
-            peerId = url.searchParams.get('connect');
-        } catch(err) {
-            const match = qrVal.match(/[?&]connect=([^&]+)/);
-            if (match) peerId = decodeURIComponent(match[1]);
-        }
-        if (peerId) {
+       if (qrVal && (qrVal.includes('connect=') || qrVal.includes('connect_v2='))) {
+        this.hideProcessingSpinner();
+        
+        if (qrVal.includes('connect_v2=')) {
+            let payloadV2 = qrVal.split('connect_v2=')[1].split('&')[0];
             try {
-                if (window.familyMesh) {
-                    console.log("[ScanView] Intercepted PWA Deep Link. Connecting to:", peerId);
-                    if (typeof window.familyMesh.connect === 'function') {
-                        window.familyMesh.connect(peerId);
-                    } else if (typeof window.familyMesh.connectToFamilyMember === 'function') {
-                        window.familyMesh.connectToFamilyMember(peerId);
-                    } else if (typeof window.familyMesh.connectToPeer === 'function') {
-                        window.familyMesh.connectToPeer(peerId);
-                    }
+                const decoded = JSON.parse(atob(payloadV2));
+                const meshInstance = window.familyMesh || window.peerMeshV2;
+                if (meshInstance && typeof meshInstance.connectToFamilyMember === 'function') {
+                    console.log("[ScanView] Intercepted PWA Deep Link V2. Connecting to:", decoded.id);
+                    meshInstance.connectToFamilyMember(decoded.id, decoded);
                 }
-                window.location.hash = '#/peer-hub';
-            } catch (err) {
-                console.error("[ScanView] Failed to connect via PeerMesh:", err);
+            } catch(e) {
+                console.error('[ScanView] Failed to parse V2 payload', e);
             }
-            this.hideProcessingSpinner();
-            return; // Stop OCR pipeline
+        } else {
+            let peerId = null;
+            try {
+                const url = new URL(qrVal);
+                peerId = url.searchParams.get('connect');
+            } catch(err) {
+                const match = qrVal.match(/[?&]connect=([^&]+)/);
+                if (match) peerId = decodeURIComponent(match[1]);
+            }
+            if (peerId) {
+                try {
+                    const meshInstance = window.familyMesh || window.peerMeshV2;
+                    if (meshInstance) {
+                        console.log("[ScanView] Intercepted PWA Deep Link. Connecting to:", peerId);
+                        if (typeof meshInstance.connect === 'function') {
+                            meshInstance.connect(peerId);
+                        } else if (typeof meshInstance.connectToFamilyMember === 'function') {
+                            meshInstance.connectToFamilyMember(peerId, { id: peerId, installationId: 'legacy' });
+                        } else if (typeof meshInstance.connectToPeer === 'function') {
+                            meshInstance.connectToPeer(peerId);
+                        }
+                    }
+                } catch(e) {
+                    console.error('[ScanView] Error routing legacy connect link:', e);
+                }
+            }
         }
+        
+        window.location.hash = '#/peer-hub';
+        return;
     }
 
     // 2. OCR Medicine Extraction
