@@ -7,6 +7,7 @@ service cloud.firestore {
     function isAdmin() { return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)); }
     function isOwner(userId) { return isSignedIn() && request.auth.uid == userId; }
     function isOwnerOrAdmin(data) { return isSignedIn() && (data.userId == request.auth.uid || isAdmin()); }
+    function isTrusted(targetUid) { return get(/databases/$(database)/documents/users/$(targetUid)/trustedUsers/$(request.auth.uid)).data.status == 'ACTIVE'; }
     
     function incoming() { return request.resource.data; }
     function existing() { return resource.data; }
@@ -23,7 +24,7 @@ service cloud.firestore {
 
     // 3. User Profiles & Subcollections
     match /users/{userId} {
-      allow get: if isOwner(userId) || isAdmin();
+      allow get: if isOwner(userId) || isAdmin() || isTrusted(userId);
       allow list: if isAdmin();
       allow create: if isOwner(userId) 
         && incoming().userId == userId 
@@ -31,9 +32,15 @@ service cloud.firestore {
         && incoming().keys().hasAll(['userId', 'name', 'email']);
       allow update: if (isOwner(userId) || isAdmin()) && isValidUser(incoming());
       
-      // Allow syncing user profile state via CRDT 
-      match /{subcollection=**} {
-        allow read, write: if isOwner(userId) || isAdmin();
+      // Protect the trustedUsers collection from being modified by caregivers
+      match /trustedUsers/{trustedId} {
+        allow read: if isOwner(userId) || isAdmin() || request.auth.uid == trustedId;
+        allow write: if isOwner(userId) || isAdmin() || (request.auth.uid == trustedId && incoming().status == 'REVOKED');
+      }
+
+      // Allow syncing medical data via CRDT for owners and active caregivers
+      match /{subcollection}/{docId} {
+        allow read, write: if isOwner(userId) || isAdmin() || isTrusted(userId);
       }
     }
 
