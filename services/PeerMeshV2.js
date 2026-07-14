@@ -61,6 +61,18 @@ export default class PeerMeshV2 {
                 return;
             }
             console.error('[PeerMeshV2] Network Error:', err);
+            
+            // Pop errors to UI
+            import('../core/ui.js').then(({ showToast }) => {
+                if (err.type === 'peer-unavailable') {
+                    showToast("Device is offline or Peer ID is invalid.", 'error');
+                } else if (err.type === 'browser-incompatible') {
+                    showToast("Browser does not support WebRTC.", 'error');
+                } else if (err.type !== 'unavailable-id') {
+                    showToast(err.message || "Connection failed.", 'error');
+                }
+            }).catch(e => console.warn(e));
+            
             if (err.type === 'unavailable-id' || (err.message && err.message.includes('is taken'))) {
                 console.warn('[PeerMeshV2] ID was taken (ghost connection). Generating a new fallback ID...');
                 const failedId = this.peer.id || 'MED-RND';
@@ -201,6 +213,19 @@ export default class PeerMeshV2 {
                 window.dispatchEvent(new CustomEvent('peermesh:connection-accepted', { detail: { peer: conn.peer } }));
                 this.flushQueue();
             }
+        });
+
+        conn.on('error', (err) => {
+            console.error(`[PeerMeshV2] Connection error with ${conn.peer}:`, err);
+            import('../core/ui.js').then(({ showToast }) => {
+                showToast(`Connection to ${conn.peer} failed.`, 'error');
+            }).catch(e => console.warn(e));
+        });
+
+        conn.on('close', () => {
+            console.warn(`[PeerMeshV2] Connection with ${conn.peer} closed.`);
+            this.connections.delete(conn.peer);
+            window.dispatchEvent(new CustomEvent('peermesh:connection-closed', { detail: { peer: conn.peer } }));
         });
 
         conn.on('data', async (encryptedPayload) => {
