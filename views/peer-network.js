@@ -5,9 +5,11 @@ import { escapeHTML } from '../core/utils.js';
 
 export default class PeerNetworkView {
     constructor() {
-        this.mesh = window.familyMesh;
+        this.mesh = window.peerMeshV2;
         this.container = null;
         this.connectedPeer = null;
+        this.abortController = new AbortController();
+        this.cameraStream = null;
     }
 
     async render() {
@@ -16,7 +18,7 @@ export default class PeerNetworkView {
             this.container.className = 'w-full h-full min-h-screen overflow-y-auto relative text-[#fefcff] font-sans';
         }
 
-        this.mesh = window.familyMesh;
+        this.mesh = window.peerMeshV2;
         
         const fallbackId = state.user && state.user.uid ? "MED-" + state.user.uid.replace(/[^a-zA-Z0-9]/g, '').substring(0, 8).toUpperCase() : 'LOADING...';
         this.myPeerId = (this.mesh && this.mesh.peerId) ? this.mesh.peerId : fallbackId;
@@ -26,7 +28,7 @@ export default class PeerNetworkView {
             if (this.container && this.container.parentNode) {
                 this.renderContent();
             }
-        }, { once: true });
+        }, { once: true, signal: this.abortController.signal });
         this.renderContent();
         return this.container;
     }
@@ -248,14 +250,13 @@ export default class PeerNetworkView {
         const permReceive = this.container.querySelector('#perm-receive');
         const permAuto = this.container.querySelector('#perm-auto');
 
-        let cameraStream = null;
         let scanning = false;
         
         const stopCamera = () => {
             scanning = false;
-            if (cameraStream) {
-                cameraStream.getTracks().forEach(track => track.stop());
-                cameraStream = null;
+            if (this.cameraStream) {
+                this.cameraStream.getTracks().forEach(track => track.stop());
+                this.cameraStream = null;
             }
             if (peerScannerContainer) peerScannerContainer.classList.remove('active');
             if (peerQrView) peerQrView.classList.remove('hidden');
@@ -316,8 +317,8 @@ export default class PeerNetworkView {
                 scanning = true;
                 
                 try {
-                    cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-                    videoElement.srcObject = cameraStream;
+                    this.cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                    videoElement.srcObject = this.cameraStream;
                     videoElement.setAttribute('playsinline', true);
                     await videoElement.play();
                     requestAnimationFrame(scanFrame);
@@ -386,7 +387,7 @@ export default class PeerNetworkView {
                     }, payload);
                 }
                 this.connectedPeer = conn.peer;
-                showToast(`Connected to ${modalPeerName.innerText}`);
+                showToast(`Connected to ${modalPeerName.innerText}`, 'success');
                 this.renderContent();
             };
             
@@ -394,12 +395,30 @@ export default class PeerNetworkView {
                 approvalModal.classList.remove('active');
                 conn.close();
             };
-        });
+        }, { signal: this.abortController.signal });
         
         window.addEventListener('peermesh:connection-accepted', (e) => {
              this.connectedPeer = e.detail.peer;
-             showToast(`Peer node accepted connection.`);
+             showToast(`Peer node accepted connection.`, 'success');
              this.renderContent();
-        });
+        }, { signal: this.abortController.signal });
+
+        window.addEventListener('peermesh:connection-closed', (e) => {
+             if (this.connectedPeer === e.detail.peer) {
+                 this.connectedPeer = null;
+                 showToast('Peer node disconnected.', 'error');
+                 this.renderContent();
+             }
+        }, { signal: this.abortController.signal });
+    }
+
+    destroy() {
+        if (this.abortController) {
+            this.abortController.abort();
+        }
+        if (this.cameraStream) {
+            this.cameraStream.getTracks().forEach(track => track.stop());
+            this.cameraStream = null;
+        }
     }
 }

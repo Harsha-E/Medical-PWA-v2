@@ -154,7 +154,17 @@ export default class PeerMeshV2 {
         if (this.peer.disconnected && !this.peer.destroyed) {
             console.warn(`[PeerMeshV2] Disconnected from signaling server. Auto-reconnecting...`);
             this.peer.reconnect();
-            await new Promise(resolve => setTimeout(resolve, 1500)); // Wait for signaling server handshake
+            await new Promise(resolve => {
+                const onOpen = () => { cleanup(); resolve(); };
+                const onError = () => { cleanup(); resolve(); };
+                const cleanup = () => {
+                    this.peer.off('open', onOpen);
+                    this.peer.off('error', onError);
+                };
+                this.peer.on('open', onOpen);
+                this.peer.on('error', onError);
+                setTimeout(() => { cleanup(); resolve(); }, 5000); // 5s absolute max timeout
+            });
         }
 
         if (this.connections.has(targetPeerId)) {
