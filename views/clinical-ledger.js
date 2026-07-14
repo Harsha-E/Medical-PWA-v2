@@ -1,7 +1,6 @@
 import db from '../core/db.js';
 import state from '../core/state.js';
 import { escapeHTML } from '../core/utils.js';
-import AddRecordModal from '../components/AddRecordModal.js';
 
 export default class ClinicalLedgerView {
     constructor() {
@@ -675,7 +674,7 @@ export default class ClinicalLedgerView {
         const fab = this.container.querySelector('#fab-add-record');
         if (fab) {
             fab.addEventListener('click', () => {
-                new AddRecordModal();
+                window.location.hash = '#/add-record';
             });
         }
 
