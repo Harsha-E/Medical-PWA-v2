@@ -57,14 +57,17 @@ export class TrustManager {
         console.log(`[TrustManager] Dexie sync complete, now syncing to Firestore...`);
 
         try {
-            // Save to Patient's Firestore Profile (Who they trust)
             const patientRef = doc(firestoreDb, `users/${patientUid}/trustedUsers`, trustedUid);
-            await setDoc(patientRef, payload, { merge: true });
-
-            // Save to Caregiver's Firestore Profile (Who trusts them)
             const caregiverRef = doc(firestoreDb, `users/${trustedUid}/trustedUsers`, patientUid);
-            await setDoc(caregiverRef, payload, { merge: true });
-            console.log(`[TrustManager] Firestore sync complete.`);
+            
+            // Use allSettled so Firebase Security Rules blocking the other user's profile doesn't crash our own write.
+            Promise.allSettled([
+                setDoc(patientRef, payload, { merge: true }),
+                setDoc(caregiverRef, payload, { merge: true })
+            ]).then((results) => {
+                const successes = results.filter(r => r.status === 'fulfilled').length;
+                console.log(`[TrustManager] Firestore trust sync complete for ${successes}/2 nodes.`);
+            });
         } catch (err) {
             console.warn('[TrustManager] Firestore write failed or delayed (offline/rules).', err);
         }
