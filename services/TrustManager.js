@@ -109,22 +109,28 @@ export class TrustManager {
         console.log(`[TrustManager] revokeTrust called: patient=${patientUid}, trusted=${trustedUid}`);
         
         try {
-            // 1. Mark inactive in Dexie
-            const existing = await db.family.filter(f => f.patientUid === patientUid && f.trustedUid === trustedUid).first();
+            // 1. Mark inactive in Dexie INSTANTLY (Optimistic UI)
+            const myUid = state.user?.uid || window.appState?.user?.uid;
+            const existing = await db.family.filter(f => f.patientUid === patientUid && f.trustedUid === trustedUid && f.userId === myUid).first();
             if (existing) {
                 await db.family.update(existing.id, { status: 'REVOKED', updatedAt: new Date().toISOString() });
             }
 
-            // 2. Remove from Firestore if online
+            // 2. Remove from Firestore in the background (DO NOT AWAIT to keep UI fast)
             const patientRef = doc(firestoreDb, `users/${patientUid}/trustedUsers`, trustedUid);
-            await setDoc(patientRef, { status: 'REVOKED', updatedAt: new Date().toISOString() }, { merge: true });
-            
             const caregiverRef = doc(firestoreDb, `users/${trustedUid}/trustedUsers`, patientUid);
-            await setDoc(caregiverRef, { status: 'REVOKED', updatedAt: new Date().toISOString() }, { merge: true });
             
-            console.log(`[TrustManager] Trust revoked successfully.`);
+            Promise.all([
+                setDoc(patientRef, { status: 'REVOKED', updatedAt: new Date().toISOString() }, { merge: true }),
+                setDoc(caregiverRef, { status: 'REVOKED', updatedAt: new Date().toISOString() }, { merge: true })
+            ]).then(() => {
+                console.log(`[TrustManager] Trust revoked successfully in cloud.`);
+            }).catch(e => {
+                console.warn('[TrustManager] Trust revocation failed or delayed (offline/rules).', e);
+            });
+            
         } catch(e) {
-            console.warn('[TrustManager] Trust revocation failed or delayed (offline/rules).', e);
+            console.warn('[TrustManager] Trust revocation failed locally.', e);
         }
     }
 
