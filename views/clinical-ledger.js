@@ -757,9 +757,16 @@ export default class ClinicalLedgerView {
         
         // Map prefix to DB table
         let tableName = '';
-        const idParts = record.id.split('_');
-        const prefix = idParts[0];
-        const numericId = parseInt(idParts[1]);
+        const prefixEndIndex = record.id.indexOf('_');
+        const prefix = record.id.substring(0, prefixEndIndex);
+        const rawId = record.id.substring(prefixEndIndex + 1);
+        
+        let recordId = parseInt(rawId, 10);
+        // Fallback to string if it's not a pure integer
+        if (isNaN(recordId) || recordId.toString() !== rawId) {
+            recordId = rawId;
+        }
+
         if (prefix === 'hist') tableName = 'history';
         else if (prefix === 'dis') tableName = 'disease_ledger';
         else if (prefix === 'med') tableName = 'medications';
@@ -857,12 +864,12 @@ export default class ClinicalLedgerView {
             if (confirm(`Are you sure you want to delete this ${record.entityType}?`)) {
                 try {
                     const { default: ClinicalLogger } = await import('../services/ClinicalLogger.js');
-                    await ClinicalLogger.deleteRecord(tableName, numericId);
+                    await ClinicalLogger.deleteRecord(tableName, recordId);
                     closeModal();
                     this.loadData().then(() => this.render());
                 } catch (e) {
                     console.error('Failed to delete:', e);
-                    alert('Deletion failed');
+                    alert('Deletion failed: ' + e.message);
                 }
             }
         };

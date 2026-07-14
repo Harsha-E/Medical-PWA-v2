@@ -178,6 +178,18 @@ class ClinicalLogger {
     return { id, url };
   }
 
+  /**
+   * Adds a generic history record without uploading a document
+   */
+  async addHistory(historyData) {
+    const record = this._prepareRecord({
+      ...historyData
+    });
+    const id = await db.history.add(record);
+    await this._queueSync('ADD', 'history', id, { ...record, id });
+    return id;
+  }
+
   // ─── Relationships (Clinical Links) ───────────────────────────────────────
 
   /**

@@ -418,10 +418,8 @@ export default class AddRecordModal {
                     date,
                     type: category,
                     notes,
-                    attachmentUrl: publicURL,
-                    userId: state.userProfile?.id || 'default_user',
+                    documentUrl: publicURL,
                     updatedAt: new Date().toISOString(),
-                    logicalClock: Date.now(),
                     isDeleted: false
                 };
 
@@ -430,36 +428,28 @@ export default class AddRecordModal {
                     payload.status = status;
                 }
 
-                // Save to local IndexedDB (routing conceptually to db.history or db.disease_ledger)
-                // We map 'db.ledger' conceptual request to our physical tables
+                // Save using ClinicalLogger to ensure user context, sync queues, and schema defaults
+                const { default: ClinicalLogger } = await import('../services/ClinicalLogger.js');
+
                 if (category === 'Diagnosis/Disease') {
-                    // Map to disease_ledger schema
-                    await db.disease_ledger.add({
+                    await ClinicalLogger.addDisease({
                         diseaseName: title,
                         clinicalName: title,
                         stage: 'N/A',
                         status: status === 'Active' ? 'Active' : 'Resolved',
                         doctor: 'Unknown',
-                        userId: payload.userId,
-                        updatedAt: payload.updatedAt,
-                        logicalClock: payload.logicalClock,
-                        isDeleted: false,
                         notes: notes,
-                        attachmentUrl: publicURL
+                        documentUrl: publicURL
                     });
                 } else {
                     // Standard historical record
-                    await db.history.add({
+                    await ClinicalLogger.addHistory({
                         type: category,
                         date: date,
                         title: title,
                         provider: 'Self-Reported',
                         notes: notes,
-                        userId: payload.userId,
-                        updatedAt: payload.updatedAt,
-                        logicalClock: payload.logicalClock,
-                        isDeleted: false,
-                        attachmentUrl: publicURL
+                        documentUrl: publicURL
                     });
                 }
 
