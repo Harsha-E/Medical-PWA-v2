@@ -237,9 +237,15 @@ class App {
     // 1. Initialize Clinical Engines in the background (Non-blocking)
     (async () => {
       try {
+        // Initialize PeerMesh Sandbox background sync immediately so the UI doesn't block QR connections
+        window.familyMesh = new PeerMeshV2((incomingData) => {
+            console.log("Family member updated their medicine cabinet!", incomingData);
+            // This will later be wired into IndexedDB or KnowledgeGraph
+        });
+
         const { initMedicalDatabase } = await import('./core/db.js');
         await initMedicalDatabase();
-        
+
         const { notificationEngine } = await import('./services/NotificationEngine.js');
         await notificationEngine.syncAndSchedule();
         
@@ -273,12 +279,6 @@ class App {
         // MIOS: Synchronize Medicine Knowledge Graph on startup
         console.log('[App] Synchronizing Medicine Knowledge Graph...');
         await datasetSyncManager.syncAll();
-
-        // Initialize PeerMesh Sandbox background sync
-        window.familyMesh = new PeerMeshV2((incomingData) => {
-            console.log("Family member updated their medicine cabinet!", incomingData);
-            // This will later be wired into IndexedDB or KnowledgeGraph
-        });
 
         // Immediately trigger connection if deep link is present and app is installed
         if (connectPeerId) {

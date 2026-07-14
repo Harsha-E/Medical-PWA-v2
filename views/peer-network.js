@@ -5,7 +5,7 @@ import { escapeHTML } from '../core/utils.js';
 
 export default class PeerNetworkView {
     constructor() {
-        this.mesh = window.peerMeshV2;
+        this.mesh = window.familyMesh || window.peerMeshV2;
         this.container = null;
         this.connectedPeer = null;
         this.abortController = new AbortController();
@@ -18,7 +18,7 @@ export default class PeerNetworkView {
             this.container.className = 'w-full h-full min-h-screen overflow-y-auto relative text-[#fefcff] font-sans';
         }
 
-        this.mesh = window.peerMeshV2;
+        this.mesh = window.familyMesh || window.peerMeshV2;
         
         const fallbackId = state.user && state.user.uid ? "MED-" + state.user.uid.replace(/[^a-zA-Z0-9]/g, '').substring(0, 8).toUpperCase() : 'LOADING...';
         this.myPeerId = (this.mesh && this.mesh.peerId) ? this.mesh.peerId : fallbackId;
@@ -280,7 +280,7 @@ export default class PeerNetworkView {
                             let payloadV2 = qrVal.split('connect_v2=')[1];
                             try {
                                 const decoded = JSON.parse(atob(payloadV2));
-                                const meshInstance = this.mesh || window.peerMeshV2;
+                                const meshInstance = this.mesh || window.familyMesh || window.peerMeshV2;
                                 if (meshInstance && typeof meshInstance.connectToFamilyMember === 'function') {
                                     showToast('QR Scanned! Initiating secure link...', 'success');
                                     meshInstance.connectToFamilyMember(decoded.id, decoded);
@@ -295,7 +295,7 @@ export default class PeerNetworkView {
                         } else if (qrVal.includes('connect=')) {
                             stopCamera();
                             let peerId = qrVal.split('connect=')[1].split('&')[0];
-                            const meshInstance = this.mesh || window.peerMeshV2;
+                            const meshInstance = this.mesh || window.familyMesh || window.peerMeshV2;
                             if (meshInstance && typeof meshInstance.connectToFamilyMember === 'function') {
                                 showToast('QR Scanned! Initiating secure link...', 'success');
                                 meshInstance.connectToFamilyMember(peerId, { id: peerId, installationId: 'legacy' });
