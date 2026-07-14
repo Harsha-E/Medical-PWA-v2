@@ -18,12 +18,21 @@ export default class PeerMeshV2 {
 
         this.onSyncReceived = onSyncReceived; // Callback when another device sends data
         this.connections = new Map();
+        this.peer = null;
         
-        // Initialize Peer with auto-generated ID, or grab a saved one from localStorage (Isolated Key)
-        const savedId = localStorage.getItem('medcheck_peer_v2_id');
-        this.peer = savedId ? new Peer(savedId) : new Peer();
-
-        this.setupListeners();
+        // Initialize Peer deterministically using the authenticated User's UID
+        import('../core/firebase.js').then(({ auth }) => {
+            import('https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js').then(({ onAuthStateChanged }) => {
+                onAuthStateChanged(auth, (user) => {
+                    if (user && !this.peer) {
+                        // Generate a beautiful, readable, permanent Peer ID like "MED-8XJ2AB9K"
+                        const deterministicId = "MED-" + user.uid.replace(/[^a-zA-Z0-9]/g, '').substring(0, 8).toUpperCase();
+                        this.peer = new Peer(deterministicId);
+                        this.setupListeners();
+                    }
+                });
+            });
+        });
     }
 
     get peerId() {

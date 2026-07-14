@@ -18,7 +18,8 @@ export default class PeerNetworkView {
 
         this.mesh = window.familyMesh;
         
-        this.myPeerId = this.mesh ? this.mesh.peerId : (state.user && state.user.uid ? state.user.uid.slice(0, 12) : 'local_node');
+        const fallbackId = state.user && state.user.uid ? "MED-" + state.user.uid.replace(/[^a-zA-Z0-9]/g, '').substring(0, 8).toUpperCase() : 'LOADING...';
+        this.myPeerId = (this.mesh && this.mesh.peerId) ? this.mesh.peerId : fallbackId;
         
         window.addEventListener('peermesh:ready', (e) => {
             this.myPeerId = e.detail.id;
@@ -283,6 +284,7 @@ export default class PeerNetworkView {
                                     return;
                                 }
                                 if (this.mesh && typeof this.mesh.connectToFamilyMember === 'function') {
+                                    showToast('QR Scanned! Initiating secure link...', 'success');
                                     this.mesh.connectToFamilyMember(decoded.id, decoded);
                                 }
                             } catch(e) {
@@ -293,6 +295,7 @@ export default class PeerNetworkView {
                             stopCamera();
                             let peerId = qrVal.split('connect=')[1].split('&')[0];
                             if (this.mesh && typeof this.mesh.connectToFamilyMember === 'function') {
+                                showToast('QR Scanned! Initiating secure link...', 'success');
                                 this.mesh.connectToFamilyMember(peerId, { id: peerId, installationId: 'legacy' });
                             }
                             return;
@@ -313,6 +316,7 @@ export default class PeerNetworkView {
                     cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
                     videoElement.srcObject = cameraStream;
                     videoElement.setAttribute('playsinline', true);
+                    await videoElement.play();
                     requestAnimationFrame(scanFrame);
                 } catch(e) {
                     console.error("[Camera Error]", e);

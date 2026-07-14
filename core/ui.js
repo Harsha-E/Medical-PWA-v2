@@ -121,7 +121,7 @@ export function setupPullToRefresh(scrollArea, onRefresh) {
                 if (icon && text) {
                     icon.classList.remove('animate-spin');
                     icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>';
-                    icon.className = 'w-5 h-5 text-success ptr-icon';
+                    icon.setAttribute('class', 'w-5 h-5 text-success ptr-icon');
                     text.textContent = "Refreshed!";
                     text.classList.add('text-success');
                 }
