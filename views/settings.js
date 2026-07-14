@@ -194,7 +194,22 @@ export default class SettingsView {
                 
                 if (state.user) state.user.displayName = newName;
                 if (!state.userProfile) state.userProfile = { profile: {} };
-                Object.assign(state.userProfile.profile, { bloodType: newBlood, phone: newPhone, dob: newDob, emergencyName: newEmName, emergencyPhone: newEmPhone });
+                state.userProfile.name = newName; // Ensure root name updates
+                Object.assign(state.userProfile.profile, { name: newName, bloodType: newBlood, phone: newPhone, dob: newDob, emergencyName: newEmName, emergencyPhone: newEmPhone });
+                
+                // Sync to Firestore
+                try {
+                    const { db: firestoreDB, auth } = await import('../core/firebase.js');
+                    const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+                    if (auth.currentUser) {
+                        await setDoc(doc(firestoreDB, 'users', auth.currentUser.uid), {
+                            name: newName,
+                            profile: state.userProfile.profile
+                        }, { merge: true });
+                    }
+                } catch(e) {
+                    console.error('Failed to sync profile to cloud', e);
+                }
                 
                 div.remove();
                 const newHtml = await this.render();

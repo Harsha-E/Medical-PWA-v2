@@ -46,7 +46,7 @@ service cloud.firestore {
 
     function isValidUser(data) {
       return data.name is string && data.name.size() <= 100
-        && (data.bloodType == null || (data.bloodType is string && data.bloodType.size() <= 5))
+        && (!('bloodType' in data) || data.bloodType == null || (data.bloodType is string && data.bloodType.size() <= 5))
         && data.email is string;
     }
 

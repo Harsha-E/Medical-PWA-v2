@@ -197,17 +197,32 @@ export default class PeerNetworkView {
                         <h4 class="text-[10px] text-white/50 uppercase tracking-widest font-bold">Permissions</h4>
                         
                         <label class="flex items-start gap-3 cursor-pointer group">
-                            <input type="checkbox" id="perm-send" checked class="mt-0.5 form-checkbox bg-black/50 border-white/20 text-[#ffb88c] rounded focus:ring-0 focus:ring-offset-0">
+                            <div class="relative flex items-center justify-center mt-0.5">
+                                <input type="checkbox" id="perm-send" checked class="peer sr-only">
+                                <div class="w-4 h-4 rounded border border-white/20 bg-black/50 peer-checked:bg-[#ffb88c] peer-checked:border-[#ffb88c] flex items-center justify-center transition-all">
+                                    <svg class="w-3 h-3 text-black opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                            </div>
                             <span class="text-xs text-white/80 group-hover:text-white transition-colors">View my shared medical records</span>
                         </label>
                         
                         <label class="flex items-start gap-3 cursor-pointer group">
-                            <input type="checkbox" id="perm-receive" class="mt-0.5 form-checkbox bg-black/50 border-white/20 text-[#ffb88c] rounded focus:ring-0 focus:ring-offset-0">
+                            <div class="relative flex items-center justify-center mt-0.5">
+                                <input type="checkbox" id="perm-receive" class="peer sr-only">
+                                <div class="w-4 h-4 rounded border border-white/20 bg-black/50 peer-checked:bg-[#ffb88c] peer-checked:border-[#ffb88c] flex items-center justify-center transition-all">
+                                    <svg class="w-3 h-3 text-black opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                            </div>
                             <span class="text-xs text-white/80 group-hover:text-white transition-colors">Send records to this device</span>
                         </label>
                         
                         <label class="flex items-start gap-3 cursor-pointer group">
-                            <input type="checkbox" id="perm-auto" class="mt-0.5 form-checkbox bg-black/50 border-white/20 text-[#ffb88c] rounded focus:ring-0 focus:ring-offset-0">
+                            <div class="relative flex items-center justify-center mt-0.5">
+                                <input type="checkbox" id="perm-auto" class="peer sr-only">
+                                <div class="w-4 h-4 rounded border border-white/20 bg-black/50 peer-checked:bg-[#ffb88c] peer-checked:border-[#ffb88c] flex items-center justify-center transition-all">
+                                    <svg class="w-3 h-3 text-black opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                            </div>
                             <span class="text-xs text-white/80 group-hover:text-white transition-colors">Automatically sync future changes</span>
                         </label>
                     </div>
