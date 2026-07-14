@@ -47,6 +47,9 @@ export default class PeerMeshV2 {
             
             // Trigger Boot Reconciliation
             this.reconcileOfflineQueue(id);
+
+            // Trigger Auto-Reconnect for Trusted Devices
+            this.autoConnectTrustedDevices();
         });
 
         // Listen for incoming connections from family members
@@ -147,6 +150,29 @@ export default class PeerMeshV2 {
                 // Unsubscribe after the first evaluation so it only runs once per boot
                 unsubscribe();
             });
+        }
+    }
+
+    async autoConnectTrustedDevices() {
+        try {
+            const dbModule = await import('../core/db.js');
+            const localDb = dbModule.default;
+            const trustedDevices = await localDb.trusted_devices.toArray();
+            
+            if (trustedDevices.length > 0) {
+                console.log(`[PeerMeshV2] 🔄 Attempting to auto-reconnect to ${trustedDevices.length} trusted devices...`);
+                for (const device of trustedDevices) {
+                    // Slight delay to prevent stampeding the signaling server
+                    await new Promise(r => setTimeout(r, 500));
+                    this.connectToFamilyMember(device.peerId, { 
+                        id: device.peerId,
+                        installationId: device.installationId, 
+                        name: device.deviceName 
+                    });
+                }
+            }
+        } catch (err) {
+            console.error('[PeerMeshV2] Failed to auto-reconnect trusted devices', err);
         }
     }
 

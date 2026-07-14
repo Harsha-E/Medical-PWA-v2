@@ -162,10 +162,13 @@ export default class PeerNetworkView {
                     <!-- Active Connections or Empty State -->
                     <div id="roster-list" class="w-full">
                         ${this.connectedPeer ? `
-                            <div class="p-6 rounded-[2rem] border border-[#10b981]/40 bg-[#10b981]/10 text-center space-y-1">
+                            <div id="active-peer-card" class="p-6 rounded-[2rem] border border-[#10b981]/40 bg-[#10b981]/10 text-center space-y-1 cursor-pointer hover:bg-[#10b981]/20 transition-colors relative group">
                                 <span class="text-[10px] font-mono text-[#10b981] uppercase tracking-widest block">🟢 CONNECTED PEER NODE</span>
-                                <h4 class="text-2xl font-bold font-display text-white">${escapeHTML(this.connectedPeer)}</h4>
+                                <h4 class="text-2xl font-bold font-display text-white group-hover:text-[#10b981] transition-colors">${escapeHTML(this.connectedPeer)}</h4>
                                 <p class="text-[10px] font-mono text-white/50">P2P Encrypted Data Channel Active</p>
+                                <div class="absolute right-6 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <svg class="w-6 h-6 text-[#10b981]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"></path></svg>
+                                </div>
                             </div>
                         ` : `
                             <div class="w-full py-10 rounded-[2rem] border border-dashed border-white/20 flex flex-col items-center justify-center">
@@ -226,6 +229,23 @@ export default class PeerNetworkView {
             const devName = state.userProfile?.name || state.user?.displayName || 'MedCheck User';
             module.default.generateConnectQR(qrContainer, this.myPeerId, installId, devName);
         });
+
+        // Peer node click listener for dashboard routing
+        const activePeerCard = this.container.querySelector('#active-peer-card');
+        if (activePeerCard) {
+            activePeerCard.addEventListener('click', () => {
+                if (this.connectedPeer) {
+                    import('../core/state.js').then((module) => {
+                        const state = module.default;
+                        state.currentPeerContext = {
+                            peerId: this.connectedPeer,
+                            name: this.connectedPeer // Will update to use real name if available later
+                        };
+                        window.location.hash = '#/peer-dashboard';
+                    });
+                }
+            });
+        }
 
         this.bindEvents();
     }
