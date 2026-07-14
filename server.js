@@ -1,9 +1,22 @@
 import http from 'http';
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+function getLocalIp() {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        return iface.address;
+      }
+    }
+  }
+  return 'localhost';
+}
 
 const PORT = process.env.PORT || 8012;
 
@@ -73,10 +86,11 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, '0.0.0.0', () => {
+  const networkIp = getLocalIp();
   console.log('');
-  console.log('  \x1b[43m\x1b[50m MedCheck Dev Server \x1b[0m');
+  console.log('  \x1b[43m\x1b[30m MedCheck Dev Server \x1b[0m');
   console.log(`  \x1b[36mLocal:\x1b[0m   http://localhost:${PORT}`);
-  console.log(`  \x1b[36mNetwork:\x1b[0m http://0.0.0.0:${PORT}`);
+  console.log(`  \x1b[36mNetwork:\x1b[0m http://${networkIp}:${PORT}`);
   console.log('');
   console.log('  \x1b[90mCtrl+C to stop\x1b[0m');
   console.log('');

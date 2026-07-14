@@ -279,20 +279,27 @@ export default class PeerNetworkView {
                             let payloadV2 = qrVal.split('connect_v2=')[1];
                             try {
                                 const decoded = JSON.parse(atob(payloadV2));
-                                if (this.mesh && typeof this.mesh.connectToFamilyMember === 'function') {
+                                const meshInstance = this.mesh || window.peerMeshV2;
+                                if (meshInstance && typeof meshInstance.connectToFamilyMember === 'function') {
                                     showToast('QR Scanned! Initiating secure link...', 'success');
-                                    this.mesh.connectToFamilyMember(decoded.id, decoded);
+                                    meshInstance.connectToFamilyMember(decoded.id, decoded);
+                                } else {
+                                    showToast('Network not ready yet. Try again.', 'error');
                                 }
                             } catch(e) {
                                 console.error('[QR] Failed to parse V2 payload', e);
+                                showToast('Invalid QR code format.', 'error');
                             }
                             return;
                         } else if (qrVal.includes('connect=')) {
                             stopCamera();
                             let peerId = qrVal.split('connect=')[1].split('&')[0];
-                            if (this.mesh && typeof this.mesh.connectToFamilyMember === 'function') {
+                            const meshInstance = this.mesh || window.peerMeshV2;
+                            if (meshInstance && typeof meshInstance.connectToFamilyMember === 'function') {
                                 showToast('QR Scanned! Initiating secure link...', 'success');
-                                this.mesh.connectToFamilyMember(peerId, { id: peerId, installationId: 'legacy' });
+                                meshInstance.connectToFamilyMember(peerId, { id: peerId, installationId: 'legacy' });
+                            } else {
+                                showToast('Network not ready yet. Try again.', 'error');
                             }
                             return;
                         }
