@@ -8,6 +8,7 @@
 import { cryptoVault } from './CryptoVault.js';
 import { db } from '../core/firebase.js';
 import { doc, getDoc, updateDoc, arrayUnion, setDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { registry, ConnectionState } from './ConnectionRegistry.js';
 
 export default class PeerMeshV2 {
     constructor(onSyncReceived) {
@@ -17,8 +18,6 @@ export default class PeerMeshV2 {
         }
 
         this.onSyncReceived = onSyncReceived; // Callback when another device sends data
-        this.connections = new Map();
-        this._silentConnections = new Set();
         this.peer = null;
         
         // Initialize Peer deterministically using the authenticated User's UID
@@ -66,30 +65,23 @@ export default class PeerMeshV2 {
             }
             console.error('[PeerMeshV2] Network Error:', err);
             
-            // Check if this error was caused by a background auto-reconnect
-            let isSilent = false;
+            // Reconnect Manager in ConnectionRegistry handles background retries for peer-unavailable.
             if (err.type === 'peer-unavailable') {
                 const match = err.message.match(/peer (MED-[A-Z0-9\-]+)/);
-                if (match && match[1] && this._silentConnections && this._silentConnections.has(match[1])) {
-                    isSilent = true;
-                    console.log(`[PeerMeshV2] Suppressing offline error for auto-reconnected peer: ${match[1]}`);
-                    // Only suppress it once so if the user clicks a manual reconnect later, they get the toast.
-                    this._silentConnections.delete(match[1]);
+                if (match && match[1]) {
+                    console.log(`[PeerMeshV2] Peer ${match[1]} unavailable. Handled by Reconnect Manager.`);
                 }
+                return; // Suppress immediate UI error toast, ConnectionRegistry will handle state.
             }
             
-            if (!isSilent) {
-                // Pop errors to UI
-                import('../core/ui.js').then(({ showToast }) => {
-                    if (err.type === 'peer-unavailable') {
-                        showToast("Device is offline or Peer ID is invalid.", 'error');
-                    } else if (err.type === 'browser-incompatible') {
-                        showToast("Browser does not support WebRTC.", 'error');
-                    } else if (err.type !== 'unavailable-id') {
-                        showToast(err.message || "Connection failed.", 'error');
-                    }
-                }).catch(e => console.warn(e));
-            }
+            // Pop errors to UI
+            import('../core/ui.js').then(({ showToast }) => {
+                if (err.type === 'browser-incompatible') {
+                    showToast("Browser does not support WebRTC.", 'error');
+                } else if (err.type !== 'unavailable-id') {
+                    showToast(err.message || "Connection failed.", 'error');
+                }
+            }).catch(e => console.warn(e));
             
             if (err.type === 'unavailable-id' || (err.message && err.message.includes('is taken'))) {
                 console.warn('[PeerMeshV2] ID was taken (ghost connection). Generating a new fallback ID...');
@@ -214,13 +206,15 @@ export default class PeerMeshV2 {
             });
         }
 
-        if (this.connections.has(targetPeerId)) {
+        const existingConn = registry.getConnection(targetPeerId);
+        if (existingConn && existingConn.open && registry.getState(targetPeerId) === ConnectionState.SYNC_ACTIVE) {
             console.log(`[PeerMeshV2] Already connected to ${targetPeerId}`);
             return;
         }
         console.log(`[PeerMeshV2] Attempting to dial ${targetPeerId}...`);
         
         // Stage 2: CONNECTING
+        registry.setState(targetPeerId, ConnectionState.CONNECTING);
         const conn = this.peer.connect(targetPeerId, {
             metadata: {
                 v2Handshake: true,
@@ -231,20 +225,62 @@ export default class PeerMeshV2 {
         });
         
         conn._expectedRemoteInstallId = payload?.installationId;
+        conn._expectedRemoteName = payload?.name;
         
         this.manageConnection(conn, { direction: 'outgoing', remote: payload });
+        
+        // Schedule exponential backoff reconnect via Reconnect Manager
+        registry.scheduleReconnect(targetPeerId, payload?.installationId, payload?.name, (peerId, installId, name) => {
+            this.connectToFamilyMember(peerId, { id: peerId, installationId: installId, name: name });
+        });
     }
 
     manageConnection(conn, context) {
         // State tracking for this specific connection
         conn._meshState = 'DISCOVERED';
+        registry.setState(conn.peer, ConnectionState.DISCOVERED);
         
         conn.on('open', async () => {
             console.log(`[PeerMeshV2] ✅ Secure channel opened with ${conn.peer}`);
-            this.connections.set(conn.peer, conn);
+            
+            // Collision Detection & Tie-Breaker
+            const existingConn = registry.getConnection(conn.peer);
+            if (existingConn && existingConn.open && existingConn !== conn) {
+                console.warn(`[PeerMeshV2] Collision detected for ${conn.peer}! Resolving using installationId tie-breaker...`);
+                
+                const myInstallId = window.state?.installationId || localStorage.getItem('medcheck_installation_id');
+                const incomingMetadata = conn.metadata || {};
+                const theirInstallId = context.direction === 'outgoing' 
+                    ? (context.remote ? context.remote.installationId : null)
+                    : incomingMetadata.installationId;
+                
+                if (myInstallId && theirInstallId && myInstallId !== theirInstallId) {
+                    const amIInitiator = myInstallId > theirInstallId;
+                    const isOutgoing = context.direction === 'outgoing';
+                    
+                    if (amIInitiator && !isOutgoing) {
+                        console.log(`[PeerMeshV2] I have higher ID but this is incoming. Closing incoming connection to avoid duplicate.`);
+                        conn.close();
+                        return;
+                    } else if (!amIInitiator && isOutgoing) {
+                        console.log(`[PeerMeshV2] I have lower ID but this is outgoing. Closing outgoing connection to avoid duplicate.`);
+                        conn.close();
+                        return;
+                    }
+                    console.log(`[PeerMeshV2] Collision won. Closing old ghost connection.`);
+                    existingConn.close();
+                } else {
+                    // Fallback
+                    existingConn.close();
+                }
+            }
+
+            registry.setConnection(conn.peer, conn);
+            registry.clearReconnectTask(conn.peer);
             
             // Stage 3: CONNECTED_UNTRUSTED
             conn._meshState = 'CONNECTED_UNTRUSTED';
+            registry.setState(conn.peer, ConnectionState.CONNECTED_UNTRUSTED);
             
             // We need to check if we trust this device
             // If outgoing, conn.metadata contains OUR metadata. Use context.remote.
@@ -295,8 +331,14 @@ export default class PeerMeshV2 {
 
         conn.on('close', () => {
             console.warn(`[PeerMeshV2] Connection with ${conn.peer} closed.`);
-            this.connections.delete(conn.peer);
-            window.dispatchEvent(new CustomEvent('peermesh:connection-closed', { detail: { peer: conn.peer } }));
+            
+            // Only remove from registry if THIS is the active connection (handles ghost collision close gracefully)
+            const activeConn = registry.getConnection(conn.peer);
+            if (activeConn === conn) {
+                registry.removeConnection(conn.peer);
+                registry.setState(conn.peer, ConnectionState.DISCONNECTED);
+                window.dispatchEvent(new CustomEvent('peermesh:connection-closed', { detail: { peer: conn.peer } }));
+            }
         });
 
         conn.on('data', async (encryptedPayload) => {
@@ -321,8 +363,18 @@ export default class PeerMeshV2 {
 
             if (payload && payload.type === 'HANDSHAKE_ACK') {
                 if (conn._meshState === 'AUTHENTICATING' || conn._meshState === 'CONNECTED_UNTRUSTED') {
-                    console.log(`[PeerMeshV2] Handshake ACK received. Moving to AUTHORIZED...`);
+                    
+                    // Verify installationId exactly once during HANDSHAKE_ACK
+                    const expectedInstallId = conn._expectedRemoteInstallId;
+                    if (expectedInstallId && payload.installationId && payload.installationId !== expectedInstallId) {
+                        console.error(`[PeerMeshV2] ❌ IDENTITY MISMATCH in ACK! Expected ${expectedInstallId} but got ${payload.installationId}. Dropping connection.`);
+                        conn.close();
+                        return;
+                    }
+                    
+                    console.log(`[PeerMeshV2] Handshake ACK received and verified. Moving to AUTHORIZED...`);
                     conn._meshState = 'AUTHORIZED';
+                    registry.setState(conn.peer, ConnectionState.AUTHORIZED);
                     
                     // We can now negotiate sync
                     this.negotiateSync(conn, payload.permissions);
@@ -374,7 +426,11 @@ export default class PeerMeshV2 {
 
         conn.on('close', () => {
             console.log(`[PeerMeshV2] ❌ Disconnected from ${conn.peer}`);
-            this.connections.delete(conn.peer);
+            const activeConn = registry.getConnection(conn.peer);
+            if (activeConn === conn) {
+                registry.removeConnection(conn.peer);
+                registry.setState(conn.peer, ConnectionState.DISCONNECTED);
+            }
         });
     }
 
@@ -426,30 +482,20 @@ export default class PeerMeshV2 {
         // If we are the approver, we can assume authorized.
         if (isApprover) {
             conn._meshState = 'AUTHORIZED';
+            registry.setState(conn.peer, ConnectionState.AUTHORIZED);
             this.negotiateSync(conn, trustedRecord.permissions);
         }
     }
 
     negotiateSync(conn, theirPermissions) {
         conn._meshState = 'SYNC_NEGOTIATION';
+        registry.setState(conn.peer, ConnectionState.SYNC_NEGOTIATION);
         // Enforce capabilities based on what they permit
         conn._meshPermissions = theirPermissions || { sync: { send: true, receive: true, auto: true } };
         
-        // Guard against identity mismatch: verify installationId if possible
-        const expectedInstallId = conn._expectedRemoteInstallId; 
-        if (expectedInstallId && conn.metadata && conn.metadata.installationId && conn.metadata.installationId !== expectedInstallId) {
-             console.error(`[PeerMeshV2] ❌ IDENTITY MISMATCH! Expected ${expectedInstallId} but got ${conn.metadata.installationId}. Dropping connection.`);
-             // Since WebRTC sets conn.metadata strictly to the INITIATOR's metadata, 
-             // this check actually only works perfectly for incoming connections. 
-             // For outgoing, conn.metadata is OUR metadata. 
-             // So we'll skip the strict identity guard if we initiated it to prevent self-rejection.
-             if (!conn.metadata.v2Handshake || conn.metadata.installationId !== (window.state?.installationId || localStorage.getItem('medcheck_installation_id'))) {
-                conn.close();
-                return;
-             }
-        }
-
         conn._meshState = 'SYNC_ACTIVE';
+        registry.setState(conn.peer, ConnectionState.SYNC_ACTIVE);
+        registry.updateLastSeen(conn.peer);
         console.log(`[PeerMeshV2] 🟢 SYNC_ACTIVE for ${conn.peer} with permissions:`, conn._meshPermissions);
         
         window.dispatchEvent(new CustomEvent('peermesh:connection-accepted', { detail: { peer: conn.peer } }));
@@ -470,7 +516,7 @@ export default class PeerMeshV2 {
             console.warn('[PeerMeshV2] Vault locked, sending unencrypted (unsafe)');
         }
 
-        const conn = this.connections.get(peerId);
+        const conn = registry.getConnection(peerId);
         
         // State machine & permission enforcement
         if (conn && conn.open) {
@@ -522,7 +568,7 @@ export default class PeerMeshV2 {
         }
 
         let sentCount = 0;
-        this.connections.forEach((conn, peerId) => {
+        registry.getAllConnections().forEach((conn, peerId) => {
             if (conn.open) {
                 if (!conn.metadata || !conn.metadata.v2Handshake) {
                     conn.send(outPayload);
