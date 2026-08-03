@@ -1,10 +1,14 @@
 // config.example.js
 // Rename to config.js and place in the root of the MedCheck frontend.
-// This file configures the environment-specific variables for the PWA.
+// Configures explicit dual backend URLs for MedCheck AI Proxy and Drug Intelligence Console.
 
 window.ENV = {
-  // Base URL for the Drug Intelligence Cloud (DIC) backend.
-  // Use http://localhost:8000 for local development.
-  // Use your production URL (e.g. https://api.yourdomain.com) for production.
-  API_BASE_URL: "http://localhost:8000"
+  // AI Base URL for MedCheck Groq Proxy (Cloudflare Worker)
+  AI_BASE_URL: "https://medcare-groq-proxy.harshaedupuganti70.workers.dev",
+  
+  // DIC Base URL for Drug Intelligence Console (Render backend)
+  DIC_BASE_URL: "https://drug-intelligence-console.onrender.com",
+  
+  // Legacy alias mapping to DIC Base URL
+  API_BASE_URL: "https://drug-intelligence-console.onrender.com"
 };

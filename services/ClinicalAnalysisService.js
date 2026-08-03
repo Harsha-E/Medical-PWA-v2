@@ -41,33 +41,24 @@ class ClinicalAnalysisService {
       await db.clinical_analyses.update(dbId, { status: 'RUNNING' });
       window.dispatchEvent(new CustomEvent('medcare:analysis-running', { detail: { dbId } }));
 
-      // Build payload for DIC API
+      // Build payload for DIC API (Render)
       const reqPayload = { medications: profile.activeMeds };
-      
-      const res = await fetch(`${window.ENV?.API_BASE_URL || 'http://localhost:8000'}/api/v1/analyze`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(reqPayload)
-      });
-      
-      if (res.ok) {
-        const result = await res.json();
-        const executionId = result.execution_id;
-        const severity = result.clinical_report?.status === 'WARNING' ? 'SEVERE' : 'NONE';
-        const warnings = result.evidence || [];
+      const { ApiClient } = await import('../core/api.js');
+      const result = await ApiClient.post('/api/v1/analyze', reqPayload, { timeout: 3000 });
 
-        // Transition to COMPLETED
-        await db.clinical_analyses.update(dbId, {
-          status: 'COMPLETED',
-          analysisId: executionId,
-          summarySnapshot: result.clinical_report,
-          severity: severity,
-          warnings: warnings
-        });
-        window.dispatchEvent(new CustomEvent('medcare:analysis-completed', { detail: { dbId, analysisId: executionId } }));
-      } else {
-        throw new Error("Invalid response from DIC API");
-      }
+      const executionId = result.execution_id || ('exec_' + Date.now());
+      const severity = result.clinical_report?.status === 'WARNING' ? 'SEVERE' : 'NONE';
+      const warnings = result.evidence || [];
+
+      // Transition to COMPLETED
+      await db.clinical_analyses.update(dbId, {
+        status: 'COMPLETED',
+        analysisId: executionId,
+        summarySnapshot: result.clinical_report || {},
+        severity: severity,
+        warnings: warnings
+      });
+      window.dispatchEvent(new CustomEvent('medcare:analysis-completed', { detail: { dbId, analysisId: executionId } }));
     } catch (e) {
       console.error('[ClinicalAnalysisService] Analysis failed', e);
       // Transition to PENDING_RETRY on network error / timeout

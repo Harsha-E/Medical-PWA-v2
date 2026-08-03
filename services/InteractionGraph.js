@@ -23,23 +23,18 @@ class InteractionGraph {
     });
     
     try {
-      const response = await fetch(`${window.ENV?.API_BASE_URL || 'http://localhost:8000'}/api/v1/analyze`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          patient_id: "local_user", 
-          medications: meds, 
-          allergies: [] // Todo: fetch allergies from user state
-        })
-      });
-      
-      const data = await response.json();
-      
+      const { ApiClient } = await import('../core/api.js');
+      const data = await ApiClient.post('/api/v1/analyze', {
+        patient_id: "local_user",
+        medications: meds,
+        allergies: []
+      }, { timeout: 3000 });
+
       if (!data || !data.alerts) return [];
 
       return data.alerts.map(alert => ({
-        drug1: alert.drugs_involved[0] || 'Unknown',
-        drug2: alert.drugs_involved[1] || 'Unknown',
+        drug1: alert.drugs_involved?.[0] || 'Unknown',
+        drug2: alert.drugs_involved?.[1] || 'Unknown',
         severity: alert.severity === 'CRITICAL' ? 'severe' : 'moderate',
         description: alert.message,
         recommendation: alert.claims?.[0]?.statement || 'Review clinical logic.',
@@ -48,7 +43,7 @@ class InteractionGraph {
         raw: alert
       }));
     } catch (e) {
-      console.error("[DIC] Backend connection failed", e);
+      console.warn("[InteractionGraph] DIC backend offline or connection error:", e.message);
       return [];
     }
   }

@@ -807,7 +807,7 @@ export default class ClinicalLedgerView {
                 e.stopPropagation();
                 const analysisId = btn.getAttribute('data-analysis-id');
                 // Open Control Center (assumes dashboard exists)
-                window.open(`${window.ENV?.API_BASE_URL || 'http://localhost:8000'}/dashboard#/live/${analysisId}`, '_blank');
+                window.open(`${(ENV.getDicBaseUrl ? ENV.getDicBaseUrl() : ENV.DIC_BASE_URL)}/#/live/${analysisId}`, '_blank');
             }
         });
 
@@ -888,7 +888,7 @@ export default class ClinicalLedgerView {
                 <p class="text-sm font-bold ${textClass} mb-0.5">${escapeHTML(insight.severity)} RISK DETECTED</p>
                 <p class="text-xs text-white/80">${escapeHTML(insight.message).substring(0, 60)}...</p>
             </div>
-            <button class="ml-4 px-3 py-1.5 rounded-lg ${bgClass} ${textClass} text-[10px] uppercase font-bold tracking-widest border border-${colorClass}/20 ${hoverBgClass}" onclick="window.open('${window.ENV?.API_BASE_URL || 'http://localhost:8000'}/dashboard#/live/${escapeHTML(insight.analysisId)}', '_blank')">View</button>
+            <button class="ml-4 px-3 py-1.5 rounded-lg ${bgClass} ${textClass} text-[10px] uppercase font-bold tracking-widest border border-${colorClass}/20 ${hoverBgClass}" onclick="window.open('${(ENV.getDicBaseUrl ? ENV.getDicBaseUrl() : ENV.DIC_BASE_URL)}/#/live/${escapeHTML(insight.analysisId)}', '_blank')">View</button>
         `;
 
         document.body.appendChild(toast);

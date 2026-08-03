@@ -10,7 +10,7 @@
             this.isReady = true;
             this.isProcessing = false;
             this.activeSessionId = null;
-            this.apiUrl = `${window.ENV?.API_BASE_URL || 'http://localhost:8000'}/api/intelligence/analyze`;
+            this.apiUrl = `${(ENV?.getDicBaseUrl ? ENV.getDicBaseUrl() : ENV?.DIC_BASE_URL) || 'https://drug-intelligence-console.onrender.com'}/api/v1/analyze`;
         }
 
         async processFrame(sourceElement, scale = 0.75, isSingleFrame = false) {

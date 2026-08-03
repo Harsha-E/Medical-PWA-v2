@@ -6,7 +6,7 @@
 
 import { ENV } from '../core/env.js';
 
-const GROQ_PROXY_URL = 'https://medcare-groq-proxy.harshaedupuganti70.workers.dev/';
+const getGroqProxyUrl = () => `${(ENV.getAiBaseUrl ? ENV.getAiBaseUrl() : ENV.AI_BASE_URL).replace(/\/$/, '')}/`;
 const DIRECT_GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 class AIExtractionService {
