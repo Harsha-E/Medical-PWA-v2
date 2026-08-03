@@ -109,7 +109,7 @@ export default class PeerNetworkView {
             <!-- Frosted glass blur layer -->
             <div class="fixed inset-0 z-[1] pointer-events-none backdrop-blur-3xl bg-[#0a0407]/40"></div>
             
-            <main class="w-full px-4 md:px-8 pt-24 md:pt-8 md:pl-72 pb-28 md:pb-12 z-10 max-w-5xl mx-auto relative">
+            <main class="w-full px-4 md:px-8 pt-24 md:pt-8 md:px-8 pb-28 md:pb-12 z-10 max-w-5xl mx-auto relative">
                 <!-- Desktop 2-col on lg: QR left, roster right -->
                 <div class="flex flex-col lg:flex-row lg:items-start lg:gap-8">
                 

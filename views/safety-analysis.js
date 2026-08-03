@@ -288,7 +288,7 @@ export default class InteractionCheckerView {
 
   _getSkeletonUI() {
     return `
-      <div class="max-w-2xl md:max-w-4xl lg:max-w-5xl mx-auto w-full px-4 md:px-6 pt-24 md:pt-8 md:pl-72 pb-28">
+      <div class="max-w-2xl md:max-w-4xl lg:max-w-5xl mx-auto w-full px-4 md:px-6 pt-24 md:pt-8 md:px-8 pb-28">
         
         <!-- Animated Title Skeleton -->
         <div class="h-4 w-32 bg-surface-elevated/80 backdrop-blur-3xl rounded-full mb-10 overflow-hidden relative shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]">

@@ -986,7 +986,7 @@ export default class DashboardView {
       <div class="skeleton skeleton-card" style="height:${height}; width:100%; border-radius:1.5rem; margin-bottom:16px;"></div>
     `;
     return `
-      <div class="flex-1 overflow-y-auto px-4 sm:px-6 md:px-10 lg:px-12 pt-24 md:pt-8 md:pl-72 pb-28 w-full max-w-[1600px] mx-auto" id="dashboard-main-content" style="overscroll-behavior-y: none;">
+      <div class="flex-1 overflow-y-auto px-4 sm:px-6 md:px-10 lg:px-12 pt-24 md:pt-8 md:px-8 pb-28 w-full max-w-[1600px] mx-auto" id="dashboard-main-content" style="overscroll-behavior-y: none;">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start w-full">
           <!-- Left Column -->
           <div class="lg:col-span-2 w-full flex flex-col gap-8">

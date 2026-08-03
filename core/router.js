@@ -120,6 +120,9 @@ export class Router {
       this.currentView = newView;
       this.currentHash = newHash;
 
+      // Notify AppHeader and listeners that the new view is mounted
+      document.dispatchEvent(new CustomEvent('view:mounted', { detail: { hash: baseRoute } }));
+
       if (baseRoute !== '#/scan') {
           import('./ui.js').then(({ setupPullToRefresh }) => {
               const scrollArea = incomingNode.querySelector('.scroll-area') || incomingNode.querySelector('.overflow-y-auto') || incomingNode;

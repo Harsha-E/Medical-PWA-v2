@@ -68,14 +68,24 @@ Return ONLY a strict JSON object with this EXACT structure (no markdown, no back
         }
 
         if (!response || !response.ok) {
-            payload.model = 'llama-3.3-70b-versatile';
+            const directPayload = {
+                model: 'llama-3.3-70b-versatile',
+                messages: [
+                    {
+                        role: 'user',
+                        content: promptText + '\n\nExtract medicine details accurately into structured JSON.'
+                    }
+                ],
+                temperature: 0.1,
+                max_tokens: 500
+            };
             response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${GROQ_KEY}`
                 },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(directPayload)
             });
         }
 

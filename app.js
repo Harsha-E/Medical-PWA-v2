@@ -572,12 +572,9 @@ class App {
       this.glassNav.setVisibility(showNav);
     }
 
-    // â”€â”€ AppHeader visibility â”€â”€
     // ——— AppHeader visibility ———
     const headerConfig = HEADER_CONFIGS[hash] ?? { hidden: true };
-    // Show skeleton immediately for async views
-    const needsSkeleton = ['#/dashboard', '#/reports', '#/appointments'].includes(hash);
-    this.appHeader.configure({ ...headerConfig, skeleton: needsSkeleton });
+    this.appHeader.configure({ ...headerConfig, skeleton: false });
 
     // ─── Manage Pill Docking and Layout ───
     if (user && isComplete && hash !== '#/install' && !headerConfig.hidden) {

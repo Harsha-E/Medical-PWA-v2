@@ -13,7 +13,7 @@ export default class ReportsView {
 
     // Immediate skeleton before heavy analytics compute
     this.container.innerHTML = `
-      <main class="scroll-area md:px-12 pt-24 md:pt-8 md:pl-72 pb-28 max-w-7xl mx-auto" >
+      <main class="scroll-area md:px-12 pt-24 md:pt-8 md:px-8 pb-28 max-w-7xl mx-auto" >
 <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
         <div class="md:grid md:grid-cols-1 md:grid-cols-2 lg:grid-cols-32 md:gap-10">
             <div class="md:col-span-5 lg:col-span-4 flex flex-col gap-8">
@@ -80,7 +80,7 @@ export default class ReportsView {
     const dashOffset = 377 - (377 * (overallAdherence / 100));
 
     this.container.innerHTML = `
-      <main class="scroll-area md:px-8 pt-24 md:pt-8 md:pl-72 pb-28 max-w-7xl mx-auto" >
+      <main class="scroll-area md:px-8 pt-24 md:pt-8 md:px-8 pb-28 max-w-7xl mx-auto" >
 <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
           <!-- Left Column -->

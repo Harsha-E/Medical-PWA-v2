@@ -114,7 +114,7 @@ export default class GlassNavbar {
           <div class="relative z-10 flex items-center transition-transform ${isActive ? 'scale-110 text-accent-primary drop-shadow-[0_0_12px_rgba(255,184,140,0.6)]' : 'opacity-70 group-hover:opacity-100'}">
             ${item.icon}
           </div>
-          <span class="nav-label font-mono text-[9px] sm:text-[10px] font-bold tracking-wider uppercase ${isActive ? 'text-accent-primary' : 'text-text-secondary opacity-80 group-hover:opacity-100'}">${item.label}</span>
+          <span class="nav-label hidden sm:block font-mono text-[10px] font-bold tracking-wider uppercase ${isActive ? 'text-accent-primary' : 'text-text-secondary opacity-80 group-hover:opacity-100'}">${item.label}</span>
         </a>
       `;
     }).join('');

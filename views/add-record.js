@@ -21,7 +21,7 @@ export default class AddRecordView {
   async render() {
     this.container.innerHTML = `
       <main class="flex-1 pb-24" style="padding-left:0; padding-right:0; height: 100%; overflow-y: auto; overflow-x: hidden;">
-        <div class="px-6 w-full max-w-7xl mx-auto flex flex-col pt-24 md:pt-8 md:pl-72 ">
+        <div class="px-6 w-full max-w-7xl mx-auto flex flex-col pt-24 md:pt-8 md:px-8 ">
             <div class="clay-glass-panel p-6 mb-8 rounded-[2rem] shadow-[16px_16px_32px_rgba(0,0,0,0.5),inset_4px_4px_12px_rgba(255,255,255,0.05),inset_-4px_-4px_12px_rgba(0,0,0,0.7)] bg-[rgba(255,255,255,0.02)] backdrop-blur-2xl border border-[rgba(255,255,255,0.04)]">
                 <h3 class="form-label mb-6 text-xs text-text-secondary uppercase tracking-widest font-bold">Record Details</h3>
                 

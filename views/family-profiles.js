@@ -15,7 +15,7 @@ export default class FamilyProfilesView {
     const family = await db.family.filter(f => f.userId === state.user?.uid).toArray();
 
     this.container.innerHTML = `
-      <main class="scroll-area pt-24 md:pt-8 md:pl-72 " >
+      <main class="scroll-area pt-24 md:pt-8 md:px-8 " >
 <div class="px-4 md:px-8 w-full h-full max-w-5xl mx-auto flex flex-col flex-1">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mt-4">
             ${family.map(member => `

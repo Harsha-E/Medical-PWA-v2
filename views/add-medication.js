@@ -139,7 +139,7 @@ export default class AddMedicationView {
 
     this.container.innerHTML = `
       <main class="flex-1 pb-24 md:pb-12" style="padding-left:0; padding-right:0; height: 100%; overflow-y: auto; overflow-x: hidden;">
-        <div class="px-4 md:px-8 pt-24 md:pt-8 md:pl-72 lg:px-12 w-full max-w-7xl mx-auto flex flex-col">
+        <div class="px-4 md:px-8 pt-24 md:pt-8 md:px-8 lg:px-12 w-full max-w-7xl mx-auto flex flex-col">
         <div class="w-full max-w-2xl md:max-w-4xl lg:max-w-5xl mx-auto">
         <div id="inline-warning-container"></div>
         ${ocrConfidenceHtml}
