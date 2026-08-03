@@ -7,7 +7,20 @@ export default class SettingsView {
   async render() {
     this.container = document.createElement('div');
     this.container.className = 'container overflow-hidden h-full flex flex-col relative';
+    this.container.innerHTML = `
+      <main class="scroll-area pt-24 md:pt-8 md:px-8 bg-transparent pb-40">
+        <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
+          <div class="skeleton skeleton-xl mb-8" style="height:120px;"></div>
+          <div class="skeleton skeleton-card mb-6" style="height:160px;"></div>
+        </div>
+      </main>
+    `;
 
+    this._loadSettingsData();
+    return this.container;
+  }
+
+  async _loadSettingsData() {
     const displayName = state.user?.displayName || state.userProfile?.name || state.user?.email || 'Unknown User';
     const initials = displayName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'U';
     const bloodType = state.userProfile?.profile?.bloodType || 'O+';

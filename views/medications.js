@@ -30,11 +30,12 @@ export default class MedicationsView {
   }
 
   async render() {
-    // Inject visible, standard loading placeholder state immediately
-    if (this.container.innerHTML === '') {
-        this.container.innerHTML = this._getSkeletonUI();
-    }
+    this.container.innerHTML = this._getSkeletonUI();
+    this._loadData();
+    return this.container;
+  }
 
+  async _loadData() {
     try {
       const targetUserId = state.activeProfileContext ? String(state.activeProfileContext.id) : (state.user?.uid || 'anonymous');
       

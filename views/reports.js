@@ -13,23 +13,29 @@ export default class ReportsView {
 
     // Immediate skeleton before heavy analytics compute
     this.container.innerHTML = `
-      <main class="scroll-area md:px-12 pt-24 md:pt-8 md:px-8 pb-28 max-w-7xl mx-auto" >
-<div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
-        <div class="md:grid md:grid-cols-1 md:grid-cols-2 lg:grid-cols-32 md:gap-10">
-            <div class="md:col-span-5 lg:col-span-4 flex flex-col gap-8">
-                <div class="skeleton skeleton-xl" style="height:250px;"></div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-                  <div class="skeleton skeleton-card" style="height:90px;"></div>
-                  <div class="skeleton skeleton-card" style="height:90px;"></div>
-                </div>
+      <main class="scroll-area md:px-12 pt-24 md:pt-8 md:px-8 pb-28 max-w-7xl mx-auto">
+        <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+            <div class="lg:col-span-5 flex flex-col gap-8">
+              <div class="skeleton skeleton-xl" style="height:250px;"></div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                <div class="skeleton skeleton-card" style="height:90px;"></div>
+                <div class="skeleton skeleton-card" style="height:90px;"></div>
+              </div>
             </div>
-            <div class="md:col-span-7 lg:col-span-8 mt-10 md:mt-0">
-                <div class="skeleton skeleton-xl" style="height:250px;"></div>
+            <div class="lg:col-span-7 mt-10 lg:mt-0">
+              <div class="skeleton skeleton-xl" style="height:250px;"></div>
             </div>
+          </div>
         </div>
-      </div></main>
+      </main>
     `;
 
+    this._loadReportsData();
+    return this.container;
+  }
+
+  async _loadReportsData() {
     const targetUserId = state.activeProfileContext ? String(state.activeProfileContext.id) : (state.user?.uid || 'anonymous');
     const meds = await db.medications.filter(m => !m.isDeleted && String(m.userId) === targetUserId).toArray();
     const allDoses = await db.doses.filter(d => !d.isDeleted && String(d.userId) === targetUserId).toArray();
