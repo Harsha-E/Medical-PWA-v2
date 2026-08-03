@@ -36,12 +36,7 @@ export default class GlassNavbar {
 
     if (isAuthLayout) {
       this.root.innerHTML = `
-        <nav id="glass-nav" class="fixed z-[9999] bottom-6 md:bottom-0 left-1/2 md:left-0 -translate-x-1/2 md:translate-x-0 w-[90%] md:w-64 max-w-[400px] md:max-w-none md:h-screen px-4 md:px-5 py-3 md:py-8 rounded-full md:rounded-none flex md:flex-col justify-between md:justify-start items-center md:items-stretch transition-all duration-300 md:gap-3 md:border-t-0 md:border-r" style="background: linear-gradient(145deg, rgba(10,4,7,0.85), rgba(10,4,7,0.95)); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.08); box-shadow: 0 20px 40px rgba(0,0,0,0.8), inset 0 2px 4px rgba(255,255,255,0.05);">
-          <!-- Desktop Branding -->
-          <div class="hidden md:flex items-center gap-3 mb-10 pl-2 w-full">
-            <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><path d="M11 2a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2H2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h5a2 2 0 0 1 2 2v5a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-5a2 2 0 0 1 2-2h5a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-5a2 2 0 0 1-2-2V4a2 2 0 0 0-2-2h-4Z"></path></svg>
-            <span class="font-display text-2xl tracking-tight font-medium block mt-[2px]" style="color: var(--color-text-primary);">MedCheck</span>
-          </div>
+        <nav id="glass-nav" class="fixed z-[9999] bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-xl px-3 sm:px-5 py-2.5 rounded-full flex items-center justify-around transition-all duration-300 backdrop-blur-2xl border shadow-2xl" style="background: linear-gradient(145deg, rgba(10,4,7,0.92), rgba(20,9,16,0.96)); border-color: rgba(255,255,255,0.1); box-shadow: 0 20px 50px rgba(0,0,0,0.85), inset 0 1px 2px rgba(255,255,255,0.12);">
           ${this.getAuthenticatedMenu(hash)}
         </nav>
       `;
@@ -115,11 +110,11 @@ export default class GlassNavbar {
       const activeBg = isActive ? 'is-active' : '';
 
       return `
-        <a href="${item.href}" class="nav-item flex items-center justify-center md:justify-start py-2 md:py-3.5 px-3 md:px-5 md:w-full rounded-full md:rounded-2xl relative overflow-hidden group ${activeBg} transition-all duration-300 md:gap-4" ${textColor}>
-          <div class="relative z-10 flex items-center transition-transform ${isActive ? 'scale-110 md:scale-100 drop-shadow-[0_0_10px_rgba(255,184,140,0.6)]' : ''}">
+        <a href="${item.href}" class="nav-item flex flex-col items-center justify-center py-1 px-2.5 sm:px-4 rounded-2xl relative overflow-hidden group ${activeBg} transition-all duration-200 gap-0.5" ${textColor}>
+          <div class="relative z-10 flex items-center transition-transform ${isActive ? 'scale-110 text-accent-primary drop-shadow-[0_0_12px_rgba(255,184,140,0.6)]' : 'opacity-70 group-hover:opacity-100'}">
             ${item.icon}
           </div>
-          <span class="nav-label hidden md:block font-mono text-[11px] font-bold tracking-widest uppercase mt-0.5">${item.label}</span>
+          <span class="nav-label font-mono text-[9px] sm:text-[10px] font-bold tracking-wider uppercase ${isActive ? 'text-accent-primary' : 'text-text-secondary opacity-80 group-hover:opacity-100'}">${item.label}</span>
         </a>
       `;
     }).join('');
