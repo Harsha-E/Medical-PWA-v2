@@ -8,7 +8,7 @@
  * always been used in VisionPipeline → visionWorker.js via the Cloudflare proxy.
  *
  * Pipeline:
- *   Primary:  Groq (meta-llama/llama-4-scout-17b-16e-instruct) via Cloudflare Worker
+ *   Primary:  Groq (llama-3.2-90b-vision-preview) via Cloudflare Worker
  *   Fallback: Demo mode ONLY if the Groq proxy is unreachable (P0 guarantee)
  */
 
@@ -39,7 +39,7 @@ class AIExtractionService {
 
     /**
      * PRIMARY: Sends image to the Groq Cloudflare proxy (same as visionWorker.js)
-     * Uses meta-llama/llama-4-scout-17b-16e-instruct or llama-3.3-70b-versatile for vision OCR.
+     * Uses llama-3.2-90b-vision-preview or llama-3.3-70b-versatile for vision OCR.
      */
     async _runGroqExtraction(imageBlob) {
         // Convert blob to base64 data URL
@@ -72,7 +72,7 @@ Return ONLY a strict JSON array (no markdown, no backticks, no extra text):
 ]`;
 
         const payload = {
-            model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+            model: 'llama-3.2-90b-vision-preview',
             messages: [
                 {
                     role: 'user',
