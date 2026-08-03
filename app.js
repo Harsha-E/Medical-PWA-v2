@@ -558,11 +558,11 @@ class App {
     const user    = state.user;
     const profile = state.userProfile;
     const isAdmin = state.isAdmin;
-    const p = (profile && profile.profile) ? profile.profile : {};
-    const hasAllDetails = !!(p.phone && p.bloodType && p.dob && p.emergencyName && p.emergencyPhone);
+    const p = (profile && profile.profile) ? profile.profile : (profile || {});
+    const hasAllDetails = !!((p.fullName || p.name) && p.phone && p.bloodType && p.dob && p.emergencyName && p.emergencyPhone);
     const hasAvatar = !!(p.avatar);
-    // If onboardingComplete flag is true OR the user already has all required details in Firebase, consider them complete
-    const isComplete = (profile && profile.onboardingComplete) || hasAllDetails;
+    // User is complete ONLY if both onboardingComplete flag is set AND all required profile details are present
+    const isComplete = !!(profile && profile.onboardingComplete && hasAllDetails);
 
     // ————————————————— Managed by individual views (GhostFluid instantiation removed) —————————————————
 

@@ -165,12 +165,12 @@ class State {
         this.userProfile = localProfiles[localProfiles.length - 1];
         this.isAdmin = this.userProfile.role === 'admin';
       } else {
-        this.userProfile = { onboardingComplete: true, isOfflineFallback: true };
+        this.userProfile = { onboardingComplete: false, isOfflineFallback: true };
         this.isAdmin = false;
       }
     } catch (localErr) {
       console.error('[State] Local DB read failed during fallback:', localErr);
-      this.userProfile = { onboardingComplete: true, isOfflineFallback: true };
+      this.userProfile = { onboardingComplete: false, isOfflineFallback: true };
       this.isAdmin = false;
     }
   }

@@ -41,24 +41,33 @@ class ClinicalAnalysisService {
       await db.clinical_analyses.update(dbId, { status: 'RUNNING' });
       window.dispatchEvent(new CustomEvent('medcare:analysis-running', { detail: { dbId } }));
 
-      // Build payload for DIC API (Render)
-      const reqPayload = { medications: profile.activeMeds };
+      // Build full structured payload for DIC API (Render)
+      const executionId = 'exec_' + dbId + '_' + Date.now();
+      const medList = (profile.activeMeds || []).map(m => typeof m === 'string' ? m : (m.genericName || m.name || m.brandName));
+      
+      const reqPayload = {
+        analysis_id: executionId,
+        patient_id: profile.userId || profile.patient_id || 'anonymous',
+        medications: medList,
+        timestamp: new Date().toISOString()
+      };
+
       const { ApiClient } = await import('../core/api.js');
       const result = await ApiClient.post('/api/v1/analyze', reqPayload, { timeout: 3000 });
 
-      const executionId = result.execution_id || ('exec_' + Date.now());
+      const finalExecutionId = result.execution_id || executionId;
       const severity = result.clinical_report?.status === 'WARNING' ? 'SEVERE' : 'NONE';
       const warnings = result.evidence || [];
 
       // Transition to COMPLETED
       await db.clinical_analyses.update(dbId, {
         status: 'COMPLETED',
-        analysisId: executionId,
+        analysisId: finalExecutionId,
         summarySnapshot: result.clinical_report || {},
         severity: severity,
         warnings: warnings
       });
-      window.dispatchEvent(new CustomEvent('medcare:analysis-completed', { detail: { dbId, analysisId: executionId } }));
+      window.dispatchEvent(new CustomEvent('medcare:analysis-completed', { detail: { dbId, analysisId: finalExecutionId } }));
     } catch (e) {
       console.error('[ClinicalAnalysisService] Analysis failed', e);
       // Transition to PENDING_RETRY on network error / timeout

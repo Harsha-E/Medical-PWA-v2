@@ -468,20 +468,42 @@ export default class ScanView {
       const stateModule = (await import('../core/state.js')).default;
       const dbModule = (await import('../core/db.js')).default;
       const targetUserId = stateModule.activeProfileContext ? String(stateModule.activeProfileContext.id) : (stateModule.user?.uid || 'anonymous');
-      
+      const timestampIso = new Date().toISOString();
+      const executionId = 'exec_scan_' + Date.now();
+      const medList = medicines.map(m => m.genericName || m.brandName || m.name);
+
       const scanRecord = {
-        id: 'hist_scan_' + Date.now(),
+        id: executionId,
+        analysisId: executionId,
+        execution_id: executionId,
         userId: targetUserId,
+        patient_id: targetUserId,
         type: 'Report',
         title: `Prescription Scan: ${medicines[0].brandName || medicines[0].name || 'Extracted Medicine'}`,
         details: `Extracted ${medicines.length} medicine(s) via Vision Scan`,
         medicines: medicines,
-        date: new Date().toISOString(),
+        medication_ids: medList,
+        date: timestampIso,
         timestamp: Date.now(),
-        source: 'vision-scan'
+        source: 'vision-scan',
+        status: 'COMPLETED'
       };
 
       await dbModule.history.put(scanRecord);
+
+      // Submit live telemetry execution payload to Drug Intelligence Console (Render)
+      try {
+        const { ApiClient } = await import('../core/api.js');
+        await ApiClient.post('/api/v1/analyze', {
+          analysis_id: executionId,
+          patient_id: targetUserId,
+          medications: medList,
+          timestamp: timestampIso,
+          source: 'vision-scan'
+        }, { timeout: 2500 });
+      } catch (apiErr) {
+        console.warn('[ScanView] DIC Telemetry API submission warning:', apiErr.message);
+      }
 
       try {
         const { default: SyncBridge } = await import('../services/SyncBridge.js');
