@@ -498,69 +498,69 @@ export default class AddMedicationView {
        let currentMatchStr = null;
 
        nameInput.addEventListener('input', async (e) => {
-           const val = e.target.value;
-           const lowerVal = val.toLowerCase();
-           dropdown.innerHTML = '';
-           currentMatchStr = null;
-           ghostInput.value = '';
-           
-           // Clear any existing interaction warning while typing
-           const warningContainer = this.container.querySelector('#inline-warning-container');
-           if (warningContainer) warningContainer.innerHTML = '';
-           
-           if (!val) {
-               dropdown.classList.add('hidden');
-               return;
-           }
-           
-           try {
-               // Query Live DIC API for matching medicines
-               const res = await fetch(`${window.ENV?.API_BASE_URL || 'http://localhost:8000'}/api/v1/drugs/search?q=${encodeURIComponent(val)}`);
-               let matches = [];
-               if (res.ok) {
-                   const data = await res.json();
-                   matches = data.results || [];
-               } else {
-                   // Fallback to IndexedDB if API is down
-                   matches = await db.medicines
-                       .where('name')
-                       .startsWithIgnoreCase(val)
-                       .limit(10)
-                       .toArray();
-               }
-               
-               if (matches.length > 0) {
-                   dropdown.classList.remove('hidden');
-                   
-                   // Set ghost text
-                   const bestMatchStr = matches[0].name || matches[0].label;
-                   if (bestMatchStr && bestMatchStr.toLowerCase().startsWith(lowerVal)) {
-                       ghostInput.value = val + bestMatchStr.slice(val.length);
-                       currentMatchStr = ghostInput.value;
-                   }
-                   
-                   matches.forEach(m => {
-                       const mName = m.name || m.label;
-                       const mGeneric = m.genericName || mName;
-                       const mManuf = m.manufacturer || m.category || '';
-                       const div = document.createElement('div');
-                       div.className = 'p-4 hover:bg-primary/20 cursor-pointer border-b border-border/50 text-sm transition-colors text-left';
-                       div.innerHTML = `<div class="font-bold text-text-primary text-base">${mName}</div>
-                                        <div class="text-xs text-text-secondary mt-1">${mGeneric} &bull; ${mManuf}</div>`;
-                       div.addEventListener('mousedown', (e) => {
-                           e.preventDefault(); // Prevent input blur
-                           this.autofillMedication(m);
-                           dropdown.classList.add('hidden');
-                       });
-                       dropdown.appendChild(div);
-                   });
-               } else {
-                   dropdown.classList.add('hidden');
-               }
-           } catch (error) {
-               console.warn('[AddMedication] Typeahead search error:', error);
-           }
-       });
+            const val = e.target.value;
+            const lowerVal = val.toLowerCase();
+            dropdown.innerHTML = '';
+            currentMatchStr = null;
+            ghostInput.value = '';
+            
+            // Clear any existing interaction warning while typing
+            const warningContainer = this.container.querySelector('#inline-warning-container');
+            if (warningContainer) warningContainer.innerHTML = '';
+            
+            if (!val || val.trim().length < 1) {
+                dropdown.classList.add('hidden');
+                return;
+            }
+            
+            try {
+                // 1. Instant local Medical NLP & dictionary search (0ms delay)
+                const { MedicalNLPEngine } = await import('../services/MedicalNLPEngine.js');
+                let matches = MedicalNLPEngine.searchTypeahead(val, 8);
+
+                // 2. Supplement from IndexedDB db.medicines if available
+                try {
+                    const dbMatches = await db.medicines.where('name').startsWithIgnoreCase(val).limit(5).toArray();
+                    dbMatches.forEach(m => {
+                        const mName = m.name || m.label;
+                        if (mName && !matches.some(x => x.name.toLowerCase() === mName.toLowerCase())) {
+                            matches.push(m);
+                        }
+                    });
+                } catch (dbErr) {}
+
+                if (matches.length > 0) {
+                    dropdown.classList.remove('hidden');
+                    
+                    // Set ghost text
+                    const bestMatchStr = matches[0].name || matches[0].label;
+                    if (bestMatchStr && bestMatchStr.toLowerCase().startsWith(lowerVal)) {
+                        ghostInput.value = val + bestMatchStr.slice(val.length);
+                        currentMatchStr = ghostInput.value;
+                    }
+                    
+                    matches.forEach(m => {
+                        const mName = m.name || m.label;
+                        const mGeneric = m.genericName || mName;
+                        const mManuf = m.manufacturer || m.category || 'Medicine';
+                        const div = document.createElement('div');
+                        div.className = 'p-4 hover:bg-primary/20 cursor-pointer border-b border-border/50 text-sm transition-colors text-left';
+                        div.innerHTML = `<div class="font-bold text-text-primary text-base">${mName}</div>
+                                         <div class="text-xs text-text-secondary mt-1">${mGeneric} &bull; ${mManuf}</div>`;
+                        div.addEventListener('mousedown', (e) => {
+                            e.preventDefault(); // Prevent input blur
+                            this.autofillMedication(m);
+                            dropdown.classList.add('hidden');
+                        });
+                        dropdown.appendChild(div);
+                    });
+                } else {
+                    dropdown.classList.add('hidden');
+                }
+            } catch (error) {
+                console.warn('[AddMedication] Typeahead search error:', error);
+            }
+        });
        
        nameInput.addEventListener('keydown', (e) => {
           if (e.key === 'Tab' || e.key === 'ArrowRight') {

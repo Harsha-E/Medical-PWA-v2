@@ -144,6 +144,14 @@ Return ONLY a strict JSON array (no markdown, no backticks, no extra text):
         const parsed = JSON.parse(jsonMatch[0]);
         medicines = Array.isArray(parsed) ? parsed : [parsed];
 
+        // Pass through Medical NLP Spell-Corrector engine
+        try {
+            const { MedicalNLPEngine } = await import('./MedicalNLPEngine.js');
+            medicines = MedicalNLPEngine.cleanExtractedMedicines(medicines);
+        } catch (nlpErr) {
+            console.warn('[AIExtractionService] MedicalNLPEngine cleaning warning:', nlpErr);
+        }
+
         return medicines.map((m, i) => ({
             id: 'med_' + Date.now() + '_' + i,
             name: m.brandName || m.genericName || 'Unknown',
