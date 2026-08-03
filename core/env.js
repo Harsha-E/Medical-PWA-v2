@@ -29,6 +29,7 @@ export const ENV = {
   FIREBASE_MESSAGING_SENDER_ID: "864742646610",
   FIREBASE_APP_ID: "1:864742646610:web:642ced3c456700e876108b",
   APP_VERSION: "v0.9.1",
+  VISION_PROVIDER: "groq", // Options: "groq" | "gemini" | "ocr"
   GROQ_API_KEY: resolveGroqKey(),
   getGroqKey: resolveGroqKey,
   GEMINI_API_KEY: ""
