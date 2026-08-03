@@ -21,6 +21,21 @@ function resolveGroqKey() {
   }
 }
 
+function resolveApiBaseUrl() {
+  try {
+    if (typeof localStorage !== 'undefined') {
+      const customUrl = localStorage.getItem('API_BASE_URL');
+      if (customUrl && customUrl.trim()) return customUrl.trim();
+    }
+    if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      return 'https://medcare-groq-proxy.harshaedupuganti70.workers.dev';
+    }
+    return 'http://localhost:8000';
+  } catch (e) {
+    return 'http://localhost:8000';
+  }
+}
+
 export const ENV = {
   FIREBASE_API_KEY: "AIzaSyDfF54qdvqxaasAPLqhx2axoSASLQSvkN4",
   FIREBASE_AUTH_DOMAIN: "cp-v1-ca134.firebaseapp.com",
@@ -30,6 +45,8 @@ export const ENV = {
   FIREBASE_APP_ID: "1:864742646610:web:642ced3c456700e876108b",
   APP_VERSION: "v0.9.1",
   VISION_PROVIDER: "groq", // Options: "groq" | "gemini" | "ocr"
+  API_BASE_URL: resolveApiBaseUrl(),
+  getApiBaseUrl: resolveApiBaseUrl,
   GROQ_API_KEY: resolveGroqKey(),
   getGroqKey: resolveGroqKey,
   GEMINI_API_KEY: ""

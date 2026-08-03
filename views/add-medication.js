@@ -872,25 +872,14 @@ export default class AddMedicationView {
       if (drugList.length > 1) {
         let warnings = [];
 
-        // 1. Attempt live DIC API query if online
-        if (navigator.onLine) {
-          try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 1200);
-            const res = await fetch(`${window.ENV?.API_BASE_URL || 'http://localhost:8000'}/api/v1/interactions`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ medication_ids: drugList }),
-              signal: controller.signal
-            }).catch(() => null);
-            clearTimeout(timeoutId);
-
-            if (res && res.ok) {
-              const apiData = await res.json();
-              const apiInteractions = apiData.interactions || [];
-              warnings = apiInteractions.filter(w => w.strength === 'SEVERE' || w.strength === 'HIGH' || w.strength === 'MODERATE');
-            }
-          } catch (netErr) {}
+        // 1. Attempt live DIC API query via ApiClient
+        try {
+          const { ApiClient } = await import('../core/api.js');
+          const apiData = await ApiClient.post('/api/v1/interactions', { medication_ids: drugList }, { timeout: 1500 });
+          const apiInteractions = apiData?.interactions || [];
+          warnings = apiInteractions.filter(w => w.strength === 'SEVERE' || w.strength === 'HIGH' || w.strength === 'MODERATE');
+        } catch (apiErr) {
+          console.warn(`[AddMedication] Interaction API [${apiErr.code || 'FAIL'}]:`, apiErr.message);
         }
 
         // 2. Local Clinical Engine Fallback (Instant offline evaluation)
