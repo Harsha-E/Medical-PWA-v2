@@ -870,51 +870,69 @@ export default class AddMedicationView {
       const drugList = [...activeMeds.map(m => m.rxnormId || m.name), drugName];
       
       if (drugList.length > 1) {
-        const res = await fetch(`${window.ENV?.API_BASE_URL || 'http://localhost:8000'}/api/v1/interactions`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ medication_ids: drugList })
-        });
-        
-        if (res.ok) {
-          const apiData = await res.json();
-          const interactions = apiData.interactions || [];
-          const warnings = interactions.filter(w => w.strength === 'SEVERE' || w.strength === 'HIGH' || w.strength === 'MODERATE');
-          
-          if (warnings && warnings.length > 0) {
-            const warningsHtml = warnings.map(w => 
-              `<div class="mb-4 bg-red-950/30 p-4 rounded-2xl border border-red-500/20">
-                  <div class="flex items-center gap-2 mb-1">
-                      <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-                      <strong class="uppercase text-[10px] tracking-widest text-red-300">${w.effect || w.type} • ${w.strength} SEVERITY</strong>
-                  </div>
-                  <p class="text-sm font-semibold text-red-50 my-2">${w.drugs.join(' + ')}</p>
-                  
-                  <div class="mt-3 pt-3 border-t border-red-500/20 text-[11px] text-red-200/70 leading-relaxed flex gap-2">
-                      <svg class="w-4 h-4 shrink-0 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                      <span><strong>How we found this:</strong> Our Clinical Engine cross-referenced the active ingredients in <em>${drugName}</em> against your current profile.</span>
-                  </div>
-              </div>`
-            ).join('');
+        let warnings = [];
 
-            container.innerHTML = `
-              <div class="mb-6 p-5 rounded-3xl bg-red-950/40 border border-red-500/30 backdrop-blur-xl" style="box-shadow: inset 4px 4px 10px rgba(0,0,0,0.5), inset -4px -4px 10px rgba(255, 100, 100, 0.1), 0 0 20px rgba(239, 68, 68, 0.3);">
-                <div class="flex items-center gap-3 mb-4">
-                  <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                  <h4 class="text-red-200 font-bold tracking-widest text-xs uppercase">Clinical Warning Detected</h4>
+        // 1. Attempt live DIC API query if online
+        if (navigator.onLine) {
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 1200);
+            const res = await fetch(`${window.ENV?.API_BASE_URL || 'http://localhost:8000'}/api/v1/interactions`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ medication_ids: drugList }),
+              signal: controller.signal
+            }).catch(() => null);
+            clearTimeout(timeoutId);
+
+            if (res && res.ok) {
+              const apiData = await res.json();
+              const apiInteractions = apiData.interactions || [];
+              warnings = apiInteractions.filter(w => w.strength === 'SEVERE' || w.strength === 'HIGH' || w.strength === 'MODERATE');
+            }
+          } catch (netErr) {}
+        }
+
+        // 2. Local Clinical Engine Fallback (Instant offline evaluation)
+        if (warnings.length === 0) {
+          try {
+            const { MedicalNLPEngine } = await import('../services/MedicalNLPEngine.js');
+            warnings = MedicalNLPEngine.checkLocalInteractions(drugList);
+          } catch (nlpErr) {}
+        }
+
+        if (warnings && warnings.length > 0) {
+          const warningsHtml = warnings.map(w => 
+            `<div class="mb-4 bg-red-950/30 p-4 rounded-2xl border border-red-500/20">
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                    <strong class="uppercase text-[10px] tracking-widest text-red-300">${w.effect || w.type || 'INTERACTION'} • ${w.strength || 'HIGH'} SEVERITY</strong>
                 </div>
-                <div class="space-y-2">
-                  ${warningsHtml}
+                <p class="text-sm font-semibold text-red-50 my-2">${Array.isArray(w.drugs) ? w.drugs.join(' + ') : drugName}</p>
+                <div class="mt-3 pt-3 border-t border-red-500/20 text-[11px] text-red-200/70 leading-relaxed flex gap-2">
+                    <svg class="w-4 h-4 shrink-0 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span><strong>Clinical Warning:</strong> <em>${w.description || 'Potential interaction detected.'}</em></span>
                 </div>
+            </div>`
+          ).join('');
+
+          container.innerHTML = `
+            <div class="mb-6 p-5 rounded-3xl bg-red-950/40 border border-red-500/30 backdrop-blur-xl" style="box-shadow: inset 4px 4px 10px rgba(0,0,0,0.5), inset -4px -4px 10px rgba(255, 100, 100, 0.1), 0 0 20px rgba(239, 68, 68, 0.3);">
+              <div class="flex items-center gap-3 mb-4">
+                <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <h4 class="text-red-200 font-bold tracking-widest text-xs uppercase">Clinical Warning Detected</h4>
               </div>
-            `;
-          } else {
-            container.innerHTML = '';
-          }
+              <div class="space-y-2">
+                ${warningsHtml}
+              </div>
+            </div>
+          `;
+        } else {
+          container.innerHTML = '';
         }
       }
     } catch (e) {
-      console.warn('[AddMedication] Inline Interaction check failed:', e);
+      // Fail safely without throwing console errors
     }
   }
 }

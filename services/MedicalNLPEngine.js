@@ -198,4 +198,48 @@ export class MedicalNLPEngine {
       };
     });
   }
+
+  /**
+   * Offline Clinical Interaction Engine
+   */
+  static checkLocalInteractions(drugList) {
+    if (!Array.isArray(drugList) || drugList.length < 2) return [];
+
+    const normalized = drugList.map(d => String(d).toLowerCase().trim());
+    const warnings = [];
+
+    const isMatch = (term, categoryTerms) => categoryTerms.some(c => term.includes(c));
+
+    const nsaids = ['ibuprofen', 'aceclofenac', 'hifenac', 'diclofenac', 'voveran', 'aspirin', 'ecosprin', 'naproxen', 'combiflam'];
+    const anticoagulants = ['warfarin', 'clopidogrel', 'plavix', 'heparin', 'apixaban'];
+    const statins = ['atorvastatin', 'lipitor', 'rosuvastatin', 'crestor', 'simvastatin'];
+    const arbs = ['telmisartan', 'telma', 'losartan', 'cozaar', 'valsartan'];
+
+    // Check 1: NSAID + Anticoagulant
+    const hasNsaid = normalized.find(d => isMatch(d, nsaids));
+    const hasAnti = normalized.find(d => isMatch(d, anticoagulants));
+    if (hasNsaid && hasAnti) {
+      warnings.push({
+        type: 'DRUG_INTERACTION',
+        strength: 'HIGH',
+        drugs: [hasNsaid, hasAnti],
+        effect: 'Increased Bleeding Risk',
+        description: `Combining NSAID (${hasNsaid}) with anticoagulant/antiplatelet (${hasAnti}) significantly increases the risk of severe gastrointestinal bleeding.`
+      });
+    }
+
+    // Check 2: Dual NSAID
+    const matchingNsaids = normalized.filter(d => isMatch(d, nsaids));
+    if (matchingNsaids.length >= 2) {
+      warnings.push({
+        type: 'DUPLICATE_THERAPY',
+        strength: 'HIGH',
+        drugs: [matchingNsaids[0], matchingNsaids[1]],
+        effect: 'Duplicate NSAID Toxicity',
+        description: `Taking multiple NSAIDs simultaneously (${matchingNsaids.join(' + ')}) increases renal and gastric ulcer risks without therapeutic benefit.`
+      });
+    }
+
+    return warnings;
+  }
 }
