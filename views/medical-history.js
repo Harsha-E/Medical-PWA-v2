@@ -27,7 +27,7 @@ export default class MedicalHistoryView {
     const hospitals = records.filter(r => r.type === 'Hospital');
 
     this.container.innerHTML = `
-      <main class="scroll-area pt-[112px] md:pt-8 md:pl-64 lg:pl-72 md:pt-8" style="padding-left:0; padding-right:0;">
+      <main class="scroll-area pt-[112px] md:pt-8 md:pl-64 lg:pl-72 md:pt-8 md:pl-64 lg:pl-72 md:pt-8" style="padding-left:0; padding-right:0;">
 <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
         <div class="mb-6 flex gap-2">
             <input type="text" id="ledger-search" placeholder="Search Clinical Vault..." class="flex-1 px-4 md:px-8 lg:px-12 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
@@ -245,7 +245,7 @@ export default class MedicalHistoryView {
           </div>
           <div class="pt-2">
             <label class="block text-xs text-text-secondary uppercase tracking-widest mb-1 ml-1">Attach Evidence (Optional)</label>
-            <input type="file" id="h-doc" class="w-full text-xs text-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[var(--theme-accent-muted)] file:text-[var(--theme-accent)]">
+            <input type="file" id="h-doc" class="w-full text-xs text-text-secondary file:mr-4 file:py-2 file:px-4 md:px-8 lg:px-12 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[var(--theme-accent-muted)] file:text-[var(--theme-accent)]">
           </div>
           <div class="flex gap-3 mt-8">
             <button type="button" id="cancel-history" class="flex-1 py-3 rounded-xl text-text-primary text-xs uppercase font-bold tracking-widest transition-colors btn-neumorphic">Cancel</button>

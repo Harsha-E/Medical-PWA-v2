@@ -12,7 +12,11 @@
  *   Fallback: Demo mode ONLY if the Groq proxy is unreachable (P0 guarantee)
  */
 
+import { ENV } from '../core/env.js';
+
 const GROQ_PROXY_URL = 'https://medcare-groq-proxy.harshaedupuganti70.workers.dev/';
+const DIRECT_GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const GROQ_KEY = ENV.GROQ_API_KEY || '';
 
 class AIExtractionService {
     constructor() {
@@ -35,7 +39,7 @@ class AIExtractionService {
 
     /**
      * PRIMARY: Sends image to the Groq Cloudflare proxy (same as visionWorker.js)
-     * Uses meta-llama/llama-4-scout-17b-16e-instruct for vision OCR.
+     * Uses meta-llama/llama-4-scout-17b-16e-instruct or llama-3.3-70b-versatile for vision OCR.
      */
     async _runGroqExtraction(imageBlob) {
         // Convert blob to base64 data URL
@@ -82,15 +86,36 @@ Return ONLY a strict JSON array (no markdown, no backticks, no extra text):
             max_tokens: 800
         };
 
-        const response = await fetch(GROQ_PROXY_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
+        let response;
+        try {
+            response = await fetch(GROQ_PROXY_URL, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${GROQ_KEY}`
+                },
+                body: JSON.stringify(payload)
+            });
+        } catch (err) {
+            console.warn('[AIExtractionService] Proxy fetch failed, attempting direct Groq API:', err);
+        }
+
+        if (!response || !response.ok) {
+            // Direct Groq API fallback
+            payload.model = 'llama-3.3-70b-versatile';
+            response = await fetch(DIRECT_GROQ_URL, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${GROQ_KEY}`
+                },
+                body: JSON.stringify(payload)
+            });
+        }
 
         if (!response.ok) {
             const errText = await response.text();
-            throw new Error(`Groq Proxy Error: ${response.status} - ${errText}`);
+            throw new Error(`Groq Extraction Error: ${response.status} - ${errText}`);
         }
 
         const data = await response.json();

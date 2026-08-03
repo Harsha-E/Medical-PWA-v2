@@ -21,7 +21,7 @@ export default class SettingsView {
     const dobYear = state.userProfile?.profile?.dob ? new Date(state.userProfile.profile.dob).getFullYear() : 'N/A';
 
     this.container.innerHTML = `
-      <main class="scroll-area pt-[112px] md:pt-8 md:pl-64 lg:pl-72 md:pt-8 bg-transparent pb-40" style="padding-left:0; padding-right:0;">
+      <main class="scroll-area pt-[112px] md:pt-8 md:pl-64 lg:pl-72 md:pt-8 md:pl-64 lg:pl-72 md:pt-8 bg-transparent pb-40" style="padding-left:0; padding-right:0;">
 <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
         <div class="clay-glass-panel p-8 mb-12 flex items-center gap-4 shadow-[0_8px_32px_var(--color-card-shadow)] border-border backdrop-blur-xl relative z-10">
           <a href="#/avatar-setup" class="w-20 h-20 rounded-full flex items-center justify-center font-display italic text-3xl font-bold shadow-[0_0_20px_var(--color-primary)] border border-accent-primary/40 bg-gradient-to-br from-primary/80 to-secondary/80 text-accent-bright backdrop-blur-md shrink-0 ring-4 ring-surface-elevated/50 hover:scale-105 transition-transform overflow-hidden relative group">

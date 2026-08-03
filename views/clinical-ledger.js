@@ -408,11 +408,11 @@ export default class ClinicalLedgerView {
                     <div class="w-full relative flex p-1.5 bg-[#0a0407]/40 backdrop-blur-2xl border border-white/5 rounded-full shadow-[inset_6px_6px_12px_rgba(0,0,0,0.8),inset_-4px_-4px_10px_rgba(255,255,255,0.04)]">
                         <div class="segment-slider absolute top-1.5 bottom-1.5 bg-white/5 rounded-full border border-white/10 shadow-[4px_4px_12px_rgba(0,0,0,0.5),inset_1px_1px_2px_rgba(255,255,255,0.2)] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]" style="${this.currentView === 'timeline' ? 'left: 6px; right: 50%;' : 'left: 50%; right: 6px;'}"></div>
                         
-                        <div class="segment-pill flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-full text-[11px] font-[800] uppercase tracking-[0.2em] cursor-pointer relative z-10 transition-all duration-500 ${this.currentView === 'timeline' ? 'text-[#ffb88c] drop-shadow-[0_0_15px_rgba(255,184,140,0.4)]' : 'text-white/30'}" data-view="timeline">
+                        <div class="segment-pill flex-1 flex items-center justify-center gap-2 py-3 px-4 md:px-8 lg:px-12 rounded-full text-[11px] font-[800] uppercase tracking-[0.2em] cursor-pointer relative z-10 transition-all duration-500 ${this.currentView === 'timeline' ? 'text-[#ffb88c] drop-shadow-[0_0_15px_rgba(255,184,140,0.4)]' : 'text-white/30'}" data-view="timeline">
                             <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
                             TIMELINE
                         </div>
-                        <div class="segment-pill flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-full text-[11px] font-[800] uppercase tracking-[0.2em] cursor-pointer relative z-10 transition-all duration-500 ${this.currentView === 'diseases' ? 'text-[#ffb88c] drop-shadow-[0_0_15px_rgba(255,184,140,0.4)]' : 'text-white/30'}" data-view="diseases">
+                        <div class="segment-pill flex-1 flex items-center justify-center gap-2 py-3 px-4 md:px-8 lg:px-12 rounded-full text-[11px] font-[800] uppercase tracking-[0.2em] cursor-pointer relative z-10 transition-all duration-500 ${this.currentView === 'diseases' ? 'text-[#ffb88c] drop-shadow-[0_0_15px_rgba(255,184,140,0.4)]' : 'text-white/30'}" data-view="diseases">
                             <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.42 4.58a5.4 5.4 0 00-7.65 0l-.77.78-.77-.78a5.4 5.4 0 00-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z"/></svg>
                             DISEASES
                         </div>
@@ -936,7 +936,7 @@ export default class ClinicalLedgerView {
             <div class="absolute inset-0 bg-[#0a0407]/60 backdrop-blur-2xl transition-opacity duration-500 opacity-0" id="detail-backdrop"></div>
             
             <!-- Modal Content (Unified Card Style) -->
-            <div class="relative w-full max-w-2xl mx-auto h-[90vh] sm:h-auto sm:max-h-[90vh] flex flex-col bg-[#150a0f]/80 backdrop-blur-3xl rounded-t-[40px] sm:rounded-[32px] border border-white/10 shadow-[0_-20px_60px_rgba(0,0,0,0.6),inset_0_2px_10px_rgba(255,255,255,0.1)] overflow-hidden transform translate-y-full transition-transform duration-500 cubic-bezier(0.16, 1, 0.3, 1)" id="detail-card">
+            <div class="relative w-full max-w-2xl md:max-w-4xl lg:max-w-5xl mx-auto h-[90vh] sm:h-auto sm:max-h-[90vh] flex flex-col bg-[#150a0f]/80 backdrop-blur-3xl rounded-t-[40px] sm:rounded-[32px] border border-white/10 shadow-[0_-20px_60px_rgba(0,0,0,0.6),inset_0_2px_10px_rgba(255,255,255,0.1)] overflow-hidden transform translate-y-full transition-transform duration-500 cubic-bezier(0.16, 1, 0.3, 1)" id="detail-card">
                 
                 <!-- Handle for mobile swipe down (visual only) -->
                 <div class="w-full flex justify-center pt-4 pb-2 sm:hidden absolute top-0 z-50 pointer-events-none">
@@ -961,7 +961,7 @@ export default class ClinicalLedgerView {
                         <div class="w-20 h-20 rounded-full border border-[var(--theme-border)] bg-[var(--theme-accent-muted)] flex items-center justify-center shadow-[0_0_30px_var(--theme-accent-glow)] mb-2">
                             ${this.getIconForType(record.entityType).replace('w-5 h-5', 'w-10 h-10')}
                         </div>
-                        <span class="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/60 text-[10px] uppercase font-black tracking-[0.2em] shadow-sm">${escapeHTML(record.entityType)}</span>
+                        <span class="px-4 md:px-8 lg:px-12 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/60 text-[10px] uppercase font-black tracking-[0.2em] shadow-sm">${escapeHTML(record.entityType)}</span>
                         <h2 class="text-3xl sm:text-4xl font-black text-white leading-tight tracking-tight drop-shadow-md">${escapeHTML(record.title)}</h2>
                         ${record.subtitle ? `<h3 class="text-lg font-medium text-[var(--theme-accent)]/80">${escapeHTML(record.subtitle)}</h3>` : ''}
                         <span class="text-xs text-white/40 font-mono tracking-widest pt-2">${this.formatExactDate(record.rawDate)}</span>

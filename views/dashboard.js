@@ -115,7 +115,7 @@ export default class DashboardView {
         showBanner = true;
         bannerTitle = 'Enable Notifications';
         bannerText = 'MedCheck needs permission to send you timely medicine reminders.';
-        bannerAction = `<button id="request-notification-btn" class="mt-3 text-[10px] font-bold text-amber-600 bg-amber-500/20 px-4 py-1.5 rounded-lg border border-amber-500/30 uppercase tracking-widest hover:bg-amber-500/30 transition-colors">Grant Permission</button>`;
+        bannerAction = `<button id="request-notification-btn" class="mt-3 text-[10px] font-bold text-amber-600 bg-amber-500/20 px-4 md:px-8 lg:px-12 py-1.5 rounded-lg border border-amber-500/30 uppercase tracking-widest hover:bg-amber-500/30 transition-colors">Grant Permission</button>`;
       } else if (notificationPerm === 'denied') {
         showBanner = true;
         bannerTitle = 'Notifications Blocked';
@@ -393,7 +393,7 @@ export default class DashboardView {
                   </a>
                   
                   <!-- Center: Text (Truncated to prevent overflow) -->
-                  <a href="#/medication-detail?id=${dose.id}" class="flex-1 min-w-0 px-4 block cursor-pointer">
+                  <a href="#/medication-detail?id=${dose.id}" class="flex-1 min-w-0 px-4 md:px-8 lg:px-12 block cursor-pointer">
                     <p class="text-sm font-bold text-text-primary truncate ${dose.taken ? 'line-through text-text-muted' : 'group-hover:text-accent-primary transition-colors'}">${escapeHTML(dose.name)}</p>
                     <p class="text-[10px] text-text-secondary mt-1 uppercase tracking-[0.15em] font-bold truncate">${escapeHTML(dose.time)} &bull; ${escapeHTML(dose.dosage)} ${escapeHTML(dose.dosageUnit)}</p>
                   </a>
@@ -722,7 +722,7 @@ export default class DashboardView {
 
           <div class="border-t border-border pt-4">
             <label class="block text-[10px] text-text-secondary uppercase tracking-widest mb-1 font-bold">Scan Lab Report Document (Optional)</label>
-            <input type="file" id="fo-file" accept="image/*,application/pdf" class="w-full text-xs text-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-accent-soft/20 file:text-accent-primary hover:file:bg-accent-soft/30 file:cursor-pointer">
+            <input type="file" id="fo-file" accept="image/*,application/pdf" class="w-full text-xs text-text-secondary file:mr-4 file:py-2 file:px-4 md:px-8 lg:px-12 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-accent-soft/20 file:text-accent-primary hover:file:bg-accent-soft/30 file:cursor-pointer">
             
             <div id="ocr-simulation-container" class="hidden mt-3 space-y-2">
               <label class="block text-[10px] text-text-secondary uppercase tracking-widest font-bold">Document text (Simulated OCR)</label>
@@ -987,7 +987,7 @@ export default class DashboardView {
     `;
     return `
       <!-- Header removed -->
-      <div class="flex-1 overflow-y-auto px-6 md:px-10 lg:px-12 pt-[112px] md:pt-10 md:pl-[280px] pb-28 w-full max-w-[1600px] mx-auto" id="dashboard-main-content" style="overscroll-behavior-y: none;">
+      <div class="flex-1 overflow-y-auto px-6 md:px-10 lg:px-12 pt-[112px] md:pt-8 md:pl-64 lg:pl-72 md:pt-10 md:pl-[280px] pb-28 w-full max-w-[1600px] mx-auto" id="dashboard-main-content" style="overscroll-behavior-y: none;">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start w-full">
           <!-- Left Column -->
           <div class="lg:col-span-2 w-full flex flex-col gap-8">

@@ -674,6 +674,18 @@ html, body, #app-viewport {
   flex-direction: column;
 }
 
+@media (min-width: 768px) {
+  .container {
+    max-width: 900px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1200px;
+  }
+}
+
 .scroll-area {
   flex: 1;
   overflow-y: auto;

@@ -49,7 +49,7 @@ export default class MedicationDetailView {
           <section class="mb-8">
             <div class="flex justify-between items-center mb-4 px-2">
               <h3 class="text-[10px] text-accent-primary font-bold tracking-[0.2em] uppercase">Clinical Overview</h3>
-              <button id="btn-remove-med" class="text-red-400 bg-red-500/10 hover:bg-red-500/20 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300">Remove</button>
+              <button id="btn-remove-med" class="text-red-400 bg-red-500/10 hover:bg-red-500/20 px-4 md:px-8 lg:px-12 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300">Remove</button>
             </div>
             
             <div class="clay-glass-panel rounded-3xl p-6 relative overflow-hidden">

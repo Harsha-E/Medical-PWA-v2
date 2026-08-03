@@ -46,13 +46,32 @@ Return ONLY a strict JSON object with this EXACT structure (no markdown, no back
             max_tokens: 500
         };
 
-        const response = await fetch('https://medcare-groq-proxy.harshaedupuganti70.workers.dev/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        });
+        const GROQ_KEY = self.GROQ_API_KEY || '';
+        let response;
+        try {
+            response = await fetch('https://medcare-groq-proxy.harshaedupuganti70.workers.dev/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${GROQ_KEY}`
+                },
+                body: JSON.stringify(payload)
+            });
+        } catch (err) {
+            console.warn('[Groq Worker] Proxy failed, falling back to direct Groq API:', err);
+        }
+
+        if (!response || !response.ok) {
+            payload.model = 'llama-3.3-70b-versatile';
+            response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${GROQ_KEY}`
+                },
+                body: JSON.stringify(payload)
+            });
+        }
 
         if (!response.ok) {
             const errText = await response.text();

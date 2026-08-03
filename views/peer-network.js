@@ -109,7 +109,7 @@ export default class PeerNetworkView {
             <!-- Frosted glass blur layer -->
             <div class="fixed inset-0 z-[1] pointer-events-none backdrop-blur-3xl bg-[#0a0407]/40"></div>
             
-            <main class="w-full px-4 md:px-8 pt-[112px] md:pt-8 md:pl-64 lg:pl-72 md:pt-8 md:pl-64 pb-28 md:pb-12 z-10 max-w-5xl mx-auto relative">
+            <main class="w-full px-4 md:px-8 pt-[112px] md:pt-8 md:pl-64 lg:pl-72 md:pt-8 md:pl-64 lg:pl-72 md:pt-8 md:pl-64 pb-28 md:pb-12 z-10 max-w-5xl mx-auto relative">
                 <!-- Desktop 2-col on lg: QR left, roster right -->
                 <div class="flex flex-col lg:flex-row lg:items-start lg:gap-8">
                 
@@ -145,7 +145,7 @@ export default class PeerNetworkView {
 
                         <!-- Manual Entry -->
                         <div class="w-full pt-4 border-t border-white/10 flex items-center gap-2">
-                            <input type="text" id="pairing-code" placeholder="Enter Peer ID..." class="flex-1 min-w-0 bg-black/50 border border-white/10 rounded-full px-4 py-3 text-sm text-white placeholder-white/40 focus:outline-none focus:border-[#ffb88c] transition-colors font-mono">
+                            <input type="text" id="pairing-code" placeholder="Enter Peer ID..." class="flex-1 min-w-0 bg-black/50 border border-white/10 rounded-full px-4 md:px-8 lg:px-12 py-3 text-sm text-white placeholder-white/40 focus:outline-none focus:border-[#ffb88c] transition-colors font-mono">
                             <button id="btn-connect" class="px-5 py-3 rounded-full bg-[#ffb88c] text-[#0a0407] text-xs font-mono font-bold tracking-widest hover:bg-[#ffcba8] transition-colors shadow-lg shadow-[#ffb88c]/20 shrink-0">
                                 LINK
                             </button>
