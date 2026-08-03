@@ -54,7 +54,7 @@ export default class PeerDashboardView {
       <!-- Frosted glass blur layer -->
       <div class="fixed inset-0 z-[1] pointer-events-none backdrop-blur-3xl bg-[#0a0407]/40"></div>
 
-      <main class="w-full px-4 md:px-8 pt-[112px] md:pt-8 md:pl-64 lg:pl-72 md:pt-8 md:pl-64 lg:pl-72 md:pt-8 md:pl-64 pb-28 md:pb-12 z-10 max-w-5xl mx-auto relative flex flex-col">
+      <main class="w-full px-4 md:px-8 pt-24 md:pt-8 md:pl-72 pb-28 md:pb-12 z-10 max-w-5xl mx-auto relative flex flex-col">
         
         <!-- Header -->
         <header class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">

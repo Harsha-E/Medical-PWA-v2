@@ -352,9 +352,9 @@ export default class DashboardView {
     // Assemble final HTML inside the container
     mainContent.innerHTML = `
       ${bannerHTML}
-      <div class="md:grid md:grid-cols-1 md:grid-cols-2 lg:grid-cols-32 md:gap-10 lg:gap-12 md:items-start w-full">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start w-full">
         <!-- Left Column -->
-        <div class="md:col-span-7 lg:col-span-8 flex flex-col gap-6 lg:gap-8">
+        <div class="lg:col-span-7 flex flex-col gap-6 lg:gap-8">
           
           <!-- Today's Medicines Widget -->
           <section id="dashboard-schedule-section" class="clay-glass-panel rounded-3xl p-4 md:p-6 relative">
@@ -393,7 +393,7 @@ export default class DashboardView {
                   </a>
                   
                   <!-- Center: Text (Truncated to prevent overflow) -->
-                  <a href="#/medication-detail?id=${dose.id}" class="flex-1 min-w-0 px-4 md:px-8 lg:px-12 block cursor-pointer">
+                  <a href="#/medication-detail?id=${dose.id}" class="flex-1 min-w-0 px-4 block cursor-pointer">
                     <p class="text-sm font-bold text-text-primary truncate ${dose.taken ? 'line-through text-text-muted' : 'group-hover:text-accent-primary transition-colors'}">${escapeHTML(dose.name)}</p>
                     <p class="text-[10px] text-text-secondary mt-1 uppercase tracking-[0.15em] font-bold truncate">${escapeHTML(dose.time)} &bull; ${escapeHTML(dose.dosage)} ${escapeHTML(dose.dosageUnit)}</p>
                   </a>
@@ -431,7 +431,7 @@ export default class DashboardView {
                     <p class="text-sm font-bold text-text-primary">HbA1c Level</p>
                     <p class="text-xs text-text-secondary mt-0.5">Last test: ${hba1cStr}</p>
                   </div>
-                  <button class="add-followup-btn px-4 md:px-8 lg:px-12 py-2 rounded-xl text-xs font-bold text-accent-primary uppercase tracking-widest border border-accent-primary/20 hover:border-accent-primary hover:bg-accent-soft/10 transition-all active:scale-95" data-type="hba1c">
+                  <button class="add-followup-btn px-5 py-2 rounded-xl text-xs font-bold text-accent-primary uppercase tracking-widest border border-accent-primary/20 hover:border-accent-primary hover:bg-accent-soft/10 transition-all active:scale-95" data-type="hba1c">
                     Add
                   </button>
                 </div>
@@ -441,7 +441,7 @@ export default class DashboardView {
                     <p class="text-sm font-bold text-text-primary">Blood Pressure</p>
                     <p class="text-xs text-text-secondary mt-0.5">Last reading: ${bpStr}</p>
                   </div>
-                  <button class="add-followup-btn px-4 md:px-8 lg:px-12 py-2 rounded-xl text-xs font-bold text-accent-primary uppercase tracking-widest border border-accent-primary/20 hover:border-accent-primary hover:bg-accent-soft/10 transition-all active:scale-95" data-type="bp">
+                  <button class="add-followup-btn px-5 py-2 rounded-xl text-xs font-bold text-accent-primary uppercase tracking-widest border border-accent-primary/20 hover:border-accent-primary hover:bg-accent-soft/10 transition-all active:scale-95" data-type="bp">
                     Add
                   </button>
                 </div>
@@ -451,7 +451,7 @@ export default class DashboardView {
                     <p class="text-sm font-bold text-text-primary">Thyroid (TSH)</p>
                     <p class="text-xs text-text-secondary mt-0.5">Last test: ${thyroidStr}</p>
                   </div>
-                  <button class="add-followup-btn px-4 md:px-8 lg:px-12 py-2 rounded-xl text-xs font-bold text-accent-primary uppercase tracking-widest border border-accent-primary/20 hover:border-accent-primary hover:bg-accent-soft/10 transition-all active:scale-95" data-type="thyroid">
+                  <button class="add-followup-btn px-5 py-2 rounded-xl text-xs font-bold text-accent-primary uppercase tracking-widest border border-accent-primary/20 hover:border-accent-primary hover:bg-accent-soft/10 transition-all active:scale-95" data-type="thyroid">
                     Add
                   </button>
                 </div>
@@ -462,7 +462,7 @@ export default class DashboardView {
         </div>
 
         <!-- Right Column -->
-        <div class="lg:col-span-1 w-full mt-8 lg:mt-0 flex flex-col gap-5 lg:gap-6">
+        <div class="lg:col-span-5 w-full mt-8 lg:mt-0 flex flex-col gap-5 lg:gap-6">
           
           <!-- Health Progress (Streaks Replacement) Widget -->
           <section id="dashboard-progress-section">
@@ -986,8 +986,7 @@ export default class DashboardView {
       <div class="skeleton skeleton-card" style="height:${height}; width:100%; border-radius:1.5rem; margin-bottom:16px;"></div>
     `;
     return `
-      <!-- Header removed -->
-      <div class="flex-1 overflow-y-auto px-6 md:px-10 lg:px-12 pt-[112px] md:pt-8 md:pl-64 lg:pl-72 md:pt-10 md:pl-[280px] pb-28 w-full max-w-[1600px] mx-auto" id="dashboard-main-content" style="overscroll-behavior-y: none;">
+      <div class="flex-1 overflow-y-auto px-4 sm:px-6 md:px-10 lg:px-12 pt-24 md:pt-8 md:pl-72 pb-28 w-full max-w-[1600px] mx-auto" id="dashboard-main-content" style="overscroll-behavior-y: none;">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start w-full">
           <!-- Left Column -->
           <div class="lg:col-span-2 w-full flex flex-col gap-8">

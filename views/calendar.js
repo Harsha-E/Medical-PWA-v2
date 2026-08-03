@@ -190,7 +190,7 @@ export default class CalendarView {
 
   renderBaseLayout(title, gridHTML) {
     this.container.innerHTML = `
-      <main class="scroll-area flex-1 pt-[112px] md:pt-8 md:pl-64 lg:pl-72 md:pt-8 md:pl-64 lg:pl-72 md:pt-8 pb-28 max-w-xl mx-auto w-full flex flex-col" style="padding-left:0; padding-right:0;">
+      <main class="scroll-area flex-1 pt-24 md:pt-8 md:pl-72 pb-28 max-w-xl mx-auto w-full flex flex-col" >
 <div class="px-6 w-full max-w-7xl mx-auto flex flex-col">
         <div class="flex items-center justify-between bg-surface-elevated/40 backdrop-blur-xl border border-border rounded-3xl p-4 mb-8 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
           <button id="prev-period" class="w-10 h-10 rounded-2xl flex items-center justify-center text-accent-primary active:scale-95 transition-all btn-neumorphic">

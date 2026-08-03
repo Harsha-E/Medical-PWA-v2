@@ -13,7 +13,7 @@ export default class ReportsView {
 
     // Immediate skeleton before heavy analytics compute
     this.container.innerHTML = `
-      <main class="scroll-area md:px-12 pt-[112px] md:pt-8 md:pl-64 lg:pl-72 md:pt-8 md:pl-64 lg:pl-72 md:pt-8 pb-28 max-w-7xl mx-auto" style="padding-left:0; padding-right:0;">
+      <main class="scroll-area md:px-12 pt-24 md:pt-8 md:pl-72 pb-28 max-w-7xl mx-auto" >
 <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
         <div class="md:grid md:grid-cols-1 md:grid-cols-2 lg:grid-cols-32 md:gap-10">
             <div class="md:col-span-5 lg:col-span-4 flex flex-col gap-8">
@@ -80,11 +80,11 @@ export default class ReportsView {
     const dashOffset = 377 - (377 * (overallAdherence / 100));
 
     this.container.innerHTML = `
-      <main class="scroll-area md:px-12 pt-[112px] md:pt-8 md:pl-64 lg:pl-72 md:pt-8 md:pl-64 lg:pl-72 md:pt-8 pb-28 max-w-7xl mx-auto" style="padding-left:0; padding-right:0;">
+      <main class="scroll-area md:px-8 pt-24 md:pt-8 md:pl-72 pb-28 max-w-7xl mx-auto" >
 <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
-        <div class="md:grid md:grid-cols-1 md:grid-cols-2 lg:grid-cols-32 md:gap-10">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
           <!-- Left Column -->
-          <div class="md:col-span-5 lg:col-span-4 flex flex-col gap-8">
+          <div class="lg:col-span-5 flex flex-col gap-8">
             ${totalExpected30 === 0 ? `
               <div class="clay-glass-panel p-12 text-center shadow-[0_8px_32px_rgba(0,0,0,0.5)] border-dashed border-2 border-border bg-surface-elevated/40 backdrop-blur-xl rounded-[2rem] opacity-70">
                   <div class="w-16 h-16 bg-border/20 rounded-full flex items-center justify-center mx-auto mb-4">

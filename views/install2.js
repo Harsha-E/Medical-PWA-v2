@@ -157,7 +157,7 @@ export default class InstallView2 {
       <div class="liquid-blur-overlay"></div>
       
       <div class="min-h-[100dvh] w-full flex flex-col relative z-20 text-text-primary font-sans pointer-events-none">
-        <main class="flex-1 flex flex-col items-center justify-center text-center relative overflow-hidden pointer-events-auto" style="padding-left:0; padding-right:0;">
+        <main class="flex-1 flex flex-col items-center justify-center text-center relative overflow-hidden pointer-events-auto" >
           <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col justify-center items-center flex-1">
             
             <div class="relative w-full max-w-4xl mx-auto flex flex-col items-center justify-center panel-breathe">

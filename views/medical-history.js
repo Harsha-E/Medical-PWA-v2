@@ -27,7 +27,7 @@ export default class MedicalHistoryView {
     const hospitals = records.filter(r => r.type === 'Hospital');
 
     this.container.innerHTML = `
-      <main class="scroll-area pt-[112px] md:pt-8 md:pl-64 lg:pl-72 md:pt-8 md:pl-64 lg:pl-72 md:pt-8" style="padding-left:0; padding-right:0;">
+      <main class="scroll-area pt-24 md:pt-8 md:pl-72 " >
 <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
         <div class="mb-6 flex gap-2">
             <input type="text" id="ledger-search" placeholder="Search Clinical Vault..." class="flex-1 px-4 md:px-8 lg:px-12 py-3 rounded-xl btn-neumorphic w-full py-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">

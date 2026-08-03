@@ -146,6 +146,7 @@ export default class GlassNavbar {
       };
 
       window.addEventListener('scroll', (e) => {
+        if (window.innerWidth >= 768) return; // Never hide sidebar on desktop
         const target = e.target === document ? window : e.target;
         const scrollTop = target.scrollTop || window.pageYOffset || document.documentElement.scrollTop || 0;
         
