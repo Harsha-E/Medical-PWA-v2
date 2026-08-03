@@ -315,20 +315,25 @@ export default class ScanView {
     const h = this._video.videoHeight;
     if (!w || !h) return;
 
-    // Apply center crop to ensure focus on the medication and consistent aspect ratio
-    const cropSize = Math.min(w, h) * 0.8; // 80% of the shortest dimension
-    const startX = (w - cropSize) / 2;
-    const startY = (h - cropSize) / 2;
+    // Capture full uncropped video frame to preserve entire width/height of medical strips
+    const maxDim = 1920;
+    let targetW = w;
+    let targetH = h;
+    if (Math.max(w, h) > maxDim) {
+        const scale = maxDim / Math.max(w, h);
+        targetW = Math.round(w * scale);
+        targetH = Math.round(h * scale);
+    }
 
-    this._canvas.width = cropSize;
-    this._canvas.height = cropSize;
+    this._canvas.width = targetW;
+    this._canvas.height = targetH;
     const ctx = this._canvas.getContext('2d');
     
-    // Draw cropped video frame
-    ctx.drawImage(this._video, startX, startY, cropSize, cropSize, 0, 0, cropSize, cropSize);
+    // Draw uncropped frame
+    ctx.drawImage(this._video, 0, 0, targetW, targetH);
     
-    // Convert to Blob for routing fallback
-    const blob = await new Promise(r => this._canvas.toBlob(r, 'image/jpeg', 0.85));
+    // Convert to Blob with 0.95 quality for sharp text and barcode resolution
+    const blob = await new Promise(r => this._canvas.toBlob(r, 'image/jpeg', 0.95));
     sessionStorage.setItem('medcare_is_gallery_upload', 'false');
 
     this.showProcessingSpinner("Analyzing 2D Frame...");

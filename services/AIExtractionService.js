@@ -60,7 +60,7 @@ Return ONLY a strict JSON array (no markdown, no backticks, no extra text):
   }
 ]`;
 
-        // 1. Perform OCR Pre-pass
+        // 1. Perform OCR Pre-pass helper
         let ocrText = '';
         try {
             if (typeof window !== 'undefined' && window.Tesseract) {
@@ -71,39 +71,88 @@ Return ONLY a strict JSON array (no markdown, no backticks, no extra text):
             console.warn('[AIExtractionService] Local Tesseract OCR pre-pass error:', ocrErr);
         }
 
-        // 2. Send payload to active Groq LLM (llama-3.3-70b-versatile)
-        const payload = {
-            model: 'llama-3.3-70b-versatile',
-            messages: [
-                {
-                    role: 'user',
-                    content: promptText + (ocrText ? `\n\n[Extracted Packaging Text]:\n"""\n${ocrText}\n"""` : '\n\nExtract medicine details accurately.')
-                }
-            ],
-            temperature: 0.1,
-            max_tokens: 800
-        };
-
         const activeKey = ENV.getGroqKey ? ENV.getGroqKey() : ENV.GROQ_API_KEY;
+        const textPromptWithOcr = promptText + (ocrText ? `\n\n[Extracted Packaging Text]:\n"""\n${ocrText}\n"""` : '\n\nExtract medicine details accurately.');
 
-        let response;
-        try {
-            console.log('[AIExtractionService] 🚀 Sending extraction payload to Groq API...');
-            response = await fetch(DIRECT_GROQ_URL, {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${activeKey}`
-                },
-                body: JSON.stringify(payload)
-            });
-        } catch (err) {
-            console.warn('[AIExtractionService] Direct Groq API fetch error:', err);
+        const modelsToTry = [
+            {
+                name: 'llama-3.2-90b-vision-preview',
+                payload: {
+                    model: 'llama-3.2-90b-vision-preview',
+                    messages: [
+                        {
+                            role: 'user',
+                            content: [
+                                { type: 'text', text: textPromptWithOcr },
+                                { type: 'image_url', image_url: { url: base64Image } }
+                            ]
+                        }
+                    ],
+                    temperature: 0.1,
+                    max_tokens: 800
+                }
+            },
+            {
+                name: 'llama-3.2-11b-vision-preview',
+                payload: {
+                    model: 'llama-3.2-11b-vision-preview',
+                    messages: [
+                        {
+                            role: 'user',
+                            content: [
+                                { type: 'text', text: textPromptWithOcr },
+                                { type: 'image_url', image_url: { url: base64Image } }
+                            ]
+                        }
+                    ],
+                    temperature: 0.1,
+                    max_tokens: 800
+                }
+            },
+            {
+                name: 'llama-3.3-70b-versatile',
+                payload: {
+                    model: 'llama-3.3-70b-versatile',
+                    messages: [
+                        { role: 'user', content: textPromptWithOcr }
+                    ],
+                    temperature: 0.1,
+                    max_tokens: 800
+                }
+            }
+        ];
+
+        let response = null;
+        let lastError = null;
+
+        for (const modelConfig of modelsToTry) {
+            try {
+                console.log(`[AIExtractionService] 🚀 Sending extraction payload to Groq model: ${modelConfig.name}...`);
+                const res = await fetch(DIRECT_GROQ_URL, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${activeKey}`
+                    },
+                    body: JSON.stringify(modelConfig.payload)
+                });
+
+                if (res.ok) {
+                    response = res;
+                    break;
+                } else {
+                    const errText = await res.text();
+                    console.warn(`[AIExtractionService] Model ${modelConfig.name} failed (${res.status}): ${errText}`);
+                    lastError = new Error(`Groq Extraction Error: ${res.status} - ${errText}`);
+                }
+            } catch (err) {
+                console.warn(`[AIExtractionService] Network/fetch error with ${modelConfig.name}:`, err);
+                lastError = err;
+            }
         }
 
-        if (!response.ok) {
-            const errText = await response.text();
-            throw new Error(`Groq Extraction Error: ${response.status} - ${errText}`);
+        if (!response || !response.ok) {
+            throw lastError || new Error('All Groq extraction models failed.');
         }
 
         const data = await response.json();
