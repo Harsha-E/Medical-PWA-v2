@@ -826,7 +826,6 @@ export default class AddMedicationView {
             }
           }
         }
-      }
     } catch (e) {
       console.warn('[AddMedication] Interaction check failed during save:', e);
     }
