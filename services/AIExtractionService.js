@@ -60,15 +60,24 @@ Return ONLY a strict JSON array (no markdown, no backticks, no extra text):
   }
 ]`;
 
+        // 1. Perform OCR Pre-pass
+        let ocrText = '';
+        try {
+            if (typeof window !== 'undefined' && window.Tesseract) {
+                const ocrRes = await window.Tesseract.recognize(imageBlob, 'eng');
+                ocrText = ocrRes?.data?.text || '';
+            }
+        } catch (ocrErr) {
+            console.warn('[AIExtractionService] Local Tesseract OCR pre-pass error:', ocrErr);
+        }
+
+        // 2. Send payload to active Groq LLM (llama-3.3-70b-versatile)
         const payload = {
-            model: 'llama-3.2-90b-vision-preview',
+            model: 'llama-3.3-70b-versatile',
             messages: [
                 {
                     role: 'user',
-                    content: [
-                        { type: 'text', text: promptText },
-                        { type: 'image_url', image_url: { url: base64Image } }
-                    ]
+                    content: promptText + (ocrText ? `\n\n[Extracted Packaging Text]:\n"""\n${ocrText}\n"""` : '\n\nExtract medicine details accurately.')
                 }
             ],
             temperature: 0.1,
@@ -79,8 +88,8 @@ Return ONLY a strict JSON array (no markdown, no backticks, no extra text):
 
         let response;
         try {
-            console.log('[AIExtractionService] 🚀 Sending image payload to Groq Proxy...');
-            response = await fetch(GROQ_PROXY_URL, {
+            console.log('[AIExtractionService] 🚀 Sending extraction payload to Groq API...');
+            response = await fetch(DIRECT_GROQ_URL, {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -89,41 +98,7 @@ Return ONLY a strict JSON array (no markdown, no backticks, no extra text):
                 body: JSON.stringify(payload)
             });
         } catch (err) {
-            console.warn('[AIExtractionService] Proxy fetch failed, attempting direct Groq API:', err);
-        }
-
-        if (!response || !response.ok) {
-            console.log('[AIExtractionService] Fallback: Sending direct text extraction payload to Groq API...');
-            let ocrText = '';
-            try {
-                if (typeof window !== 'undefined' && window.Tesseract) {
-                    const ocrRes = await window.Tesseract.recognize(imageBlob, 'eng');
-                    ocrText = ocrRes?.data?.text || '';
-                }
-            } catch (ocrErr) {
-                console.warn('[AIExtractionService] Local Tesseract OCR pre-pass error:', ocrErr);
-            }
-
-            const directPayload = {
-                model: 'llama-3.3-70b-versatile',
-                messages: [
-                    {
-                        role: 'user',
-                        content: promptText + (ocrText ? `\n\n[Extracted Packaging Text]:\n"""\n${ocrText}\n"""` : '\n\nExtract medicine details accurately.')
-                    }
-                ],
-                temperature: 0.1,
-                max_tokens: 800
-            };
-
-            response = await fetch(DIRECT_GROQ_URL, {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${activeKey}`
-                },
-                body: JSON.stringify(directPayload)
-            });
+            console.warn('[AIExtractionService] Direct Groq API fetch error:', err);
         }
 
         if (!response.ok) {

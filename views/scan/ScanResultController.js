@@ -155,33 +155,32 @@ export default class ScanResultController {
     if (finalDrugs.length > 0) {
        const activeMeds = await db.medications.filter(m => m.active && m.userId === state.user?.uid).toArray();
        const drugList = [...activeMeds.map(m => m.rxnormId || m.name), ...finalDrugs];
-       
-       if (drugList.length > 1) {
-           try {
-               const res = await fetch(`${window.ENV?.API_BASE_URL || 'http://localhost:8000'}/api/v1/interactions`, {
-                   method: 'POST',
-                   headers: { 'Content-Type': 'application/json' },
-                   body: JSON.stringify({ medication_ids: drugList })
-               });
-               if (res.ok) {
-                   const data = await res.json();
-                   const interactions = data.interactions || [];
-                   const critical = interactions.find(i => i.strength === 'HIGH' || i.strength === 'SEVERE');
-                   if (critical) {
-                       const mappedCritical = {
-                           drug1: critical.drugs[0],
-                           drug2: critical.drugs[1],
-                           description: critical.effect || critical.type,
-                           recommendation: critical.evidence && critical.evidence.length > 0 ? "FDA Warning Found" : "Consult Physician"
-                       };
-                       const override = await this.showDDIModal(mappedCritical);
-                       if (!override) return;
-                   }
-               }
-           } catch (e) {
-               console.error('[ScanResultController] DIC network error:', e);
-           }
-       }
+              if (drugList.length > 1) {
+            let interactions = [];
+            try {
+                const { ApiClient } = await import('../../core/api.js');
+                const data = await ApiClient.post('/api/v1/interactions', { medication_ids: drugList }, { timeout: 1500 });
+                interactions = data?.interactions || [];
+            } catch (e) {
+                console.warn('[ScanResultController] DIC network error, switching to local NLP engine:', e.message);
+                try {
+                    const { MedicalNLPEngine } = await import('../../services/MedicalNLPEngine.js');
+                    interactions = MedicalNLPEngine.checkLocalInteractions(drugList);
+                } catch (nlpErr) {}
+            }
+
+            const critical = interactions.find(i => i.strength === 'HIGH' || i.strength === 'SEVERE');
+            if (critical) {
+                const mappedCritical = {
+                    drug1: (critical.drugs && critical.drugs[0]) || drugList[0] || 'Med 1',
+                    drug2: (critical.drugs && critical.drugs[1]) || drugList[1] || 'Med 2',
+                    description: critical.effect || critical.type || 'Severe drug-drug interaction risk',
+                    recommendation: critical.evidence && critical.evidence.length > 0 ? "FDA Warning Found" : "Consult Physician"
+                };
+                const override = await this.showDDIModal(mappedCritical);
+                if (!override) return;
+            }
+        }
     }
 
     await this.navigateToAdd(ocrResult);

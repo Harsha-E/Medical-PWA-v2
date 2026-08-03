@@ -53,38 +53,35 @@ export default class InteractionCheckerView {
       }
 
       // ----------------------------------------------------
-      // CALL LIVE DIC API
+      // CALL LIVE DIC API (WITH LOCAL NLP FALLBACK)
       // ----------------------------------------------------
       if (allDrugsToAnalyze.length > 1) {
+          let interactions = [];
           try {
-              const res = await fetch(`${window.ENV?.API_BASE_URL || 'http://localhost:8000'}/api/v1/interactions`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ medication_ids: allDrugsToAnalyze })
-              });
-              
-              if (res.ok) {
-                  const data = await res.json();
-                  (data.interactions || []).forEach(w => {
-                      const severityKey = (w.strength === 'HIGH' || w.strength === 'SEVERE') ? 'severe' : 
-                                          (w.strength === 'MODERATE') ? 'moderate' : 'mild';
-                      
-                      summary[severityKey].push({
-                          drug1: w.drugs[0],
-                          drug2: w.drugs[1],
-                          severity: severityKey,
-                          details: { mechanism: w.effect || w.type },
-                          recommendation: w.evidence && w.evidence.length > 0 ? "FDA Warning Found" : "Consult Physician",
-                          alternatives: []
-                      });
-                  });
-              } else {
-                  console.error('[InteractionChecker] DIC API error:', res.status);
-              }
+              const { ApiClient } = await import('../core/api.js');
+              const data = await ApiClient.post('/api/v1/interactions', { medication_ids: allDrugsToAnalyze }, { timeout: 1500 });
+              interactions = data?.interactions || [];
           } catch (apiErr) {
-              console.error('[InteractionChecker] DIC Network Error:', apiErr);
-              this.container.innerHTML = `<div class="p-4 text-red-400">Failed to connect to Drug Intelligence Cloud. Operating offline.</div>`;
+              console.warn('[SafetyAnalysis] DIC API offline/error, falling back to local NLP engine:', apiErr.message);
+              try {
+                  const { MedicalNLPEngine } = await import('../services/MedicalNLPEngine.js');
+                  interactions = MedicalNLPEngine.checkLocalInteractions(allDrugsToAnalyze);
+              } catch (nlpErr) {}
           }
+
+          interactions.forEach(w => {
+              const severityKey = (w.strength === 'HIGH' || w.strength === 'SEVERE') ? 'severe' : 
+                                  (w.strength === 'MODERATE') ? 'moderate' : 'mild';
+              
+              summary[severityKey].push({
+                  drug1: (w.drugs && w.drugs[0]) || allDrugsToAnalyze[0] || 'Med 1',
+                  drug2: (w.drugs && w.drugs[1]) || allDrugsToAnalyze[1] || 'Med 2',
+                  severity: severityKey,
+                  details: { mechanism: w.effect || w.type || 'Drug-drug interaction risk' },
+                  recommendation: w.evidence && w.evidence.length > 0 ? "FDA Warning Found" : "Consult Physician",
+                  alternatives: []
+              });
+          });
       }
 
       this.container.innerHTML = `

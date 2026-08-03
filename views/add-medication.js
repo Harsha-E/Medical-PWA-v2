@@ -775,18 +775,25 @@ export default class AddMedicationView {
       const drugList = [...activeMeds.map(m => m.rxnormId || m.name), targetDrugId];
       
       if (targetDrugId && drugList.length > 1) {
-        const res = await fetch(`${window.ENV?.API_BASE_URL || 'http://localhost:8000'}/api/v1/interactions`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ medication_ids: drugList })
-        });
+        let severeWarnings = [];
+        try {
+          const { ApiClient } = await import('../core/api.js');
+          const apiData = await ApiClient.post('/api/v1/interactions', { medication_ids: drugList }, { timeout: 1500 });
+          const interactions = apiData?.interactions || [];
+          severeWarnings = interactions.filter(w => w.strength === 'SEVERE' || w.strength === 'HIGH');
+        } catch (apiErr) {
+          console.warn('[AddMedication] Pre-save API interaction check failed, switching to local engine:', apiErr.message);
+        }
+
+        if (severeWarnings.length === 0) {
+          try {
+            const { MedicalNLPEngine } = await import('../services/MedicalNLPEngine.js');
+            const localWarnings = MedicalNLPEngine.checkLocalInteractions(drugList);
+            severeWarnings = localWarnings.filter(w => w.strength === 'SEVERE' || w.strength === 'HIGH');
+          } catch (nlpErr) {}
+        }
         
-        if (res.ok) {
-          const apiData = await res.json();
-          const interactions = apiData.interactions || [];
-          const severeWarnings = interactions.filter(w => w.strength === 'SEVERE' || w.strength === 'HIGH');
-          
-          if (severeWarnings.length > 0) {
+        if (severeWarnings.length > 0) {
             const confirmInteractionOverride = await new Promise((resolve) => {
               const div = document.createElement('div');
               div.className = 'fixed inset-0 z-[9999] bg-red-900/90 backdrop-blur-sm flex items-center justify-center p-4';
