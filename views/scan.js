@@ -410,6 +410,7 @@ export default class ScanView {
         this.hideProcessingSpinner();
 
         if (medicines && medicines.length > 0) {
+            await this._emitDICTelemetryAndRecord(medicines);
             // Store all extracted meds for potential multi-add later
             sessionStorage.setItem('medcheck_extracted_prescriptions', JSON.stringify(medicines));
             // Pre-fill add-medication form with the first extracted medicine
@@ -448,6 +449,7 @@ export default class ScanView {
         this.hideProcessingSpinner();
 
         if (medicines && medicines.length > 0) {
+            await this._emitDICTelemetryAndRecord(medicines);
             sessionStorage.setItem('medcheck_extracted_prescriptions', JSON.stringify(medicines));
             sessionStorage.setItem('medcheck_scanned_data', JSON.stringify(medicines[0]));
             window.location.hash = '#/add-medication';
@@ -458,6 +460,43 @@ export default class ScanView {
         console.error("[ScanView] Gallery Scan failed:", error);
         this.hideProcessingSpinner();
         this.showGalleryErrorPopup();
+    }
+  }
+
+  async _emitDICTelemetryAndRecord(medicines) {
+    try {
+      const stateModule = (await import('../core/state.js')).default;
+      const dbModule = (await import('../core/db.js')).default;
+      const targetUserId = stateModule.activeProfileContext ? String(stateModule.activeProfileContext.id) : (stateModule.user?.uid || 'anonymous');
+      
+      const scanRecord = {
+        id: 'hist_scan_' + Date.now(),
+        userId: targetUserId,
+        type: 'Report',
+        title: `Prescription Scan: ${medicines[0].brandName || medicines[0].name || 'Extracted Medicine'}`,
+        details: `Extracted ${medicines.length} medicine(s) via Vision Scan`,
+        medicines: medicines,
+        date: new Date().toISOString(),
+        timestamp: Date.now(),
+        source: 'vision-scan'
+      };
+
+      await dbModule.history.put(scanRecord);
+
+      try {
+        const { default: SyncBridge } = await import('../services/SyncBridge.js');
+        if (SyncBridge && SyncBridge.enqueueChange) {
+          SyncBridge.enqueueChange('history', scanRecord);
+        }
+      } catch (sbErr) {
+        console.warn('[ScanView] SyncBridge enqueue warning:', sbErr);
+      }
+
+      window.dispatchEvent(new CustomEvent('medcare:sync-complete', { detail: scanRecord }));
+      window.dispatchEvent(new CustomEvent('medcare:data-synced', { detail: scanRecord }));
+      console.log('[ScanView] 📡 DIC Telemetry & ExecutionRecord emitted to Clinical Ledger & Live SSE stream!');
+    } catch (e) {
+      console.warn('[ScanView] DIC Telemetry emission warning:', e);
     }
   }
 
