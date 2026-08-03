@@ -47,10 +47,7 @@ class AIExtractionService {
      * Uses llama-3.2-90b-vision-preview or llama-3.3-70b-versatile for vision OCR.
      */
     async _runGroqExtraction(imageBlob) {
-        // Convert blob to base64 data URL
-        const base64Image = await this._blobToBase64(imageBlob);
-
-        const promptText = `You are an expert pharmaceutical extraction engine. Your job is to extract highly accurate data from medicine packaging images.
+        const promptText = `You are an expert pharmaceutical extraction engine. Your job is to extract highly accurate data from medicine packaging text.
 
 First, read all text on the packaging silently. Then, carefully identify:
 - PRIMARY BRAND NAME (trade name, usually in large stylized font)
@@ -76,15 +73,26 @@ Return ONLY a strict JSON array (no markdown, no backticks, no extra text):
   }
 ]`;
 
+        // 1. Perform local Tesseract OCR pre-pass to extract text string from image
+        let ocrText = '';
+        try {
+            if (typeof window !== 'undefined' && window.Tesseract) {
+                console.log('[AIExtractionService] 🔍 Running local Tesseract OCR pre-pass on image blob...');
+                const ocrRes = await window.Tesseract.recognize(imageBlob, 'eng');
+                ocrText = ocrRes?.data?.text || '';
+                console.log('[AIExtractionService] 📝 OCR Extracted Text:\n', ocrText);
+            }
+        } catch (ocrErr) {
+            console.warn('[AIExtractionService] Tesseract OCR pre-pass skipped:', ocrErr);
+        }
+
+        // 2. Construct text-only payload for Groq llama-3.3-70b-versatile
         const payload = {
-            model: 'llama-3.2-90b-vision-preview',
+            model: 'llama-3.3-70b-versatile',
             messages: [
                 {
                     role: 'user',
-                    content: [
-                        { type: 'text', text: promptText },
-                        { type: 'image_url', image_url: { url: base64Image } }
-                    ]
+                    content: promptText + (ocrText ? `\n\n[Extracted Medicine Packaging OCR Text]:\n"""\n${ocrText}\n"""` : '\n\nExtract medicine details accurately.')
                 }
             ],
             temperature: 0.1,
@@ -92,61 +100,26 @@ Return ONLY a strict JSON array (no markdown, no backticks, no extra text):
         };
 
         const activeKey = getGroqKey();
-        console.log(`[AIExtractionService] 🔑 Groq Runtime Auth Trace: Key Exists? ${!!activeKey}, Length: ${activeKey.length}, Prefix: ${activeKey.slice(0, 7)}, Suffix: ${activeKey.slice(-4)}`);
+        
+        // 3. Mandatory Diagnostic Inspection Logs before fetch()
+        console.log('[AIExtractionService] 🤖 Selected Model:', payload.model);
+        console.log('[AIExtractionService] 📏 messages[0].content type:', typeof payload.messages[0].content);
+        console.log('[AIExtractionService] 📦 Complete JSON Request Body:\n', JSON.stringify(payload, null, 2));
 
-        let response;
-        try {
-            response = await fetch(GROQ_PROXY_URL, {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${activeKey}`
-                },
-                body: JSON.stringify(payload)
-            });
-        } catch (err) {
-            console.warn('[AIExtractionService] Proxy fetch failed, attempting direct Groq API:', err);
-        }
+        const response = await fetch(DIRECT_GROQ_URL, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${activeKey}`
+            },
+            body: JSON.stringify(payload)
+        });
 
-        if (!response || !response.ok) {
-            console.log('[AIExtractionService] Proxy unavailable. Invoking direct Groq API with text payload...');
-            
-            // Perform local Tesseract OCR pre-pass if available to extract text from packaging
-            let ocrText = '';
-            try {
-                if (typeof window !== 'undefined' && window.Tesseract) {
-                    console.log('[AIExtractionService] Running local Tesseract OCR pre-pass...');
-                    const ocrRes = await window.Tesseract.recognize(imageBlob, 'eng');
-                    ocrText = ocrRes?.data?.text || '';
-                }
-            } catch (ocrErr) {
-                console.warn('[AIExtractionService] Tesseract pre-pass warning:', ocrErr);
-            }
-
-            const directPayload = {
-                model: 'llama-3.3-70b-versatile',
-                messages: [
-                    {
-                        role: 'user',
-                        content: promptText + (ocrText ? `\n\n[Extracted Medicine Packaging OCR Text]:\n"""\n${ocrText}\n"""` : '\n\nExtract medicine details accurately.')
-                    }
-                ],
-                temperature: 0.1,
-                max_tokens: 800
-            };
-
-            response = await fetch(DIRECT_GROQ_URL, {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${activeKey}`
-                },
-                body: JSON.stringify(directPayload)
-            });
-        }
+        console.log('[AIExtractionService] 📡 Groq Response Status:', response.status);
 
         if (!response.ok) {
             const errText = await response.text();
+            console.error('[AIExtractionService] ❌ Groq Error Body:\n', errText);
             throw new Error(`Groq Extraction Error: ${response.status} - ${errText}`);
         }
 
