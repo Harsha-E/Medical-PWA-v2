@@ -1,10 +1,5 @@
 import state from '../core/state.js';
 import db from '../core/db.js';
-import InteractionEngine from '../services/InteractionEngine.js';
-
-const engine = new InteractionEngine();
-// We can kick off initialization in the background
-engine.init('./data/indian_pharma_interactions.json');
 
 export default class InteractionCheckerView {
   constructor() {
@@ -18,105 +13,78 @@ export default class InteractionCheckerView {
     this.container.innerHTML = this._getSkeletonUI();
 
     try {
-      // WAIT FOR ENGINE BEFORE PROCEEDING
-      let waitTime = 0;
-      const maxWait = 5000;
-      if (!engine.isReady) {
-        console.log('[InteractionChecker] Waiting for InteractionEngine to boot...');
-        // Update skeleton UI to show "Loading Database..." state
-        const skeletonContainer = this.container.querySelector('.max-w-2xl');
-        if (skeletonContainer) {
-            const bootMsg = document.createElement('div');
-            bootMsg.className = 'text-accent-primary font-mono text-sm mb-4 animate-pulse flex items-center gap-2';
-            bootMsg.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Booting Clinical Engine & Loading Database...';
-            skeletonContainer.prepend(bootMsg);
-        }
-
-        while (!engine.isReady && waitTime < maxWait) {
-          await new Promise(r => setTimeout(r, 200));
-          waitTime += 200;
-        }
-
-        if (!engine.isReady) {
-          console.warn('[InteractionChecker] Engine boot timeout. Proceeding anyway.');
-        } else {
-          console.log('[InteractionChecker] Engine is ready!');
-        }
-      }
+      // Waiting for backend API (no local engine needed)
+      console.log('[InteractionChecker] Ready to query DIC API...');
 
       const { default: state } = await import('../core/state.js');
       const { default: db } = await import('../core/db.js');
-      const { default: IntelligenceOrchestrator } = await import('../services/IntelligenceOrchestrator.js');
 
       const userId = state.user?.uid || 'anonymous';
       
       const rawMeds = await db.medications.toArray();
       const activeMeds = rawMeds.filter(m => (m.userId === userId || !m.userId) && m.active !== false);
 
+      // Collect Meds (Current Profile)
       const currentDrugNames = activeMeds
         .map(m => (m.genericName || m.name || '').trim())
         .filter(n => n.length > 0);
-
-      // Fetch user's disease ledger
-      const diseaseRecords = await db.disease_ledger ? await db.disease_ledger.filter(d => d.userId === userId).toArray() : [];
-      const userConditions = diseaseRecords.map(d => d.clinicalName);
-
-      const patientProfile = {
-          activeMeds: currentDrugNames,
-          activeDiseases: userConditions,
-          allergies: [] // Mocking empty allergies for hackathon
-      };
+        
+      const currentDrugIds = activeMeds
+        .map(m => m.rxnormId || m.name) // Use RxNorm ID if available, otherwise name
+        .filter(n => n.length > 0);
 
       const summary = { severe: [], moderate: [], mild: [] };
-      const seenWarnings = new Set();
       
-      // HACKATHON DEMO FLOW: Check if we just came from Scanner
+      // Check if we came from Scanner
       const extractedStr = sessionStorage.getItem('medcheck_extracted_prescriptions');
       let newMedicines = [];
       if (extractedStr) {
           newMedicines = JSON.parse(extractedStr);
-          // Only process once per scan
           sessionStorage.removeItem('medcheck_extracted_prescriptions');
       }
 
-      // If we have medicines from the scanner, run the full Intelligence Pipeline
+      let allDrugsToAnalyze = [...currentDrugIds];
+      let allDrugNames = [...currentDrugNames];
+      
       if (newMedicines.length > 0) {
-          console.log('[InteractionChecker] Running Full Intelligence Pipeline for Scanned Meds...');
-          const explanations = await IntelligenceOrchestrator.analyzePrescription(newMedicines, patientProfile);
-          
-          explanations.forEach(exp => {
-              const mappedItem = {
-                  drug1: exp.drug1,
-                  drug2: exp.drug2,
-                  severity: exp.riskLevel === 'High Risk' ? 'severe' : exp.riskLevel === 'Medium Risk' ? 'moderate' : 'mild',
-                  details: { mechanism: exp.reason },
-                  recommendation: exp.recommendation,
-                  alternatives: exp.possibleEffects || []
-              };
+          const newIds = newMedicines.map(m => m.rxnormId || m.name);
+          allDrugsToAnalyze = [...allDrugsToAnalyze, ...newIds];
+          allDrugNames = [...allDrugNames, ...newMedicines.map(m => m.name)];
+      }
 
-              if (mappedItem.severity === 'severe') summary.severe.push(mappedItem);
-              else if (mappedItem.severity === 'moderate') summary.moderate.push(mappedItem);
-              else summary.mild.push(mappedItem);
-          });
-      } else {
-          // No new medicines, just analyze current profile
-          const profileWarnings = await engine.analyzeProfile(patientProfile);
-          profileWarnings.forEach(w => {
-              const severityKey = w.severity.toLowerCase() === 'critical' || w.severity.toLowerCase() === 'severe' ? 'severe' : 
-                                  w.severity.toLowerCase() === 'moderate' ? 'moderate' : 'mild';
+      // ----------------------------------------------------
+      // CALL LIVE DIC API
+      // ----------------------------------------------------
+      if (allDrugsToAnalyze.length > 1) {
+          try {
+              const res = await fetch(`${window.ENV?.API_BASE_URL || 'http://localhost:8000'}/api/v1/interactions`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ medication_ids: allDrugsToAnalyze })
+              });
               
-              const exists = summary[severityKey].some(i => i.drug1 === w.drug1 && (i.drug2 === w.drug2 || i.details?.mechanism === w.text));
-              if (!exists) {
-                  summary[severityKey].push({
-                      drug1: w.drug1,
-                      drug2: w.drug2 || 'Profile Context',
-                      severity: severityKey,
-                      details: { mechanism: w.text },
-                      recommendation: "Consult Physician",
-                      alternatives: []
+              if (res.ok) {
+                  const data = await res.json();
+                  (data.interactions || []).forEach(w => {
+                      const severityKey = (w.strength === 'HIGH' || w.strength === 'SEVERE') ? 'severe' : 
+                                          (w.strength === 'MODERATE') ? 'moderate' : 'mild';
+                      
+                      summary[severityKey].push({
+                          drug1: w.drugs[0],
+                          drug2: w.drugs[1],
+                          severity: severityKey,
+                          details: { mechanism: w.effect || w.type },
+                          recommendation: w.evidence && w.evidence.length > 0 ? "FDA Warning Found" : "Consult Physician",
+                          alternatives: []
+                      });
                   });
+              } else {
+                  console.error('[InteractionChecker] DIC API error:', res.status);
               }
-          });
+          } catch (apiErr) {
+              console.error('[InteractionChecker] DIC Network Error:', apiErr);
+              this.container.innerHTML = `<div class="p-4 text-red-400">Failed to connect to Drug Intelligence Cloud. Operating offline.</div>`;
+          }
       }
 
       this.container.innerHTML = `
@@ -157,13 +125,13 @@ export default class InteractionCheckerView {
             <section class="mt-8 pt-6 border-t border-border">
               <h4 class="text-xs font-mono tracking-widest text-text-muted uppercase mb-3">Evaluated Pharmacy Track</h4>
               <div class="flex flex-wrap gap-2">
-                ${currentDrugNames.map(drug => `
+                ${allDrugNames.map(drug => `
                   <span class="px-3 py-1.5 rounded-xl bg-surface-elevated border border-border font-mono text-xs text-text-secondary shadow-inner flex items-center gap-1">
                     <svg class="w-3 h-3 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
                     ${drug}
                   </span>
                 `).join('')}
-                ${currentDrugNames.length === 0 ? '<span class="text-xs text-gray-600 italic">No drugs queued. Add items to your active map.</span>' : ''}
+                ${allDrugNames.length === 0 ? '<span class="text-xs text-gray-600 italic">No drugs queued. Add items to your active map.</span>' : ''}
               </div>
             </section>
 
@@ -172,7 +140,7 @@ export default class InteractionCheckerView {
       `;
 
       document.dispatchEvent(new CustomEvent('view:ready', { detail: { hash: '#/interaction-checker' } }));
-      this._drawNetworkGraph(currentDrugNames, summary);
+      this._drawNetworkGraph(allDrugNames, summary);
 
     } catch (err) {
       console.error('[InteractionChecker] Execution broken:', err);

@@ -1,5 +1,6 @@
 import db from '../core/db.js';
 import state from '../core/state.js';
+import ClinicalAnalysisService from './ClinicalAnalysisService.js';
 
 /**
  * @fileoverview ClinicalLogger
@@ -78,6 +79,33 @@ class ClinicalLogger {
     window.dispatchEvent(new CustomEvent('medcare:sync-queued'));
   }
 
+  /**
+   * Non-blocking trigger to run a DIC analysis.
+   */
+  _triggerAnalysis() {
+    // Fire and forget
+    (async () => {
+      try {
+        const { userId } = this._getContext();
+        const activeMeds = await db.medications
+          .filter(m => m.userId === userId && !m.isDeleted && m.active)
+          .toArray();
+        const allergies = await db.allergies
+          .filter(a => a.userId === userId && !a.isDeleted)
+          .toArray();
+
+        const profile = {
+          userId,
+          activeMeds: activeMeds.map(m => m.name), // assuming DIC takes names or canon objects
+          allergies
+        };
+        await ClinicalAnalysisService.queueAnalysis(profile);
+      } catch (err) {
+        console.error('[ClinicalLogger] Error triggering analysis', err);
+      }
+    })();
+  }
+
   // ─── Diseases ─────────────────────────────────────────────────────────────
 
   async addDisease(diseaseData) {
@@ -149,6 +177,9 @@ class ClinicalLogger {
     });
     const id = await db.medications.add(record);
     await this._queueSync('ADD', 'medications', id, { ...record, id });
+    
+    this._triggerAnalysis();
+    
     return id;
   }
 
@@ -156,6 +187,10 @@ class ClinicalLogger {
     const record = this._prepareRecord(updateData);
     await db.medications.update(id, record);
     await this._queueSync('UPDATE', 'medications', id, { ...record, id });
+    
+    if (updateData.active !== undefined || updateData.isDeleted) {
+      this._triggerAnalysis();
+    }
   }
 
   // ─── Documents & Assets ───────────────────────────────────────────────────

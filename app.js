@@ -11,8 +11,6 @@
 import { Router }         from './core/router.js';
 import state              from './core/state.js';
 import { auth }           from './core/firebase.js';
-import { interactionGraph } from './services/InteractionGraph.js';
-import { nlpContext }       from './services/NLPContext.js';
 import { hapticEngine }   from './services/HapticEngine.js';
 import PwaInstallManager  from './services/PwaInstallManager.js';
 import GlassNavbar        from './components/navbar.js';
@@ -37,7 +35,7 @@ import DashboardView        from './views/dashboard.js';
 import MedicationsView      from './views/medications.js';
 import MedicationDetailView from './views/medication-detail.js';
 import AddMedicationView    from './views/add-medication.js';
-import InteractionCheckerView from './views/interaction-checker.js';
+import SafetyAnalysisView from './views/safety-analysis.js';
 import ScanView             from './views/scan.js';
 import Scan3DView           from './views/scan-3d.js';
 import ScanResultView       from './views/scan-result.js';
@@ -74,7 +72,7 @@ const ROUTES = {
   '#/timeline': MedicalTimelineView,
   '#/medications': MedicationsView,
   '#/add-medication': AddMedicationView,
-  '#/interaction-checker': InteractionCheckerView,
+  '#/safety-analysis': SafetyAnalysisView,
   '#/scan': ScanView,
   '#/scan/3d': Scan3DView,
   '#/scan/result': ScanResultView,
@@ -101,7 +99,7 @@ const PUBLIC_ROUTES = new Set(['#/', '#/landing', '#/splash', '#/login', '#/regi
 const HIDE_NAV_ROUTES = new Set([
   '#/onboarding', '#/splash', '#/install', '#/avatar-setup', 
   '#/add-medication', '#/medication-detail', '#/scan', '#/scan/3d', '#/scan/result',
-  '#/interaction-checker', '#/interaction-graph',
+  '#/safety-analysis', '#/interaction-graph',
   '#/reports', '#/emergency'
 ]);
 
@@ -136,7 +134,7 @@ const HEADER_CONFIGS = {
   '#/medications': { eyebrow: null, title: 'Medications', actions: [{ id: 'scan', icon: SCAN_ICON, href: '#/scan', label: 'Scan prescription', style: 'ghost' }, { id: 'add-med', icon: PLUS_ICON, href: '#/add-medication', label: 'Add medication', style: 'accent' }] },
   '#/add-medication': { back: true, title: () => window.location.hash.includes('/edit/') ? 'Edit Medication' : 'Add Medication' },
   '#/medication-detail': { back: true, title: () => resolveMedNameFromHash(), actions: [] },
-  '#/interaction-checker': { back: '#/medications', title: 'Interaction Guard' },
+  '#/safety-analysis': { back: '#/medications', title: 'Interaction Guard' },
   '#/appointments': { eyebrow: 'Clinical Calendar', title: 'Appointments', actions: [{ id: 'calendar', icon: CALENDAR_ICON, href: '#/calendar', label: 'Full calendar', style: 'ghost' }, { id: 'add-appt', icon: PLUS_ICON, label: 'New appointment', style: 'accent' }] },
   '#/calendar': { back: true, eyebrow: 'Health Progress', title: 'Calendar', actions: [{ id: 'toggle-view', icon: CHEVRON_ICON, label: 'Toggle view', style: 'ghost' }] },
   '#/reports': { back: '#/dashboard', eyebrow: 'Health Progress', title: 'Health Reports', skeleton: false },
@@ -258,7 +256,6 @@ class App {
             document.body.classList.remove('pointer-events-none');
         });
 
-        // Fallback for unhandled rejections that might be pipeline related
         window.addEventListener('unhandledrejection', (event) => {
             if (event.reason && event.reason.message && event.reason.message.includes('Pipeline')) {
                 console.warn('[App][Router] Unhandled pipeline rejection: Forcing router unlock.');
@@ -267,10 +264,6 @@ class App {
                 document.body.classList.remove('pointer-events-none');
             }
         });
-        await interactionGraph.initialize();
-        const indexRes = await fetch('./data/drug-index.json');
-        const drugIndex = JSON.parse(JSON.stringify(await indexRes.json()));
-        await nlpContext.hydrate(drugIndex);
 
         // MIOS: Synchronize Medicine Knowledge Graph on startup
         console.log('[App] Synchronizing Medicine Knowledge Graph...');

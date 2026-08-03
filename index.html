@@ -32,6 +32,11 @@
   <script>
     const basePath = window.location.hostname === 'harsha-e.github.io' ? '/Medical-PWA-v2' : '';
     
+    const configScript = document.createElement('script');
+    configScript.src = (basePath || '.') + '/config.js';
+    configScript.async = false;
+    document.head.appendChild(configScript);
+    
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = (basePath || '.') + '/style.css';

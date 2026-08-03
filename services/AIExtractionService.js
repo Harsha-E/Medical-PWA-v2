@@ -16,7 +16,6 @@ const GROQ_PROXY_URL = 'https://medcare-groq-proxy.harshaedupuganti70.workers.de
 
 class AIExtractionService {
     constructor() {
-        // FIXED: false — real Groq extraction is now used.
         this.useDemoMode = false;
     }
 
@@ -26,16 +25,11 @@ class AIExtractionService {
      * @returns {Promise<Array>} Structured list of medicine objects.
      */
     async extractMedicines(imageBlob) {
-        if (this.useDemoMode) {
-            console.warn('[AIExtractionService] Demo mode ON — returning dummy data.');
-            return this._runDeterministicDemo();
-        }
-
         try {
             return await this._runGroqExtraction(imageBlob);
         } catch (err) {
-            console.error('[AIExtractionService] Groq extraction failed. Activating demo fallback.', err);
-            return this._runDeterministicDemo();
+            console.error('[AIExtractionService] Groq extraction failed.', err);
+            throw err;
         }
     }
 
@@ -131,31 +125,6 @@ Return ONLY a strict JSON array (no markdown, no backticks, no extra text):
         }));
     }
 
-    /**
-     * EMERGENCY FALLBACK ONLY — used when Groq proxy is unreachable.
-     * Now uses Hifenac-P as the demo pill (more representative of Indian pharma).
-     */
-    async _runDeterministicDemo() {
-        return new Promise(resolve => {
-            setTimeout(() => {
-                resolve([
-                    {
-                        id: 'med_demo_' + Date.now(),
-                        name: 'Hifenac-P',
-                        brandName: 'Hifenac-P',
-                        genericName: 'Aceclofenac + Paracetamol',
-                        dosage: '100mg + 325mg',
-                        form: 'Tablet',
-                        totalQuantity: 10,
-                        manufacturer: 'Intas Pharmaceuticals Ltd.',
-                        instructions: 'Take with food. Store in a cool, dry place.',
-                        extractedAt: new Date().toISOString(),
-                        source: 'demo-fallback'
-                    }
-                ]);
-            }, 1200);
-        });
-    }
 
     /**
      * Converts a Blob to a base64 data URL string.

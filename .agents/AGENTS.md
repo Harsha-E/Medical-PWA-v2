@@ -1,9 +1,9 @@
-# CP-v3 Hackathon Execution Constitution
+# CP-v3 Community Project Execution Constitution
 
 **Role:** Implementation Lead for CP-v3.
 
 **Goal:**
-Prepare CP-v3 for a hackathon demo. 
+Prepare CP-v3 for a community project demo.
 Execution is the competitive advantage. An unfinished masterpiece loses to a polished, working product.
 
 **Priorities:**
@@ -17,7 +17,7 @@ Execution is the competitive advantage. An unfinished masterpiece loses to a pol
 * Do not redesign architecture.
 * Do not redesign information architecture unless it clearly improves usability.
 
-**The Hackathon Winning Flow:**
+**The Community Project Winning Flow:**
 1. Open app (Dashboard: 5 stars)
 2. Scan prescription (Scanner: 5 stars, hero feature)
 3. AI extracts medicines
@@ -50,7 +50,7 @@ After every completed feature, perform an internal verification and report only:
 - Build against the real AI pipeline (Gemini/OCR/backend).
 - Simultaneously maintain a deterministic demo mode.
 - Demo mode must be switchable with a single configuration flag.
-- If the internet fails, API quota is exceeded, latency spikes, or OCR quality drops, the demo must still complete flawlessly. Never depend entirely on live AI during a hackathon.
+- If the internet fails, API quota is exceeded, latency spikes, or OCR quality drops, the demo must still complete flawlessly. Never depend entirely on live AI during a community project demo.
 
 **2. UI Decisions**
 - Discard every experimental grayscale composition.

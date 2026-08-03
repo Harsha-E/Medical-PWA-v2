@@ -77,7 +77,7 @@ export default class MedicationDetailView {
 
           <!-- Section 2: Action Bar -->
           <section class="mb-8 grid grid-cols-2 gap-4">
-            <button onclick="window.location.hash='#/interaction-checker'" class="unified-card rounded-2xl p-5 text-center group cursor-pointer transition-transform active:scale-95">
+            <button onclick="window.location.hash='#/safety-analysis'" class="unified-card rounded-2xl p-5 text-center group cursor-pointer transition-transform active:scale-95">
               <div class="w-12 h-12 mx-auto rounded-full bg-accent-primary/10 text-accent-primary flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
               </div>

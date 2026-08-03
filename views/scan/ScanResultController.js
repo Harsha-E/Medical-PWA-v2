@@ -6,7 +6,6 @@
 
 import db from '../../core/db.js';
 import state from '../../core/state.js';
-import { interactionGraph } from '../../services/InteractionGraph.js';
 import { StripDepthEstimator } from '../../services/reconstruction/StripDepthEstimator.js';
 import { StripMeshBuilder } from '../../services/reconstruction/StripMeshBuilder.js';
 import { StripSceneOrchestrator } from '../../services/reconstruction/StripSceneOrchestrator.js';
@@ -155,15 +154,33 @@ export default class ScanResultController {
 
     if (finalDrugs.length > 0) {
        const activeMeds = await db.medications.filter(m => m.active && m.userId === state.user?.uid).toArray();
-       const drugList = [...activeMeds.map(m => m.name), ...finalDrugs];
+       const drugList = [...activeMeds.map(m => m.rxnormId || m.name), ...finalDrugs];
        
-       await interactionGraph.initialize();
-       const interactions = interactionGraph.findInteractions(drugList);
-       const critical = interactions.find(i => i.severity === 'severe');
-       
-       if (critical) {
-           const override = await this.showDDIModal(critical);
-           if (!override) return;
+       if (drugList.length > 1) {
+           try {
+               const res = await fetch(`${window.ENV?.API_BASE_URL || 'http://localhost:8000'}/api/v1/interactions`, {
+                   method: 'POST',
+                   headers: { 'Content-Type': 'application/json' },
+                   body: JSON.stringify({ medication_ids: drugList })
+               });
+               if (res.ok) {
+                   const data = await res.json();
+                   const interactions = data.interactions || [];
+                   const critical = interactions.find(i => i.strength === 'HIGH' || i.strength === 'SEVERE');
+                   if (critical) {
+                       const mappedCritical = {
+                           drug1: critical.drugs[0],
+                           drug2: critical.drugs[1],
+                           description: critical.effect || critical.type,
+                           recommendation: critical.evidence && critical.evidence.length > 0 ? "FDA Warning Found" : "Consult Physician"
+                       };
+                       const override = await this.showDDIModal(mappedCritical);
+                       if (!override) return;
+                   }
+               }
+           } catch (e) {
+               console.error('[ScanResultController] DIC network error:', e);
+           }
        }
     }
 

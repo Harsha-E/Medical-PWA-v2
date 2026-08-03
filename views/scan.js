@@ -414,7 +414,7 @@ export default class ScanView {
             sessionStorage.setItem('medcheck_extracted_prescriptions', JSON.stringify(medicines));
             // Pre-fill add-medication form with the first extracted medicine
             sessionStorage.setItem('medcheck_scanned_data', JSON.stringify(medicines[0]));
-            // Go straight to add-medication — no forced detour through interaction-checker
+            // Go straight to add-medication — no forced detour through safety-analysis
             window.location.hash = '#/add-medication';
         } else {
             appAlert('No medicines detected in this image.', 'Extraction Failed');

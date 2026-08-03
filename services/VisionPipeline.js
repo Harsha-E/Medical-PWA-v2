@@ -10,7 +10,7 @@
             this.isReady = true;
             this.isProcessing = false;
             this.activeSessionId = null;
-            this.apiUrl = 'http://localhost:8000/api/intelligence/analyze';
+            this.apiUrl = `${window.ENV?.API_BASE_URL || 'http://localhost:8000'}/api/intelligence/analyze`;
         }
 
         async processFrame(sourceElement, scale = 0.75, isSingleFrame = false) {

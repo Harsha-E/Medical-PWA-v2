@@ -180,7 +180,7 @@ export default class ScanResultView {
     if (btnClose) btnClose.addEventListener('click', () => window.location.hash = '#/dashboard');
     if (btnRescan) btnRescan.addEventListener('click', () => window.location.hash = '#/scan');
     if (btnFamily) btnFamily.addEventListener('click', () => window.location.hash = '#/peer-hub');
-    if (btnInteractions) btnInteractions.addEventListener('click', () => window.location.hash = '#/interaction-checker');
+    if (btnInteractions) btnInteractions.addEventListener('click', () => window.location.hash = '#/safety-analysis');
     if (btnEvidence) btnEvidence.addEventListener('click', async () => await appAlert('Evidence Telemetry viewer coming soon...', 'Coming Soon'));
     
     if (btnAdd) {

@@ -18,7 +18,7 @@ function getLocalIp() {
   return 'localhost';
 }
 
-const PORT = process.env.PORT || 8012;
+const PORT = process.env.PORT || 8013;
 
 const MIME_TYPES = {
   '.html': 'text/html',

@@ -79,9 +79,10 @@ export default class ClinicalLedgerView {
         let allAppts = await db.appointments.filter(a => !a.isDeleted).toArray();
         let allHistory = await db.history.filter(h => !h.isDeleted).toArray();
         let allLinks = (db.clinical_links) ? await db.clinical_links.filter(l => !l.isDeleted).toArray() : [];
+        let allAnalyses = (db.clinical_analyses) ? await db.clinical_analyses.toArray() : [];
 
         let filtered = {
-            diseases: [], allergies: [], surgeries: [], problems: [], meds: [], appts: [], history: []
+            diseases: [], allergies: [], surgeries: [], problems: [], meds: [], appts: [], history: [], analyses: []
         };
 
         if (this.targetUserId) {
@@ -93,9 +94,14 @@ export default class ClinicalLedgerView {
             filtered.meds = allMeds.filter(m => String(m.userId) === tId);
             filtered.appts = allAppts.filter(a => String(a.userId) === tId);
             filtered.history = allHistory.filter(h => String(h.userId) === tId);
+            filtered.analyses = allAnalyses.filter(a => String(a.userId) === tId && a.status === 'COMPLETED');
         } else {
-            filtered = { diseases: allDiseases, allergies: allAllergies, surgeries: allSurgeries, problems: allProblems, meds: allMeds, appts: allAppts, history: allHistory };
+            filtered = { diseases: allDiseases, allergies: allAllergies, surgeries: allSurgeries, problems: allProblems, meds: allMeds, appts: allAppts, history: allHistory, analyses: allAnalyses.filter(a => a.status === 'COMPLETED') };
         }
+
+        // Get latest analysis for this user profile
+        filtered.analyses.sort((a, b) => b.timestamp - a.timestamp);
+        const latestAnalysis = filtered.analyses[0] || null;
 
         // Helper to count links for a specific entity
         const getLinkCount = (entity, id) => {
@@ -109,9 +115,31 @@ export default class ClinicalLedgerView {
         const combined = [];
         filtered.history.forEach(h => combined.push({ id: `hist_${h.id}`, originalId: h.id, rawDate: new Date(h.date || Date.now()), entityType: h.type || 'History', title: h.title, subtitle: h.provider || 'Clinical Log', desc: h.notes, documentUrl: h.documentUrl, linkCount: getLinkCount('history', h.id) }));
         filtered.diseases.forEach(d => combined.push({ id: `dis_${d.id}`, originalId: d.id, rawDate: new Date(d.updatedAt || Date.now()), entityType: 'Disease', title: d.diseaseName, subtitle: `Stage: ${d.stage || 'Active'}`, desc: `Dr: ${d.doctor || 'Primary Care'}`, linkCount: getLinkCount('disease_ledger', d.id) }));
+        
         filtered.meds.forEach(m => {
-            if (m.startDate) combined.push({ id: `med_${m.id}`, originalId: m.id, rawDate: new Date(m.startDate), entityType: 'Medicine', title: m.name, subtitle: `${m.dosage} — ${m.frequency}`, desc: m.notes, linkCount: getLinkCount('medications', m.id) });
+            if (m.startDate) {
+                // Check if there's a warning for this medication in the latest analysis
+                let insight = null;
+                if (latestAnalysis && latestAnalysis.warnings && latestAnalysis.warnings.length > 0) {
+                    const warning = latestAnalysis.warnings.find(w => w.drugs_involved && w.drugs_involved.some(d => d.toLowerCase() === m.name.toLowerCase() || d.toLowerCase() === (m.genericName || '').toLowerCase()));
+                    if (warning) {
+                        insight = {
+                            analysisId: latestAnalysis.analysisId,
+                            severity: warning.severity,
+                            message: warning.message
+                        };
+                    }
+                }
+                
+                combined.push({ 
+                    id: `med_${m.id}`, originalId: m.id, rawDate: new Date(m.startDate), entityType: 'Medicine', 
+                    title: m.name, subtitle: `${m.dosage} — ${m.frequency}`, desc: m.notes, 
+                    linkCount: getLinkCount('medications', m.id),
+                    insight 
+                });
+            }
         });
+        
         filtered.allergies.forEach(a => combined.push({ id: `alg_${a.id}`, originalId: a.id, rawDate: new Date(a.updatedAt || Date.now()), entityType: 'Allergy', title: a.allergy, subtitle: `Severity: ${a.severity}`, desc: `Reaction: ${a.reaction}`, linkCount: getLinkCount('allergies', a.id) }));
         filtered.surgeries.forEach(s => combined.push({ id: `surg_${s.id}`, originalId: s.id, rawDate: new Date(s.date), entityType: 'Surgery', title: s.outcome, subtitle: `${s.hospital}`, desc: `Doctor: ${s.doctor}`, linkCount: getLinkCount('surgeries', s.id) }));
 
@@ -479,6 +507,23 @@ export default class ClinicalLedgerView {
                                         <p class="text-sm text-white/70 leading-relaxed font-normal">${escapeHTML(record.desc)}</p>
                                     </div>
                                 ` : ''}
+                                
+                                ${record.insight ? `
+                                    <div class="mt-4 pt-3 border-t border-white/5">
+                                        <div class="flex items-start gap-3 p-3 rounded-xl bg-[var(--theme-accent-muted)] border border-[var(--theme-border)]">
+                                            <div class="mt-0.5 text-[var(--theme-accent)]">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                            </div>
+                                            <div class="flex-1">
+                                                <p class="text-sm font-bold text-[var(--theme-accent)] mb-1">${escapeHTML(record.insight.severity)} INTERACTION</p>
+                                                <p class="text-xs text-white/80 leading-relaxed mb-3">${escapeHTML(record.insight.message)}</p>
+                                                <button class="text-[10px] uppercase font-bold tracking-widest text-[var(--theme-accent)] hover:text-white transition-colors flex items-center gap-1" data-action="view-analysis" data-analysis-id="${escapeHTML(record.insight.analysisId)}">
+                                                    View Clinical Details <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ` : ''}
                             </div>
                         </div>
                     </div>
@@ -730,12 +775,39 @@ export default class ClinicalLedgerView {
             }
         });
 
+        // Listen for DIC analysis completed event
+        document.addEventListener('medcare:analysis-completed', async (e) => {
+            await this.loadData();
+            const content = this.container.querySelector('#ledger-content');
+            if (content) {
+                content.innerHTML = this.currentView === 'timeline' ? this.renderTimelineView() : this.renderDiseasesView();
+            }
+            
+            if (e.detail && e.detail.analysisId) {
+                const insight = this.timelineRecords.find(r => r.insight && r.insight.analysisId === e.detail.analysisId)?.insight;
+                if (insight && insight.severity !== 'NONE') {
+                    this.showNotificationToast(insight);
+                }
+            }
+        });
+
         // View Document Action
         this.container.addEventListener('click', (e) => {
             const btn = e.target.closest('[data-action="view-doc"]');
             if (btn) {
                 const url = btn.getAttribute('data-url');
                 this.openDocumentViewer(url);
+            }
+        });
+
+        // View Analysis Action
+        this.container.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-action="view-analysis"]');
+            if (btn) {
+                e.stopPropagation();
+                const analysisId = btn.getAttribute('data-analysis-id');
+                // Open Control Center (assumes dashboard exists)
+                window.open(`${window.ENV?.API_BASE_URL || 'http://localhost:8000'}/dashboard#/live/${analysisId}`, '_blank');
             }
         });
 
@@ -795,6 +867,42 @@ export default class ClinicalLedgerView {
                 }
             }
         });
+    }
+
+    showNotificationToast(insight) {
+        const toast = document.createElement('div');
+        // Determine colors based on severity
+        const isCritical = insight.severity === 'CRITICAL' || insight.severity === 'HIGH';
+        const colorClass = isCritical ? 'red-500' : 'yellow-500';
+        const textClass = isCritical ? 'text-red-400' : 'text-yellow-400';
+        const bgClass = isCritical ? 'bg-red-500/20' : 'bg-yellow-500/20';
+        const hoverBgClass = isCritical ? 'hover:bg-red-500/30' : 'hover:bg-yellow-500/30';
+        
+        toast.className = `fixed top-6 left-1/2 -translate-x-1/2 z-[100000] flex items-center gap-3 p-4 rounded-2xl bg-[#1a0f14]/95 backdrop-blur-xl border border-${colorClass}/30 shadow-[0_10px_40px_rgba(${isCritical?'255,0,0':'255,200,0'},0.2)] transform transition-all duration-500 translate-y-[-100%] opacity-0`;
+        
+        toast.innerHTML = `
+            <div class="${textClass}">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+            <div>
+                <p class="text-sm font-bold ${textClass} mb-0.5">${escapeHTML(insight.severity)} RISK DETECTED</p>
+                <p class="text-xs text-white/80">${escapeHTML(insight.message).substring(0, 60)}...</p>
+            </div>
+            <button class="ml-4 px-3 py-1.5 rounded-lg ${bgClass} ${textClass} text-[10px] uppercase font-bold tracking-widest border border-${colorClass}/20 ${hoverBgClass}" onclick="window.open('${window.ENV?.API_BASE_URL || 'http://localhost:8000'}/dashboard#/live/${escapeHTML(insight.analysisId)}', '_blank')">View</button>
+        `;
+
+        document.body.appendChild(toast);
+        
+        // Animate in
+        requestAnimationFrame(() => {
+            toast.classList.remove('translate-y-[-100%]', 'opacity-0');
+        });
+        
+        // Remove after 6 seconds
+        setTimeout(() => {
+            toast.classList.add('translate-y-[-100%]', 'opacity-0');
+            setTimeout(() => toast.remove(), 500);
+        }, 6000);
     }
 
     openDetailModal(record) {

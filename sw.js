@@ -30,7 +30,7 @@ const ASSETS = [
   '/views/dashboard.js',
   '/views/medications.js',
   '/views/add-medication.js',
-  '/views/interaction-checker.js',
+  '/views/safety-analysis.js',
   '/views/scan.js',
   '/views/reports.js',
   '/views/settings.js',

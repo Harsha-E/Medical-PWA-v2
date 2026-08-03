@@ -5,10 +5,7 @@
 
 import db from '../core/db.js';
 import state from '../core/state.js';
-import InteractionEngine from '../services/InteractionEngine.js';
 import CaregiverPortal from '../utils/CaregiverPortal.js';
-import SyncBridge from '../services/SyncBridge.js';
-import { collection, addDoc, doc, setDoc, getFirestore } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 export default class AddMedicationView {
   constructor() {
@@ -517,28 +514,39 @@ export default class AddMedicationView {
            }
            
            try {
-               // Query IndexedDB for matching medicines (brand names)
-               const matches = await db.medicines
-                   .where('name')
-                   .startsWithIgnoreCase(val)
-                   .limit(10)
-                   .toArray();
+               // Query Live DIC API for matching medicines
+               const res = await fetch(`${window.ENV?.API_BASE_URL || 'http://localhost:8000'}/api/v1/drugs/search?q=${encodeURIComponent(val)}`);
+               let matches = [];
+               if (res.ok) {
+                   const data = await res.json();
+                   matches = data.results || [];
+               } else {
+                   // Fallback to IndexedDB if API is down
+                   matches = await db.medicines
+                       .where('name')
+                       .startsWithIgnoreCase(val)
+                       .limit(10)
+                       .toArray();
+               }
                
                if (matches.length > 0) {
                    dropdown.classList.remove('hidden');
                    
                    // Set ghost text
-                   const bestMatchStr = matches[0].name;
+                   const bestMatchStr = matches[0].name || matches[0].label;
                    if (bestMatchStr && bestMatchStr.toLowerCase().startsWith(lowerVal)) {
                        ghostInput.value = val + bestMatchStr.slice(val.length);
                        currentMatchStr = ghostInput.value;
                    }
                    
                    matches.forEach(m => {
+                       const mName = m.name || m.label;
+                       const mGeneric = m.genericName || mName;
+                       const mManuf = m.manufacturer || m.category || '';
                        const div = document.createElement('div');
                        div.className = 'p-4 hover:bg-primary/20 cursor-pointer border-b border-border/50 text-sm transition-colors text-left';
-                       div.innerHTML = `<div class="font-bold text-text-primary text-base">${m.name}</div>
-                                        <div class="text-xs text-text-secondary mt-1">${m.genericName || 'Generic'} &bull; ${m.manufacturer || ''}</div>`;
+                       div.innerHTML = `<div class="font-bold text-text-primary text-base">${mName}</div>
+                                        <div class="text-xs text-text-secondary mt-1">${mGeneric} &bull; ${mManuf}</div>`;
                        div.addEventListener('mousedown', (e) => {
                            e.preventDefault(); // Prevent input blur
                            this.autofillMedication(m);
@@ -576,7 +584,8 @@ export default class AddMedicationView {
   }
 
   autofillMedication(m) {
-      this.container.querySelector('#m-name').value = m.name;
+      const mName = m.name || m.label;
+      this.container.querySelector('#m-name').value = mName;
       this.container.querySelector('#m-name-ghost').value = '';
       
       // Parse dosage and unit
@@ -629,8 +638,8 @@ export default class AddMedicationView {
 
       if (m.genericName) {
           this.container.querySelector('#m-generic').value = m.genericName;
-      } else if (m.name) {
-          this.container.querySelector('#m-generic').value = m.name;
+      } else {
+          this.container.querySelector('#m-generic').value = mName;
       }
       
       if (m.category) this.container.querySelector('#m-thera').value = m.category;
@@ -648,15 +657,15 @@ export default class AddMedicationView {
       if (m.brandNames && m.brandNames.length > 0) this.container.querySelector('#m-alt').value = m.brandNames.join(', ');
       
       // Update medData and trigger draft save
-      this.medData.name = m.name;
-      this.medData.genericName = m.genericName || m.name;
+      this.medData.name = mName;
+      this.medData.genericName = m.genericName || mName;
       if (m.category) this.medData.therapeuticCategory = m.category;
       if (manuf) this.medData.manufacturer = manuf;
       if (m.brandNames && m.brandNames.length > 0) this.medData.alternativeBrands = m.brandNames.join(', ');
       this.saveDraftState();
       
       // Dynamically run interaction check
-      this._runInlineInteractionCheck(m.name);
+      this._runInlineInteractionCheck(mName);
   }
 
   async save() {
@@ -755,57 +764,59 @@ export default class AddMedicationView {
 
     // Trigger Pre-Save Interaction Check
     try {
-      const engine = new InteractionEngine();
-      await engine.init('./data/indian_pharma_interactions.json');
-      
       const { default: stateModule } = await import('../core/state.js');
       const { default: dbModule } = await import('../core/db.js');
       const userId = window.appState?.activeProfileContext?.id || stateModule.activeProfileContext?.id || stateModule.user?.uid || 'anonymous';
       
       const rawMeds = await dbModule.medications.toArray();
       const activeMeds = rawMeds.filter(m => (m.userId === userId || !m.userId) && m.active !== false && m.id !== this.medId);
-      const currentDrugNames = activeMeds.map(m => (m.genericName || m.name || '').trim()).filter(n => n.length > 0);
       
-      const diseaseRecords = await dbModule.disease_ledger ? await dbModule.disease_ledger.filter(d => d.userId === userId).toArray() : [];
-      const userConditions = diseaseRecords.map(d => d.clinicalName);
+      const targetDrugId = data.genericName || data.name;
+      const drugList = [...activeMeds.map(m => m.rxnormId || m.name), targetDrugId];
       
-      const patientProfile = { activeMeds: currentDrugNames, activeDiseases: userConditions, allergies: [] };
-      const targetDrug = data.genericName || data.name;
-      
-      if (targetDrug) {
-        const warnings = await engine.analyze(targetDrug, patientProfile);
-        const severeWarnings = warnings.filter(w => w.severity.toLowerCase() === 'severe' || w.severity.toLowerCase() === 'critical');
+      if (targetDrugId && drugList.length > 1) {
+        const res = await fetch(`${window.ENV?.API_BASE_URL || 'http://localhost:8000'}/api/v1/interactions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ medication_ids: drugList })
+        });
         
-        if (severeWarnings.length > 0) {
-          const confirmInteractionOverride = await new Promise((resolve) => {
-            const div = document.createElement('div');
-            div.className = 'fixed inset-0 z-[9999] bg-red-900/90 backdrop-blur-sm flex items-center justify-center p-4';
-            div.innerHTML = `
-              <div class="bg-surface-elevated border border-red-500/50 rounded-[2rem] p-6 w-full max-w-sm shadow-2xl">
-                <h2 class="text-xl font-display text-text-primary mb-2 flex items-center gap-2">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-danger)" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                  Severe Interaction Detected
-                </h2>
-                <p class="text-sm text-text-secondary mb-4 font-mono">This medication has severe interactions with your current profile:</p>
-                <div class="mb-6 space-y-2 max-h-48 overflow-y-auto">
-                  ${severeWarnings.map(w => `<div class="text-xs text-red-200 bg-red-950/50 p-3 rounded-xl border border-red-500/30"><strong>${w.type}:</strong> ${w.text}</div>`).join('')}
-                </div>
-                <div class="flex gap-3">
-                  <button id="int-cancel" class="flex-1 py-3 rounded-xl text-text-primary font-bold tracking-wider btn-neumorphic">Cancel</button>
-                  <button id="int-override" class="flex-1 py-3 rounded-xl bg-red-500/20 text-danger font-bold tracking-wider btn-neumorphic">Override</button>
-                </div>
-              </div>
-            `;
-            document.body.appendChild(div);
-            window.medcareAlertLock = true;
-            div.querySelector('#int-cancel').onclick = () => { window.medcareAlertLock = false; div.remove(); resolve(false); };
-            div.querySelector('#int-override').onclick = () => { window.medcareAlertLock = false; div.remove(); resolve(true); };
-          });
+        if (res.ok) {
+          const apiData = await res.json();
+          const interactions = apiData.interactions || [];
+          const severeWarnings = interactions.filter(w => w.strength === 'SEVERE' || w.strength === 'HIGH');
           
-          if (!confirmInteractionOverride) {
-            saveBtn.disabled = false;
-            saveBtn.textContent = this.isEdit ? 'Save Changes' : 'Add Medication';
-            return;
+          if (severeWarnings.length > 0) {
+            const confirmInteractionOverride = await new Promise((resolve) => {
+              const div = document.createElement('div');
+              div.className = 'fixed inset-0 z-[9999] bg-red-900/90 backdrop-blur-sm flex items-center justify-center p-4';
+              div.innerHTML = `
+                <div class="bg-surface-elevated border border-red-500/50 rounded-[2rem] p-6 w-full max-w-sm shadow-2xl">
+                  <h2 class="text-xl font-display text-text-primary mb-2 flex items-center gap-2">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-danger)" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    Severe Interaction Detected
+                  </h2>
+                  <p class="text-sm text-text-secondary mb-4 font-mono">This medication has severe interactions with your current profile:</p>
+                  <div class="mb-6 space-y-2 max-h-48 overflow-y-auto">
+                    ${severeWarnings.map(w => `<div class="text-xs text-red-200 bg-red-950/50 p-3 rounded-xl border border-red-500/30"><strong>${w.effect || w.type}:</strong> ${w.evidence ? 'Evidence found.' : 'Consult doctor.'}</div>`).join('')}
+                  </div>
+                  <div class="flex gap-3">
+                    <button id="int-cancel" class="flex-1 py-3 rounded-xl text-text-primary font-bold tracking-wider btn-neumorphic">Cancel</button>
+                    <button id="int-override" class="flex-1 py-3 rounded-xl bg-red-500/20 text-danger font-bold tracking-wider btn-neumorphic">Override</button>
+                  </div>
+                </div>
+              `;
+              document.body.appendChild(div);
+              window.medcareAlertLock = true;
+              div.querySelector('#int-cancel').onclick = () => { window.medcareAlertLock = false; div.remove(); resolve(false); };
+              div.querySelector('#int-override').onclick = () => { window.medcareAlertLock = false; div.remove(); resolve(true); };
+            });
+            
+            if (!confirmInteractionOverride) {
+              saveBtn.disabled = false;
+              saveBtn.textContent = this.isEdit ? 'Save Changes' : 'Add Medication';
+              return;
+            }
           }
         }
       }
@@ -849,54 +860,58 @@ export default class AddMedicationView {
     if (!container) return;
 
     try {
-      const { default: InteractionEngine } = await import('../services/InteractionEngine.js');
-      const engine = new InteractionEngine();
-      await engine.init('./data/indian_pharma_interactions.json');
-      
       const { default: stateModule } = await import('../core/state.js');
       const { default: dbModule } = await import('../core/db.js');
       const userId = window.appState?.activeProfileContext?.id || stateModule.activeProfileContext?.id || stateModule.user?.uid || 'anonymous';
       
       const rawMeds = await dbModule.medications.toArray();
       const activeMeds = rawMeds.filter(m => (m.userId === userId || !m.userId) && m.active !== false && m.id !== this.medId);
-      const currentDrugNames = activeMeds.map(m => (m.genericName || m.name || '').trim()).filter(n => n.length > 0);
       
-      const diseaseRecords = await dbModule.disease_ledger ? await dbModule.disease_ledger.filter(d => d.userId === userId).toArray() : [];
-      const userConditions = diseaseRecords.map(d => d.clinicalName);
+      const drugList = [...activeMeds.map(m => m.rxnormId || m.name), drugName];
       
-      const patientProfile = { activeMeds: currentDrugNames, activeDiseases: userConditions, allergies: [] };
-      
-      const warnings = await engine.analyze(drugName, patientProfile);
-      
-      if (warnings && warnings.length > 0) {
-        const warningsHtml = warnings.map(w => 
-          `<div class="mb-4 bg-red-950/30 p-4 rounded-2xl border border-red-500/20">
-              <div class="flex items-center gap-2 mb-1">
-                  <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-                  <strong class="uppercase text-[10px] tracking-widest text-red-300">${w.type} • ${w.severity} SEVERITY</strong>
-              </div>
-              <p class="text-sm font-semibold text-red-50 my-2">${w.text}</p>
-              
-              <div class="mt-3 pt-3 border-t border-red-500/20 text-[11px] text-red-200/70 leading-relaxed flex gap-2">
-                  <svg class="w-4 h-4 shrink-0 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                  <span><strong>How we found this:</strong> Our Clinical Engine cross-referenced the active ingredients in <em>${drugName}</em> against your current profile (allergies, conditions, and active medications).</span>
-              </div>
-          </div>`
-        ).join('');
+      if (drugList.length > 1) {
+        const res = await fetch(`${window.ENV?.API_BASE_URL || 'http://localhost:8000'}/api/v1/interactions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ medication_ids: drugList })
+        });
+        
+        if (res.ok) {
+          const apiData = await res.json();
+          const interactions = apiData.interactions || [];
+          const warnings = interactions.filter(w => w.strength === 'SEVERE' || w.strength === 'HIGH' || w.strength === 'MODERATE');
+          
+          if (warnings && warnings.length > 0) {
+            const warningsHtml = warnings.map(w => 
+              `<div class="mb-4 bg-red-950/30 p-4 rounded-2xl border border-red-500/20">
+                  <div class="flex items-center gap-2 mb-1">
+                      <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                      <strong class="uppercase text-[10px] tracking-widest text-red-300">${w.effect || w.type} • ${w.strength} SEVERITY</strong>
+                  </div>
+                  <p class="text-sm font-semibold text-red-50 my-2">${w.drugs.join(' + ')}</p>
+                  
+                  <div class="mt-3 pt-3 border-t border-red-500/20 text-[11px] text-red-200/70 leading-relaxed flex gap-2">
+                      <svg class="w-4 h-4 shrink-0 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                      <span><strong>How we found this:</strong> Our Clinical Engine cross-referenced the active ingredients in <em>${drugName}</em> against your current profile.</span>
+                  </div>
+              </div>`
+            ).join('');
 
-        container.innerHTML = `
-          <div class="mb-6 p-5 rounded-3xl bg-red-950/40 border border-red-500/30 backdrop-blur-xl" style="box-shadow: inset 4px 4px 10px rgba(0,0,0,0.5), inset -4px -4px 10px rgba(255, 100, 100, 0.1), 0 0 20px rgba(239, 68, 68, 0.3);">
-            <div class="flex items-center gap-3 mb-4">
-              <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-              <h4 class="text-red-200 font-bold tracking-widest text-xs uppercase">Clinical Warning Detected</h4>
-            </div>
-            <div class="space-y-2">
-              ${warningsHtml}
-            </div>
-          </div>
-        `;
-      } else {
-        container.innerHTML = '';
+            container.innerHTML = `
+              <div class="mb-6 p-5 rounded-3xl bg-red-950/40 border border-red-500/30 backdrop-blur-xl" style="box-shadow: inset 4px 4px 10px rgba(0,0,0,0.5), inset -4px -4px 10px rgba(255, 100, 100, 0.1), 0 0 20px rgba(239, 68, 68, 0.3);">
+                <div class="flex items-center gap-3 mb-4">
+                  <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                  <h4 class="text-red-200 font-bold tracking-widest text-xs uppercase">Clinical Warning Detected</h4>
+                </div>
+                <div class="space-y-2">
+                  ${warningsHtml}
+                </div>
+              </div>
+            `;
+          } else {
+            container.innerHTML = '';
+          }
+        }
       }
     } catch (e) {
       console.warn('[AddMedication] Inline Interaction check failed:', e);
