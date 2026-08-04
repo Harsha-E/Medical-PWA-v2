@@ -67,17 +67,8 @@ export default class ScanView {
           width: 54px; height: 54px; border-radius: 50%;
           background: rgba(255, 255, 255, 0.9);
         }
-        /* Desktop: center the camera feed and float controls to the right */
+        /* Desktop & Tablet: floating controls on right side, fullscreen video background */
         @media (min-width: 1024px) {
-          #sc-video {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            width: auto !important;
-            max-width: 512px;
-            height: 100%;
-            object-fit: cover;
-          }
           .sc-bottom-controls-desktop {
             position: absolute;
             right: 40px;
@@ -92,24 +83,14 @@ export default class ScanView {
             border: 1px solid rgba(255,255,255,0.08);
             border-radius: 2rem;
             padding: 28px 20px;
+            z-index: 50;
           }
           .sc-bottom-bar { display: none !important; }
         }
-        @media (min-width: 768px) and (max-width: 1023px) {
-          #sc-video {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            width: auto !important;
-            max-width: 448px;
-            height: 100%;
-            object-fit: cover;
-          }
-        }
       </style>
 
-      <!-- Fullscreen Video -->
-      <video id="sc-video" autoplay playsinline muted style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: none !important;"></video>
+      <!-- Fullscreen Video Background -->
+      <video id="sc-video" autoplay playsinline muted style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: none !important; z-index: 0;"></video>
       <canvas id="sc-canvas" style="display: none;"></canvas>
 
       <!-- Permission Overlay -->
@@ -131,11 +112,11 @@ export default class ScanView {
       </div>
 
       <!-- Minimalist Top Header -->
-      <div class="glass-panel" style="position: absolute; top: 0; left: 0; right: 0; padding: max(env(safe-area-inset-top), 20px) 24px 20px; display: flex; justify-content: space-between; align-items: center;">
+      <div class="glass-panel" style="position: absolute; top: 0; left: 0; right: 0; padding: max(env(safe-area-inset-top), 20px) 24px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 50;">
         <a href="#/dashboard" class="glass-btn" style="width: 44px; height: 44px; text-decoration: none;">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         </a>
-        <div style="font-weight: 600; letter-spacing: 0.1em; color: white; font-size: 14px; text-transform: uppercase;">Scan Label</div>
+        <div style="font-weight: 600; letter-spacing: 0.1em; color: white; font-size: 14px; text-transform: uppercase;">Scan Medicine Package</div>
         <button id="sc-torch" class="glass-btn" style="width: 44px; height: 44px;">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 2l1.5 4.5L13 8l-3 5 4 4-7 5 2-8-4-4 4.5-1.5L9 2z"/></svg>
         </button>
