@@ -43,22 +43,33 @@ Return ONLY a strict JSON object with this EXACT structure (no markdown, no back
             max_tokens: 500
         };
 
-        const GROQ_KEY = self.GROQ_API_KEY || (function() {
-            try {
-                return atob('Z3NrXzdNWGpSOU1ueTBMbTh' + 'PaERLNHpoV0dkeWIzRllmQXQz' + 'WXBoZXJQTkZUWXNIZEFMeUczVFc=').trim();
-            } catch(e) {
-                return atob('Z3NrXzdNWGpSOU1ueTBMbTh' + 'PaERLNHpoV0dkeWIzRllmQXQz' + 'WXBoZXJQTkZUWXNIZEFMeUczVFc=').trim();
-            }
-        })();
+        let response;
+        try {
+            response = await fetch('https://medcare-groq-proxy.harshaedupuganti70.workers.dev/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(self.GROQ_API_KEY ? { 'Authorization': `Bearer ${self.GROQ_API_KEY}` } : {})
+                },
+                body: JSON.stringify(payload)
+            });
+        } catch (proxyErr) {
+            console.warn('[Vision Worker] Proxy endpoint warning, attempting direct call if key present:', proxyErr);
+        }
 
-        let response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${GROQ_KEY}`
-            },
-            body: JSON.stringify(payload)
-        });
+        if (!response || !response.ok) {
+            if (!self.GROQ_API_KEY) {
+                throw new Error(response ? `Vision API Proxy returned status ${response.status}` : 'Vision Proxy endpoint unreachable');
+            }
+            response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${self.GROQ_API_KEY}`
+                },
+                body: JSON.stringify(payload)
+            });
+        }
 
         if (!response.ok) {
             const errText = await response.text();
