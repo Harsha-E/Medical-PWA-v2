@@ -502,15 +502,16 @@ export default class ScanView {
         const { default: state } = await import('../core/state.js');
         const { default: CanonicalContextBuilder } = await import('../core/CanonicalContextBuilder.js');
         
-        const canonicalPatient = CanonicalContextBuilder.build(state.userProfile, medList);
-        await ApiClient.post('/api/v1/analyze', {
-          analysis_id: executionId,
-          patient_id: targetUserId,
-          patient: canonicalPatient,
-          medications: medList.map(m => ({ id: typeof m === 'string' ? m : (m.name || m.brandName), name: typeof m === 'string' ? m : (m.name || m.brandName) })),
-          timestamp: timestampIso,
+        const existingDbMeds = await dbModule.medications.filter(m => !m.isDeleted).toArray();
+        const telemetryPayload = CanonicalContextBuilder.buildAnalysisPayload({
+          userProfile: state.userProfile,
+          currentMedications: existingDbMeds,
+          newMedications: medList,
+          analysisId: executionId,
           source: 'vision-scan'
-        }, { timeout: 3500 });
+        });
+
+        await ApiClient.post('/api/v1/analyze', telemetryPayload, { timeout: 3500 });
       } catch (apiErr) {
         console.warn('[ScanView] DIC Telemetry API submission warning:', apiErr.message);
       }

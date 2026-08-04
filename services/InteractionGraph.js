@@ -24,11 +24,17 @@ class InteractionGraph {
     
     try {
       const { ApiClient } = await import('../core/api.js');
-      const data = await ApiClient.post('/api/v1/analyze', {
-        patient_id: "local_user",
-        medications: meds,
-        allergies: []
-      }, { timeout: 3000 });
+      const { default: state } = await import('../core/state.js');
+      const { default: CanonicalContextBuilder } = await import('../core/CanonicalContextBuilder.js');
+      
+      const payload = CanonicalContextBuilder.buildAnalysisPayload({
+        userProfile: state.userProfile,
+        currentMedications: meds,
+        newMedications: [],
+        source: 'interaction-graph'
+      });
+
+      const data = await ApiClient.post('/api/v1/analyze', payload, { timeout: 3500 });
 
       if (!data || !data.alerts) return [];
 

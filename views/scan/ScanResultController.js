@@ -157,11 +157,18 @@ export default class ScanResultController {
        const drugList = [...activeMeds.map(m => m.rxnormId || m.name), ...finalDrugs];
               if (drugList.length > 1) {
             let interactions = [];
-            try {
-                const { ApiClient } = await import('../../core/api.js');
-                const data = await ApiClient.post('/api/v1/interactions', { medication_ids: drugList }, { timeout: 1500 });
-                interactions = data?.interactions || [];
-            } catch (e) {
+             try {
+                 const { ApiClient } = await import('../../core/api.js');
+                 const { default: CanonicalContextBuilder } = await import('../../core/CanonicalContextBuilder.js');
+                 const payload = CanonicalContextBuilder.buildAnalysisPayload({
+                   userProfile: state.userProfile,
+                   currentMedications: activeMeds,
+                   newMedications: finalDrugs,
+                   source: 'scan-result-controller'
+                 });
+                 const data = await ApiClient.post('/api/v1/analyze', payload, { timeout: 3500 });
+                 interactions = data?.alerts || data?.interactions || [];
+             } catch (e) {
                 console.warn('[ScanResultController] DIC network error, switching to local NLP engine:', e.message);
                 try {
                     const { MedicalNLPEngine } = await import('../../services/MedicalNLPEngine.js');

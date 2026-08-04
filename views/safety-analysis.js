@@ -59,8 +59,16 @@ export default class InteractionCheckerView {
           let interactions = [];
           try {
               const { ApiClient } = await import('../core/api.js');
-              const data = await ApiClient.post('/api/v1/interactions', { medication_ids: allDrugsToAnalyze }, { timeout: 1500 });
-              interactions = data?.interactions || [];
+              const { default: state } = await import('../core/state.js');
+              const { default: CanonicalContextBuilder } = await import('../core/CanonicalContextBuilder.js');
+              const payload = CanonicalContextBuilder.buildAnalysisPayload({
+                userProfile: state.userProfile,
+                currentMedications: currentDrugNames,
+                newMedications: newMedicines,
+                source: 'safety-analysis'
+              });
+              const data = await ApiClient.post('/api/v1/analyze', payload, { timeout: 3500 });
+              interactions = data?.alerts || data?.interactions || [];
           } catch (apiErr) {
               console.warn('[SafetyAnalysis] DIC API offline/error, falling back to local NLP engine:', apiErr.message);
               try {

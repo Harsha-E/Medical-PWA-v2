@@ -778,9 +778,16 @@ export default class AddMedicationView {
         let severeWarnings = [];
         try {
           const { ApiClient } = await import('../core/api.js');
-          const apiData = await ApiClient.post('/api/v1/interactions', { medication_ids: drugList }, { timeout: 1500 });
-          const interactions = apiData?.interactions || [];
-          severeWarnings = interactions.filter(w => w.strength === 'SEVERE' || w.strength === 'HIGH');
+          const { default: CanonicalContextBuilder } = await import('../core/CanonicalContextBuilder.js');
+          const payload = CanonicalContextBuilder.buildAnalysisPayload({
+            userProfile: state.userProfile,
+            currentMedications: activeMeds,
+            newMedications: [targetDrugId],
+            source: 'add-medication-presave'
+          });
+          const apiData = await ApiClient.post('/api/v1/analyze', payload, { timeout: 3500 });
+          const interactions = apiData?.alerts || apiData?.interactions || [];
+          severeWarnings = interactions.filter(w => w.severity === 'CRITICAL' || w.strength === 'SEVERE' || w.strength === 'HIGH');
         } catch (apiErr) {
           console.warn('[AddMedication] Pre-save API interaction check failed, switching to local engine:', apiErr.message);
         }
@@ -881,9 +888,16 @@ export default class AddMedicationView {
         // 1. Attempt live DIC API query via ApiClient
         try {
           const { ApiClient } = await import('../core/api.js');
-          const apiData = await ApiClient.post('/api/v1/interactions', { medication_ids: drugList }, { timeout: 1500 });
-          const apiInteractions = apiData?.interactions || [];
-          warnings = apiInteractions.filter(w => w.strength === 'SEVERE' || w.strength === 'HIGH' || w.strength === 'MODERATE');
+          const { default: CanonicalContextBuilder } = await import('../core/CanonicalContextBuilder.js');
+          const payload = CanonicalContextBuilder.buildAnalysisPayload({
+            userProfile: state.userProfile,
+            currentMedications: activeMeds,
+            newMedications: [drugName],
+            source: 'add-medication-livecheck'
+          });
+          const apiData = await ApiClient.post('/api/v1/analyze', payload, { timeout: 3500 });
+          const apiInteractions = apiData?.alerts || apiData?.interactions || [];
+          warnings = apiInteractions.filter(w => w.severity === 'CRITICAL' || w.strength === 'SEVERE' || w.strength === 'HIGH' || w.strength === 'MODERATE');
         } catch (apiErr) {
           console.warn(`[AddMedication] Interaction API [${apiErr.code || 'FAIL'}]:`, apiErr.message);
         }

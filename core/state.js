@@ -146,64 +146,69 @@ class State {
         this.isAdmin = data.role === 'admin';
         localStorage.setItem(cacheKey, JSON.stringify(data));
       } else {
-        this.userProfile = { onboardingComplete: false, profileVersion: 2 };
+        await this._fallbackToIndexedDB(user.uid, cacheKey);
       }
     } catch (err) {
-      console.warn('[State] Circuit breaker tripped. Booting in local offline-first mode:', err.message);
-      
-      const cachedData = localStorage.getItem(cacheKey);
-      if (cachedData) {
-        try {
-          const rawData = JSON.parse(cachedData);
-          const data = migrateExistingUserProfile(rawData);
-          this.userProfile = data;
-          this.isAdmin = data.role === 'admin';
-          console.log('[State] Hydrated from localStorage cache (v2 migrated).');
-        } catch (e) {
-          console.error('[State] localStorage parse error:', e);
-          await this._fallbackToIndexedDB();
-        }
-      } else {
-        await this._fallbackToIndexedDB();
-      }
+      console.warn('[State] Firestore sync skipped/errored. Falling back to local priority cache:', err.message);
+      await this._fallbackToIndexedDB(user.uid, cacheKey);
     }
 
     this._notify();
   }
 
-  async _fallbackToIndexedDB() {
+  async _fallbackToIndexedDB(uid, cacheKey) {
     try {
+      // 1. Try Dexie IndexedDB
       const localProfiles = await localDb.userProfile.toArray();
-      if (localProfiles && localProfiles.length > 0) {
-        const rawData = localProfiles[localProfiles.length - 1];
-        const data = migrateExistingUserProfile(rawData);
+      const userDoc = localProfiles.find(p => p.id === uid || p.userId === uid) || localProfiles[localProfiles.length - 1];
+      
+      if (userDoc) {
+        const data = migrateExistingUserProfile(userDoc);
         this.userProfile = data;
-        this.isAdmin = this.userProfile.role === 'admin';
-      } else {
-        this.userProfile = { onboardingComplete: false, isOfflineFallback: true, profileVersion: 2 };
-        this.isAdmin = false;
+        this.isAdmin = data.role === 'admin';
+        console.log('[State] Hydrated from Dexie IndexedDB cache (v2 migrated).');
+        return;
       }
     } catch (localErr) {
-      console.error('[State] Local DB read failed during fallback:', localErr);
-      this.userProfile = { onboardingComplete: false, isOfflineFallback: true, profileVersion: 2 };
-      this.isAdmin = false;
+      console.warn('[State] Local Dexie DB read failed during fallback:', localErr);
     }
+
+    // 2. Try LocalStorage draft
+    try {
+      const draftData = localStorage.getItem(`medcare_onboarding_draft_${uid}`) || localStorage.getItem(cacheKey);
+      if (draftData) {
+        const parsed = JSON.parse(draftData);
+        const data = migrateExistingUserProfile({ profile: parsed, onboardingComplete: false });
+        this.userProfile = data;
+        this.isAdmin = data.role === 'admin';
+        console.log('[State] Hydrated from LocalStorage draft cache (v2 migrated).');
+        return;
+      }
+    } catch (lsErr) {
+      console.warn('[State] LocalStorage draft read failed during fallback:', lsErr);
+    }
+
+    // 3. Fallback to Memory
+    this.userProfile = { onboardingComplete: false, isOfflineFallback: true, profileVersion: 2 };
+    this.isAdmin = false;
   }
 
   // ─── Mutation helpers ─────────────────────────────────────────────────────────
 
   patchProfile(patch) {
+    this._cachedCanonicalContext = null; // Invalidate cached context immediately on profile mutation
     this.userProfile = { ...this.userProfile, ...patch, lastClinicalUpdate: new Date().toISOString() };
     this._notify();
   }
 
   /**
-   * Helper to build runtime DIC payload snapshot.
+   * Helper to build runtime DIC payload snapshot. Always rebuilds fresh context.
    * @param {Array} medications 
    * @returns {Object} Canonical context payload
    */
   getCanonicalContext(medications = []) {
-    return CanonicalContextBuilder.build(this.userProfile, medications);
+    this._cachedCanonicalContext = CanonicalContextBuilder.build(this.userProfile, medications);
+    return this._cachedCanonicalContext;
   }
 
   /** Clear all state (called on sign-out). */

@@ -140,9 +140,35 @@ export default class OnboardingView {
     return this.container;
   }
 
-  autosave() {
-    if (auth.currentUser?.uid) {
-      localStorage.setItem(`medcare_onboarding_draft_${auth.currentUser.uid}`, JSON.stringify(this.formData));
+  async autosave() {
+    const uid = auth.currentUser?.uid;
+    if (!uid) return;
+
+    // 1. LocalStorage Draft
+    localStorage.setItem(`medcare_onboarding_draft_${uid}`, JSON.stringify(this.formData));
+
+    // 2. Local State Patch
+    if (state.patchProfile) {
+      state.patchProfile({ profile: this.formData });
+    }
+
+    // 3. Dexie IndexedDB Backup
+    try {
+      const { default: localDb } = await import('../core/db.js');
+      await localDb.userProfile.put({ id: uid, key: `draft_${uid}`, ...this.formData, updatedAt: new Date().toISOString() });
+    } catch (e) {
+      console.warn('[Onboarding] Dexie step draft warning:', e);
+    }
+
+    // 4. Async Cloud Merge to Firestore
+    try {
+      const { doc: fsDoc, setDoc: fsSetDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+      await fsSetDoc(fsDoc(db, 'users', uid), {
+        profile: this.formData,
+        lastClinicalUpdate: new Date().toISOString()
+      }, { merge: true });
+    } catch (fsErr) {
+      console.warn('[Onboarding] Firestore step draft merge warning:', fsErr);
     }
   }
 
