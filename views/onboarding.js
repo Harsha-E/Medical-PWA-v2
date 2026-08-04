@@ -267,17 +267,23 @@ export default class OnboardingView {
           <p class="text-text-secondary text-xs mt-1">Some illnesses can change how medicines work.</p>
         </div>
 
+        <div class="mb-6">
+          <span class="text-accent-primary font-mono text-xs uppercase tracking-widest">Step 3 of 11 — Conditions</span>
+          <h2 class="text-2xl sm:text-3xl font-display font-semibold text-text-primary mt-2 leading-tight">Do you have or live with any of these conditions?</h2>
+          <p class="text-text-secondary text-xs mt-1">Some illnesses can change how medicines work.</p>
+        </div>
+
         <div class="space-y-4 mb-8">
-          <div class="flex gap-2 mb-2">
-            <input type="text" id="search-disease" placeholder="Search conditions or type custom entry..." class="w-full px-4 py-3 rounded-xl bg-surface-deep/40 border border-white/10 text-xs font-semibold text-text-primary">
-            <button type="button" id="btn-custom-disease" class="px-4 py-3 rounded-xl bg-primary/20 border border-primary/30 text-primary text-xs font-bold shrink-0">+ Add Custom</button>
+          <div class="flex flex-col sm:flex-row gap-2.5 mb-4">
+            <input type="text" id="search-disease" placeholder="Search conditions or type custom entry..." class="w-full px-4 py-3.5 rounded-2xl bg-surface-deep/60 border border-white/10 text-xs font-semibold text-text-primary focus:outline-none focus:border-primary/50">
+            <button type="button" id="btn-custom-disease" class="w-full sm:w-auto px-5 py-3.5 rounded-2xl bg-primary/20 hover:bg-primary/30 border border-primary/30 text-primary text-xs font-bold shrink-0 transition-all">+ Add Custom</button>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="disease-chips">
             ${COMMON_DISEASES.map(d => {
               const isSelected = this.formData.active_conditions.some(c => (typeof c === 'string' ? c : c.id) === d.id);
-              return `<button type="button" class="chip-disease ${isSelected ? 'border-primary bg-primary/20 text-primary font-bold' : 'border-border bg-surface/50 text-text-secondary'} p-4 rounded-xl border text-left text-xs transition-all flex items-center justify-between" data-id="${d.id}" data-code="${d.code}" data-display="${d.display}">
-                <span>${d.display}</span>
-                <span>${isSelected ? '✓' : '+'}</span>
+              return `<button type="button" class="chip-disease ${isSelected ? 'border-primary bg-primary/20 text-primary font-bold shadow-md shadow-primary/10' : 'border-border bg-surface/50 text-text-secondary hover:border-white/20'} p-4 rounded-2xl border text-left text-xs transition-all flex items-center justify-between gap-2" data-id="${d.id}" data-code="${d.code}" data-display="${d.display}">
+                <span class="truncate">${d.display}</span>
+                <span class="shrink-0 font-bold">${isSelected ? '✓' : '+'}</span>
               </button>`;
             }).join('')}
           </div>
@@ -288,26 +294,26 @@ export default class OnboardingView {
     } else if (this.step === 4) {
       // Step 4: Categorized Allergies (Recommended / Skippable)
       stepHTML = `
-        <div class="mb-8">
+        <div class="mb-6">
           <span class="text-accent-primary font-mono text-xs uppercase tracking-widest">Step 4 of 11 — Allergies</span>
-          <h2 class="text-3xl font-display font-semibold text-text-primary mt-2">Are you allergic to any medicines or foods?</h2>
+          <h2 class="text-2xl sm:text-3xl font-display font-semibold text-text-primary mt-2 leading-tight">Are you allergic to any medicines or foods?</h2>
           <p class="text-text-secondary text-xs mt-1">This helps us avoid medicines that may not be safe for you.</p>
         </div>
 
         <div class="space-y-4 mb-8">
-          <div class="flex gap-2 mb-2">
-            <input type="text" id="search-allergy" placeholder="Search allergies or type custom entry..." class="w-full px-4 py-3 rounded-xl bg-surface-deep/40 border border-white/10 text-xs font-semibold text-text-primary">
-            <button type="button" id="btn-custom-allergy" class="px-4 py-3 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-bold shrink-0">+ Add Custom</button>
+          <div class="flex flex-col sm:flex-row gap-2.5 mb-4">
+            <input type="text" id="search-allergy" placeholder="Search allergies or type custom entry..." class="w-full px-4 py-3.5 rounded-2xl bg-surface-deep/60 border border-white/10 text-xs font-semibold text-text-primary focus:outline-none focus:border-amber-500/50">
+            <button type="button" id="btn-custom-allergy" class="w-full sm:w-auto px-5 py-3.5 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-amber-300 text-xs font-bold shrink-0 transition-all">+ Add Custom</button>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="allergy-chips">
             ${COMMON_ALLERGIES.map(a => {
               const isSelected = this.formData.allergies.some(item => (typeof item === 'string' ? item : item.name) === a.name);
-              return `<button type="button" class="chip-allergy ${isSelected ? 'border-amber-500 bg-amber-500/20 text-amber-300 font-bold' : 'border-border bg-surface/50 text-text-secondary'} p-4 rounded-xl border text-left text-xs transition-all flex items-center justify-between" data-name="${a.name}" data-category="${a.category}">
-                <div>
-                  <div class="font-semibold">${a.name}</div>
+              return `<button type="button" class="chip-allergy ${isSelected ? 'border-amber-500 bg-amber-500/20 text-amber-300 font-bold shadow-md shadow-amber-500/10' : 'border-border bg-surface/50 text-text-secondary hover:border-white/20'} p-4 rounded-2xl border text-left text-xs transition-all flex items-center justify-between gap-2" data-name="${a.name}" data-category="${a.category}">
+                <div class="min-w-0 flex-1">
+                  <div class="font-semibold truncate">${a.name}</div>
                   <div class="text-[10px] text-text-muted font-mono">[${a.category}]</div>
                 </div>
-                <span>${isSelected ? '✓' : '+'}</span>
+                <span class="shrink-0 font-bold">${isSelected ? '✓' : '+'}</span>
               </button>`;
             }).join('')}
           </div>

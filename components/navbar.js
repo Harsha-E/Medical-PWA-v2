@@ -17,6 +17,7 @@ export default class GlassNavbar {
     this.isVisible = isVisible;
     const nav = document.getElementById('glass-nav');
     if (nav) {
+      nav.style.display = isVisible ? 'flex' : 'none';
       nav.style.opacity = isVisible ? '1' : '0';
       nav.style.pointerEvents = isVisible ? 'auto' : 'none';
     }
@@ -52,6 +53,9 @@ export default class GlassNavbar {
       `;
     }
     this.attachListeners();
+    if (this.isVisible === false) {
+      this.setVisibility(false);
+    }
   }
 
   getPublicMenu() {

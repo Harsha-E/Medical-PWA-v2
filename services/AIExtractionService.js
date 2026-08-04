@@ -76,40 +76,6 @@ Return ONLY a strict JSON array (no markdown, no backticks, no extra text):
 
         const modelsToTry = [
             {
-                name: 'llama-3.2-90b-vision-preview',
-                payload: {
-                    model: 'llama-3.2-90b-vision-preview',
-                    messages: [
-                        {
-                            role: 'user',
-                            content: [
-                                { type: 'text', text: textPromptWithOcr },
-                                { type: 'image_url', image_url: { url: base64Image } }
-                            ]
-                        }
-                    ],
-                    temperature: 0.1,
-                    max_tokens: 800
-                }
-            },
-            {
-                name: 'llama-3.2-11b-vision-preview',
-                payload: {
-                    model: 'llama-3.2-11b-vision-preview',
-                    messages: [
-                        {
-                            role: 'user',
-                            content: [
-                                { type: 'text', text: textPromptWithOcr },
-                                { type: 'image_url', image_url: { url: base64Image } }
-                            ]
-                        }
-                    ],
-                    temperature: 0.1,
-                    max_tokens: 800
-                }
-            },
-            {
                 name: 'llama-3.3-70b-versatile',
                 payload: {
                     model: 'llama-3.3-70b-versatile',
