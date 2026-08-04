@@ -68,6 +68,7 @@ const ROUTES = {
   '#/register': RegisterView,
   '#/install': InstallView,
   '#/onboarding': OnboardingView,
+  '#/edit-profile': OnboardingView,
   '#/dashboard': DashboardView,
 
   '#/timeline': MedicalTimelineView,

@@ -68,12 +68,16 @@ Return ONLY a strict JSON object with this EXACT structure (no markdown, no back
         }
 
         if (!response || !response.ok) {
+            console.log("[Groq Worker] Falling back to direct Groq API with vision capability...");
             const directPayload = {
-                model: 'llama-3.3-70b-versatile',
+                model: 'llama-3.2-11b-vision-preview',
                 messages: [
                     {
                         role: 'user',
-                        content: promptText + '\n\nExtract medicine details accurately into structured JSON.'
+                        content: [
+                            { type: 'text', text: promptText },
+                            { type: 'image_url', image_url: { url: image_url } }
+                        ]
                     }
                 ],
                 temperature: 0.1,
@@ -102,6 +106,29 @@ Return ONLY a strict JSON object with this EXACT structure (no markdown, no back
         content = content.replace(/```json/gi, '').replace(/```/g, '').trim();
 
         const parsed = JSON.parse(content);
+
+        // Sanitize OCR string outputs like "Not Visible" or "Not explicitly mentioned"
+        const cleanString = (val) => {
+            if (!val) return null;
+            if (typeof val === 'string') {
+                const lower = val.toLowerCase().trim();
+                if (lower.includes('not visible') || lower.includes('not mentioned') || lower === 'n/a' || lower === 'unknown' || lower === 'none' || lower === 'not explicitly mentioned') {
+                    return null;
+                }
+            }
+            return val;
+        };
+
+        if (parsed) {
+            parsed.brandName = cleanString(parsed.brandName);
+            parsed.genericName = cleanString(parsed.genericName);
+            parsed.manufacturer = cleanString(parsed.manufacturer);
+            if (parsed.dosage && parsed.dosage.parsed) {
+                parsed.dosage.parsed.amount = cleanString(parsed.dosage.parsed.amount);
+                parsed.dosage.parsed.unit = cleanString(parsed.dosage.parsed.unit);
+            }
+        }
+
         self.postMessage(parsed);
 
     } catch (error) {

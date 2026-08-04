@@ -73,6 +73,12 @@ export class CanonicalContextBuilder {
    */
   static buildAnalysisPayload({ userProfile, currentMedications = [], newMedications = [], analysisId, source = 'scan' }) {
     const p = userProfile?.profile || {};
+    const extractVal = (field, fallback = 'UNKNOWN') => {
+      if (!field) return fallback;
+      if (typeof field === 'object' && field.value) return field.value;
+      if (typeof field === 'string') return field;
+      return fallback;
+    };
 
     const sessionCtx = new ClinicalSessionContext({
       patient: {
@@ -83,8 +89,9 @@ export class CanonicalContextBuilder {
         height_cm: p.height_cm ? parseFloat(p.height_cm) : 172,
         weight_kg: p.weight_kg ? parseFloat(p.weight_kg) : 74,
         blood_group: p.bloodType || 'B+',
-        renal_clearance: p.renal_clearance || 'NORMAL',
-        hepatic_impairment: p.hepatic_impairment || 'NONE'
+        renal_clearance: extractVal(p.renal_clearance, 'NORMAL'),
+        hepatic_impairment: extractVal(p.hepatic_impairment, 'NONE'),
+        pregnancy_status: extractVal(p.pregnancy_status, 'NONE')
       },
       active_medications: currentMedications,
       incoming_medications: newMedications,

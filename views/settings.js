@@ -50,7 +50,7 @@ export default class SettingsView {
             <p class="text-sm text-text-secondary mt-1 truncate">${state.userProfile?.profile?.phone || 'Phone not set'}</p>
             <p class="text-[10px] font-bold text-accent-primary mt-2 tracking-widest uppercase truncate">${bloodType} Clinical Node</p>
           </a>
-          <a href="#/onboarding" id="edit-profile-btn" class="shrink-0 p-3 rounded-2xl active:scale-90 transition-all text-text-primary backdrop-blur-md relative z-20 btn-neumorphic flex items-center justify-center">
+          <a href="#/edit-profile" id="edit-profile-btn" class="shrink-0 p-3 rounded-2xl active:scale-90 transition-all text-text-primary backdrop-blur-md relative z-20 btn-neumorphic flex items-center justify-center">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
           </a>
         </div>
@@ -92,7 +92,7 @@ export default class SettingsView {
               </div>
             </div>
 
-            <a href="#/onboarding" class="w-full py-4 rounded-xl bg-gradient-to-r from-primary/20 to-surface-elevated text-primary font-bold text-xs uppercase tracking-widest border border-primary/20 hover:border-primary/40 flex items-center justify-center gap-2 block text-center">
+            <a href="#/edit-profile" class="w-full py-4 rounded-xl bg-gradient-to-r from-primary/20 to-surface-elevated text-primary font-bold text-xs uppercase tracking-widest border border-primary/20 hover:border-primary/40 flex items-center justify-center gap-2 block text-center">
               Review & Update Profile
             </a>
           </div>
