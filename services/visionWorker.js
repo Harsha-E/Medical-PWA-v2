@@ -32,14 +32,11 @@ Return ONLY a strict JSON object with this EXACT structure (no markdown, no back
 }`;
 
         const payload = {
-            model: 'llama-3.2-90b-vision-preview',
+            model: 'llama-3.3-70b-versatile',
             messages: [
                 {
                     role: 'user',
-                    content: [
-                        { type: 'text', text: promptText },
-                        { type: 'image_url', image_url: { url: image_url } }
-                    ]
+                    content: promptText + (e.data.extracted_text ? `\n\nScanned Label Text: "${e.data.extracted_text}"` : '\n\nExtract medicine packaging details accurately into structured JSON.')
                 }
             ],
             temperature: 0.1,
@@ -53,45 +50,15 @@ Return ONLY a strict JSON object with this EXACT structure (no markdown, no back
                 return atob('Z3NrXzdNWGpSOU1ueTBMbTh' + 'PaERLNHpoV0dkeWIzRllmQXQz' + 'WXBoZXJQTkZUWXNIZEFMeUczVFc=').trim();
             }
         })();
-        let response;
-        try {
-            response = await fetch('https://medcare-groq-proxy.harshaedupuganti70.workers.dev/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${GROQ_KEY}`
-                },
-                body: JSON.stringify(payload)
-            });
-        } catch (err) {
-            console.warn('[Groq Worker] Proxy failed, falling back to direct Groq API:', err);
-        }
 
-        if (!response || !response.ok) {
-            console.log("[Groq Worker] Falling back to direct Groq API with vision capability...");
-            const directPayload = {
-                model: 'llama-3.2-11b-vision-preview',
-                messages: [
-                    {
-                        role: 'user',
-                        content: [
-                            { type: 'text', text: promptText },
-                            { type: 'image_url', image_url: { url: image_url } }
-                        ]
-                    }
-                ],
-                temperature: 0.1,
-                max_tokens: 500
-            };
-            response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${GROQ_KEY}`
-                },
-                body: JSON.stringify(directPayload)
-            });
-        }
+        let response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${GROQ_KEY}`
+            },
+            body: JSON.stringify(payload)
+        });
 
         if (!response.ok) {
             const errText = await response.text();
@@ -100,7 +67,7 @@ Return ONLY a strict JSON object with this EXACT structure (no markdown, no back
 
         const data = await response.json();
         console.log("[Groq] Raw Response Received:", data);
-        let content = data.choices[0].message.content;
+        let content = data.choices[0]?.message?.content || '{}';
 
         // Clean up any markdown blocks if the LLM hallucinated them
         content = content.replace(/```json/gi, '').replace(/```/g, '').trim();
