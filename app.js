@@ -637,6 +637,7 @@ class App {
 
         if (needsOnboarding && hash !== '#/onboarding') {
           console.debug(`[App Guard] 📝 Incomplete profile detected (Resume Step ${validationResult.step}). Redirecting to #/onboarding...`);
+          window.__medcare_resume_step = validationResult.step;
           window.location.hash = '#/onboarding';
           return;
         }

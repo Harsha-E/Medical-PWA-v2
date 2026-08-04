@@ -162,37 +162,38 @@ export class CanonicalContextBuilder {
 
   /**
    * Validates profile completeness to decide if onboarding is required and at what resume step.
-   * Checks `avatar`, `avatarSource`, `customAvatar`, or `generatedAvatar`.
+   * Recomputes required clinical fields as the single source of truth:
+   * 1. Consent
+   * 2. Full Name, DOB, Biological Sex
+   * 3. Medication Baseline Answered
+   * 9. Emergency Contact Name, Phone, Relationship
    */
   static validateProfile(userProfile) {
     if (!userProfile) return { isComplete: false, step: 1 };
     
-    if (!userProfile.onboardingComplete) {
-      const p = userProfile.profile || {};
-      
-      // Step 1: Welcome & Consent
-      if (!userProfile.consentGiven) return { isComplete: false, step: 1 };
-      
-      // Step 2: Personal Identity (Required: Full Name, DOB, Biological Sex)
-      if (!p.fullName || !p.dob || !p.sex || p.sex === 'UNKNOWN') return { isComplete: false, step: 2 };
-      
-      // Recommended steps (3 to 8) can be completed or skipped
-      if (!p.active_conditions) return { isComplete: false, step: 3 };
-      if (!p.allergies) return { isComplete: false, step: 4 };
-      if (!p.lifestyle) return { isComplete: false, step: 5 };
-      if (!p.renal_clearance || !p.hepatic_impairment) return { isComplete: false, step: 6 };
-      if (!p.height_cm && !p.weight_kg && !p.bloodType) return { isComplete: false, step: 7 };
-      if (!p.family_history) return { isComplete: false, step: 8 };
+    const p = userProfile.profile || {};
 
-      // Step 9: Emergency Contact (Required: Name, Phone, Relationship)
-      if (!p.emergencyName || !p.emergencyPhone || !p.emergencyRelationship) return { isComplete: false, step: 9 };
+    // Step 1: Consent
+    if (!userProfile.consentGiven && p.consentGiven !== true) {
+      return { isComplete: false, step: 1 };
+    }
 
-      // Step 10: Avatar Selection (Check all avatar sources)
-      const hasAvatar = !!(p.avatar || p.avatarSource || p.customAvatar || p.generatedAvatar);
-      if (!hasAvatar) return { isComplete: false, step: 10 };
+    // Step 2: Personal Identity (Full Name, DOB, Biological Sex)
+    const name = p.fullName || p.name || userProfile.name;
+    if (!name || !p.dob || !p.sex || p.sex === 'UNKNOWN') {
+      return { isComplete: false, step: 2 };
+    }
 
-      // Step 11: Review & Finish
-      return { isComplete: false, step: 11 };
+    // Step 3: Medication Baseline Answered (YES/NO/NOT_SURE or active_medications present)
+    const hasMedBaseline = p.medication_baseline && p.medication_baseline !== 'UNKNOWN';
+    const hasMeds = (p.active_medications && p.active_medications.length > 0) || (userProfile.activeMeds && userProfile.activeMeds.length > 0);
+    if (!hasMedBaseline && !hasMeds) {
+      return { isComplete: false, step: 3 };
+    }
+
+    // Step 9: Emergency Contact (Name, Phone, Relationship)
+    if (!p.emergencyName || !p.emergencyPhone || !p.emergencyRelationship) {
+      return { isComplete: false, step: 9 };
     }
 
     return { isComplete: true, step: 11 };

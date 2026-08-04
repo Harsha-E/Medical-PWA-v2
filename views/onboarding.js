@@ -134,7 +134,7 @@ export default class OnboardingView {
 
   async render() {
     this.container = document.createElement('div');
-    this.container.className = 'min-h-[100dvh] w-full flex flex-col items-center justify-start p-4 md:p-8 lg:p-12 relative z-10 overflow-y-auto bg-surface-deep/90';
+    this.container.className = 'h-full w-full native-scroll flex flex-col items-center justify-start p-4 md:p-8 lg:p-12 relative z-10 overflow-y-auto bg-surface-deep/90 pb-32';
 
     this._renderStep();
     return this.container;
