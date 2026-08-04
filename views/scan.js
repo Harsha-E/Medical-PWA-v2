@@ -499,13 +499,18 @@ export default class ScanView {
       // Submit live telemetry execution payload to Drug Intelligence Console (Render)
       try {
         const { ApiClient } = await import('../core/api.js');
+        const { default: state } = await import('../core/state.js');
+        const { default: CanonicalContextBuilder } = await import('../core/CanonicalContextBuilder.js');
+        
+        const canonicalPatient = CanonicalContextBuilder.build(state.userProfile, medList);
         await ApiClient.post('/api/v1/analyze', {
           analysis_id: executionId,
           patient_id: targetUserId,
-          medications: medList,
+          patient: canonicalPatient,
+          medications: medList.map(m => ({ id: typeof m === 'string' ? m : (m.name || m.brandName), name: typeof m === 'string' ? m : (m.name || m.brandName) })),
           timestamp: timestampIso,
           source: 'vision-scan'
-        }, { timeout: 2500 });
+        }, { timeout: 3500 });
       } catch (apiErr) {
         console.warn('[ScanView] DIC Telemetry API submission warning:', apiErr.message);
       }

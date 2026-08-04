@@ -25,6 +25,7 @@ import OfflinePersistenceManager from './services/storage/OfflinePersistenceMana
 import SyncBridge from './services/SyncBridge.js';
 import WidgetPublisher from './services/WidgetPublisher.js';
 // â”€â”€â”€ View imports â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+import CanonicalContextBuilder from './core/CanonicalContextBuilder.js';
 import SplashView           from './views/splash.js';
 import LandingView          from './views/landing.js';
 import LoginView            from './views/login.js';
@@ -558,13 +559,20 @@ class App {
     const user    = state.user;
     const profile = state.userProfile;
     const isAdmin = state.isAdmin;
-    const p = (profile && profile.profile) ? profile.profile : (profile || {});
-    const hasAllDetails = !!((p.fullName || p.name) && p.phone && p.bloodType && p.dob && p.emergencyName && p.emergencyPhone);
-    const hasAvatar = !!(p.avatar);
-    // User is complete ONLY if both onboardingComplete flag is set AND all required profile details are present
-    const isComplete = !!(profile && profile.onboardingComplete && hasAllDetails);
 
-    // ————————————————— Managed by individual views (GhostFluid instantiation removed) —————————————————
+    // ── 6-STAGE DECOUPLED GUARD PIPELINE ──
+    // Stage 1: Auth Check
+    // Stage 2: Profile Existence
+    // Stage 3: Schema Migration (v1 -> v2 via state.js)
+    // Stage 4: Clinical Validation
+    // Stage 5: Resume Step Evaluation
+    // Stage 6: Render Route
+
+    const validationResult = CanonicalContextBuilder.validateProfile(profile);
+    const isComplete = validationResult.isComplete;
+    
+    // Store resume step globally for OnboardingView
+    window.__medcare_resume_step = validationResult.step;
 
     // ————————————————— Navbar visibility —————————————————
     const showNav = !HIDE_NAV_ROUTES.has(hash);
@@ -593,12 +601,11 @@ class App {
     document.body.setAttribute('data-route', hash.split('?')[0]);
 
     // ─── Auth guard ───
-    // App installation requirement
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     
     console.debug(`[App Guard] 🛡️ Evaluating Route: "${hash}"`);
-    console.debug(`[App Guard] 📊 State => Mobile: ${isMobile}, Standalone: ${isStandalone}, User: ${!!user}, Admin: ${isAdmin}, Onboarding Complete: ${isComplete}`);
+    console.debug(`[App Guard] 📊 State => Mobile: ${isMobile}, Standalone: ${isStandalone}, User: ${!!user}, Admin: ${isAdmin}, Onboarding Complete: ${isComplete}, Resume Step: ${validationResult.step}`);
 
     if (!isStandalone && isMobile && window.innerWidth < 1024) {
       if (hash !== '#/install') {
@@ -606,7 +613,6 @@ class App {
         window.location.hash = '#/install';
         return;
       }
-      // Force render install view and bypass auth checks
       console.debug(`[App Guard] ✅ Allowing render of #/install bypassing auth checks.`);
       this.router.handleRoute();
       return;
@@ -629,7 +635,7 @@ class App {
         const needsOnboarding = !isComplete;
 
         if (needsOnboarding && hash !== '#/onboarding') {
-          console.debug(`[App Guard] 📝 Incomplete profile detected. Redirecting to #/onboarding...`);
+          console.debug(`[App Guard] 📝 Incomplete profile detected (Resume Step ${validationResult.step}). Redirecting to #/onboarding...`);
           window.location.hash = '#/onboarding';
           return;
         }

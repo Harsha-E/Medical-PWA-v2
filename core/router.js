@@ -3,6 +3,8 @@
  * Safely normalizes parameterized hashes to prevent lookup failures.
  */
 
+import state from './state.js';
+
 export class Router {
   /**
    * @param {Record<string, new () => object>} routes  hash → View class map
@@ -47,6 +49,16 @@ export class Router {
     }
     
     console.debug(`[Router] 🧭 Resolved Base Route: "${baseRoute}"`);
+
+    // Global Onboarding Route Guard
+    const publicRoutes = ['#/', '#/landing', '#/login', '#/register', '#/onboarding', '#/install'];
+    if (!publicRoutes.includes(baseRoute)) {
+      if (state.user && state.userProfile && state.userProfile.onboardingComplete !== true) {
+        console.warn(`[Router] 🛑 Access denied to "${baseRoute}": Onboarding incomplete. Redirecting to #/onboarding`);
+        window.location.hash = '#/onboarding';
+        return;
+      }
+    }
 
     this.navigationSequenceId = (this.navigationSequenceId || 0) + 1;
     const currentSequence = this.navigationSequenceId;

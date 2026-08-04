@@ -3,6 +3,7 @@ import db from '../core/db.js';
 import { APP_VERSION } from '../core/config.js';
 import { showToast, appAlert, appConfirm, appPrompt, setupPullToRefresh } from '../core/ui.js';
 import { explainabilityMode } from '../visualization/ExplainabilityMode.js';
+import CanonicalContextBuilder from '../core/CanonicalContextBuilder.js';
 export default class SettingsView {
   async render() {
     this.container = document.createElement('div');
@@ -26,17 +27,15 @@ export default class SettingsView {
     const bloodType = state.userProfile?.profile?.bloodType || 'O+';
     const avatarUrl = state.userProfile?.profile?.avatar;
     
-    // Emergency Data Migration
-    const family = await db.family.toArray();
-    const primaryContact = family.find(p => p.relationship?.toLowerCase().includes('spouse')) || family[0];
-    const allergies = state.userProfile?.profile?.allergies || [];
-    const conditions = state.userProfile?.profile?.conditions || [];
-    const dobYear = state.userProfile?.profile?.dob ? new Date(state.userProfile.profile.dob).getFullYear() : 'N/A';
+    // Compute dynamic health profile completion status
+    const medications = await db.medications.filter(m => !m.isDeleted).toArray();
+    const completeness = CanonicalContextBuilder.calculateCompleteness(state.userProfile, medications);
+    const lastUpdateDate = state.userProfile?.lastClinicalUpdate ? new Date(state.userProfile.lastClinicalUpdate).toLocaleDateString() : 'Never';
 
     this.container.innerHTML = `
       <main class="scroll-area pt-24 md:pt-8 md:px-8 bg-transparent pb-40" >
 <div class="px-6 w-full h-full max-w-7xl mx-auto flex flex-col flex-1">
-        <div class="clay-glass-panel p-8 mb-12 flex items-center gap-4 shadow-[0_8px_32px_var(--color-card-shadow)] border-border backdrop-blur-xl relative z-10">
+        <div class="clay-glass-panel p-8 mb-10 flex items-center gap-4 shadow-[0_8px_32px_var(--color-card-shadow)] border-border backdrop-blur-xl relative z-10">
           <a href="#/avatar-setup" class="w-20 h-20 rounded-full flex items-center justify-center font-display italic text-3xl font-bold shadow-[0_0_20px_var(--color-primary)] border border-accent-primary/40 bg-gradient-to-br from-primary/80 to-secondary/80 text-accent-bright backdrop-blur-md shrink-0 ring-4 ring-surface-elevated/50 hover:scale-105 transition-transform overflow-hidden relative group">
             ${avatarUrl 
               ? `<img src="${avatarUrl}" class="w-full h-full object-cover scale-[1.15] translate-y-[8%]" alt="Avatar">` 
@@ -51,14 +50,53 @@ export default class SettingsView {
             <p class="text-sm text-text-secondary mt-1 truncate">${state.userProfile?.profile?.phone || 'Phone not set'}</p>
             <p class="text-[10px] font-bold text-accent-primary mt-2 tracking-widest uppercase truncate">${bloodType} Clinical Node</p>
           </a>
-          <button id="edit-profile-btn" class="shrink-0 p-3 rounded-2xl active:scale-90 transition-all text-text-primary backdrop-blur-md relative z-20 btn-neumorphic flex items-center justify-center">
+          <a href="#/onboarding" id="edit-profile-btn" class="shrink-0 p-3 rounded-2xl active:scale-90 transition-all text-text-primary backdrop-blur-md relative z-20 btn-neumorphic flex items-center justify-center">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-          </button>
+          </a>
         </div>
 
-
+        <!-- Clinical Profile Health Card -->
         <section class="mb-10">
-          <h3 class="text-xs text-uppercase font-bold text-accent-primary/70 mb-4 tracking-[0.2em] px-1">Alerting Protocols</h3>
+          <h3 class="text-xs text-uppercase font-bold text-accent-primary/70 mb-4 tracking-[0.2em] px-1">Clinical Profile Health Card</h3>
+          <div class="clay-glass-panel p-6 border border-border bg-surface-elevated/40 backdrop-blur-xl shadow-[0_8px_32px_var(--color-card-shadow)] rounded-2xl">
+            <div class="flex justify-between items-center mb-4">
+              <div>
+                <h4 class="font-bold text-base text-text-primary">Clinical Readiness Score</h4>
+                <p class="text-xs text-text-muted">Last Updated: ${lastUpdateDate}</p>
+              </div>
+              <div class="px-3 py-1.5 rounded-xl bg-primary/20 text-primary border border-primary/30 font-mono font-bold text-sm">
+                ${completeness.overallPercentage}%
+              </div>
+            </div>
+            
+            <div class="space-y-3 mb-6 font-mono text-xs">
+              <div class="flex justify-between items-center p-3 rounded-xl bg-surface/50 border border-border">
+                <span class="text-text-primary">${completeness.identity.label}</span>
+                <span class="${completeness.identity.complete ? 'text-green-400 font-bold' : 'text-amber-400 font-bold'}">${completeness.identity.complete ? '✅ Complete' : '⚠️ Incomplete'}</span>
+              </div>
+              <div class="flex justify-between items-center p-3 rounded-xl bg-surface/50 border border-border">
+                <span class="text-text-primary">${completeness.medical.label}</span>
+                <span class="${completeness.medical.complete ? 'text-green-400 font-bold' : 'text-amber-400 font-bold'}">${completeness.medical.complete ? '✅ Complete' : '⚠️ Missing Organ Status'}</span>
+              </div>
+              <div class="flex justify-between items-center p-3 rounded-xl bg-surface/50 border border-border">
+                <span class="text-text-primary">${completeness.lifestyle.label}</span>
+                <span class="${completeness.lifestyle.complete ? 'text-green-400 font-bold' : 'text-amber-400 font-bold'}">${completeness.lifestyle.complete ? '✅ Complete' : '⚠️ Missing Lifestyle'}</span>
+              </div>
+              <div class="flex justify-between items-center p-3 rounded-xl bg-surface/50 border border-border">
+                <span class="text-text-primary">${completeness.emergency.label}</span>
+                <span class="${completeness.emergency.complete ? 'text-green-400 font-bold' : 'text-amber-400 font-bold'}">${completeness.emergency.complete ? '✅ Complete' : '⚠️ Incomplete'}</span>
+              </div>
+              <div class="flex justify-between items-center p-3 rounded-xl bg-surface/50 border border-border">
+                <span class="text-text-primary">${completeness.medications.label}</span>
+                <span class="${completeness.medications.complete ? 'text-green-400 font-bold' : 'text-amber-400 font-bold'}">${completeness.medications.complete ? '✅ Complete' : '⚠️ Empty List'}</span>
+              </div>
+            </div>
+
+            <a href="#/onboarding" class="w-full py-4 rounded-xl bg-gradient-to-r from-primary/20 to-surface-elevated text-primary font-bold text-xs uppercase tracking-widest border border-primary/20 hover:border-primary/40 flex items-center justify-center gap-2 block text-center">
+              Review & Update Profile
+            </a>
+          </div>
+        </section>
           <div class="clay-glass-panel overflow-hidden border border-border bg-surface-elevated/40 backdrop-blur-xl shadow-[0_8px_32px_var(--color-card-shadow)] rounded-2xl">
             <div class="settings-row text-text-primary">
               <span class="text-sm font-medium">Push Notifications</span>
