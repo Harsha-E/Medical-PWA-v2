@@ -134,7 +134,7 @@ export default class OnboardingView {
 
   async render() {
     this.container = document.createElement('div');
-    this.container.className = 'h-full w-full native-scroll flex flex-col items-center justify-start p-4 md:p-8 lg:p-12 relative z-10 overflow-y-auto bg-surface-deep/90 pb-32';
+    this.container.className = 'min-h-full w-full native-scroll flex flex-col items-center justify-start p-4 sm:p-6 md:p-8 lg:p-12 relative z-10 overflow-y-auto bg-surface-deep/90 pb-24 scroll-smooth';
 
     this._renderStep();
     return this.container;
@@ -225,10 +225,7 @@ export default class OnboardingView {
           <span class="text-xs md:text-sm font-semibold text-text-primary">I consent to processing my clinical profile for safety analysis.</span>
         </label>
 
-        <button id="btn-step-1-next" class="w-full py-5 rounded-2xl bg-gradient-to-r from-primary/20 to-surface-elevated text-primary font-bold text-sm uppercase tracking-widest border border-primary/20 hover:border-primary/40 flex items-center justify-center gap-3">
-          <span>Get Started</span>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
-        </button>
+        ${this._renderNavButtons(false, true, false)}
       `;
     } else if (this.step === 2) {
       // Step 2: Personal Identity (Required)
@@ -572,10 +569,18 @@ export default class OnboardingView {
           </div>
         </div>
 
-        <button id="btn-finish-onboarding" class="w-full py-5 rounded-2xl bg-gradient-to-r from-primary/20 to-surface-elevated text-primary font-bold text-sm uppercase tracking-widest border border-primary/20 hover:border-primary/40 flex items-center justify-center gap-3">
-          <span>Lock Ledger & Enter</span>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-        </button>
+        <div class="sticky bottom-0 z-20 pt-6 pb-2 mt-8 bg-surface-deep/90 backdrop-blur-xl border-t border-white/10 -mx-6 -mb-6 px-6 md:-mx-10 md:-mb-10 md:px-10 rounded-b-3xl">
+          <div class="flex items-center gap-3">
+            <button type="button" id="btn-prev" aria-label="Go Back" class="px-5 py-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 hover:border-white/20 text-text-primary font-bold text-xs uppercase transition-all duration-200 active:scale-95 flex items-center justify-center gap-2 shadow-lg">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path></svg>
+              <span class="hidden sm:inline">Back</span>
+            </button>
+            <button id="btn-finish-onboarding" class="flex-1 py-4 px-6 rounded-2xl bg-gradient-to-r from-primary/30 via-primary/20 to-accent-primary/30 backdrop-blur-md border border-primary/40 hover:border-primary/60 hover:from-primary/40 hover:to-accent-primary/40 text-primary font-bold text-xs uppercase tracking-widest transition-all duration-200 active:scale-[0.98] shadow-lg shadow-primary/10 flex items-center justify-center gap-2">
+              <span>Lock Ledger & Enter</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            </button>
+          </div>
+        </div>
       `;
     }
 
@@ -590,7 +595,7 @@ export default class OnboardingView {
         </div>
       </div>
 
-      <div class="w-full max-w-2xl mx-auto p-6 md:p-10 clay-glass-panel shrink-0 animate-fade-in-up">
+      <div class="w-full max-w-2xl mx-auto p-6 md:p-10 clay-glass-panel shrink-0 animate-fade-in-up pb-12">
         ${stepHTML}
       </div>
     `;
@@ -600,23 +605,26 @@ export default class OnboardingView {
 
   _renderNavButtons(showBack = true, showNext = true, showSkip = false) {
     return `
-      <div class="flex items-center gap-3 mt-8">
-        ${showBack ? `
-          <button type="button" id="btn-prev" class="p-4 rounded-xl bg-surface/50 border border-border hover:bg-surface text-text-secondary active:scale-95">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path></svg>
-          </button>
-        ` : ''}
-        ${showSkip ? `
-          <button type="button" id="btn-skip" class="px-5 py-4 rounded-xl bg-transparent border border-border text-text-muted font-bold text-xs uppercase hover:text-text-primary">
-            Skip for Now
-          </button>
-        ` : ''}
-        ${showNext ? `
-          <button type="button" id="btn-next" class="flex-1 py-4 rounded-xl bg-gradient-to-r from-primary/20 to-surface-elevated text-primary font-bold text-xs uppercase tracking-widest border border-primary/20 flex items-center justify-center gap-2">
-            <span>Continue</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
-          </button>
-        ` : ''}
+      <div class="sticky bottom-0 z-20 pt-6 pb-2 mt-8 bg-surface-deep/90 backdrop-blur-xl border-t border-white/10 -mx-6 -mb-6 px-6 md:-mx-10 md:-mb-10 md:px-10 rounded-b-3xl">
+        <div class="flex items-center gap-3">
+          ${showBack ? `
+            <button type="button" id="btn-prev" aria-label="Go Back" class="px-5 py-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 hover:border-white/20 text-text-primary font-bold text-xs uppercase transition-all duration-200 active:scale-95 flex items-center justify-center gap-2 shadow-lg">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path></svg>
+              <span class="hidden sm:inline">Back</span>
+            </button>
+          ` : ''}
+          ${showSkip ? `
+            <button type="button" id="btn-skip" class="px-5 py-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 hover:border-white/20 text-text-secondary hover:text-text-primary font-bold text-xs uppercase tracking-wider transition-all duration-200 active:scale-95 shadow-lg">
+              Skip for Now
+            </button>
+          ` : ''}
+          ${showNext ? `
+            <button type="button" id="btn-next" class="flex-1 py-4 px-6 rounded-2xl bg-gradient-to-r from-primary/30 via-primary/20 to-accent-primary/30 backdrop-blur-md border border-primary/40 hover:border-primary/60 hover:from-primary/40 hover:to-accent-primary/40 text-primary font-bold text-xs uppercase tracking-widest transition-all duration-200 active:scale-[0.98] shadow-lg shadow-primary/10 flex items-center justify-center gap-2">
+              <span>Continue</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
+            </button>
+          ` : ''}
+        </div>
       </div>
     `;
   }
@@ -741,7 +749,14 @@ export default class OnboardingView {
     const nextBtn = this.container.querySelector('#btn-next');
     if (nextBtn) {
       nextBtn.onclick = () => {
-        if (this.step === 2) {
+        if (this.step === 1) {
+          const check = this.container.querySelector('#consent-check');
+          if (!check?.checked) {
+            showToast('Please check the consent box to proceed.', 'error');
+            return;
+          }
+          this.formData.consentGiven = true;
+        } else if (this.step === 2) {
           const fn = this.container.querySelector('#input-fullname')?.value.trim();
           const dob = this.container.querySelector('#input-dob')?.value;
           if (!fn || !dob || !this.formData.sex || this.formData.sex === 'UNKNOWN') {

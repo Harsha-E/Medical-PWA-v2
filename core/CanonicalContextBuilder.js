@@ -174,21 +174,15 @@ export class CanonicalContextBuilder {
     const p = userProfile.profile || {};
 
     // Step 1: Consent
-    if (!userProfile.consentGiven && p.consentGiven !== true) {
+    const hasConsent = !!(userProfile.consentGiven || p.consentGiven);
+    if (!hasConsent) {
       return { isComplete: false, step: 1 };
     }
 
     // Step 2: Personal Identity (Full Name, DOB, Biological Sex)
-    const name = p.fullName || p.name || userProfile.name;
+    const name = p.fullName || p.name;
     if (!name || !p.dob || !p.sex || p.sex === 'UNKNOWN') {
       return { isComplete: false, step: 2 };
-    }
-
-    // Step 3: Medication Baseline Answered (YES/NO/NOT_SURE or active_medications present)
-    const hasMedBaseline = p.medication_baseline && p.medication_baseline !== 'UNKNOWN';
-    const hasMeds = (p.active_medications && p.active_medications.length > 0) || (userProfile.activeMeds && userProfile.activeMeds.length > 0);
-    if (!hasMedBaseline && !hasMeds) {
-      return { isComplete: false, step: 3 };
     }
 
     // Step 9: Emergency Contact (Name, Phone, Relationship)
