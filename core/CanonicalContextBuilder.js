@@ -8,18 +8,16 @@
  * 4. Constructing rich analysis telemetry envelopes with platform metadata.
  */
 
+import { ClinicalSessionContext } from './ClinicalSessionContext.js';
+
 export class CanonicalContextBuilder {
   /**
    * Builds the runtime-generated Canonical Patient Context snapshot for DIC /api/v1/analyze payloads.
-   * DOB is persisted in database; age is derived dynamically at runtime (today - DOB).
-   * @param {Object} userProfile - Raw profile document from state / Firestore
-   * @param {Array} currentMedications - Active medication list
-   * @returns {Object} Canonical DIC payload matching FastAPI PatientContext schema
    */
   static build(userProfile, currentMedications = []) {
     const p = userProfile?.profile || {};
     
-    // Compute exact runtime age from DOB (never persisted as static number)
+    // Compute exact runtime age from DOB
     let age = null;
     if (p.dob) {
       const dobDate = new Date(p.dob);
@@ -31,7 +29,6 @@ export class CanonicalContextBuilder {
       }
     }
 
-    // Extract organ function values safely from object or string
     const extractVal = (field, fallback = 'UNKNOWN') => {
       if (!field) return fallback;
       if (typeof field === 'object' && field.value) return field.value;
@@ -39,80 +36,67 @@ export class CanonicalContextBuilder {
       return fallback;
     };
 
-    // Extract active conditions list as standardized strings/codes
     const conditions = (p.active_conditions || []).map(c => {
       if (typeof c === 'string') return c;
       return c.code || c.display || c.id || c.name;
     }).filter(Boolean);
 
-    // Extract allergies as standardized strings
-    const allergies = (p.allergies || []).map(a => {
+    const allergies = (p.known_allergies || p.allergies || []).map(a => {
       if (typeof a === 'string') return a;
       return a.name || a.allergy;
     }).filter(Boolean);
 
-    // Extract current medications as drug name strings
-    const meds = (currentMedications || []).map(m => {
-      if (typeof m === 'string') return m;
-      return m.name || m.brandName || m.genericName;
-    }).filter(Boolean);
-
-    return {
-      id: userProfile?.userId || userProfile?.id || 'verified_patient',
-      patient_id: userProfile?.userId || userProfile?.id || 'verified_patient',
-      name: p.fullName || p.name || userProfile?.name || 'Verified Patient',
-      age: age || 68,
-      sex: p.sex || 'M',
-      height_cm: p.height_cm ? parseFloat(p.height_cm) : 172,
-      weight_kg: p.weight_kg ? parseFloat(p.weight_kg) : 74,
-      blood_group: p.bloodType || 'B+',
-      renal_clearance: extractVal(p.renal_clearance, 'NORMAL'),
-      hepatic_impairment: extractVal(p.hepatic_impairment, 'NONE'),
-      pregnancy_status: extractVal(p.pregnancy_status, 'NONE'),
-      active_conditions: conditions.length ? conditions : ['Hypertension', 'Atrial Fibrillation'],
-      allergies: allergies.length ? allergies : ['Penicillins', 'Sulfonamides'],
-      lifestyle: {
-        smoking: p.lifestyle?.smoking || 'NONE',
-        tobacco_chewing: p.lifestyle?.tobacco_chewing || 'NONE',
-        alcohol: p.lifestyle?.alcohol || 'NONE'
+    const sessionCtx = new ClinicalSessionContext({
+      patient: {
+        id: userProfile?.userId || 'verified_patient',
+        name: p.fullName || p.name || userProfile?.name || 'Verified Patient',
+        age: age || 68,
+        sex: p.sex || 'M',
+        height_cm: p.height_cm ? parseFloat(p.height_cm) : 172,
+        weight_kg: p.weight_kg ? parseFloat(p.weight_kg) : 74,
+        blood_group: p.bloodType || 'B+',
+        renal_clearance: extractVal(p.renal_clearance, 'NORMAL'),
+        hepatic_impairment: extractVal(p.hepatic_impairment, 'NONE'),
+        pregnancy_status: extractVal(p.pregnancy_status, 'NONE')
       },
-      current_medications: meds,
-      medication_baseline: p.medication_baseline || 'NORMAL',
-      analysis_timestamp: new Date().toISOString(),
-      profile_version: userProfile?.profileVersion || 2
-    };
+      active_medications: currentMedications,
+      active_conditions: conditions.length ? conditions : ['Hypertension', 'Atrial Fibrillation'],
+      known_allergies: allergies.length ? allergies : ['Penicillins', 'Sulfonamides'],
+      lifestyle: p.lifestyle || {}
+    });
+
+    return sessionCtx.toDICPayload().patient_snapshot;
   }
 
   /**
    * Constructs the full telemetry wrapper for DIC /api/v1/analyze execution requests.
-   * Combines Canonical Patient Context + Existing Medication List + Newly Scanned/Added Drugs.
    */
   static buildAnalysisPayload({ userProfile, currentMedications = [], newMedications = [], analysisId, source = 'scan' }) {
-    const canonicalPatient = this.build(userProfile, currentMedications);
+    const p = userProfile?.profile || {};
 
-    const existingNames = currentMedications.map(m => typeof m === 'string' ? m : (m.name || m.brandName || m.genericName)).filter(Boolean);
-    const newNames = newMedications.map(m => typeof m === 'string' ? m : (m.name || m.brandName || m.genericName)).filter(Boolean);
-
-    // Merge and deduplicate medications
-    const combinedNames = Array.from(new Set([...existingNames, ...newNames]));
-    const medsPayload = combinedNames.map(name => ({ id: name, name: name }));
-
-    return {
-      request_id: 'req_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
-      analysis_id: analysisId || 'exec_' + Date.now(),
-      user_uid: userProfile?.userId || 'anonymous_user',
-      profile_version: userProfile?.profileVersion || 2,
-      knowledge_version: '1.0',
-      client_version: '3.0.0',
-      app_version: '3.0.0',
-      device: typeof navigator !== 'undefined' && navigator.userAgent ? (navigator.userAgent.includes('Mobile') ? 'Mobile' : 'Desktop') : 'Unknown',
-      platform: typeof navigator !== 'undefined' ? (navigator.platform || 'Web') : 'Web',
-      timestamp: new Date().toISOString(),
+    const sessionCtx = new ClinicalSessionContext({
+      patient: {
+        id: userProfile?.userId || 'verified_patient',
+        name: p.fullName || p.name || userProfile?.name || 'Verified Patient',
+        age: p.dob ? (new Date().getFullYear() - new Date(p.dob).getFullYear()) : 68,
+        sex: p.sex || 'M',
+        height_cm: p.height_cm ? parseFloat(p.height_cm) : 172,
+        weight_kg: p.weight_kg ? parseFloat(p.weight_kg) : 74,
+        blood_group: p.bloodType || 'B+',
+        renal_clearance: p.renal_clearance || 'NORMAL',
+        hepatic_impairment: p.hepatic_impairment || 'NONE'
+      },
+      active_medications: currentMedications,
+      incoming_medications: newMedications,
+      active_conditions: p.active_conditions || ['Hypertension', 'Atrial Fibrillation'],
+      known_allergies: p.known_allergies || p.allergies || ['Penicillins', 'Sulfonamides'],
+      lifestyle: p.lifestyle || {},
+      analysis_id: analysisId,
       source: source,
-      patient_id: canonicalPatient.patient_id,
-      patient: canonicalPatient,
-      medications: medsPayload
-    };
+      profile_version: userProfile?.profileVersion || 2
+    });
+
+    return sessionCtx.toDICPayload();
   }
 
   /**

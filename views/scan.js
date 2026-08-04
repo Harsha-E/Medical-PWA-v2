@@ -455,6 +455,7 @@ export default class ScanView {
 
         if (medicines && medicines.length > 0) {
             await this._emitDICTelemetryAndRecord(medicines);
+            sessionStorage.setItem('medcheck_extracted_packages', JSON.stringify(medicines));
             sessionStorage.setItem('medcheck_extracted_prescriptions', JSON.stringify(medicines));
             sessionStorage.setItem('medcheck_scanned_data', JSON.stringify(medicines[0]));
             window.location.hash = '#/add-medication';

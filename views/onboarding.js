@@ -249,7 +249,8 @@ export default class OnboardingView {
             <input type="date" id="input-dob" value="${this.formData.dob}" required class="w-full px-5 py-4 rounded-2xl bg-surface-deep/40 border border-white/5 text-base font-bold text-text-primary [color-scheme:dark]">
           </div>
           <div>
-            <label class="block text-xs font-mono text-text-muted uppercase mb-2">Biological Sex * (For Pharmacokinetics)</label>
+            <label class="block text-xs font-mono text-text-muted uppercase mb-1">Sex</label>
+            <p class="text-[11px] text-text-secondary mb-3">This helps us provide more accurate medicine safety checks.</p>
             <div class="grid grid-cols-3 gap-3">
               <button type="button" class="btn-sex ${this.formData.sex === 'MALE' ? 'active-tab' : ''} py-4 rounded-xl border border-border bg-surface text-sm font-bold text-text-primary" data-sex="MALE">Male</button>
               <button type="button" class="btn-sex ${this.formData.sex === 'FEMALE' ? 'active-tab' : ''} py-4 rounded-xl border border-border bg-surface text-sm font-bold text-text-primary" data-sex="FEMALE">Female</button>
@@ -264,12 +265,16 @@ export default class OnboardingView {
       // Step 3: Medical Conditions (Recommended / Skippable)
       stepHTML = `
         <div class="mb-8">
-          <span class="text-accent-primary font-mono text-xs uppercase tracking-widest">Step 3 of 11 — Active Conditions</span>
-          <h2 class="text-3xl font-display font-semibold text-text-primary mt-2">Known Medical Diseases</h2>
-          <p class="text-text-secondary text-xs mt-1">Select any active conditions to prevent disease-drug contraindications.</p>
+          <span class="text-accent-primary font-mono text-xs uppercase tracking-widest">Step 3 of 11 — Health Conditions</span>
+          <h2 class="text-3xl font-display font-semibold text-text-primary mt-2">Have you ever been diagnosed with any of these conditions?</h2>
+          <p class="text-text-secondary text-xs mt-1">Some illnesses can change how medicines work.</p>
         </div>
 
         <div class="space-y-4 mb-8">
+          <div class="flex gap-2 mb-2">
+            <input type="text" id="search-disease" placeholder="Search conditions or type custom entry..." class="w-full px-4 py-3 rounded-xl bg-surface-deep/40 border border-white/10 text-xs font-semibold text-text-primary">
+            <button type="button" id="btn-custom-disease" class="px-4 py-3 rounded-xl bg-primary/20 border border-primary/30 text-primary text-xs font-bold shrink-0">+ Add Custom</button>
+          </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="disease-chips">
             ${COMMON_DISEASES.map(d => {
               const isSelected = this.formData.active_conditions.some(c => (typeof c === 'string' ? c : c.id) === d.id);
@@ -288,11 +293,15 @@ export default class OnboardingView {
       stepHTML = `
         <div class="mb-8">
           <span class="text-accent-primary font-mono text-xs uppercase tracking-widest">Step 4 of 11 — Allergies</span>
-          <h2 class="text-3xl font-display font-semibold text-text-primary mt-2">Allergies & Sensitivities</h2>
-          <p class="text-text-secondary text-xs mt-1">Drug allergies take highest clinical priority in interaction checks.</p>
+          <h2 class="text-3xl font-display font-semibold text-text-primary mt-2">Are you allergic to any medicines or foods?</h2>
+          <p class="text-text-secondary text-xs mt-1">This helps us avoid medicines that may not be safe for you.</p>
         </div>
 
         <div class="space-y-4 mb-8">
+          <div class="flex gap-2 mb-2">
+            <input type="text" id="search-allergy" placeholder="Search allergies or type custom entry..." class="w-full px-4 py-3 rounded-xl bg-surface-deep/40 border border-white/10 text-xs font-semibold text-text-primary">
+            <button type="button" id="btn-custom-allergy" class="px-4 py-3 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-bold shrink-0">+ Add Custom</button>
+          </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="allergy-chips">
             ${COMMON_ALLERGIES.map(a => {
               const isSelected = this.formData.allergies.some(item => (typeof item === 'string' ? item : item.name) === a.name);
@@ -360,31 +369,33 @@ export default class OnboardingView {
 
       stepHTML = `
         <div class="mb-8">
-          <span class="text-accent-primary font-mono text-xs uppercase tracking-widest">Step 6 of 11 — Clinical Organ Baseline</span>
-          <h2 class="text-3xl font-display font-semibold text-text-primary mt-2">Organ Function Clearance</h2>
-          <p class="text-text-secondary text-xs mt-1">Dose scaling for renal excretion and hepatic metabolism.</p>
+          <span class="text-accent-primary font-mono text-xs uppercase tracking-widest">Step 6 of 11 — Organ Health</span>
+          <h2 class="text-3xl font-display font-semibold text-text-primary mt-2">Kidney & Liver Baseline</h2>
+          <p class="text-text-secondary text-xs mt-1">Helps us calculate safe medication dosages for your body.</p>
         </div>
 
         <div class="space-y-6 mb-8">
           <div>
-            <label class="block text-xs font-mono text-text-muted uppercase mb-2">Renal (Kidney) Clearance</label>
+            <label class="block text-xs font-mono text-text-muted uppercase mb-1">Has a doctor ever told you that you have kidney disease?</label>
+            <p class="text-[11px] text-text-secondary mb-2"><strong style="color: #38bdf8;">Why do we ask this?</strong> Some medicines need different doses if your kidneys are not working normally.</p>
             <select id="select-renal" class="w-full px-5 py-4 rounded-2xl bg-surface-deep/40 border border-white/5 text-base font-bold text-text-primary">
-              <option value="UNKNOWN" ${(typeof this.formData.renal_clearance === 'object' ? this.formData.renal_clearance.value : this.formData.renal_clearance) === 'UNKNOWN' ? 'selected' : ''}>Unknown (Calculates conservative warning)</option>
-              <option value="NORMAL" ${(typeof this.formData.renal_clearance === 'object' ? this.formData.renal_clearance.value : this.formData.renal_clearance) === 'NORMAL' ? 'selected' : ''}>Normal (>90 mL/min)</option>
-              <option value="MILD" ${(typeof this.formData.renal_clearance === 'object' ? this.formData.renal_clearance.value : this.formData.renal_clearance) === 'MILD' ? 'selected' : ''}>Mild Impairment (60-89 mL/min)</option>
-              <option value="MODERATE" ${(typeof this.formData.renal_clearance === 'object' ? this.formData.renal_clearance.value : this.formData.renal_clearance) === 'MODERATE' ? 'selected' : ''}>Moderate Impairment (30-59 mL/min)</option>
-              <option value="SEVERE" ${(typeof this.formData.renal_clearance === 'object' ? this.formData.renal_clearance.value : this.formData.renal_clearance) === 'SEVERE' ? 'selected' : ''}>Severe Impairment / Dialysis (<30 mL/min)</option>
+              <option value="NORMAL" ${(typeof this.formData.renal_clearance === 'object' ? this.formData.renal_clearance.value : this.formData.renal_clearance) === 'NORMAL' ? 'selected' : ''}>No / Healthy kidneys</option>
+              <option value="MILD" ${(typeof this.formData.renal_clearance === 'object' ? this.formData.renal_clearance.value : this.formData.renal_clearance) === 'MILD' ? 'selected' : ''}>Mild kidney disease</option>
+              <option value="MODERATE" ${(typeof this.formData.renal_clearance === 'object' ? this.formData.renal_clearance.value : this.formData.renal_clearance) === 'MODERATE' ? 'selected' : ''}>Moderate kidney disease</option>
+              <option value="SEVERE" ${(typeof this.formData.renal_clearance === 'object' ? this.formData.renal_clearance.value : this.formData.renal_clearance) === 'SEVERE' ? 'selected' : ''}>Severe kidney disease / Dialysis</option>
+              <option value="UNKNOWN" ${(typeof this.formData.renal_clearance === 'object' ? this.formData.renal_clearance.value : this.formData.renal_clearance) === 'UNKNOWN' ? 'selected' : ''}>Not sure</option>
             </select>
           </div>
 
           <div>
-            <label class="block text-xs font-mono text-text-muted uppercase mb-2">Hepatic (Liver) Function</label>
+            <label class="block text-xs font-mono text-text-muted uppercase mb-1">Has a doctor ever told you that you have liver disease?</label>
+            <p class="text-[11px] text-text-secondary mb-2"><strong style="color: #38bdf8;">Why do we ask this?</strong> The liver processes many medicines, so this information helps improve safety checks.</p>
             <select id="select-hepatic" class="w-full px-5 py-4 rounded-2xl bg-surface-deep/40 border border-white/5 text-base font-bold text-text-primary">
-              <option value="UNKNOWN" ${(typeof this.formData.hepatic_impairment === 'object' ? this.formData.hepatic_impairment.value : this.formData.hepatic_impairment) === 'UNKNOWN' ? 'selected' : ''}>Unknown</option>
-              <option value="NONE" ${(typeof this.formData.hepatic_impairment === 'object' ? this.formData.hepatic_impairment.value : this.formData.hepatic_impairment) === 'NONE' ? 'selected' : ''}>Normal Function</option>
-              <option value="MILD" ${(typeof this.formData.hepatic_impairment === 'object' ? this.formData.hepatic_impairment.value : this.formData.hepatic_impairment) === 'MILD' ? 'selected' : ''}>Mild Impairment (Child-Pugh A)</option>
-              <option value="MODERATE" ${(typeof this.formData.hepatic_impairment === 'object' ? this.formData.hepatic_impairment.value : this.formData.hepatic_impairment) === 'MODERATE' ? 'selected' : ''}>Moderate Impairment (Child-Pugh B)</option>
-              <option value="SEVERE" ${(typeof this.formData.hepatic_impairment === 'object' ? this.formData.hepatic_impairment.value : this.formData.hepatic_impairment) === 'SEVERE' ? 'selected' : ''}>Severe Cirrhosis (Child-Pugh C)</option>
+              <option value="NONE" ${(typeof this.formData.hepatic_impairment === 'object' ? this.formData.hepatic_impairment.value : this.formData.hepatic_impairment) === 'NONE' ? 'selected' : ''}>No / Healthy liver</option>
+              <option value="MILD" ${(typeof this.formData.hepatic_impairment === 'object' ? this.formData.hepatic_impairment.value : this.formData.hepatic_impairment) === 'MILD' ? 'selected' : ''}>Mild liver disease</option>
+              <option value="MODERATE" ${(typeof this.formData.hepatic_impairment === 'object' ? this.formData.hepatic_impairment.value : this.formData.hepatic_impairment) === 'MODERATE' ? 'selected' : ''}>Moderate liver disease</option>
+              <option value="SEVERE" ${(typeof this.formData.hepatic_impairment === 'object' ? this.formData.hepatic_impairment.value : this.formData.hepatic_impairment) === 'SEVERE' ? 'selected' : ''}>Severe liver disease / Cirrhosis</option>
+              <option value="UNKNOWN" ${(typeof this.formData.hepatic_impairment === 'object' ? this.formData.hepatic_impairment.value : this.formData.hepatic_impairment) === 'UNKNOWN' ? 'selected' : ''}>Not sure</option>
             </select>
           </div>
 

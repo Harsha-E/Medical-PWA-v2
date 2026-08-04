@@ -44,16 +44,14 @@ class ClinicalAnalysisService {
       window.dispatchEvent(new CustomEvent('medcare:analysis-running', { detail: { dbId } }));
 
       const activeMeds = (profile.activeMeds || []).map(m => typeof m === 'string' ? m : (m.genericName || m.name || m.brandName));
-      const canonicalPatient = CanonicalContextBuilder.build(state.userProfile, activeMeds);
-      
       const executionId = 'exec_' + dbId + '_' + Date.now();
-      const reqPayload = {
-        analysis_id: executionId,
-        patient_id: canonicalPatient.patient_id,
-        patient: canonicalPatient,
-        medications: activeMeds.map(m => ({ id: m, name: m })),
-        timestamp: new Date().toISOString()
-      };
+      const reqPayload = CanonicalContextBuilder.buildAnalysisPayload({
+        userProfile: state.userProfile,
+        currentMedications: activeMeds,
+        newMedications: profile.newMeds || [],
+        analysisId: executionId,
+        source: profile.source || 'profile-sync'
+      });
 
       const { ApiClient } = await import('../core/api.js');
       const result = await ApiClient.post('/api/v1/analyze', reqPayload, { timeout: 3500 });
