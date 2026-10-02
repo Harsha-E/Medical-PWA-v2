@@ -76,9 +76,20 @@ Return ONLY a strict JSON array (no markdown, no backticks, no extra text):
 
         const modelsToTry = [
             {
-                name: 'llama-3.3-70b-versatile',
+                name: 'qwen/qwen3.8-27b',
                 payload: {
-                    model: 'llama-3.3-70b-versatile',
+                    model: 'qwen/qwen3.8-27b',
+                    messages: [
+                        { role: 'user', content: textPromptWithOcr }
+                    ],
+                    temperature: 0.1,
+                    max_tokens: 800
+                }
+            },
+            {
+                name: 'openai/gpt-oss-120b',
+                payload: {
+                    model: 'openai/gpt-oss-120b',
                     messages: [
                         { role: 'user', content: textPromptWithOcr }
                     ],
