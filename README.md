@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/Harsha-E/Medical-PWA-v2/main/icons/icon-512x512.png" alt="MedCheck Logo" width="120" onerror="this.src='https://img.icons8.com/color/120/000000/medical-doctor.png'">
+  <img src="https://raw.githubusercontent.com/Harsha-E/Medical-PWA-v2/main/assets/icon-512.png" alt="MedCheck Logo" width="120" onerror="this.src='https://img.icons8.com/color/120/000000/medical-doctor.png'">
   <h1>MedCheck (Medical-PWA-v2)</h1>
   <p><strong>Your Health. In Check.</strong></p>
   <p><i>A Privacy-First, Edge-Intelligent Drug Safety Application</i></p>
