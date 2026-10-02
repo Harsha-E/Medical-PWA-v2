@@ -144,7 +144,7 @@ export default class InteractionCheckerView {
         </div>
       `;
 
-      document.dispatchEvent(new CustomEvent('view:ready', { detail: { hash: '#/interaction-checker' } }));
+      document.dispatchEvent(new CustomEvent('view:ready', { detail: { hash: '#/safety-analysis' } }));
       this._drawNetworkGraph(allDrugNames, summary);
 
     } catch (err) {

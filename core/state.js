@@ -198,6 +198,9 @@ class State {
   patchProfile(patch) {
     this._cachedCanonicalContext = null; // Invalidate cached context immediately on profile mutation
     this.userProfile = { ...this.userProfile, ...patch, lastClinicalUpdate: new Date().toISOString() };
+    if (this.user) {
+        localStorage.setItem(`medcare_profile_${this.user.uid}`, JSON.stringify(this.userProfile));
+    }
     this._notify();
   }
 
