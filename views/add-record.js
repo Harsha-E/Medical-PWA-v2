@@ -254,10 +254,12 @@ export default class AddRecordView {
             } else {
                 console.warn('[AddRecord] Supabase upload failed, falling back to local blob URL');
                 documentUrl = URL.createObjectURL(file);
+            // Note: In a real app we should track this URL and revoke it, but we can rely on page navigation garbage collection for small forms.
             }
         } catch (e) {
             console.warn('[AddRecord] Supabase upload error:', e);
             documentUrl = URL.createObjectURL(file);
+            // Note: In a real app we should track this URL and revoke it, but we can rely on page navigation garbage collection for small forms.
         }
     }
     

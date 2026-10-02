@@ -129,7 +129,11 @@ export default class MedicationDetailView {
       btnRemove.addEventListener('click', async () => {
         if (await appConfirm(`Are you sure you want to completely remove ${med.name}?`, 'Delete Medication')) {
           try {
-            await db.medications.delete(id);
+            const medRecord = await db.medications.get(id);
+            if (medRecord) {
+              const SyncBridge = (await import('../services/SyncBridge.js')).default;
+              await SyncBridge.queueMutation('DELETE', 'medications', medRecord);
+            }
             window.location.hash = '#/medications';
           } catch (e) {
             console.error('Failed to delete medication:', e);

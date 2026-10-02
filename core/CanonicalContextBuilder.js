@@ -60,8 +60,8 @@ export class CanonicalContextBuilder {
         pregnancy_status: extractVal(p.pregnancy_status, 'NONE')
       },
       active_medications: currentMedications,
-      active_conditions: conditions.length ? conditions : ['Hypertension', 'Atrial Fibrillation'],
-      known_allergies: allergies.length ? allergies : ['Penicillins', 'Sulfonamides'],
+      active_conditions: conditions.length ? conditions : [],
+      known_allergies: allergies.length ? allergies : [],
       lifestyle: p.lifestyle || {}
     });
 
@@ -95,8 +95,8 @@ export class CanonicalContextBuilder {
       },
       active_medications: currentMedications,
       incoming_medications: newMedications,
-      active_conditions: p.active_conditions || ['Hypertension', 'Atrial Fibrillation'],
-      known_allergies: p.known_allergies || p.allergies || ['Penicillins', 'Sulfonamides'],
+      active_conditions: p.active_conditions || [],
+      known_allergies: p.known_allergies || p.allergies || [],
       lifestyle: p.lifestyle || {},
       analysis_id: analysisId,
       source: source,

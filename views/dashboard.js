@@ -951,7 +951,7 @@ export default class DashboardView {
             );
             
             if (doseToDelete && doseToDelete.id) {
-              await db.doses.delete(doseToDelete.id);
+              { const SyncBridge = (await import('../services/SyncBridge.js')).default; await SyncBridge.queueMutation('DELETE', 'doses', doseToDelete); }
             }
           } catch (err) {
             console.error('[Dashboard] Error undoing dose:', err);

@@ -361,6 +361,7 @@ export default class Scan3DView {
   }
 
   destroy() {
+    if (sessionStorage.getItem('medcare_scanned_image')) { URL.revokeObjectURL(sessionStorage.getItem('medcare_scanned_image')); sessionStorage.removeItem('medcare_scanned_image'); }
     if (this.orchestrator) this.orchestrator.dispose();
   }
 }
