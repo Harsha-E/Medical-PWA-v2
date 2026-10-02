@@ -25,8 +25,8 @@ export class ClinicalSessionContext {
     this.active_medications = (data.active_medications || []).map(m => this._normalizeMed(m, 'CURRENT'));
     this.incoming_medications = (data.incoming_medications || []).map(m => this._normalizeMed(m, data.source_type || 'NEW_SCAN'));
 
-    this.active_conditions = data.active_conditions || p.active_conditions || ['Hypertension', 'Atrial Fibrillation'];
-    this.known_allergies = data.known_allergies || p.known_allergies || p.allergies || ['Penicillins', 'Sulfonamides'];
+    this.active_conditions = data.active_conditions || p.active_conditions || [];
+    this.known_allergies = data.known_allergies || p.known_allergies || p.allergies || [];
 
     this.lifestyle = {
       smoking: data.lifestyle?.smoking || p.lifestyle?.smoking || 'NONE',

@@ -67,7 +67,8 @@ export default class InteractionCheckerView {
                 newMedications: newMedicines,
                 source: 'safety-analysis'
               });
-              const data = await ApiClient.post('/api/v1/analyze', payload, { timeout: 3500 });
+              const dicPayload = payload.toDICPayload();
+              const data = await ApiClient.post('/api/v1/analyze', dicPayload, { timeout: 3500 });
               interactions = data?.alerts || data?.interactions || [];
           } catch (apiErr) {
               console.warn('[SafetyAnalysis] DIC API offline/error, falling back to local NLP engine:', apiErr.message);
