@@ -173,11 +173,21 @@ class State {
       console.warn('[State] Local Dexie DB read failed during fallback:', localErr);
     }
 
-    // 2. Try LocalStorage draft
+    // 2. Try LocalStorage draft or full cache
     try {
-      const draftData = localStorage.getItem(`medcare_onboarding_draft_${uid}`) || localStorage.getItem(cacheKey);
-      if (draftData) {
-        const parsed = JSON.parse(draftData);
+      const draftStr = localStorage.getItem(`medcare_onboarding_draft_${uid}`);
+      const cacheStr = localStorage.getItem(cacheKey);
+      
+      if (cacheStr) {
+        const parsed = JSON.parse(cacheStr);
+        // If it's a full cache from patchProfile/hydrate, it already has the correct structure
+        const data = migrateExistingUserProfile(parsed);
+        this.userProfile = data;
+        this.isAdmin = data.role === 'admin';
+        console.log('[State] Hydrated from LocalStorage full cache.');
+        return;
+      } else if (draftStr) {
+        const parsed = JSON.parse(draftStr);
         const data = migrateExistingUserProfile({ profile: parsed, onboardingComplete: false });
         this.userProfile = data;
         this.isAdmin = data.role === 'admin';
